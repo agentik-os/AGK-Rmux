@@ -1,0 +1,112 @@
+{
+  "template": "whitepaper",
+  "theme": "agentik",
+  "eyebrow": "AUDIT SYSTEME · 2026",
+  "title": "OmegaOS Orchestration V3",
+  "subtitle": "Lois, règles, skills, Oracles, vérification, rmux et défaut Codex",
+  "author": "OmegaOS · Codex GPT-5.6 Sol",
+  "date": "30 juillet 2026",
+  "docId": "OMEGA-ORCH-V3-2026-07-30",
+  "brand": "OmegaOS",
+  "abstract": "Audit et refonte de l'orchestration OmegaOS, fondés sur des preuves runtime et sur les recommandations primaires OpenAI, Anthropic et MCP. Le baseline était compris entre 31 et 35 sur 100 selon trois lectures indépendantes. La release candidate atteint 93 sur 100 sur le périmètre vérifié. Elle ne revendique pas 100 sur 100 tant que les parcours live Claude et Gemini, le push final et la session distante Vibe ne sont pas tous prouvés. Cette session utilise GPT-5.6 Sol, pas un modèle Opus Sol.",
+  "sections": [
+    {
+      "index": "01",
+      "eyebrow": "Verdict",
+      "title": "Résultat exécutif",
+      "lead": "Le système passe d'une doctrine riche mais fail-open à un noyau compact, typé et vérifiable.",
+      "body": "**Score release candidate: 93/100.** Le score mesure le périmètre réellement exécuté, pas une promesse.\n\n- **Baseline règles et hooks:** 34/100.\n- **Baseline lifecycle des skills:** 31/100.\n- **Baseline runtime Oracle et worker:** 35/100.\n- **Automatisation vérifiée:** 651 tests Rust, 6 tests Python, runner d'audit shell, build workspace, smokes Codex, rmux et sync.\n- **Contexte actif:** 10 784 octets après sync, sous le plafond OmegaOS de 24 Ko.\n- **Catalogue:** 231 skills natifs, 232 installés avec Agent Reach, 232 activés pour Codex.\n- **Audits:** 23 audits issus d'un registre TOML unique.\n\nLe progrès majeur est le changement de frontière de confiance: un worker propose un résultat, puis une vérification indépendante décide de l'accepter. Un message convaincant ou un fichier `done` ne suffit plus."
+    },
+    {
+      "index": "02",
+      "eyebrow": "Constitution",
+      "title": "Les sept lois",
+      "lead": "Aucune loi n'est inutile dans son intention. Une formulation a été corrigée pour supprimer une contradiction budgétaire.",
+      "body": "1. **L0, Ship the truth:** un changement doit être reproductible dans la cible et appuyé par des preuves fraîches. Statut: conserver.\n2. **L1, Runtime is the only truth:** la source et les commentaires décrivent une intention, le runtime tranche. Statut: conserver.\n3. **L2, Researcher, not sycophant:** contester une prémisse fausse et documenter les hypothèses. Statut: conserver.\n4. **L3, Decide and proceed:** un agent dispatché choisit la meilleure voie sûre au lieu d'attendre dans une session sans opérateur. Statut: conserver avec les gates d'autorité.\n5. **L4, Done means 100 percent verified:** tous les livrables demandés doivent être suivis et vérifiés. Statut: conserver.\n6. **L5, Quality floor within budget:** la qualité est un plancher, mais le temps, le coût, le risque et les tokens sont des budgets explicites. Statut: formulation révisée. L'ancien texte disait que les ressources étaient illimitées et contredisait R-BUDGET.\n7. **L6, Finish the mission:** énumérer, planifier, exécuter, vérifier et rapporter, sans abandon silencieux. Statut: conserver.\n\nLa hiérarchie est désormais explicite: les lois restent universelles, mais elles opèrent sous l'autorité du host, du système et de l'utilisateur."
+    },
+    {
+      "index": "03",
+      "eyebrow": "Catalogue 1/4",
+      "title": "Règles universelles et qualité",
+      "lead": "Neuf règles, conservées avec une meilleure frontière entre doctrine et enforcement.",
+      "body": "- **R-STACK, Stack defaults:** conserver comme politique de projet, charger selon le domaine.\n- **R-KARPATHY, quatre principes de code:** conserver, utile comme heuristique transversale.\n- **R-CLI, préférer la CLI au MCP:** conserver comme préférence, pas comme interdiction d'une intégration nécessaire.\n- **R-RUBRIC, rubric before execution:** conserver et lier aux critères du plan typé.\n- **R-VERIFY, adversarial verification:** conserver et renforcer par la décision indépendante d'acceptation.\n- **R-BUDGET, mission budget:** conserver comme borne de coût, tokens et retries.\n- **R-PROD, prod verification:** conserver pour tout changement déployé.\n- **R-TEST, layered testing:** règle révisée. Les tests unitaires et d'intégration précèdent les previews et le golden path de production. La production n'est plus le premier laboratoire pour une mutation risquée.\n- **R-LOOP, bounded retries:** conserver, avec plafonds et escalade humaine.\n\nVerdict: aucune suppression. Les règles R-VERIFY, R-BUDGET et R-LOOP doivent être des contraintes runtime, pas seulement du texte."
+    },
+    {
+      "index": "04",
+      "eyebrow": "Catalogue 2/4",
+      "title": "Règles d'orchestration, première partie",
+      "lead": "Dix règles couvrent le plan, la topologie, les audits et le développement produit.",
+      "body": "- **R-PLAN:** conserver, projeter le DAG typé vers le task tool de chaque provider.\n- **R-ORCH:** conserver, mais choisir la topologie la plus simple qui satisfait la mission. Le multi-agent n'est pas une fin.\n- **R-GOAL:** conserver uniquement pour Claude, car `/goal` est un mécanisme provider-specific.\n- **R-MASTER:** conserver la séparation discussion, classification et dispatch.\n- **R-AUDIT:** conserver. Un audit nommé exécute son vrai protocole.\n- **R-SKILL-ATLAS:** conserver, avec `SkillCatalogV1` comme source unique pour Atlas, RAG et activation provider.\n- **R-PRODUCT:** conserver sur les décisions de produit, charger à la demande.\n- **R-BLUEPRINT-STACK:** conserver pour les nouveaux AgentikOS, indexer le long runbook au lieu de l'injecter partout.\n- **R-STREAM:** conserver comme runbook de transport rmux, chargé uniquement pour une mission stream.\n- **R-MONITOR:** conserver comme runbook de surveillance, chargé uniquement pour une mission monitor.\n\nLe changement clé est le scoping. Une règle pertinente reste forte sans consommer le contexte de toutes les missions."
+    },
+    {
+      "index": "05",
+      "eyebrow": "Catalogue 3/4",
+      "title": "Règles d'orchestration, seconde partie",
+      "lead": "Neuf règles spécialisées restent disponibles sans polluer le noyau global.",
+      "body": "- **R-COUNCIL:** conserver pour les décisions irréversibles, contestées ou architecture-wide.\n- **R-MARKETING:** conserver comme routeur spécialisé à la demande.\n- **R-VISUAL-ID:** conserver pour la paire Higgsfield Soul et génération.\n- **R-ZERNIO:** conserver pour les publications et ads des comptes OmegaOS.\n- **R-ZERNFLOW:** conserver pour les flows inbound et DM.\n- **R-BROWSER:** conserver la séparation Playwright déterministe et browser-use agentique.\n- **R-TRINITY:** conserver pour la sécurité white-hat, sous les limites du host et du périmètre autorisé.\n- **R-MODEL:** conserver uniquement pour Claude dans sa forme actuelle. Le moteur provider-neutral sélectionne d'abord les capacités requises.\n- **R-DESIGN:** conserver comme routeur de skills design, chargé par domaine.\n\nVerdict: ces règles ne sont pas inutiles. Ce qui était inutile était leur présence intégrale dans le contexte de missions sans rapport."
+    },
+    {
+      "index": "06",
+      "eyebrow": "Catalogue 4/4",
+      "title": "Règles de reporting et sécurité",
+      "lead": "Dix-neuf règles protègent la preuve, les livrables, les secrets et les opérations à risque.",
+      "body": "**Reporting**\n\n- **R-CITE:** conserver, toute conclusion d'audit porte une preuve.\n- **R-STYLE:** conserver, langue utilisateur et code en anglais.\n- **R-NODASH:** conserver pour le contenu visible et marketing.\n- **R-PDF:** conserver, le moteur `omega pdf` reste la source unique.\n- **R-SKILLPUB:** conserver pour les nouveaux skills publiables.\n- **R-ARTIFACT:** conserver le routeur à trois surfaces.\n- **R-HTML:** conserver pour le fichier autonome offline.\n- **R-TGDELIVER:** conserver pour envoyer chaque lien ou fichier à l'opérateur.\n\n**Sécurité**\n\n- **R-SCOPE, R-SYNC, R-ENV, R-TGSEC:** conserver sans changement de principe.\n- **R-VERCEL:** conserver pour le déploiement headless, charger sur missions Vercel.\n- **R-SEC:** conserver comme autorisation interne, toujours subordonnée aux limites du host et au scope réel.\n- **R-FICHE, R-PROJ:** conserver pour empêcher toute confusion de coordonnées ou de secrets.\n- **R-REPO-INSTALL:** conserver la revue supply-chain minimale avant exécution.\n- **R-SECRETS-VAULT:** conserver, charger pour les workflows de credentials et recovery.\n- **R-DESTRUCT:** conserver la gate explicite avant toute opération irréversible."
+    },
+    {
+      "index": "07",
+      "eyebrow": "Simplification",
+      "title": "Ce qui était devenu obsolète",
+      "lead": "La mise à jour moderne des agents ne supprime pas le besoin de règles. Elle change où elles doivent vivre et comment elles sont appliquées.",
+      "body": "Quatre éléments étaient obsolètes ou contre-productifs:\n\n1. **Le texte L5 sur les ressources illimitées.** Il a été remplacé par un plancher de qualité sous budget explicite.\n2. **Le test production-only.** R-TEST est maintenant une stratégie en couches, avec production comme preuve finale d'un changement déployé.\n3. **Les mécanismes Claude injectés dans Codex et Gemini.** R-GOAL et R-MODEL sont provider-scoped. Le noyau actif reste provider-neutral.\n4. **Les longs runbooks globaux.** Stream, monitor, marketing, design, Vercel et autres domaines restent disponibles, mais leur corps complet est chargé uniquement lorsqu'une mission le justifie.\n\nMon avis: supprimer les règles serait une erreur. Les modèles récents réduisent certains échecs de raisonnement, pas les erreurs de coordination, d'autorité, de reprise, de preuve ou de side effects. La bonne évolution est de compiler les règles pertinentes, de mesurer le contexte et de transformer les invariants critiques en code."
+    },
+    {
+      "index": "08",
+      "eyebrow": "Architecture",
+      "title": "Mission ledger et frontière de confiance",
+      "lead": "Le ledger devient l'autorité d'écriture. Les fichiers historiques deviennent des projections.",
+      "body": "La release candidate ajoute un ledger SQLite WAL pour les événements de mission, les versions de plan, les attempts, les leases clôturés par fencing token et l'outbox transactionnelle (`crates/omega-core/src/mission_ledger.rs:285`).\n\nChaque mutation porte `expected_version` et `idempotency_key`. Une écriture obsolète échoue au lieu d'écraser l'état (`mission_ledger.rs:509-563`). Les side effects sont enregistrés dans la même transaction que l'événement (`mission_ledger.rs:647-648`).\n\nLa complétion suit désormais trois objets distincts:\n\n- `EvidenceClaim`, ce que le worker affirme.\n- `EvidenceObservation`, ce que le verifier observe.\n- `AcceptanceDecision`, ce que le moteur accepte.\n\nLe modèle est compatible avec les recommandations modernes: un manager peut utiliser des agents comme tools ou effectuer un handoff, les tours sont bornés, les approvals risqués sont sérialisables, et les traces sont des événements de premier rang."
+    },
+    {
+      "index": "09",
+      "eyebrow": "Skills et audits",
+      "title": "Un catalogue, un registre, des états explicites",
+      "lead": "La découverte, le RAG, l'installation et l'activation provider dérivent du même catalogue.",
+      "body": "`SkillCatalogV1` compile récursivement les racines OmegaOS, normalise les chemins, rejette les collisions et produit un digest déterministe (`crates/omega-core/src/skill_registry.rs:294`). Les métadonnées de compatibilité absentes conservent temporairement les providers existants avec warning, afin d'éviter une migration qui désactive silencieusement 230 skills.\n\nLe packaging `pdfgen` a été réparé dans cette mission: son `SKILL.md` est validé, installé et activé pour Codex. Après sync, le runtime expose 231 skills natifs et 232 skills installés avec Agent Reach.\n\nLes 23 audits sont lus depuis `skills/audits/registry.toml` par Rust et par le runner shell (`crates/omega-core/src/audit.rs:115`). Le runner refuse une collecte incomplète, une evidence invalide, un score sous le seuil ou un verdict final mal formé. Un résultat d'audit incomplet ne peut plus être présenté comme PASS."
+    },
+    {
+      "index": "10",
+      "eyebrow": "Interface",
+      "title": "Vue rmux pour Codex et OpenAI",
+      "lead": "La vue conserve les couleurs, recompose les lignes longues et garde le curseur visible.",
+      "body": "La nouvelle couche `preview.rs` recompose les lignes par grapheme plutôt que par octet, ce qui protège les accents, les emoji et les caractères larges (`crates/omega-tui/src/preview.rs:29`). Elle remappe le curseur après wrap (`preview.rs:77`), conserve les styles ANSI et corrige les foregrounds illisibles sur fond explicite.\n\nLe provider est détecté à partir de l'identité de session et des signaux de footer (`preview.rs:160`). La vue affiche un accent Codex stable, même après resize.\n\nPreuve runtime: une vraie session Codex a reçu une phrase française plus large que le panneau sans soumission. Le texte est resté visible, a été réparti sur trois lignes, le curseur est resté affiché et le label `CODEX` a été rendu. Les 83 tests TUI passent, dont les cas couleurs, wrap, graphemes, curseur et resize."
+    },
+    {
+      "index": "11",
+      "eyebrow": "Provider par défaut",
+      "title": "Codex devient le défaut sans écraser les choix",
+      "lead": "Les nouvelles sessions OmegaOS et Oracle choisissent Codex, tandis qu'un provider explicitement configuré est conservé.",
+      "body": "Les configurations fraîches et les champs absents utilisent `codex` (`crates/omega-core/src/config.rs:104-109`). Un choix explicite Claude, Gemini ou Codex n'est jamais migré silencieusement (`config.rs:569-572`). La configuration active contient `agent_command = \"codex\"` et `aisb_agent = \"codex\"`.\n\nLe smoke réel a lancé Codex 0.146.0 avec GPT-5.6 Sol et effort xhigh. Cette session elle-même est GPT-5.6 Sol. L'expression « Opus Sol » mélange deux familles de modèles et n'est pas l'identité du runtime actuel.\n\nLe contexte agent synchronisé est provider-neutral et mesure 10 784 octets. Les 54 entrées constitutionnelles, soit 7 lois et 47 règles, restent disponibles, tandis que seules les mécaniques pertinentes sont injectées en détail."
+    },
+    {
+      "index": "12",
+      "eyebrow": "Preuves",
+      "title": "Matrice de validation runtime",
+      "lead": "Chaque résultat important a une commande ou un artefact reproductible.",
+      "body": "- **Rust workspace:** 9 tests CLI, 1 test d'intégration Codex, 558 tests core, 83 tests TUI. Total 651, zéro échec.\n- **Hooks:** 12 fixtures Claude, Codex et Gemini exercées par 2 tests Python.\n- **Catalogue:** 4 tests Python, test de fermeture Rust, digest stable.\n- **Audit runner:** protocole shell PASS avec finalisation fail-closed.\n- **Build:** `cargo build --workspace` PASS.\n- **Diff:** `git diff --check` PASS.\n- **Install parity:** toutes les gates fonctionnelles passent. Avant le commit final, l'unique échec attendu est le worktree non commité.\n- **Sync isolé:** 231 skills natifs, ajout externe préservé, 232 liens provider dans l'installation active.\n- **Règles:** contexte déterministe sous 24 Ko et lois jamais supprimées par le scoping.\n- **rmux:** smoke interactif Codex réel et 83 tests TUI.\n\nLa vérification finale Git propre et le SHA poussé sont volontairement effectués après la génération de ce rapport, puis rapportés séparément."
+    },
+    {
+      "index": "13",
+      "eyebrow": "Limites",
+      "title": "Ce qui manque encore pour 100 sur 100",
+      "lead": "Un score parfait serait mensonger sans ces preuves supplémentaires.",
+      "body": "1. **Session Vibe:** aucune session locale `Vibe`, aucun alias SSH et aucune fiche ne donne sa coordonnée. La récupération des credentials AgentiQuest `jjj` est bloquée jusqu'à réception de `host:session`. Aucun secret n'a été recherché au hasard ni affiché.\n2. **Providers live:** Codex est prouvé. Le smoke Claude externe a rencontré une réauthentification OAuth. Gemini n'a pas de golden path live enregistré dans cette mission.\n3. **Évaluations longitudinales:** les tests déterministes ferment les défauts reproduits, mais une campagne multi-run doit encore mesurer la variance réelle des agents sur plusieurs missions.\n4. **Migration des métadonnées de skills:** les anciens skills sans compatibilité progressive restent actifs avec warning. La prochaine étape sûre est une migration graduelle, pas une désactivation en masse.\n5. **Git final:** le commit et le push sont la dernière gate L0 de cette mission.\n\nCes limites expliquent le score 93/100. Elles sont explicites, bornées et ne diminuent pas les résultats déjà vérifiés."
+    },
+    {
+      "index": "14",
+      "eyebrow": "Références",
+      "title": "Sources primaires et position finale",
+      "lead": "L'architecture suit les pratiques actuelles sans adopter le multi-agent comme dogme.",
+      "body": "- [OpenAI, A practical guide to building AI agents](https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/): commencer par le pattern le plus simple qui satisfait le besoin.\n- [OpenAI Agents SDK, Multi-agent orchestration](https://openai.github.io/openai-agents-js/guides/multi-agent/): manager-as-tools et handoffs selon la topologie.\n- [OpenAI Agents SDK, Running agents](https://openai.github.io/openai-agents-js/guides/running-agents/): tours et boucles bornés.\n- [OpenAI Agents SDK, Human in the loop](https://openai.github.io/openai-agents-python/human_in_the_loop/): approvals sérialisables et reprise.\n- [OpenAI Agents SDK, Tracing](https://openai.github.io/openai-agents-js/guides/tracing/): agents, tools, handoffs et guardrails comme traces.\n- [Anthropic, Building effective agents](https://www.anthropic.com/engineering/building-effective-agents): préférer les patterns composables et mesurables.\n- [Anthropic, Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents/): évaluer tâche, transcript, résultat et graders.\n- [MCP, Tools specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools) et [MCP authorization](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization): annotations non fiables par défaut et moindre privilège.\n\n**Position finale:** les lois restent utiles. Les règles doivent être typées, scoped, provider-aware et enforceables. Le modèle récent aide à raisonner, mais le ledger, les gates, les budgets, la preuve et l'autorité restent des responsabilités du système."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "caio-run-and-optimize",
+  "name": "CAIO Run & Optimize",
+  "version": "1.0.0",
+  "description": "Phase-5 RUN step of the Chief AI Officer On Demand accompaniment chain. Once the Company AI OS is live and the team autonomous, this skill RUNS it: measures ACTUAL post-go-live ROI from real telemetry and receipts (never invented), in cohorts, against the architect's projected ROI (09-ROI) — proving or falsifying it (the offer's re-measure test); specs the monitoring/health dashboard (liveness, cost, usage, quality, value) with alert thresholds that turn a reactive company into a piloted one; runs the weekly/monthly optimization loop that re-scores the architect backlog against measured data and finds the next-highest-value improvement; operates the deliberately-light 1h/week strategic quota (mm-08 — price = positioning, the lightness is intentional; overage is a scoped mini-SOW); and drives retention + land-and-expand to the next department (mm-08 NRR + mm-09 internal-reference network effect). Closes the chain into a compounding loop back to caio-enterprise-workflow-architect for the next wave. Does NOT train (enablement) or build (implementation); delegates public case studies to creator-media-engine with consent. Reads caio-enablement/ (06-Ownership-Handover-Checklist + 08-Adoption-Tracker + 04-Validated-Use-Cases-Log) + 09-ROI + 05-backlog + caio-build/07-Monitoring-And-Instrumentation.md (§5.8). Writes caio-run/ with 7 deliverables.",
+  "author": "Agentik OS",
+  "homepage": "https://skills.agentik-os.com/caio-run-and-optimize",
+  "license": "MIT",
+  "platforms": ["claude-code", "codex", "gemini-cli"],
+  "tags": ["caio", "chief-ai-officer", "fractional-caio", "roi-measurement", "re-measure", "cohort-roi", "north-star-metric", "ai-monitoring", "health-dashboard", "alert-thresholds", "optimization-loop", "weekly-quota", "retainer", "qbr", "quarterly-business-review", "nrr", "retention-expansion", "land-and-expand", "client-as-reference", "company-ai-os", "mm-11", "mm-08", "mm-09"],
+  "category": "14-strategy",
+  "reads_artefacts": ["caio-enablement/06-Ownership-Handover-Checklist.md", "caio-enablement/08-Adoption-Tracker.md", "caio-enablement/04-Validated-Use-Cases-Log.md", "company-ai-os/09-ROI-Governance-And-Risks.md", "company-ai-os/05-Automation-Opportunity-Backlog.md", "caio-build/07-Monitoring-And-Instrumentation.md"],
+  "writes_artefact": "caio-run/",
+  "composes_with": ["caio-enablement-and-transfer", "caio-enterprise-workflow-architect", "caio-implementation-runbook", "agentic-systems-builder", "agentik-skill-forge", "creator-media-engine", "market-proposal"],
+  "depends_on": ["caio-enablement-and-transfer", "caio-enterprise-workflow-architect", "caio-implementation-runbook"],
+  "entry": "SKILL.md",
+  "files": [
+    { "path": "SKILL.md", "kind": "entry" },
+    { "path": "README.md", "kind": "doc" },
+    { "path": "INSTALL.md", "kind": "doc" },
+    { "path": "plugin.json", "kind": "manifest" },
+    { "path": "references/01-roi-measurement-methodology.md", "kind": "reference" },
+    { "path": "references/02-monitoring-health-and-alerting.md", "kind": "reference" },
+    { "path": "references/03-optimization-loop-and-quota.md", "kind": "reference" },
+    { "path": "references/04-retention-expansion-referral.md", "kind": "reference" },
+    { "path": "assets/templates/ROI-Measurement-Model.md", "kind": "template" },
+    { "path": "assets/templates/Monitoring-Health-Spec.md", "kind": "template" },
+    { "path": "assets/templates/Optimization-Loop-Cadence.md", "kind": "template" },
+    { "path": "assets/templates/Weekly-Quota-Agenda.md", "kind": "template" },
+    { "path": "assets/templates/Quarterly-Business-Review.md", "kind": "template" },
+    { "path": "assets/templates/Expansion-And-Referral-Play.md", "kind": "template" },
+    { "path": "assets/templates/metadata.json", "kind": "template" },
+    { "path": "platforms/claude.sh", "kind": "adapter" },
+    { "path": "platforms/codex.sh", "kind": "adapter" },
+    { "path": "platforms/gemini.sh", "kind": "adapter" }
+  ],
+  "engines": {
+    "claude-code": ">=1.0.0",
+    "codex": ">=0.1.0",
+    "gemini-cli": ">=0.5.0"
+  }
+}

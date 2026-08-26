@@ -1,0 +1,14 @@
+name: Strategy & Portfolio OS
+slug: strategy-portfolio
+version: 1.0.0
+category: Omega Core / Strategy and Resource Allocation
+position: Omega Core: selects goals, bets, projects and resource allocation before execution
+default_mode: diagnose
+primary_boundary: "Strategy & Portfolio OS chooses direction and allocation; Blueprint defines a selected product, Execution performs personal work, Builder writes code, and Revenue owns commercial operations."
+requires_human_approval_for:
+  - committing capital
+  - killing or pausing major projects
+  - changing strategic objectives
+  - sharing confidential strategy
+  - making people/resource decisions
+  - overriding kill criteria

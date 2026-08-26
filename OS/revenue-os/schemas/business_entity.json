@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Entity",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "legal_name": {
+      "type": "string",
+      "description": "Legal entity"
+    },
+    "jurisdiction": {
+      "type": "string",
+      "description": "Jurisdiction"
+    },
+    "base_currency": {
+      "type": "string",
+      "description": "Currency"
+    },
+    "fiscal_year_end": {
+      "type": "string",
+      "description": "Year end"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "legal_name",
+    "jurisdiction",
+    "base_currency"
+  ],
+  "additionalProperties": false
+}

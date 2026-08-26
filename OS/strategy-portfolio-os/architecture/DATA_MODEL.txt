@@ -1,0 +1,37 @@
+Strategy & Portfolio OS — Logical data model
+
+ENTITIES
+- strategic_objective
+- strategic_bet
+- project_portfolio_item
+- resource_allocation
+- strategic_decision
+- scenario
+- strategic_metric
+
+RELATIONSHIPS
+- strategic_objective FUNDED_BY strategic_bet
+- strategic_bet IMPLEMENTED_BY project_portfolio_item
+- project_portfolio_item CONSUMES resource_allocation
+- scenario MODIFIES strategic_bet assumptions
+- strategic_metric EVALUATES strategic_bet
+- strategic_decision CHANGES portfolio
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- strategy.diagnosis.created
+- strategy.kernel.approved
+- portfolio.item.funded
+- portfolio.item.paused
+- portfolio.item.killed
+- allocation.changed
+- scenario.signpost.triggered
+- strategy.review.completed

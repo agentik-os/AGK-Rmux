@@ -1,0 +1,26 @@
+
+  ┌ OmegaOS ──────────────────────────────────────────────────────────┐
+  │ Sessions │ Menu │ Agentic │ Settings │ Help                       │
+  └───────────────────────────────────────────────────────────────────┘
+  ┌ Sessions (8) — LIST  x:kill  .:lock  r:rename ────────────────────┐
+  │  ─ Home ─                                                         │
+  │  ⌂ Theme                                                          │
+  │  ⌂ claude-7                                                       │
+  │  ⌂ claude-8                                                       │
+  │  ⌂ je-sais-ce-qui-se-passe-c-est-que-dans-le-desig                │
+  │▶ ⌂ uiuxview-fin                                                   │
+  │  ─ OmegaOS ─                                                      │
+  │  ◆ oracle-OmegaOS-2                                               │
+  │    ├ ● OmegaOS-worker-audit-code-final                            │
+  │    └ ● OmegaOS-worker-audit-uiux-final                            │
+  │                                                                   │
+  │                                                                   │
+  │                                                                   │
+  │                                                                   │
+  │                                                                   │
+  │                                                                   │
+  │                                                                   │
+  │                                                                   │
+  └───────────────────────────────────────────────────────────────────┘
+                       TKN 9%  CPU 1.11  RAM 3%  DSK 6%  8 sess  00:44
+

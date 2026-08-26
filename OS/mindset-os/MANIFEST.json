@@ -1,0 +1,405 @@
+{
+  "name": "Mindset OS",
+  "slug": "mindset",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Build and operate a coherent personal transformation operating system spanning identity, personal philosophy, Jim Rohn's philosophy-attitude-activity-results-lifestyle framework, purpose, values, written goals, mental and emotional fitness, spirituality and manifestation, health and energy, habits and environment, wealth behavior and relationships, grounded in evidence labels and a safety-first doctrine.",
+  "category": "Personal Stack / Identity, Mindset, Wellbeing and Wealth Coaching",
+  "position": "Personal Stack: identity and belief compiler, subordinate to Alignment OS (never the ETRE authority itself)",
+  "counts": {
+    "agents": 1,
+    "skills": 1,
+    "protocols": 0,
+    "references": 20,
+    "scripts": 4,
+    "assets": 1,
+    "files": 58
+  },
+  "counts_note": "agents/ holds only openai.yaml, an interface and policy descriptor (display name, default prompt, product policy), not specialist-agent definitions; the pack ships no skills/, protocols/, schemas/ or runtime/ directories. Protocol and cadence content lives inline in references/cadences-protocols.md.",
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "c8df69215df7a73e4b6fed1ae1cfd65ac9d9e8b63bb3bc633ed56ee43752cb4f",
+      "bytes": 391
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "9be88f8dd4c5e658961515c71389eafd45142ffa68bcae58e8dcff57d178ed91",
+      "bytes": 667
+    },
+    {
+      "path": "bin/omega-mindset",
+      "sha256": "ad4493a3b9885240ffbb65476b79211a779f11cac7fe0c08e6c954f9acc6e9d3",
+      "bytes": 3015
+    },
+    {
+      "path": "commands/codex-mindset-os.md",
+      "sha256": "70e08d2c9762f2c3f04bd60b92a3f15d71534b1c4fa1be5c5789566d6554ddef",
+      "bytes": 1963
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "82ae4b682b8b02c44ef10a6f75553404e0d486308b898c6aaabdde9611f7a1d5",
+      "bytes": 3045
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "a56d89c6b7113940ed304a3f8f6ca36af4db3452cf7b4c718898063211cf14ab",
+      "bytes": 1842
+    },
+    {
+      "path": "pack/agents/openai.yaml",
+      "sha256": "c8df69215df7a73e4b6fed1ae1cfd65ac9d9e8b63bb3bc633ed56ee43752cb4f",
+      "bytes": 391
+    },
+    {
+      "path": "pack/assets/icon.svg",
+      "sha256": "9be88f8dd4c5e658961515c71389eafd45142ffa68bcae58e8dcff57d178ed91",
+      "bytes": 667
+    },
+    {
+      "path": "pack/references/assessment.md",
+      "sha256": "cb01b98d506cd7eea7eca1e79ee2ed2ee3802a5e2118c29e4e70440c99389384",
+      "bytes": 5487
+    },
+    {
+      "path": "pack/references/cadences-protocols.md",
+      "sha256": "5dab049429291dcc8f655e33a6596e9101a918e6055f74dd3b4c9b6999e32a77",
+      "bytes": 6342
+    },
+    {
+      "path": "pack/references/coaching-output-contracts.md",
+      "sha256": "2218658217eaf27917e74d9fe8ed484b754aa2c7bb8d8012962dda65ba165df3",
+      "bytes": 10576
+    },
+    {
+      "path": "pack/references/evidence-map.md",
+      "sha256": "b49a7d87d9f7caaad4173d5110792c4608a53288f87e009362ea6db0b273704f",
+      "bytes": 7695
+    },
+    {
+      "path": "pack/references/goals-execution.md",
+      "sha256": "9225314dc5e8ab66293f0f8398a1b2f2a2f6fb483e73b9f97e6d56953236dfe8",
+      "bytes": 6871
+    },
+    {
+      "path": "pack/references/habits-environment.md",
+      "sha256": "3f51dd85fe5b7ecdeee062e73f4ce0c7f13acd546dc7f8dc6a5b5e0c4ceb0760",
+      "bytes": 5476
+    },
+    {
+      "path": "pack/references/health-energy.md",
+      "sha256": "ec6f7948c55e039739b68a2abdf342ab1b7d9d36103a2dbe598daeac7d0ea206",
+      "bytes": 6703
+    },
+    {
+      "path": "pack/references/identity-purpose.md",
+      "sha256": "d97f4d6ce85e971da599a5f7d6c7b134d2bff1c23728317485ad9112353cdbbc",
+      "bytes": 5955
+    },
+    {
+      "path": "pack/references/jim-rohn-approach.md",
+      "sha256": "85b66cf3c8666ad6bba12cf9f404d10e3f577434c12e8ce416515c1c60947fb0",
+      "bytes": 22202
+    },
+    {
+      "path": "pack/references/master-question-bank.md",
+      "sha256": "94faaf80e6b091d1ea8bf9ad69942b432810d74a495ab2d634d58f8a438ae22e",
+      "bytes": 13300
+    },
+    {
+      "path": "pack/references/measurement.md",
+      "sha256": "8e35b498f37afe39d58e51f253a4940a71da9ad45f04626b19be83901a6961af",
+      "bytes": 4885
+    },
+    {
+      "path": "pack/references/mental-emotional.md",
+      "sha256": "44ebcc408a38d56061269e17e2cb98846d15d70e733c69731cf6f247bb15b577",
+      "bytes": 5946
+    },
+    {
+      "path": "pack/references/operating-model.md",
+      "sha256": "fb9cb9254abb505bf87ec5fabfacd802e9e29c649874a29f05097308abb44142",
+      "bytes": 6189
+    },
+    {
+      "path": "pack/references/personal-philosophy-compiler.md",
+      "sha256": "06fb46fb827b6c20cfe81e5a61a952ed4e5b2842da698cbf73a3c12401253555",
+      "bytes": 10490
+    },
+    {
+      "path": "pack/references/practice-catalog.md",
+      "sha256": "76e9f5e38d23b05feff4cb5ba24891b47db6059afd3e5a827ffc6698a0bb6bcd",
+      "bytes": 18244
+    },
+    {
+      "path": "pack/references/rohn-90-day-program.md",
+      "sha256": "57abd707e556b10cdb365e84acf5d4094a57752242986d7ae3dec1e00b789945",
+      "bytes": 7578
+    },
+    {
+      "path": "pack/references/safety.md",
+      "sha256": "596460b53cf46ef00443c571272fbb67595aace8d48b5a482029a976c8b81fc6",
+      "bytes": 7122
+    },
+    {
+      "path": "pack/references/six-month-challenge.md",
+      "sha256": "827b8a306dfb84a9ab89597b7faad3c60176daf86292a196a3bc1c4e954b9b47",
+      "bytes": 2994
+    },
+    {
+      "path": "pack/references/spirituality-manifestation.md",
+      "sha256": "fd7e33d542c70441503c99c2a9ded72dba7ccbb5e76b6b747ef5c0b7b55afbfb",
+      "bytes": 6757
+    },
+    {
+      "path": "pack/references/wealth-relations.md",
+      "sha256": "9ccbec05bd4eee3952ca5cae354cb589f233658a776afe0caf3628a72c1a9a7c",
+      "bytes": 7782
+    },
+    {
+      "path": "pack/scripts/create_workspace.py",
+      "sha256": "aeee1ea41ad0c776fede1a3b36236c2bc3496c2d4a7b87dddb9602f550097fcb",
+      "bytes": 17064
+    },
+    {
+      "path": "pack/scripts/score_week.py",
+      "sha256": "449d79d88787b1540be26901cbb2d932fa0a2f78d65e11b3b666ff1e1b67fb9f",
+      "bytes": 4074
+    },
+    {
+      "path": "pack/SKILL.md",
+      "sha256": "c6a582ebf14461e0911bc77bc9a6cbfb84942a2c521b0dd8f6cf0a513c5d4bf7",
+      "bytes": 16673
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "2feab70e78a43bb20055723ca7a6b4ef37aa6781eb9ad0102ef2330f8436bd58",
+      "bytes": 2076
+    },
+    {
+      "path": "README.md",
+      "sha256": "43af66bfcf7998245f569a211d6e5ce0ccbfe16fac38d7c6111d9f20dce516a6",
+      "bytes": 3381
+    },
+    {
+      "path": "references/assessment.md",
+      "sha256": "cb01b98d506cd7eea7eca1e79ee2ed2ee3802a5e2118c29e4e70440c99389384",
+      "bytes": 5487
+    },
+    {
+      "path": "references/cadences-protocols.md",
+      "sha256": "5dab049429291dcc8f655e33a6596e9101a918e6055f74dd3b4c9b6999e32a77",
+      "bytes": 6342
+    },
+    {
+      "path": "references/coaching-output-contracts.md",
+      "sha256": "2218658217eaf27917e74d9fe8ed484b754aa2c7bb8d8012962dda65ba165df3",
+      "bytes": 10576
+    },
+    {
+      "path": "references/evidence-map.md",
+      "sha256": "b49a7d87d9f7caaad4173d5110792c4608a53288f87e009362ea6db0b273704f",
+      "bytes": 7695
+    },
+    {
+      "path": "references/goals-execution.md",
+      "sha256": "9225314dc5e8ab66293f0f8398a1b2f2a2f6fb483e73b9f97e6d56953236dfe8",
+      "bytes": 6871
+    },
+    {
+      "path": "references/habits-environment.md",
+      "sha256": "3f51dd85fe5b7ecdeee062e73f4ce0c7f13acd546dc7f8dc6a5b5e0c4ceb0760",
+      "bytes": 5476
+    },
+    {
+      "path": "references/health-energy.md",
+      "sha256": "ec6f7948c55e039739b68a2abdf342ab1b7d9d36103a2dbe598daeac7d0ea206",
+      "bytes": 6703
+    },
+    {
+      "path": "references/identity-purpose.md",
+      "sha256": "d97f4d6ce85e971da599a5f7d6c7b134d2bff1c23728317485ad9112353cdbbc",
+      "bytes": 5955
+    },
+    {
+      "path": "references/jim-rohn-approach.md",
+      "sha256": "85b66cf3c8666ad6bba12cf9f404d10e3f577434c12e8ce416515c1c60947fb0",
+      "bytes": 22202
+    },
+    {
+      "path": "references/master-question-bank.md",
+      "sha256": "94faaf80e6b091d1ea8bf9ad69942b432810d74a495ab2d634d58f8a438ae22e",
+      "bytes": 13300
+    },
+    {
+      "path": "references/measurement.md",
+      "sha256": "8e35b498f37afe39d58e51f253a4940a71da9ad45f04626b19be83901a6961af",
+      "bytes": 4885
+    },
+    {
+      "path": "references/mental-emotional.md",
+      "sha256": "44ebcc408a38d56061269e17e2cb98846d15d70e733c69731cf6f247bb15b577",
+      "bytes": 5946
+    },
+    {
+      "path": "references/operating-model.md",
+      "sha256": "fb9cb9254abb505bf87ec5fabfacd802e9e29c649874a29f05097308abb44142",
+      "bytes": 6189
+    },
+    {
+      "path": "references/personal-philosophy-compiler.md",
+      "sha256": "06fb46fb827b6c20cfe81e5a61a952ed4e5b2842da698cbf73a3c12401253555",
+      "bytes": 10490
+    },
+    {
+      "path": "references/practice-catalog.md",
+      "sha256": "76e9f5e38d23b05feff4cb5ba24891b47db6059afd3e5a827ffc6698a0bb6bcd",
+      "bytes": 18244
+    },
+    {
+      "path": "references/rohn-90-day-program.md",
+      "sha256": "57abd707e556b10cdb365e84acf5d4094a57752242986d7ae3dec1e00b789945",
+      "bytes": 7578
+    },
+    {
+      "path": "references/safety.md",
+      "sha256": "596460b53cf46ef00443c571272fbb67595aace8d48b5a482029a976c8b81fc6",
+      "bytes": 7122
+    },
+    {
+      "path": "references/six-month-challenge.md",
+      "sha256": "827b8a306dfb84a9ab89597b7faad3c60176daf86292a196a3bc1c4e954b9b47",
+      "bytes": 2994
+    },
+    {
+      "path": "references/spirituality-manifestation.md",
+      "sha256": "fd7e33d542c70441503c99c2a9ded72dba7ccbb5e76b6b747ef5c0b7b55afbfb",
+      "bytes": 6757
+    },
+    {
+      "path": "references/wealth-relations.md",
+      "sha256": "9ccbec05bd4eee3952ca5cae354cb589f233658a776afe0caf3628a72c1a9a7c",
+      "bytes": 7782
+    },
+    {
+      "path": "scripts/auto_coach.sh",
+      "sha256": "7ad3689cd0e629692d30d64711300eda58cd97098aa148cf54ffbb4722177ed1",
+      "bytes": 5388
+    },
+    {
+      "path": "scripts/create_workspace.py",
+      "sha256": "aeee1ea41ad0c776fede1a3b36236c2bc3496c2d4a7b87dddb9602f550097fcb",
+      "bytes": 17064
+    },
+    {
+      "path": "scripts/score_week.py",
+      "sha256": "449d79d88787b1540be26901cbb2d932fa0a2f78d65e11b3b666ff1e1b67fb9f",
+      "bytes": 4074
+    },
+    {
+      "path": "scripts/six_month_challenge.py",
+      "sha256": "cc1d17b0f4fdbb97fb9408bb2119354a771494f8b92a5fde4e3bcd99235d6ab7",
+      "bytes": 8842
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "c6a582ebf14461e0911bc77bc9a6cbfb84942a2c521b0dd8f6cf0a513c5d4bf7",
+      "bytes": 16673
+    }
+  ],
+  "command_surface": {
+    "primary_command": "/mindset",
+    "also_invocable_as": [
+      "mindset-os",
+      "omg-mindset-os"
+    ],
+    "modes": [
+      "FULL_BUILD",
+      "AUDIT",
+      "IDENTITY",
+      "EXECUTION",
+      "MENTAL",
+      "SPIRITUAL",
+      "ENERGY",
+      "WEALTH",
+      "ROHN",
+      "ROHN_90",
+      "PHILOSOPHY",
+      "ROHN_LIFE",
+      "CADENCE",
+      "CATALOG",
+      "COACH"
+    ],
+    "scripts": [
+      {
+        "command": "scripts/create_workspace.py --name \"<name>\" --output <dir>",
+        "purpose": "Create editable Markdown workspace templates and a starter weekly-scorecard JSON."
+      },
+      {
+        "command": "scripts/score_week.py <weekly-scorecard.json>",
+        "purpose": "Validate and summarize a Mindset OS weekly scorecard."
+      },
+      {
+        "command": "scripts/six_month_challenge.py --name \"<name>\" --output <dir> [--start YYYY-MM-DD] [--force]",
+        "purpose": "Scaffold a 180-day identity-transformation workspace with daily/weekly/monthly follow-ups and a state file."
+      },
+      {
+        "command": "omega-mindset coach <workspace> [--arm | --disarm]",
+        "purpose": "Run one evidence-aware coaching pass now (scripts/auto_coach.sh); --arm installs the daily 07:00 cron, --disarm removes it. Disarmed by default."
+      }
+    ]
+  },
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "mindset.behavior_contract.created",
+        "consumed_by": "habit-tracker",
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": "A behavior contract for Habit Tracker OS to track: the committed behavior(s), cadence/floor-standard-deep, cues and evidence signal."
+        }
+      },
+      {
+        "name": "mindset.identity_compilation.updated",
+        "consumed_by": "strategy-portfolio",
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": "A confirmed identity/belief compilation update; only strategic implications (not raw identity work) are forwarded to Strategy & Portfolio OS."
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "alignment.intent.updated",
+        "produced_by": "alignment",
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": "Updated intent and values from Alignment OS used as the compilation input."
+        }
+      },
+      {
+        "name": "habit.review.completed",
+        "produced_by": "habit-tracker",
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": "A completed habit review that closes the intent -> contract -> daily evidence -> pattern/review -> mindset reflection loop."
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

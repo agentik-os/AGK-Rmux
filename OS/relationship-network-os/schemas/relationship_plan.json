@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Relationship Plan",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "person_id": {
+      "type": "string",
+      "description": "Person"
+    },
+    "intention": {
+      "type": "string",
+      "description": "User-authored intention"
+    },
+    "next_step": {
+      "type": "string",
+      "description": "Next natural move"
+    },
+    "review_trigger": {
+      "type": "string",
+      "description": "Review cadence"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "person_id",
+    "intention"
+  ],
+  "additionalProperties": false
+}

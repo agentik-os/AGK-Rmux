@@ -1,0 +1,294 @@
+{
+  "id": "habit-tracker-os",
+  "display_name": "Habit Tracker {OS}",
+  "version": "1.0.0",
+  "category": "Personal Stack / Behavior and Habit Intelligence",
+  "omega_position": "Personal Stack: recurring behavior contracts and check-in evidence",
+  "status": "installable reference implementation",
+  "entrypoint": "SKILL.md",
+  "system_prompt": "references/system-prompt.md",
+  "default_command": "/habits",
+  "counts": {
+    "agents": 1,
+    "skills": 1,
+    "protocols": 0,
+    "references": 9,
+    "scripts": 3,
+    "assets": 4,
+    "files": 22
+  },
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "da9e4e27a0d9363f2d9e9cb1d179c6897b1455f1def95d0eadc756721371a9a2",
+      "bytes": 378
+    },
+    {
+      "path": "assets/habit-state.schema.json",
+      "sha256": "9433762d3692dff2ad6af421e3e33151b66548bf41f3cd614957ebb85805a56b",
+      "bytes": 12534
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "9be88f8dd4c5e658961515c71389eafd45142ffa68bcae58e8dcff57d178ed91",
+      "bytes": 667
+    },
+    {
+      "path": "assets/omega-os.manifest.json",
+      "sha256": "402ac2ae8c7d581eae9788155027528999836e8ddba045a21cd2423310c7676c",
+      "bytes": 1326
+    },
+    {
+      "path": "assets/tool-contracts.json",
+      "sha256": "3520061823a2cf71b41d945ea3a2f3d76594d8edd8d82c207c119287aaf589ca",
+      "bytes": 6864
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "9e997b5a337ed4a183e34de05a2ae7a2fbfd010f45f7fc8685c0af4c8ef1144b",
+      "bytes": 6690
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "e01a6f4ecaabefd37fbd6f4e8a1dede33a952f50f631f3925b102a95a729da3d",
+      "bytes": 2302
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "7b3689a9eb23228b78bb1c271690951434b2550985dc858c29070efff4d7daf2",
+      "bytes": 6347
+    },
+    {
+      "path": "README.md",
+      "sha256": "43907e3d64cf4221a651a02540dc15382a9ab3362e35da6a5ffaa02fb40e1e71",
+      "bytes": 5623
+    },
+    {
+      "path": "references/analytics-and-visuals.md",
+      "sha256": "02073575d2449c07bda1e3fbfa645b77d8e7bbdc6d66553e3e920ef2136bfe0a",
+      "bytes": 9274
+    },
+    {
+      "path": "references/behavior-science.md",
+      "sha256": "cd0a97e36a35b2814e10122856abe02e049582777b1ef662476d49e4de9fae97",
+      "bytes": 11861
+    },
+    {
+      "path": "references/conversation-protocols.md",
+      "sha256": "5ed076e1276a01314f840ee932495639e9ad87c3ca155a428c6c848b9cea244b",
+      "bytes": 10547
+    },
+    {
+      "path": "references/domain-model.md",
+      "sha256": "100e6df10aec8a767df1bf64202018519ad87fd3ef79a98cea35507c2069bd36",
+      "bytes": 9094
+    },
+    {
+      "path": "references/evaluation-suite.md",
+      "sha256": "8efed810675f089379f38320ed4232b5a010b7c00ee97289efe2a87e553a3612",
+      "bytes": 10006
+    },
+    {
+      "path": "references/feature-catalog.md",
+      "sha256": "a2ae58113dddd95a7dda46a425a985f57cc74c29586a3f100b9ea5932e243268",
+      "bytes": 14548
+    },
+    {
+      "path": "references/omega-os-integration.md",
+      "sha256": "ca5b59e5c669f6880a5aa4d647ff8ba13272c595ab570c428928fa2f9e076102",
+      "bytes": 8272
+    },
+    {
+      "path": "references/safety-and-boundaries.md",
+      "sha256": "197468e8f20cb52b0465696bcc5ad07085b7341392fa023012fddbf65a2580f6",
+      "bytes": 7593
+    },
+    {
+      "path": "references/system-prompt.md",
+      "sha256": "0cea55ea9a821d109e6a951b982e99edcfaf5ff8703707e627c5d3b16da3e7c4",
+      "bytes": 18471
+    },
+    {
+      "path": "scripts/habit_os.py",
+      "sha256": "9fb2714fb2e5004e546ae04955a9a62c0b30b4ac175fe6618dbdc64cc8e489cd",
+      "bytes": 71533
+    },
+    {
+      "path": "scripts/install_omega_os.py",
+      "sha256": "da8ea30228f4b8a6d68a731c17377ca57b58be1940b97ff47e3f288f751f6f8a",
+      "bytes": 5232
+    },
+    {
+      "path": "scripts/test_habit_os.py",
+      "sha256": "e7eb5c6d688502ca0f94e38f4361f8012ca39c2d02763f49c8fb771825ef0722",
+      "bytes": 13449
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "ad2c7bcf209eca6ca79aeb86278b1d37901d6a08d6806beb081aafbd312bee12",
+      "bytes": 8862
+    }
+  ],
+  "commands": [
+    "/habit setup",
+    "/habit today",
+    "/habit checkin",
+    "/habit correct",
+    "/habit urge",
+    "/habit review",
+    "/habit recover",
+    "/habit adapt",
+    "/habit experiment",
+    "/habit chart",
+    "/habit export",
+    "/habit delete"
+  ],
+  "session_modes": [
+    "SETUP",
+    "TODAY",
+    "CHECK_IN",
+    "URGE",
+    "LAPSE",
+    "REVIEW",
+    "RECOVER",
+    "ADAPT",
+    "VISUALIZE"
+  ],
+  "local_engine": {
+    "path": "scripts/habit_os.py",
+    "storage": "sqlite3",
+    "subcommands": [
+      "init",
+      "add",
+      "update",
+      "list",
+      "log",
+      "correct",
+      "today",
+      "review",
+      "chart",
+      "context",
+      "export",
+      "season",
+      "experiment",
+      "delete",
+      "doctor"
+    ]
+  },
+  "tools": [
+    "habit.get_context",
+    "habit.list_today",
+    "habit.create_contract",
+    "habit.update_contract",
+    "habit.record_log",
+    "habit.correct_log",
+    "habit.delete_data",
+    "habit.start_experiment",
+    "habit.compute_review",
+    "habit.save_review",
+    "habit.change_season",
+    "habit.render_visual",
+    "habit.export_state"
+  ],
+  "status_model": [
+    "DRAFT",
+    "ACTIVE",
+    "PAUSED",
+    "RECOVERING",
+    "RETIRED",
+    "ARCHIVED"
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "habit.review.completed",
+        "consumed_by": [
+          "mindset"
+        ],
+        "payload": {
+          "id": "string",
+          "review": "object",
+          "window": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "habit.observation.recorded",
+        "consumed_by": null,
+        "payload": {
+          "id": "string",
+          "observation": "object",
+          "provenance": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "mindset.behavior_contract.created",
+        "produced_by": [
+          "mindset"
+        ],
+        "payload": {
+          "id": "string",
+          "behavior_contract": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "handoff.habits.created",
+        "produced_by": [
+          "health-energy"
+        ],
+        "payload": {
+          "id": "string",
+          "habits": "object",
+          "constraints": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.context.compiled",
+        "produced_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "id": "string",
+          "context": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.record.verified",
+        "produced_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "id": "string",
+          "record": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "safety": {
+    "policy": "references/safety-and-boundaries.md",
+    "release_gate": "all_safety_cases_pass",
+    "human_escalation": true
+  },
+  "compatibility": {
+    "python": ">=3.10",
+    "storage": "sqlite3",
+    "llm_provider": "provider-agnostic"
+  },
+  "change_control": "Changes to boundaries, schemas, or quality gates require Review & Governance OS approval in production.",
+  "schema_version": 1,
+  "slug": "habit-tracker"
+}

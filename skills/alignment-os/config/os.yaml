@@ -1,0 +1,26 @@
+name: Alignment Coach OS
+version: 1.0.0
+type: personal-wisdom-operating-system
+interface: conversational
+kernel: omega-os
+default_protocol: true_north
+default_depth: coach
+principles:
+  - truth_before_narrative
+  - virtue_before_outcome
+  - agency_without_total_control
+  - right_effort
+  - action_and_review
+  - anti_dependency
+epistemic_labels:
+  E1: established
+  E2: plausible
+  E3: philosophical
+  E4: metaphysical
+  E5: subjective
+routing:
+  mindset: Mindset OS
+  habits: Habit Tracker OS
+  execution: Execution OS
+  strategy: Strategy & Portfolio OS
+  memory: Context & Memory OS

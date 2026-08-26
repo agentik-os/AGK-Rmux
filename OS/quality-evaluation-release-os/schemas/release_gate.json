@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Release Gate",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "gate_name": {
+      "type": "string",
+      "description": "Gate"
+    },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Criteria"
+    },
+    "status": {
+      "type": "string",
+      "description": "pass/fail/waived"
+    },
+    "authority": {
+      "type": "string",
+      "description": "Decision authority"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "gate_name",
+    "criteria",
+    "status",
+    "authority"
+  ],
+  "additionalProperties": false
+}

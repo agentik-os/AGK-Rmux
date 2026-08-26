@@ -1,0 +1,6 @@
+code_id,code_name,definition,inclusion_rule,exclusion_rule,example_source_id,segment,polarity,decision_relevance,version
+VOC-001,Trigger,Event that starts the customer episode,Explicit recent event starts action,General background without action,,SEG-001,neutral,problem timing,1.0.0
+VOC-002,Current workaround,Observed method used today,Concrete tool person or process,Speculative future alternative,,SEG-001,neutral,alternatives,1.0.0
+VOC-003,Consequence,Time money risk opportunity or emotion caused,Specific consequence tied to episode,Vague dislike without consequence,,SEG-001,negative,problem severity,1.0.0
+VOC-004,Purchase proof,Observed budget payment approval or commitment,Concrete commitment or procurement action,Stated interest only,,SEG-001,positive,WTP and buying,1.0.0
+VOC-005,Negative case,Evidence that contradicts the preferred thesis,Credible absence satisfaction or refusal,Weak irrelevant objection,,SEG-001,negative,kill or pivot,1.0.0

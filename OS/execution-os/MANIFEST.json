@@ -1,0 +1,464 @@
+{
+  "id": "execution",
+  "name": "Execution OS",
+  "slug": "execution",
+  "version": "1.0.0",
+  "category": "Personal Stack / Delivery and Output Control",
+  "omega_position": "Personal Stack: time-bound PERSONAL commitments and proof of output. Not the Blueprint/Design/Stepper/Builder software-implementation pipeline.",
+  "primary_interface": "conversational + local state records",
+  "status": "installable reference implementation",
+  "counts": {
+    "agents": 1,
+    "skills": 1,
+    "protocols": 0,
+    "references": 7,
+    "scripts": 2,
+    "assets": 1,
+    "files": 47
+  },
+  "counts_notes": {
+    "agents": "No agents/*.md agent-definition files exist. agents/ holds only openai.yaml, an interface manifest. The 8 specialist roles are perspectives defined inside references/coaching.md.",
+    "skills": "No skills/ directory. The skill surface is the 8 invocation modes inside this single skill (SKILL.md).",
+    "protocols": "No protocols/ directory. All 10 operating protocols live in the single file references/protocols.md.",
+    "references": "7 markdown files under references/, including the operator profile gareth-profile.md."
+  },
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "69656f15274d54a674536e157bda09c442109bc239fd754d3115f4f3519bea00",
+      "bytes": 413
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "72343cc4b66256ae7de8474c7cad14e711ad84a94c473732a44f96a56124c42d",
+      "bytes": 786
+    },
+    {
+      "path": "bin/omega-execution",
+      "sha256": "4c41fe3fded31ecb13ef31fe84560ba721fa051e8a4eb452cec40caf1274e993",
+      "bytes": 1839
+    },
+    {
+      "path": "commands/codex-execution-os.md",
+      "sha256": "be47493a0a14d9c1c72bb3af757fadbba54df9a64545fe9ffca0f77762d55d57",
+      "bytes": 2062
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "41b4721ab468a3f238f715e4fd5ed644f3c5bcdec9004e805801b4c29723079f",
+      "bytes": 3079
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "a4c56d25ee438600baa265faf1cc863c7fddd568b0c3db2c30b824b9600efeb1",
+      "bytes": 2535
+    },
+    {
+      "path": "pack/agents/openai.yaml",
+      "sha256": "69656f15274d54a674536e157bda09c442109bc239fd754d3115f4f3519bea00",
+      "bytes": 413
+    },
+    {
+      "path": "pack/assets/icon.svg",
+      "sha256": "72343cc4b66256ae7de8474c7cad14e711ad84a94c473732a44f96a56124c42d",
+      "bytes": 786
+    },
+    {
+      "path": "pack/examples/COMMANDS_V2.md",
+      "sha256": "dac920b675ae4ccc947b98e6e3306c1eb32eef3c33a981505054f4616e7ead2b",
+      "bytes": 3609
+    },
+    {
+      "path": "pack/examples/execution-state.v2.template.json",
+      "sha256": "f495db14c4e96538ed926fd68331f9a91739f50938ba7c4df7f9679e68dea6f5",
+      "bytes": 1008
+    },
+    {
+      "path": "pack/references/architecture.md",
+      "sha256": "c91ee26ff1caa4e5ba3e14d511100c3624927bc599d707a703e6ce1264a1f076",
+      "bytes": 10065
+    },
+    {
+      "path": "pack/references/coaching.md",
+      "sha256": "a7c4d77c0a2c62d7e6cc5b98299258a417499f776d36bc58a98681d3a066dfbb",
+      "bytes": 4689
+    },
+    {
+      "path": "pack/references/content-engine.md",
+      "sha256": "c65b653b8d374a41441cba61d7ce4f8e4fa755657989ed0ea913723b41c93631",
+      "bytes": 5937
+    },
+    {
+      "path": "pack/references/gareth-profile.md",
+      "sha256": "d63a555deef96864d7e97bbb2037085e43f0c92822dd6847eed606ca7c7d7c83",
+      "bytes": 1621
+    },
+    {
+      "path": "pack/references/protocols.md",
+      "sha256": "16d2d4629c6d52164fbbed83731626e94aec3f031b794915dd9441e651a00b52",
+      "bytes": 8077
+    },
+    {
+      "path": "pack/references/schemas.md",
+      "sha256": "6130c8dfd20a45a46d8718a29475868928de93011e692759188f5e3ac8b9790a",
+      "bytes": 3994
+    },
+    {
+      "path": "pack/references/v2-engine.md",
+      "sha256": "d6c01ae11939d6bc1d889a0f2fee0e4c0c0ab90dd1d142b2985d5ab140de8939",
+      "bytes": 4263
+    },
+    {
+      "path": "pack/scripts/execution_engine.py",
+      "sha256": "de6643c5f5122551d8e9ca2056ab089b76560424c24febc504d899eefb2a7463",
+      "bytes": 41382
+    },
+    {
+      "path": "pack/scripts/test_execution_engine.py",
+      "sha256": "9e0bce014fe471b5ef3d6ec21b1d94ef79578d5be10f8eff8432505de236cbcd",
+      "bytes": 9087
+    },
+    {
+      "path": "pack/SKILL.md",
+      "sha256": "3f80f77830604817a81794c6c8743d9c162d99134120fbe3cb729994121522e5",
+      "bytes": 11411
+    },
+    {
+      "path": "pack/templates/01_ONE_PAGE.md",
+      "sha256": "5315edf6c367040006c3f84b33a8f88a4c1ed9bc901075bf2e52d4491900dd53",
+      "bytes": 581
+    },
+    {
+      "path": "pack/templates/02_LOOP_REGISTER.md",
+      "sha256": "3031d0e0435b1ac0982a8f0e0005a040ee2de9226003b9ad48339f63c3c5e83c",
+      "bytes": 654
+    },
+    {
+      "path": "pack/templates/03_SIGNAL_LOG.md",
+      "sha256": "ead820adea510c50a58d99a4a079c132c118a72b837ddd23db58b0230b78d5c5",
+      "bytes": 391
+    },
+    {
+      "path": "pack/templates/04_DAILY_COMMAND.md",
+      "sha256": "13b71c0c9867bd2145342f7b12c854501a73676ba4bc60784ad9876405dfdb9d",
+      "bytes": 478
+    },
+    {
+      "path": "pack/templates/05_T2_HALT.md",
+      "sha256": "01fe7eee8d87182f9a16cde5500b0ec0302aed762301e8a3ae061bd91ce4f93e",
+      "bytes": 472
+    },
+    {
+      "path": "pack/templates/06_T3_WEEKLY_RESET.md",
+      "sha256": "aacf468d3d5516f2d160f0d3a3d67f912c182694f6ba24eb6a5caf13512b095b",
+      "bytes": 657
+    },
+    {
+      "path": "pack/templates/07_T4_MONTHLY_AUDIT.md",
+      "sha256": "eec39ab565645fb0910f4f88091aa922c84fadccf12b2238c89e5f2d14a98fb0",
+      "bytes": 655
+    },
+    {
+      "path": "pack/templates/08_OUTCOME_CONTRACT.md",
+      "sha256": "ad341c970d47394a3bfb3a9210e3eccef6eefa63d1c6598f299d94b053c9f9cb",
+      "bytes": 353
+    },
+    {
+      "path": "pack/templates/09_BLOCKER_DIAGNOSTIC.md",
+      "sha256": "fd7240319963295bab2ea02ad4c4ccce70446d5d65568de41488d2a686a04be5",
+      "bytes": 736
+    },
+    {
+      "path": "pack/templates/10_CONTENT_PROOF_CARD.md",
+      "sha256": "1fd01bf7f8ed501280529565ed1b0722c9e0d9f4cd7d38fb4f1358c89eb2df35",
+      "bytes": 500
+    },
+    {
+      "path": "pack/templates/11_PROMISE_LEDGER.md",
+      "sha256": "3a07c363e613c1d260e8deeeeaa4ed66c65c367c4498bd9b7631061d7d9ee16e",
+      "bytes": 434
+    },
+    {
+      "path": "pack/templates/12_CONTEXT_CAPSULE.md",
+      "sha256": "765579ba1caf4294d8b06a3f031184a8d6feb2aa70d1efda4d9c90b6e86d830f",
+      "bytes": 350
+    },
+    {
+      "path": "pack/templates/13_FOCUS_BLOCK.md",
+      "sha256": "69ddde2daf12538412130fbc8fe1f138ffb3aea0fb7a6252c1473a47f7e0b76e",
+      "bytes": 275
+    },
+    {
+      "path": "pack/templates/14_CAPACITY_BUDGET.md",
+      "sha256": "ac4ae273f1e55333a44fb0c672f26b684e0c88287b8c040e25de52672724529e",
+      "bytes": 468
+    },
+    {
+      "path": "pack/templates/15_LATE_PROMISE_MESSAGE.md",
+      "sha256": "1f9b58fce7087ff070a5faa041271a94c7eb50630133cee443d7612ab5fe0163",
+      "bytes": 634
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "16f68c477ffe781d9372354ac88ed23e18dbddafa9018173771ec1b5787a751d",
+      "bytes": 1678
+    },
+    {
+      "path": "README.md",
+      "sha256": "48a0a48ce86f35b495c3387705552628bdb59d133e3e5bea8b713d8711a8b487",
+      "bytes": 3296
+    },
+    {
+      "path": "references/architecture.md",
+      "sha256": "c91ee26ff1caa4e5ba3e14d511100c3624927bc599d707a703e6ce1264a1f076",
+      "bytes": 10065
+    },
+    {
+      "path": "references/coaching.md",
+      "sha256": "a7c4d77c0a2c62d7e6cc5b98299258a417499f776d36bc58a98681d3a066dfbb",
+      "bytes": 4689
+    },
+    {
+      "path": "references/content-engine.md",
+      "sha256": "c65b653b8d374a41441cba61d7ce4f8e4fa755657989ed0ea913723b41c93631",
+      "bytes": 5937
+    },
+    {
+      "path": "references/gareth-profile.md",
+      "sha256": "d63a555deef96864d7e97bbb2037085e43f0c92822dd6847eed606ca7c7d7c83",
+      "bytes": 1621
+    },
+    {
+      "path": "references/protocols.md",
+      "sha256": "16d2d4629c6d52164fbbed83731626e94aec3f031b794915dd9441e651a00b52",
+      "bytes": 8077
+    },
+    {
+      "path": "references/schemas.md",
+      "sha256": "6130c8dfd20a45a46d8718a29475868928de93011e692759188f5e3ac8b9790a",
+      "bytes": 3994
+    },
+    {
+      "path": "references/v2-engine.md",
+      "sha256": "d6c01ae11939d6bc1d889a0f2fee0e4c0c0ab90dd1d142b2985d5ab140de8939",
+      "bytes": 4263
+    },
+    {
+      "path": "scripts/execution_engine.py",
+      "sha256": "de6643c5f5122551d8e9ca2056ab089b76560424c24febc504d899eefb2a7463",
+      "bytes": 41382
+    },
+    {
+      "path": "scripts/test_execution_engine.py",
+      "sha256": "9e0bce014fe471b5ef3d6ec21b1d94ef79578d5be10f8eff8432505de236cbcd",
+      "bytes": 9087
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "3f80f77830604817a81794c6c8743d9c162d99134120fbe3cb729994121522e5",
+      "bytes": 11411
+    }
+  ],
+  "specialist_roles": [
+    "Chief Execution Officer",
+    "Reality Auditor",
+    "Constraint Analyst",
+    "Focus Guardian",
+    "Energy Steward",
+    "Commitment Keeper",
+    "Recovery Coach",
+    "Red-Team Challenger"
+  ],
+  "protocols": [
+    "Bootstrap",
+    "Cycle planning",
+    "Weekly war room",
+    "Daily command",
+    "Focus block",
+    "Interruption and capture",
+    "Rescue",
+    "Reviews",
+    "Travel and low-capacity modes",
+    "Canonical T0-T4 scheduler"
+  ],
+  "command_surface": {
+    "default_command": "/execute",
+    "aliases": [
+      "/omg-execution-os"
+    ],
+    "modes": [
+      "BOOTSTRAP",
+      "CYCLE",
+      "WEEK",
+      "DAY",
+      "FOCUS",
+      "REVIEW",
+      "RESCUE",
+      "DIAGNOSE"
+    ],
+    "state_engine": {
+      "invocation": "python3 scripts/execution_engine.py <command>",
+      "commands": [
+        "init",
+        "migrate",
+        "add-outcome",
+        "close-outcome",
+        "add-commitment",
+        "start",
+        "complete",
+        "block",
+        "unblock",
+        "defer",
+        "cancel",
+        "delegate",
+        "capture",
+        "boot",
+        "focus",
+        "focus-end",
+        "halt",
+        "reset",
+        "audit",
+        "add-promise",
+        "renegotiate-promise",
+        "deliver-promise",
+        "promises",
+        "signal",
+        "context-capsule",
+        "check-in",
+        "backup",
+        "next",
+        "status",
+        "validate"
+      ]
+    }
+  },
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "execution.outcome.proven",
+        "consumed_by": [
+          "strategy-portfolio",
+          "review-governance"
+        ],
+        "payload": {
+          "id": "string",
+          "outcome_id": "string",
+          "domain": "string",
+          "definition_of_done": "string",
+          "evidence": "array<object>",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "execution.commitment.closed",
+        "consumed_by": null,
+        "payload": {
+          "id": "string",
+          "commitment_id": "string",
+          "outcome_id": "string",
+          "classification": "string",
+          "evidence": "array<object>",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "strategy.execution_packet.created",
+        "produced_by": [
+          "strategy-portfolio"
+        ],
+        "payload": {
+          "id": "string",
+          "execution_packet": "object",
+          "exclusions": "array<string>",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "handoff.execution.capacity",
+        "produced_by": [
+          "health-energy"
+        ],
+        "payload": {
+          "id": "string",
+          "capacity": "object",
+          "workload_constraints": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "relationship.followup.drafted",
+        "produced_by": [
+          "relationship-network"
+        ],
+        "payload": {
+          "id": "string",
+          "followup": "object",
+          "due_at": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.context.compiled",
+        "produced_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "id": "string",
+          "context": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.record.verified",
+        "produced_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "id": "string",
+          "record": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "wealth.execution_task.created",
+        "produced_by": [
+          "wealth-capital"
+        ],
+        "payload": {
+          "id": "string",
+          "task": "object",
+          "privacy_class": "string",
+          "due_at": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "state_classification": {
+    "canonical": "Closed commitments with proof and weekly/quarterly reviews route through Context & Memory OS.",
+    "local_operational": "scripts/execution_engine.py holds today's single-thread focus state and in-progress drafts as a local projection, never a competing source of truth for closed commitments.",
+    "read": "memory.context.compiled",
+    "write": "memory.record.staged (Context & Memory OS returns memory.record.verified)"
+  },
+  "handoffs": [
+    "Strategy & Portfolio OS (provides strategy.execution_packet.created, receives execution.outcome.proven)",
+    "Health & Energy OS (provides handoff.execution.capacity)",
+    "Review & Governance OS (receives execution evidence, owns change control)",
+    "Relationship & Network OS (provides relationship.followup.drafted)",
+    "Mindset OS (identity, values, framing)",
+    "Habit Tracker OS (repeated-behavior data and streaks)"
+  ],
+  "installation": "See OMEGA_INTEGRATION.md for the registration contract, context injection order, event wiring, and state classification.",
+  "schema_version": 1
+}

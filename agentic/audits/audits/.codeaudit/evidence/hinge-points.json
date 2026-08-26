@@ -1,0 +1,10 @@
+{
+  "ref": "7eeda0e",
+  "ticket": "",
+  "files_analyzed": 1,
+  "files_list": [
+    "crates/omega-tui/src/input.rs"
+  ],
+  "hinges_count": 0,
+  "hinges": []
+}

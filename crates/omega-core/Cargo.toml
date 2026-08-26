@@ -1,0 +1,40 @@
+[package]
+name = "omega-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Core library for OmegaOS: rmux integration, session lifecycle, dispatch, progress tracking"
+
+[dependencies]
+rmux-sdk.workspace = true
+rmux-proto.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml = "0.9"
+serde-saphyr = "0.0.29"
+anyhow.workspace = true
+chrono.workspace = true
+chrono-tz.workspace = true
+fs2 = "0.4"
+getrandom = "0.3.4"
+libc = "0.2"
+rusqlite = { version = "0.40.1", features = ["bundled"] }
+walkdir = "2.5.0"
+blake3 = "1.8.5"
+sha2 = "0.10"
+globset = "0.4.19"
+unicode-normalization = "0.1.24"
+semver = "1"
+tracing.workspace = true
+dirs.workspace = true
+toml.workspace = true
+toml_edit.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile = "3.27.0"
+tokio = { workspace = true, features = ["macros", "rt"] }
+# Test-only: the dispatch output contract is asserted against the REAL regex the
+# Telegram bridge uses (telegram-bot/omega-tg-bot.ts:1273), not a lookalike.
+regex = "1"

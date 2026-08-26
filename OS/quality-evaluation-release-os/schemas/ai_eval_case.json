@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ai Eval Case",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "task": {
+      "type": "string",
+      "description": "AI task"
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Input"
+    },
+    "rubric": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Scoring"
+    },
+    "risk_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Risk tags"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "task",
+    "input",
+    "rubric"
+  ],
+  "additionalProperties": false
+}

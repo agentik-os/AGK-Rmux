@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decision Record",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "decision": {
+      "type": "string",
+      "description": "Decision"
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Why"
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Alternatives"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Decision owner"
+    },
+    "review_trigger": {
+      "type": "string",
+      "description": "Review trigger"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "decision",
+    "rationale",
+    "owner"
+  ],
+  "additionalProperties": false
+}

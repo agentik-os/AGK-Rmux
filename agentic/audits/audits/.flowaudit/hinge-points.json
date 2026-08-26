@@ -1,0 +1,10 @@
+{
+  "ref": "f432154~1",
+  "ticket": "",
+  "files_analyzed": 1,
+  "files_list": [
+    "crates/omega-cli/src/main.rs"
+  ],
+  "hinges_count": 0,
+  "hinges": []
+}

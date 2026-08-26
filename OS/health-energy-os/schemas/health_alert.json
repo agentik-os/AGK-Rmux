@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Health Alert",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "severity": {
+      "type": "string",
+      "description": "Urgency"
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observed signals"
+    },
+    "recommended_escalation": {
+      "type": "string",
+      "description": "Real-world escalation"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "severity",
+    "signals",
+    "recommended_escalation"
+  ],
+  "additionalProperties": false
+}

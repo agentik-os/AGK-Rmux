@@ -1,0 +1,14 @@
+name: Context & Memory OS
+slug: context-memory
+version: 1.0.0
+category: Omega Core / Context, Knowledge and Memory
+position: Omega Core: canonical shared context layer for every OS
+default_mode: capture
+primary_boundary: "Context & Memory OS stores and compiles authorized knowledge; it does not decide strategy, invent facts, silently profile the user, or let one OS read everything."
+requires_human_approval_for:
+  - canonicalizing sensitive inference
+  - merging entities with ambiguity
+  - cross-OS context sharing
+  - deleting consequential records
+  - exporting full memory
+  - changing retention policy

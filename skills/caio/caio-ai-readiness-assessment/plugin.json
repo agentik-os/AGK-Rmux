@@ -1,0 +1,11 @@
+{
+  "name": "caio-ai-readiness-assessment",
+  "version": "1.0.0",
+  "description": "Pre-sign go/no-go qualification gate for a CAIO engagement. 9-dimension AI-readiness maturity model, weighted Readiness Index, GO/NOT-YET/REDIRECT verdict, engagement shaping + indicative pricing. The honest 30-minute discovery call.",
+  "skill": {
+    "entry": "SKILL.md",
+    "type": "agent",
+    "category": "14-strategy"
+  },
+  "compatibility": ["claude-code"]
+}

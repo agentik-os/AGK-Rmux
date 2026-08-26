@@ -1,0 +1,265 @@
+# OmegaOS Quality Arsenal — Audit Registry
+# Machine-readable registry of all forensic audits
+
+[meta]
+version = "1.0.0"
+total_audits = 23
+doctrine = "Gestalt-Popper"
+categories = ["preventive", "detective"]
+
+# ── Preventive audits, core set (14 of 16) ──────────────────────────────────
+
+[[audits]]
+id = "codeaudit"
+name = "Code Architecture Audit"
+domain = "code"
+category = "preventive"
+phases = 23
+max_score = 420
+triggers = ["code", "code audit", "audit code", "code quality"]
+read_only = false
+answers = "Is the code SOLID?"
+
+[[audits]]
+id = "flowaudit"
+name = "User Flow Audit"
+domain = "flows"
+category = "preventive"
+phases = 25
+max_score = 400
+triggers = ["flow", "user flow", "flow audit", "parcours", "workflow audit"]
+read_only = false
+answers = "Does the experience WORK?"
+
+[[audits]]
+id = "uiuxaudit"
+name = "UI/UX Design Audit"
+domain = "design"
+category = "preventive"
+phases = 23
+max_score = 420
+triggers = ["ux", "ui", "ui/ux", "design audit", "audit design"]
+read_only = false
+answers = "Is the interface BEAUTIFUL?"
+
+[[audits]]
+id = "featureaudit"
+name = "Feature Completeness Audit"
+domain = "features"
+category = "preventive"
+phases = 19
+max_score = 320
+triggers = ["feature", "feature audit", "completeness", "what's missing"]
+read_only = false
+answers = "Is the product COMPLETE?"
+
+[[audits]]
+id = "a11yaudit"
+name = "Accessibility Audit"
+domain = "accessibility"
+category = "preventive"
+phases = 21
+max_score = 320
+triggers = ["a11y", "accessibility", "wcag", "keyboard navigation"]
+read_only = false
+answers = "Is it ACCESSIBLE?"
+
+[[audits]]
+id = "seoaudit"
+name = "SEO Audit"
+domain = "seo"
+category = "preventive"
+phases = 25
+max_score = 400
+triggers = ["seo", "seo audit", "crawlability", "search optimization"]
+read_only = false
+answers = "Is it DISCOVERABLE?"
+
+[[audits]]
+id = "copyaudit"
+name = "Copy & Messaging Audit"
+domain = "copy"
+category = "preventive"
+phases = 19
+max_score = 280
+triggers = ["copy audit", "messaging audit", "check the copy", "tone check"]
+read_only = false
+answers = "Is the copy CLEAR?"
+
+[[audits]]
+id = "dxaudit"
+name = "Developer Experience Audit"
+domain = "dx"
+category = "preventive"
+phases = 21
+max_score = 320
+triggers = ["dx audit", "developer experience", "onboarding audit"]
+read_only = false
+answers = "Is the DX SMOOTH?"
+
+[[audits]]
+id = "motionaudit"
+name = "Motion Design Audit"
+domain = "motion"
+category = "preventive"
+phases = 23
+max_score = 360
+triggers = ["motion audit", "animation audit", "easing audit"]
+read_only = false
+answers = "Is the motion PURPOSEFUL?"
+
+[[audits]]
+id = "automationaudit"
+name = "Automation Infrastructure Audit"
+domain = "automation"
+category = "preventive"
+phases = 22
+max_score = 330
+triggers = ["automation", "cron", "crontab", "scripts audit", "daemon health"]
+read_only = false
+answers = "Is automation RELIABLE?"
+
+[[audits]]
+id = "logicaudit"
+name = "Systems Logic Audit"
+domain = "logic"
+category = "preventive"
+phases = 20
+max_score = 360
+triggers = ["logic", "optimize logic", "system optimization"]
+read_only = false
+answers = "Is the logic OPTIMAL?"
+
+[[audits]]
+id = "i18naudit"
+name = "Internationalization & Localization Audit"
+domain = "localization"
+category = "preventive"
+phases = 18
+max_score = 360
+triggers = ["i18n", "internationalization", "localization", "l10n", "translation audit", "hardcoded strings", "rtl audit", "is it world-ready"]
+read_only = false
+answers = "Is it WORLD-READY?"
+
+[[audits]]
+id = "retentionaudit"
+name = "Retention & Opportunity Audit"
+domain = "retention"
+category = "preventive"
+phases = 20
+max_score = 400
+triggers = ["retention", "feature opportunities", "make it sticky"]
+read_only = true
+answers = "What FEATURES are missing?"
+
+[[audits]]
+id = "depaudit"
+name = "Dependency & Supply-Chain Audit"
+domain = "dependencies"
+category = "preventive"
+phases = 18
+max_score = 360
+triggers = ["dep", "depaudit", "dependency audit", "supply chain", "license audit", "lockfile integrity", "sbom", "typosquatting", "postinstall scripts"]
+read_only = false
+answers = "Is the supply chain SAFE?"
+
+# ── Runtime/shipping set (7 detective + 2 preventive) ──────────────────────
+
+[[audits]]
+id = "debugaudit"
+name = "Runtime Bug Hunter"
+domain = "runtime"
+category = "detective"
+phases = 23
+max_score = 360
+triggers = ["debug", "runtime bug", "find bugs", "what's broken"]
+read_only = false
+answers = "What is BROKEN right now?"
+
+[[audits]]
+id = "perfaudit"
+name = "Performance Audit"
+domain = "performance"
+category = "detective"
+phases = 23
+max_score = 360
+triggers = ["perf", "performance", "core web vitals", "why is it slow"]
+read_only = false
+answers = "Is it FAST enough?"
+
+[[audits]]
+id = "secaudit"
+name = "Security Audit"
+domain = "security"
+category = "detective"
+phases = 25
+max_score = 400
+triggers = ["sec", "security", "owasp", "vulnerab"]
+read_only = false
+answers = "Is it SECURE?"
+
+[[audits]]
+id = "dataaudit"
+name = "Data Integrity Audit"
+domain = "data"
+category = "detective"
+phases = 21
+max_score = 320
+triggers = ["data integrity", "schema", "data audit", "database audit"]
+read_only = false
+answers = "Is the data INTACT?"
+
+[[audits]]
+id = "privacyaudit"
+name = "Privacy & Data-Protection Audit"
+domain = "privacy"
+category = "detective"
+phases = 18
+max_score = 360
+triggers = ["privacy", "gdpr", "ccpa", "pii", "consent", "cookie compliance", "data retention", "right to be forgotten", "dsar", "is user data handled lawfully"]
+read_only = false
+answers = "Is user data HANDLED LAWFULLY?"
+
+[[audits]]
+id = "releaseaudit"
+name = "Release & Shipping-Safety Audit"
+domain = "release"
+category = "preventive"
+phases = 20
+max_score = 400
+triggers = ["release", "release audit", "ci/cd audit", "pipeline audit", "deploy safety", "rollback", "migration safety", "is it safe to ship", "release readiness"]
+read_only = false
+answers = "Is shipping SAFE + reversible?"
+
+[[audits]]
+id = "apiaudit"
+name = "API Quality Audit"
+domain = "api"
+category = "detective"
+phases = 23
+max_score = 360
+triggers = ["api audit", "api contracts", "endpoint audit"]
+read_only = false
+answers = "Is the API SOLID?"
+
+[[audits]]
+id = "refontaudit"
+name = "Senior Dashboard Refonte"
+domain = "design"
+category = "preventive"
+phases = 25
+max_score = 540
+triggers = ["refonte", "redesign dashboard", "comme Linear", "comme Vercel", "dashboard pro"]
+read_only = false
+answers = "How to REDESIGN it to senior level?"
+
+[[audits]]
+id = "observabilityaudit"
+name = "Observability Audit"
+domain = "observability"
+category = "detective"
+phases = 18
+max_score = 360
+triggers = ["observability","logging audit","tracing audit","metrics audit","alerting audit","slo audit","can we debug prod"]
+read_only = false
+answers = "Can we SEE what it does in prod?"

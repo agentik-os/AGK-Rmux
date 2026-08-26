@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# omega-story — the OmegaOS command for Storytelling OS (AgentikOS suite,
+# personal group; Storyteller {OS}). Thin launcher for the pack's deterministic
+# story-bank engine (stdlib Python + SQLite, no venv): init / capture / list /
+# show / update / add-claim / add-consent / validate / score / export / doctor
+# over the story bank. The COACHING half (mine → interview → deepen → shape →
+# write → adapt → truthcheck → rehearse) is the /storytelling-os skill (Claude)
+# or the Codex prompt; this CLI owns the durable Story Objects + evidence.
+#
+# Default bank: ~/.omega/os/storytelling-os/ledger/story-bank.db (--db to override).
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+
+find_engine() {
+    local candidates=(
+        "${STORY_ENGINE:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/storytelling-os/pack/scripts/storyteller_os.py"
+        "$HOME/OmegaOS/OS/storytelling-os/pack/scripts/storyteller_os.py"
+        "$OMEGA_DIR/os/storytelling-os/pack/scripts/storyteller_os.py"
+        "$OMEGA_DIR/skills/storyteller-os/scripts/storyteller_os.py"
+    )
+    for f in "${candidates[@]}"; do
+        [[ -n "$f" && -f "$f" ]] && { echo "$f"; return 0; }
+    done
+    return 1
+}
+
+ENGINE="$(find_engine)" || {
+    echo "omega-story: storyteller_os.py not found (run OmegaOS install.sh, or set STORY_ENGINE)" >&2
+    exit 1
+}
+
+mkdir -p "$OMEGA_DIR/os/storytelling-os/ledger"
+default_db="$OMEGA_DIR/os/storytelling-os/ledger/story-bank.db"
+# --db is a PER-SUBCOMMAND arg in this engine, so it must come AFTER the
+# subcommand. Append the default unless the caller already passed one (and
+# unless there is no subcommand, e.g. --help).
+if [[ $# -eq 0 ]]; then
+    exec python3 "$ENGINE"
+fi
+case " $* " in
+    *" --db "*|*" -h"*|*" --help"*) exec python3 "$ENGINE" "$@" ;;
+    *)                               exec python3 "$ENGINE" "$@" --db "$default_db" ;;
+esac

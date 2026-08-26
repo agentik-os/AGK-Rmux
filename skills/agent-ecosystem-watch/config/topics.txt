@@ -1,0 +1,17 @@
+# Agent-Ecosystem Watch — watchlist topics (one X query per line)
+# Perimeter: broad AI-agent ecosystem (Claude-first, then the wider agent/LLM space).
+# Edit freely. Lines starting with # are ignored. Keep each a tight, distinctive query.
+
+Claude Code new feature
+Claude Code tips workflow
+Claude prompting technique
+Model Context Protocol MCP server
+Claude subagents multi-agent
+Anthropic Claude update model
+AI agent orchestration framework
+agent evals benchmark
+LLM agent memory RAG
+LangGraph LangChain agent
+OpenAI agents SDK
+prompt engineering technique 2026
+coding agent autonomous

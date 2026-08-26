@@ -1,0 +1,2 @@
+{"isSidechain":true,"type":"assistant","message":{"content":[{"type":"tool_use","id":"side_task_1","name":"TaskCreate","input":{"subject":"Subagent task"}}]}}
+{"isSidechain":true,"type":"assistant","message":{"content":[{"type":"tool_use","id":"side_edit_1","name":"Edit","input":{"file_path":"src/lib.rs"}}]}}

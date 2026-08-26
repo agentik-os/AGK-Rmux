@@ -1,0 +1,24 @@
+
+ ⚠ 2 MCP servers need authentication · run /mcp
+
+❯ Run the bash command: sleep 90 && echo done. Just run it, say nothing else.
+
+  Ran 2 shell commands
+
+● Running in the background (foreground sleep is blocked); I'll report when it
+  finishes.
+
+✻ Sautéed for 8s · 1 shell still running
+
+❯ SENTINEL-FOLLOWUP-TEXT line one
+  line two
+
+● Noted. The background sleep 90 && echo done job (bag0i94vz) is still running;
+  I'll report when it completes.
+
+✻ Crunched for 3s · 1 shell still running
+
+────────────────────────────────────────────────────────────────────────────────
+❯ did it finish?
+────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ bypass permissions on · 1 shell · ← 2 agents · ↓ to manage

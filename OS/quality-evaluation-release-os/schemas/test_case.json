@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Test Case",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Covered requirements"
+    },
+    "test_type": {
+      "type": "string",
+      "description": "functional/security/etc."
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Steps"
+    },
+    "expected": {
+      "type": "string",
+      "description": "Expected outcome"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "requirement_ids",
+    "test_type",
+    "steps",
+    "expected"
+  ],
+  "additionalProperties": false
+}

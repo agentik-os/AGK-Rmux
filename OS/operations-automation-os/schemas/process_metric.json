@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Process Metric",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "process_id": {
+      "type": "string",
+      "description": "Process"
+    },
+    "name": {
+      "type": "string",
+      "description": "Metric"
+    },
+    "value": {
+      "type": "number",
+      "description": "Value"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit"
+    },
+    "period": {
+      "type": "string",
+      "description": "Period"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "process_id",
+    "name",
+    "value",
+    "unit",
+    "period"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,54 @@
+Revenue OS — Logical data model
+
+ENTITIES
+- business_entity
+- customer
+- contact
+- offer
+- opportunity
+- activity
+- contract
+- invoice
+- payment
+- business_expense
+- financial_document
+- forecast
+- revenue_metric
+- reserve_policy
+
+RELATIONSHIPS
+- business_entity HAS customers/offers/invoices/expenses
+- customer HAS contacts/opportunities/contracts/invoices/activities
+- offer TARGETS customer and PRICES opportunity
+- opportunity MAY BECOME contract
+- contract AUTHORIZES invoice
+- invoice MATCHED_BY payment
+- financial_document SUPPORTS contract/invoice/expense/payment
+- forecast USES opportunities/invoices/expenses
+- reserve_policy GOVERNS business cash
+- Delivery OS PROVIDES value evidence
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- revenue.document.staged
+- crm.lead.created
+- crm.opportunity.updated
+- sales.call.debriefed
+- offer.version.approved
+- proposal.approved
+- invoice.sent
+- invoice.overdue
+- payment.reconciled
+- revenue.close.completed
+- forecast.updated
+- reserve.alert.created
+- renewal.opened
+- handoff.wealth.created

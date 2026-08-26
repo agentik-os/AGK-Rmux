@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Expense",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "vendor": {
+      "type": "string",
+      "description": "Vendor"
+    },
+    "date": {
+      "type": "string",
+      "description": "Date"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency"
+    },
+    "classification": {
+      "type": "string",
+      "description": "Staged category"
+    },
+    "verification_status": {
+      "type": "string",
+      "description": "staged/verified/reconciled"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "vendor",
+    "date",
+    "amount",
+    "currency",
+    "verification_status"
+  ],
+  "additionalProperties": false
+}

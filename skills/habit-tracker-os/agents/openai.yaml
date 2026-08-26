@@ -1,0 +1,14 @@
+interface:
+  display_name: Habit Tracker {OS}
+  short_description: Coach conversationnel de changement durable
+  default_prompt: Use $habit-tracker-os to set up my conversational habit system and
+    run today’s check-in.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

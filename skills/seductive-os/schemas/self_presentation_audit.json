@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/seductive-os/self_presentation_audit.json",
+  "title": "Self Presentation Audit",
+  "description": "An audit of the user's own controllable surface, in person or digital. The doctrine rule that taste is labelled P and handed back to the user is enforced structurally: every finding carries a layer and an evidence label, and a finding labelled P must record the user as the decider. The three-change cap is a maxItems rather than a suggestion. This record covers the USER only. For a digital audit the photos and profile reviewed are the user's own, and there is no field anywhere for another person's profile, handle, photo or messages.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "channel": {
+      "enum": [
+        "in_person",
+        "digital"
+      ]
+    },
+    "going_for": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "What the user is actually going for, in their own words, recorded before anything is assessed. A look that succeeds in one context fails in another, and attractive is not a specification."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "photos_of_self",
+          "wardrobe",
+          "single_outfit",
+          "grooming",
+          "posture",
+          "voice",
+          "own_dating_profile",
+          "video_of_self"
+        ]
+      },
+      "uniqueItems": true,
+      "description": "What was reviewed. A closed vocabulary of the user's own material."
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "enum": [
+              "fit",
+              "length",
+              "condition",
+              "coherence",
+              "grooming",
+              "posture",
+              "voice",
+              "photo_set",
+              "profile_text",
+              "everyday_objects"
+            ]
+          },
+          "layer": {
+            "enum": [
+              "fit_and_condition",
+              "coherence",
+              "taste"
+            ],
+            "description": "Layer one carries almost all of the effect and is nearly free. Layer three is entirely taste."
+          },
+          "observation": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "label": {
+            "enum": [
+              "E1",
+              "E2",
+              "E3",
+              "P"
+            ],
+            "description": "P for taste, which is most of layer three"
+          },
+          "decided_by": {
+            "enum": [
+              "user",
+              "os"
+            ],
+            "description": "Who owns this call. Taste is always the user's."
+          }
+        },
+        "required": [
+          "area",
+          "layer",
+          "observation",
+          "label"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "description": "Taste is handed back. A finding labelled P must record the user as the decider.",
+            "if": {
+              "properties": {
+                "label": {
+                  "const": "P"
+                }
+              },
+              "required": [
+                "label"
+              ]
+            },
+            "then": {
+              "properties": {
+                "decided_by": {
+                  "const": "user"
+                }
+              },
+              "required": [
+                "decided_by"
+              ]
+            }
+          },
+          {
+            "description": "A taste-layer finding is taste, and is labelled as such.",
+            "if": {
+              "properties": {
+                "layer": {
+                  "const": "taste"
+                }
+              },
+              "required": [
+                "layer"
+              ]
+            },
+            "then": {
+              "properties": {
+                "label": {
+                  "const": "P"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "changes": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "At most three, ordered by return per unit of money and effort. An audit returning fifteen items is a shopping list, and shopping lists do not get done.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "change": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "layer": {
+            "enum": [
+              "fit_and_condition",
+              "coherence",
+              "taste"
+            ]
+          },
+          "cost_money": {
+            "enum": [
+              "none",
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "cost_time_minutes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "second_order_effect": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Where it applies. A change that makes the user stand differently is worth more than one that only looks better in a mirror, because it acts on presence."
+          },
+          "chosen_by_user": {
+            "type": "boolean"
+          },
+          "installed_this_week": {
+            "type": "boolean",
+            "description": "Exactly one change is handed to the current week"
+          }
+        },
+        "required": [
+          "change",
+          "layer",
+          "cost_money"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "clinical_flag": {
+      "type": "object",
+      "description": "Appearance distress out of proportion to what is described, repeated checking, mirror or camera avoidance, or fixation on one feature. The audit stops rather than supplying material.",
+      "properties": {
+        "present": {
+          "type": "boolean"
+        },
+        "routed_to_professional": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "present"
+      ],
+      "additionalProperties": false
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Once a season, or on a change of context, climate or role. Not weekly: a weekly appearance audit is a mechanism for producing dissatisfaction."
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "channel",
+    "findings",
+    "changes"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "A positive appearance-distress flag stops the audit and records the route out.",
+      "if": {
+        "properties": {
+          "clinical_flag": {
+            "properties": {
+              "present": {
+                "const": true
+              }
+            },
+            "required": [
+              "present"
+            ]
+          }
+        },
+        "required": [
+          "clinical_flag"
+        ]
+      },
+      "then": {
+        "properties": {
+          "clinical_flag": {
+            "required": [
+              "routed_to_professional"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

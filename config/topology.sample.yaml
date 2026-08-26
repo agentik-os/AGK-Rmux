@@ -1,0 +1,48 @@
+# Copy to ~/.omega/topology.yaml (or keep the installer-generated file).
+# Explicit config always wins over auto-detect. Never commit secrets here.
+#
+# mode: auto | single-user | multi-user | custom
+# Profiles are LOGICAL. linux_user / home / runtime are deployment metadata.
+
+mode: single-user
+
+# Example multi-user (four Linux accounts already on the host):
+# mode: multi-user
+# profiles:
+#   operator:
+#     runtime: linux-user
+#     linux_user: operator
+#     home: /home/operator
+#     workspace_root: /home/operator/workspace
+#     hermes_home: /home/operator/.hermes
+#   agentik:
+#     runtime: linux-user
+#     linux_user: agentik
+#     home: /home/agentik
+#     workspace_root: /home/agentik/workspace
+#     hermes_home: /home/agentik/.hermes
+#   mission:
+#     runtime: linux-user
+#     linux_user: mission
+#     home: /home/mission
+#     workspace_root: /home/mission/workspace
+#     hermes_home: /home/mission/.hermes
+#   private:
+#     runtime: linux-user
+#     linux_user: private
+#     home: /home/private
+#     workspace_root: /home/private/workspace
+#     hermes_home: /home/private/.hermes
+
+# Example hybrid:
+# mode: custom
+# profiles:
+#   operator:
+#     runtime: linux-user
+#     linux_user: agk
+#   agentik:
+#     runtime: logical-profile
+#   mission:
+#     runtime: container
+#   private:
+#     runtime: logical-profile

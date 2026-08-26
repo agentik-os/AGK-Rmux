@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Contract",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Customer"
+    },
+    "effective_date": {
+      "type": "string",
+      "description": "Start"
+    },
+    "terms": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Commercial terms"
+    },
+    "source_document_id": {
+      "type": "string",
+      "description": "Source"
+    },
+    "approval_status": {
+      "type": "string",
+      "description": "Approval"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "customer_id",
+    "effective_date",
+    "terms",
+    "source_document_id",
+    "approval_status"
+  ],
+  "additionalProperties": false
+}

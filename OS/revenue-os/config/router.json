@@ -1,0 +1,78 @@
+{
+  "os": "revenue",
+  "default_mode": "dashboard",
+  "commands": {
+    "/revenue": {
+      "mode": "dashboard",
+      "purpose": "Open revenue brain"
+    },
+    "/offer": {
+      "mode": "offer",
+      "purpose": "Create or audit an offer"
+    },
+    "/positioning": {
+      "mode": "offer",
+      "purpose": "Define category and differentiation"
+    },
+    "/pricing": {
+      "mode": "offer",
+      "purpose": "Build pricing architecture"
+    },
+    "/pipeline": {
+      "mode": "pipeline",
+      "purpose": "Review CRM and forecast"
+    },
+    "/lead": {
+      "mode": "pipeline",
+      "purpose": "Create or analyze a lead"
+    },
+    "/sales-call": {
+      "mode": "sales",
+      "purpose": "Prepare or debrief a call"
+    },
+    "/proposal": {
+      "mode": "sales",
+      "purpose": "Create proposal and commercial logic"
+    },
+    "/invoice": {
+      "mode": "billing",
+      "purpose": "Create or inspect invoice"
+    },
+    "/collections": {
+      "mode": "billing",
+      "purpose": "Manage overdue receivables"
+    },
+    "/business-cashflow": {
+      "mode": "finance",
+      "purpose": "Analyze business cash flow"
+    },
+    "/receipt-business": {
+      "mode": "ingest",
+      "purpose": "Stage business receipt/photo"
+    },
+    "/contract": {
+      "mode": "ingest",
+      "purpose": "Stage contract data"
+    },
+    "/revenue-close": {
+      "mode": "close",
+      "purpose": "Run monthly commercial/financial close"
+    },
+    "/revenue-scenario": {
+      "mode": "scenario",
+      "purpose": "Model revenue/cash"
+    },
+    "/renewal": {
+      "mode": "retention",
+      "purpose": "Plan renewal or expansion"
+    }
+  },
+  "handoffs": [
+    "Content OS sends qualified intent signals and receives offer/campaign objectives.",
+    "Market Research OS supplies willingness-to-pay and segment evidence.",
+    "Delivery OS receives signed scope and returns realized-value/health evidence.",
+    "Wealth OS receives only verified owner compensation/distribution.",
+    "Strategy OS receives commercial signals and capacity/economics.",
+    "Accountants/controllers receive organized source packs and exception lists."
+  ]
+}

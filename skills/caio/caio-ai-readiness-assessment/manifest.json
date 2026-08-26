@@ -1,0 +1,41 @@
+{
+  "id": "caio-ai-readiness-assessment",
+  "name": "CAIO AI-Readiness Assessment",
+  "version": "1.0.0",
+  "description": "Pre-sign go/no-go qualification gate for a Chief-AI-Officer engagement — the whitepaper's honest 30-minute discovery call. Maps a company against a 9-dimension AI-Readiness Maturity Model (Leadership & sponsorship / Tooling & API-exposure / Strategy & use-case clarity / Data readiness / Governance, risk & compliance / Culture & change-appetite / Talent & AI-literacy / Infrastructure / Budget & commitment) scored 0-4 with evidence, computes a weighted Readiness Index /100 + maturity tier (Nascent/Emerging/Ready/Leading), and returns an honest GO / NOT-YET / REDIRECT verdict with hard gates and a feel-felt-found objection bank. On GO it shapes the engagement (which of the 5 phases, 1-3 months, member count) + indicative investment from the real grid (EUR 2,500 setup + EUR 2,500/member/month, monthly no-minimum) and hands to /market-proposal for the signed SOW. Stays at qualification altitude — defers all detailed technical mapping to E2 (caio-enterprise-workflow-architect). Doctrine: mm-10 selling (primary), mm-03 JTBD/4-forces, mm-02 positioning, mm-01 2026 window. Writes caio-readiness/.",
+  "author": "Agentik OS",
+  "homepage": "https://skills.agentik-os.com/caio-ai-readiness-assessment",
+  "license": "MIT",
+  "platforms": ["claude-code", "codex", "gemini-cli"],
+  "tags": ["caio", "chief-ai-officer", "ai-readiness", "maturity-model", "go-no-go", "qualification-gate", "pre-sign", "discovery-call", "readiness-scorecard", "engagement-shaping", "indicative-pricing", "disqualification", "objection-bank", "fractional-caio", "14-strategy"],
+  "category": "14-strategy",
+  "reads_artefacts": ["vision-os/", "personal-os/"],
+  "writes_artefact": "caio-readiness/",
+  "composes_with": ["caio-discovery-interview", "caio-enterprise-workflow-architect", "caio-implementation-runbook", "caio-enablement-and-transfer", "caio-run-and-optimize", "market-proposal"],
+  "depends_on": [],
+  "entry": "SKILL.md",
+  "files": [
+    { "path": "SKILL.md", "kind": "entry" },
+    { "path": "README.md", "kind": "doc" },
+    { "path": "INSTALL.md", "kind": "doc" },
+    { "path": "plugin.json", "kind": "manifest" },
+    { "path": "references/01-readiness-maturity-rubric.md", "kind": "reference" },
+    { "path": "references/02-scoring-and-readiness-index.md", "kind": "reference" },
+    { "path": "references/03-go-no-go-decision-tree.md", "kind": "reference" },
+    { "path": "references/04-engagement-shaping-and-pricing.md", "kind": "reference" },
+    { "path": "references/05-qualification-call-protocol.md", "kind": "reference" },
+    { "path": "assets/templates/AI-Readiness-Scorecard.md", "kind": "template" },
+    { "path": "assets/templates/Go-No-Go-Brief.md", "kind": "template" },
+    { "path": "assets/templates/Recommended-Engagement.md", "kind": "template" },
+    { "path": "assets/templates/Gap-To-Target-Plan.md", "kind": "template" },
+    { "path": "assets/templates/metadata.json", "kind": "template" },
+    { "path": "platforms/claude.sh", "kind": "adapter" },
+    { "path": "platforms/codex.sh", "kind": "adapter" },
+    { "path": "platforms/gemini.sh", "kind": "adapter" }
+  ],
+  "engines": {
+    "claude-code": ">=1.0.0",
+    "codex": ">=0.1.0",
+    "gemini-cli": ">=0.5.0"
+  }
+}

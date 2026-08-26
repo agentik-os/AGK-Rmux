@@ -1,0 +1,730 @@
+diff --git a/crates/omega-cli/src/main.rs b/crates/omega-cli/src/main.rs
+index e8d16e2..e8d7a7b 100644
+--- a/crates/omega-cli/src/main.rs
++++ b/crates/omega-cli/src/main.rs
+@@ -323,6 +323,33 @@ enum Commands {
+         force: bool,
+     },
+ 
++    /// Reap finished workers: close every worker session that already wrote a
++    /// TERMINAL done signal (done_clean, failed, blocked), release its scope
++    /// claim, and unregister its git worktree when it holds nothing unsaved.
++    ///
++    /// A worker with NO done signal is still working and is never touched, and
++    /// `pending` is not a stop either. `omega done` schedules this for the
++    /// session it just closed, so a terminal signal now closes its own pane
++    /// without a manual `omega kill`; run it by hand to sweep the stragglers.
++    /// Reaping twice is identical to reaping once, and an already-closed
++    /// session is a quiet exit 0.
++    Reap {
++        /// Reap only this session. Omit to reconcile every live worker.
++        name: Option<String>,
++        /// Print what would be reaped and change nothing.
++        #[arg(long)]
++        dry_run: bool,
++    },
++
++    /// Inspect or resolve the RISK GATE on a mission graph (R-DESTRUCT as a
++    /// type): what the gate says about a node, and the attributed approval or
++    /// denial a human records against it. Thin by construction — every
++    /// judgement belongs to `omega_core::graph_risk`, this only presents it.
++    RiskGate {
++        #[command(subcommand)]
++        action: RiskGateAction,
++    },
++
+     /// Dispatch a mission to an oracle
+     Dispatch {
+         /// Project name
+@@ -913,6 +940,8 @@ async fn main() -> Result<()> {
+         Some(Commands::List) => cmd_list().await,
+         Some(Commands::Attach { name }) => cmd_attach(&name).await,
+         Some(Commands::Kill { name, force }) => cmd_kill(&name, force).await,
++        Some(Commands::Reap { name, dry_run }) => cmd_reap(name.as_deref(), dry_run).await,
++        Some(Commands::RiskGate { action }) => cmd_risk_gate(action),
+         Some(Commands::Dispatch {
+             project,
+             mission,
+@@ -3829,6 +3858,59 @@ enum ProvisionAction {
+     },
+ }
+ 
++/// The risk-gate surface. Every variant reads a graph document, asks
++/// `omega_core::graph_risk` a question, and prints the answer: no judgement of
++/// its own, so the CLI can never disagree with the module the executor consults.
++#[derive(Subcommand)]
++enum RiskGateAction {
++    /// Show what the gate says about one node.
++    Show {
++        /// Path to the graph JSON.
++        graph: String,
++        /// Node id to evaluate.
++        node: String,
++        /// Path to the run-state JSON, where recorded approvals live. Omitted,
++        /// a fresh state is seeded from the graph — i.e. no human decision on
++        /// record, which is what makes the gate ASK rather than assume.
++        #[arg(long)]
++        state: Option<String>,
++        /// Evaluate as an UNATTENDED run (nobody is watching), the mode a
++        /// dispatched oracle or worker runs in. Default is attended.
++        #[arg(long)]
++        unattended: bool,
++    },
++    /// Record an attributed human APPROVAL for an escalated node into the run
++    /// state, where the next `show` (and the executor) will honour it.
++    Approve {
++        /// Path to the graph JSON.
++        graph: String,
++        /// Node id to approve.
++        node: String,
++        /// WHO approves. An unattributed approval is refused by the core: an
++        /// approval nobody signed is indistinguishable from one the process
++        /// invented for itself.
++        #[arg(long)]
++        approver: String,
++        /// Path to the run-state JSON to update. Created if absent.
++        #[arg(long)]
++        state: Option<String>,
++    },
++    /// Record an attributed human DENIAL, held to the same attribution standard:
++    /// an operator reading the run later needs to know who blocked it.
++    Deny {
++        /// Path to the graph JSON.
++        graph: String,
++        /// Node id to deny.
++        node: String,
++        /// WHO denies.
++        #[arg(long)]
++        approver: String,
++        /// Path to the run-state JSON to update. Created if absent.
++        #[arg(long)]
++        state: Option<String>,
++    },
++}
++
+ #[derive(Subcommand)]
+ enum AuditAction {
+     /// List all 23 Quality Arsenal audits with metadata
+@@ -5008,6 +5090,426 @@ async fn cmd_kill(name: &str, force: bool) -> Result<()> {
+     Ok(())
+ }
+ 
++// ---------------------------------------------------------------------------
++// The reaper — closing a worker that already finished, without an operator
++// ---------------------------------------------------------------------------
++
++/// Whether a done status means the worker will not act again.
++///
++/// Deliberately WIDER than `DoneSignal::is_terminal` (`done_clean | failed`),
++/// because the two answer different questions. Core asks whether the REPORT is
++/// a final verdict; this asks whether the SESSION still has work to do. A
++/// `blocked` worker has, by L3 and R-DESTRUCT, written its block-file and
++/// stopped, so its pane is a zombie exactly like a `done_clean` one — and the
++/// work it did not finish is safe regardless, because its worktree is dirty or
++/// unmerged and the worktree guard KEEPS both.
++///
++/// `pending` is excluded, and that exclusion is the one that needs saying out
++/// loud: `pending` is what the L4 close-gate writes over an unfinished plan,
++/// and `cmd_progress` upgrades that signal back to `done_clean` on a later tick
++/// (see `arms_gate_upgrade`). A session closed here could never produce that
++/// tick, so reaping `pending` would freeze precisely the missions the upgrade
++/// path exists to finish.
++fn is_stop_status(status: DoneStatus) -> bool {
++    match status {
++        DoneStatus::DoneClean | DoneStatus::Failed | DoneStatus::Blocked => true,
++        DoneStatus::Pending => false,
++    }
++}
++
++/// What the reaper decided about ONE session, resolved before anything is
++/// touched.
++///
++/// The distinction that carries the whole safety property is the first
++/// variant: a worker with no done signal is STILL WORKING, and closing it
++/// destroys in-flight work. Absence of a signal is never read as "probably
++/// finished".
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++enum ReapVerdict {
++    /// No `worker-<session>.done.json` at all. Never touched, alive or dead: a
++    /// live one is mid-task, and a DEAD one crashed before it could signal,
++    /// whose worktree is then the only copy of whatever it had already done.
++    /// Reclaiming that case stays the operator's explicit `omega kill`, which
++    /// is a decision somebody made rather than one a sweep made for them.
++    StillWorking,
++    /// A signal that is not a stop (today only `pending` — see
++    /// `is_stop_status`). Left alone for the same reason.
++    NotTerminal,
++    /// Terminal signal, session still live: close it.
++    Reap,
++    /// Terminal signal, session already gone. Not an error and not a second
++    /// cascade: only the reclaim (scope claim, worktree) re-runs, and every one
++    /// of those steps is a no-op the second time — `ScopeClaim::release` on an
++    /// absent file, and `worker_worktrees` finding nothing once the tree is
++    /// unregistered. This is what makes reaping twice identical to reaping once.
++    AlreadyClosed,
++}
++
++/// One session the reaper looked at, carrying everything the decision needs and
++/// nothing it does not.
++#[derive(Debug, Clone)]
++struct ReapCandidate {
++    session: String,
++    /// Whether the session daemon still lists it.
++    live: bool,
++    /// The status in `worker-<session>.done.json`; `None` when there is no
++    /// readable file.
++    signal: Option<DoneStatus>,
++}
++
++/// The reaper's rule, as a pure function of the two facts it depends on.
++fn reap_verdict(live: bool, signal: Option<DoneStatus>) -> ReapVerdict {
++    let Some(status) = signal else {
++        return ReapVerdict::StillWorking;
++    };
++    if !is_stop_status(status) {
++        return ReapVerdict::NotTerminal;
++    }
++    if live {
++        ReapVerdict::Reap
++    } else {
++        ReapVerdict::AlreadyClosed
++    }
++}
++
++/// The reaper's decision over a whole candidate list.
++///
++/// Split from the execution for the same reason `decide_kill` is: the
++/// alternative is a live rmux daemon plus real workers mid-task, which is
++/// exactly the situation nobody can reproduce on demand — so the safety
++/// property that matters most would be the one thing left untested.
++fn plan_reap(candidates: &[ReapCandidate]) -> Vec<(String, ReapVerdict)> {
++    candidates
++        .iter()
++        .map(|c| (c.session.clone(), reap_verdict(c.live, c.signal)))
++        .collect()
++}
++
++/// The status in a worker's done signal, or `None` when it has not written one.
++///
++/// An UNREADABLE or malformed file reads as `None` — still working — which
++/// keeps the reaper fail-closed: a corrupt signal is not evidence that a worker
++/// finished, and guessing in that direction is what closes a live session.
++fn done_status_of(state_dir: &std::path::Path, session: &str) -> Option<DoneStatus> {
++    omega_core::done::DoneSignal::read(state_dir, session)
++        .ok()
++        .flatten()
++        .map(|s| s.status)
++}
++
++/// `omega reap [<session>] [--dry-run]` — close the workers that already finished.
++///
++/// The zombie this ends, observed twice on this box: a worker wrote a terminal
++/// `done.json` and its rmux session stayed OPEN, so the operator had to run
++/// `omega kill` by hand for every one of them. What this does to a reaped
++/// worker is byte-for-byte what that manual `omega kill` already did — release
++/// the scope claim, unregister the worktree only when it holds nothing unsaved,
++/// close the pane — so nothing about the closure semantics changes; only the
++/// manual step disappears.
++///
++/// Every step is INDEPENDENT and best-effort. A pane that will not die must not
++/// skip the scope release, and a git probe that fails must not skip the kill: a
++/// half-run closure leaks exactly the thing this command exists to reclaim.
++async fn cmd_reap(target: Option<&str>, dry_run: bool) -> Result<()> {
++    let config = OmegaConfig::load().unwrap_or_default();
++    let omega_dir = config
++        .state_dir
++        .parent()
++        .map(|p| p.to_path_buf())
++        .unwrap_or_default();
++    // Fail CLOSED when liveness cannot be established. Without the daemon every
++    // session reads as dead, and a sweep would then release the scope claims of
++    // workers that are still editing files — the exact R-SCOPE damage this
++    // command exists to prevent, inverted.
++    let mgr = SessionManager::connect().await.map_err(|e| {
++        anyhow::anyhow!(
++            "reap ABORTED — the session daemon is unreachable ({}), so a finished worker \
++             cannot be told from a running one. Nothing was touched.",
++            e
++        )
++    })?;
++    let live = mgr.list_sessions().await.unwrap_or_default();
++
++    let candidates: Vec<ReapCandidate> = match target {
++        // A named target is examined whether or not it is still listed: the
++        // reclaim half (scope claim, worktree) outlives the pane, and a worker
++        // that died right after signalling is the common way it is left behind.
++        Some(name) => vec![ReapCandidate {
++            session: name.to_string(),
++            live: live.iter().any(|s| s.name == name),
++            signal: done_status_of(&config.state_dir, name),
++        }],
++        // The sweep looks at WORKERS only. An oracle's closure is a different
++        // contract — `cmd_done` auto-closes a clean one and leaves a failed one
++        // open on purpose so the operator can inspect it — and nothing here
++        // changes it.
++        None => live
++            .iter()
++            .filter(|s| s.role == omega_core::session::SessionRole::Worker)
++            .map(|s| ReapCandidate {
++                session: s.name.clone(),
++                live: true,
++                signal: done_status_of(&config.state_dir, &s.name),
++            })
++            .collect(),
++    };
++
++    let plan = plan_reap(&candidates);
++    let mut reaped = 0usize;
++    for (session, verdict) in &plan {
++        match verdict {
++            ReapVerdict::StillWorking => {
++                println!("  {}: no done signal — still working, left alone", session);
++            }
++            ReapVerdict::NotTerminal => {
++                println!("  {}: signal is not a stop — left alone", session);
++            }
++            ReapVerdict::Reap | ReapVerdict::AlreadyClosed => {
++                let was_live = *verdict == ReapVerdict::Reap;
++                if dry_run {
++                    let state = if was_live { "live" } else { "already closed" };
++                    println!("  {}: WOULD be reaped (terminal signal, {})", session, state);
++                    continue;
++                }
++                reaped += 1;
++                // The scope release comes FIRST, as in `cmd_kill`: a leaked
++                // claim is the failure with the long tail (it rejects the next
++                // `spawn-worker` on those files against an owner nobody can
++                // find), where a surviving pane is visible in `omega list` and
++                // the operator can retry.
++                let _ = omega_core::scope::ScopeClaim::release(&config.state_dir, session);
++                // Only ever removes a tree that is clean AND merged; anything
++                // holding uncommitted or unmerged work is KEPT and its path
++                // printed, because losing a worker's work is far worse than
++                // leaking a directory.
++                for dir in worker_worktrees(&omega_dir, session) {
++                    cleanup_worker_worktree(&omega_dir, &dir);
++                }
++                if !was_live {
++                    println!("  {}: already closed — scope claim reclaimed", session);
++                    continue;
++                }
++                match mgr.kill_session(session).await {
++                    Ok(()) => println!("  {}: reaped (scope released, session closed)", session),
++                    Err(e) => println!(
++                        "  {}: scope released, but the session did not close ({})",
++                        session, e
++                    ),
++                }
++            }
++        }
++    }
++
++    // Always a quiet exit 0, including when there was nothing to do: the reaper
++    // runs unattended (`omega done` schedules it, and a sweep can be crontab'd),
++    // and a command that exits non-zero on "nothing to reap" turns a healthy
++    // idle tick into an alert.
++    if plan.is_empty() {
++        println!("Nothing to reap — no worker session to reconcile.");
++    } else {
++        println!("Reaped {} of {} session(s) examined.", reaped, plan.len());
++    }
++    Ok(())
++}
++
++// ---------------------------------------------------------------------------
++// The risk gate — presenting what omega_core::graph_risk decided
++// ---------------------------------------------------------------------------
++
++/// Load a graph document, or say which file and why it would not parse.
++fn load_graph(path: &str) -> Result<omega_core::graph::Graph> {
++    let raw = std::fs::read_to_string(path)
++        .with_context(|| format!("cannot read the graph document {}", path))?;
++    serde_json::from_str(&raw).with_context(|| format!("{} is not a readable graph", path))
++}
++
++/// Load a run state, or seed a fresh one from the graph.
++///
++/// A MISSING file is a legitimate first run and seeds an empty state. An
++/// UNREADABLE one is an error rather than a silent reseed: a state document
++/// that will not parse may hold a denial, and quietly replacing it with a blank
++/// one would erase a human's refusal and let the gate ask again as if nothing
++/// had ever been decided.
++fn load_graph_state(
++    path: Option<&str>,
++    graph: &omega_core::graph::Graph,
++) -> Result<omega_core::graph::GraphState> {
++    let Some(path) = path else {
++        return Ok(omega_core::graph::GraphState::for_graph(graph));
++    };
++    if !std::path::Path::new(path).exists() {
++        return Ok(omega_core::graph::GraphState::for_graph(graph));
++    }
++    let raw = std::fs::read_to_string(path)
++        .with_context(|| format!("cannot read the run state {}", path))?;
++    serde_json::from_str(&raw).with_context(|| format!("{} is not a readable run state", path))
++}
++
++/// `omega risk-gate <show|approve|deny>` — the operator's window onto the
++/// R-DESTRUCT gate.
++///
++/// Thin on purpose, and the thinness is the point: `evaluate_gate`, `approve`
++/// and `deny` decide, this formats. A CLI that re-derived "is this risky" would
++/// be a second implementation of the rule, free to drift from the one the
++/// executor actually consults, and the gate would then say different things
++/// depending on who asked.
++fn cmd_risk_gate(action: RiskGateAction) -> Result<()> {
++    use omega_core::graph::NodeId;
++    use omega_core::graph_risk::{ExecutionMode, GateDecision};
++
++    match action {
++        RiskGateAction::Show {
++            graph,
++            node,
++            state,
++            unattended,
++        } => {
++            let g = load_graph(&graph)?;
++            let s = load_graph_state(state.as_deref(), &g)?;
++            let mode = if unattended {
++                ExecutionMode::Unattended
++            } else {
++                ExecutionMode::Attended
++            };
++            let id = NodeId::new(node);
++            match omega_core::graph_risk::evaluate_gate(&g, &s, &id, mode) {
++                GateDecision::Proceed => {
++                    println!("PROCEED  node {} ({} run)", id, mode);
++                }
++                GateDecision::RequireApproval {
++                    node,
++                    risk,
++                    reason,
++                    what_is_lost,
++                } => {
++                    println!("HELD     node {} ({} run)", node, mode);
++                    println!("  risk:         {}", risk);
++                    println!("  reason:       {}", reason);
++                    println!("  what is lost: {}", what_is_lost);
++                    println!(
++                        "  resolve with: omega risk-gate approve {} {} --approver <who>",
++                        graph, node
++                    );
++                }
++                // Not a softer hold: the gate could not establish what it is
++                // being asked to approve, so there is nothing a human could
++                // meaningfully consent to. Exit non-zero — a caller that treated
++                // this as a pass would be proceeding on an unreadable rule.
++                GateDecision::Refuse { node, reason } => {
++                    anyhow::bail!("REFUSED  node {}: {}", node, reason);
++                }
++            }
++            Ok(())
++        }
++        RiskGateAction::Approve {
++            graph,
++            node,
++            approver,
++            state,
++        } => resolve_risk_gate(&graph, &node, &approver, state.as_deref(), true),
++        RiskGateAction::Deny {
++            graph,
++            node,
++            approver,
++            state,
++        } => resolve_risk_gate(&graph, &node, &approver, state.as_deref(), false),
++    }
++}
++
++/// Record one human decision against a held node.
++///
++/// The escalation record is built by evaluating the gate in UNATTENDED mode,
++/// which is the mode that holds the widest set (an `elevated` node proceeds
++/// attended, so evaluating attended would report nothing to decide on exactly
++/// the nodes a dispatched run escalates). The record therefore describes what
++/// the unattended run would have blocked on, which is what the human is being
++/// asked about.
++fn resolve_risk_gate(
++    graph: &str,
++    node: &str,
++    approver: &str,
++    state_path: Option<&str>,
++    approving: bool,
++) -> Result<()> {
++    use omega_core::graph::NodeId;
++    use omega_core::graph_risk::{ExecutionMode, GateDecision};
++
++    let g = load_graph(graph)?;
++    let mut s = load_graph_state(state_path, &g)?;
++    let id = NodeId::new(node);
++    let decision = omega_core::graph_risk::evaluate_gate(&g, &s, &id, ExecutionMode::Unattended);
++    let record = match decision {
++        GateDecision::Refuse { node, reason } => {
++            anyhow::bail!("REFUSED  node {}: {}", node, reason);
++        }
++        GateDecision::Proceed => {
++            anyhow::bail!(
++                "node {} needs no decision — the gate lets it proceed unattended. \
++                 Nothing was recorded.",
++                id
++            );
++        }
++        held => match held.into_escalation(chrono::Utc::now()) {
++            Some(record) => record,
++            // Unreachable: `into_escalation` returns None only for Proceed and
++            // Refuse, both handled above. Loud rather than silent if that ever
++            // stops being true.
++            None => anyhow::bail!("node {} produced no escalation record", id),
++        },
++    };
++
++    // The attribution check belongs to the core and stays there: `approve`
++    // refuses an empty or whitespace approver with a typed error, and that
++    // refusal is surfaced verbatim rather than pre-empted by a check here that
++    // could disagree with it.
++    let resolution = if approving {
++        omega_core::graph_risk::approve(record, approver)
++    } else {
++        omega_core::graph_risk::deny(record, approver)
++    };
++    let resolution = match resolution {
++        Ok(r) => r,
++        Err(e) => anyhow::bail!(
++            "REFUSED by the risk gate: {}.\n\
++             Pass a real --approver: an approval nobody signed is not consent, and \
++             nothing was recorded.",
++            e
++        ),
++    };
++
++    omega_core::graph_risk::record_resolution(&mut s, &resolution);
++    let verdict = if resolution.is_approved() {
++        "APPROVED"
++    } else {
++        "DENIED"
++    };
++    println!(
++        "{} node {} by {}",
++        verdict, resolution.record.node, resolution.approver
++    );
++    println!("  what is lost: {}", resolution.record.what_is_lost);
++
++    // `record_resolution` is in-memory by contract (a decision core that wrote
++    // files could not be replayed), so persisting is this caller's job. Without
++    // a --state path there is nowhere durable to put it, and an unsaved decision
++    // that PRINTS as recorded is worse than one that refuses to pretend.
++    match state_path {
++        Some(path) => {
++            let json = serde_json::to_string_pretty(&s)?;
++            std::fs::write(path, json)
++                .with_context(|| format!("cannot write the run state {}", path))?;
++            println!("  recorded in: {}", path);
++        }
++        None => {
++            println!(
++                "  NOT RECORDED — pass --state <run-state.json> to persist this decision; \
++                 the gate will ask again without it."
++            );
++        }
++    }
++    Ok(())
++}
++
+ /// `omega claude-login` — start the OAuth re-login engine and print the captured
+ /// authorize URL as JSON. Headless (no TUI); shared by the TUI + Telegram bridge.
+ /// Prints `{"ok":true,"url":"..."}` on success, `{"ok":false,"error":"..."}` and
+@@ -7748,6 +8250,42 @@ async fn cmd_done(session: &str, status: &str, summary: &str, commit: Option<&st
+         "[+] Candidate completion written for: {} (scope remains held until independent acceptance)",
+         session
+     );
++
++    // AUTO-REAP: a terminal signal closes its own session, without an operator.
++    //
++    // This is the zombie the reaper exists for, observed twice on this box: the
++    // worker wrote this very file and its rmux session stayed OPEN, so the pane
++    // had to be closed by hand. What the reap then does is byte-for-byte what
++    // that manual `omega kill <worker>` already did, which is why the line above
++    // is unchanged: the claim is released when the SESSION closes, exactly as
++    // before, and the acceptance gate reads the done.json from the state dir,
++    // which outlives the pane.
++    //
++    // Deferred and detached for the same reason the oracle auto-close is:
++    // `omega done` normally runs INSIDE the pane being closed, so an inline kill
++    // would take down the process still returning from this function. The reap
++    // re-derives its decision from the file just written rather than being told
++    // what to do, so it is still correct if this scheduling never fires (a later
++    // sweep catches it) and a no-op if it fires twice.
++    if is_stop_status(signal.status) {
++        if let Ok(exe) = std::env::current_exe() {
++            // Session names are sanitized to [A-Za-z0-9._-] (no shell
++            // metachars), so this format is injection-safe.
++            let exe = exe.to_string_lossy();
++            let _ = std::process::Command::new("bash")
++                .arg("-c")
++                .arg(format!(
++                    "sleep 3; '{}' reap '{}' >/dev/null 2>&1",
++                    exe, session
++                ))
++                .spawn();
++            println!(
++                "[+] terminal signal — session {} closes itself (omega reap); \
++                 a worktree holding unsaved work is kept",
++                session
++            );
++        }
++    }
+     Ok(())
+ }
+ 
+@@ -10551,6 +11089,152 @@ mod lifecycle_tests {
+         assert_eq!(worktree_verdict(false, " M x", 9), WorktreeVerdict::NotOurs);
+     }
+ 
++    #[test]
++    fn a_reaped_workers_dirty_worktree_is_kept() {
++        // The reaper runs `cleanup_worker_worktree`, which is `omega kill`'s
++        // remover and therefore governed by the same verdict: a `blocked` or
++        // `failed` worker's tree is exactly the one that still holds unsaved
++        // work, and it must survive its own reaping.
++        //
++        // Only the DECISION is unit-testable here. The keep-and-print branch
++        // needs a real repository with a linked worktree, so the printing is
++        // covered by `cleanup_worker_worktree`'s own guard rather than asserted.
++        assert_eq!(
++            worktree_verdict(true, " M crates/omega-cli/src/main.rs\n?? notes.md\n", 0),
++            WorktreeVerdict::Dirty
++        );
++        assert_eq!(
++            worktree_verdict(true, "", 2),
++            WorktreeVerdict::Unmerged { commits: 2 }
++        );
++    }
++
++    // --- omega reap: which finished workers get closed -----------------------
++
++    fn candidate(session: &str, live: bool, signal: Option<DoneStatus>) -> ReapCandidate {
++        ReapCandidate {
++            session: session.to_string(),
++            live,
++            signal,
++        }
++    }
++
++    #[test]
++    fn a_worker_with_no_done_signal_is_never_reaped() {
++        // THE safety property. A live worker with no signal is mid-task, and
++        // closing it destroys in-flight work.
++        assert_eq!(reap_verdict(true, None), ReapVerdict::StillWorking);
++        // And a DEAD one with no signal is not reclaimed either: it crashed
++        // before signalling, so its worktree is the only copy of what it had
++        // done. That case stays the operator's explicit `omega kill`.
++        assert_eq!(reap_verdict(false, None), ReapVerdict::StillWorking);
++    }
++
++    #[test]
++    fn every_terminal_signal_closes_a_live_worker() {
++        for status in [
++            DoneStatus::DoneClean,
++            DoneStatus::Failed,
++            DoneStatus::Blocked,
++        ] {
++            assert_eq!(
++                reap_verdict(true, Some(status)),
++                ReapVerdict::Reap,
++                "{:?} is a stop and must close its session",
++                status
++            );
++        }
++    }
++
++    #[test]
++    fn pending_is_not_a_stop_and_is_left_alone() {
++        // `pending` is what the L4 close-gate writes over an unfinished plan,
++        // and a later `omega progress` tick upgrades it back to done_clean.
++        // Reaping it would kill the session that has to produce that tick.
++        assert!(!is_stop_status(DoneStatus::Pending));
++        assert_eq!(
++            reap_verdict(true, Some(DoneStatus::Pending)),
++            ReapVerdict::NotTerminal
++        );
++        assert_eq!(
++            reap_verdict(false, Some(DoneStatus::Pending)),
++            ReapVerdict::NotTerminal
++        );
++    }
++
++    #[test]
++    fn a_live_worker_is_never_closed_by_a_mixed_sweep() {
++        // The realistic pane: two finished workers beside one that is still
++        // editing files. The sweep must take exactly the two.
++        let plan = plan_reap(&[
++            candidate("w-done", true, Some(DoneStatus::DoneClean)),
++            candidate("w-working", true, None),
++            candidate("w-failed", true, Some(DoneStatus::Failed)),
++            candidate("w-pending", true, Some(DoneStatus::Pending)),
++        ]);
++        assert_eq!(
++            plan,
++            vec![
++                ("w-done".to_string(), ReapVerdict::Reap),
++                ("w-working".to_string(), ReapVerdict::StillWorking),
++                ("w-failed".to_string(), ReapVerdict::Reap),
++                ("w-pending".to_string(), ReapVerdict::NotTerminal),
++            ]
++        );
++    }
++
++    #[test]
++    fn reaping_twice_is_identical_to_reaping_once() {
++        let first = plan_reap(&[
++            candidate("w-done", true, Some(DoneStatus::DoneClean)),
++            candidate("w-working", true, None),
++        ]);
++        assert_eq!(
++            first,
++            vec![
++                ("w-done".to_string(), ReapVerdict::Reap),
++                ("w-working".to_string(), ReapVerdict::StillWorking),
++            ]
++        );
++
++        // Second pass over the SAME state dir, after the first closed w-done:
++        // the signal file is still there, the session is not. The reaper must
++        // report it closed and re-run only the reclaim (a `release` on an absent
++        // claim and a `worker_worktrees` that finds nothing are both no-ops), and
++        // it must NOT have acquired an opinion about the worker still running.
++        let second = plan_reap(&[
++            candidate("w-done", false, Some(DoneStatus::DoneClean)),
++            candidate("w-working", true, None),
++        ]);
++        assert_eq!(
++            second,
++            vec![
++                ("w-done".to_string(), ReapVerdict::AlreadyClosed),
++                ("w-working".to_string(), ReapVerdict::StillWorking),
++            ]
++        );
++
++        // And the sweep form converges to nothing: a closed session is no
++        // longer in the live list, so it is not even a candidate.
++        assert_eq!(plan_reap(&[]), vec![]);
++    }
++
++    #[test]
++    fn an_already_closed_session_is_never_a_second_cascade() {
++        // `AlreadyClosed` and `Reap` differ by exactly one step, the kill. Both
++        // reclaim, neither errors — which is why running the reaper on a dead
++        // session exits 0 rather than reporting "session not found", the same
++        // contract `omega kill` already honours.
++        assert_eq!(
++            reap_verdict(false, Some(DoneStatus::DoneClean)),
++            ReapVerdict::AlreadyClosed
++        );
++        assert_eq!(
++            reap_verdict(false, Some(DoneStatus::Blocked)),
++            ReapVerdict::AlreadyClosed
++        );
++    }
++
+     // --- omega kill: finding the worktree a worker ran in -------------------
+ 
+     #[test]

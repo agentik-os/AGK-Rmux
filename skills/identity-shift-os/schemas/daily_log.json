@@ -1,0 +1,20 @@
+{
+  "date": "YYYY-MM-DD",
+  "energy": null,
+  "sleep_hours": null,
+  "events": [],
+  "decisions": [],
+  "wins": [],
+  "failures": [],
+  "cravings_or_triggers": [],
+  "avoidance": [],
+  "relationships": [],
+  "health": {},
+  "work": {},
+  "build": {},
+  "learning": [],
+  "evidence": [],
+  "lesson": "",
+  "tomorrow_protocol": {},
+  "content_candidates": []
+}

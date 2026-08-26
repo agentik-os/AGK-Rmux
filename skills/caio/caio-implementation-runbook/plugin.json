@@ -1,0 +1,11 @@
+{
+  "name": "caio-implementation-runbook",
+  "version": "1.0.0",
+  "description": "CAIO Phase 2 (BUILD). Realize the architect's company-ai-os/ into a centralized federated topology (one server + one micro-SaaS per C-Level + inter-dashboard API contract + Composio), then build it to a per-deliverable ship-gate. Anti-black-box, value in week 1.",
+  "skill": {
+    "entry": "SKILL.md",
+    "type": "agent",
+    "category": "14-strategy"
+  },
+  "compatibility": ["claude-code"]
+}

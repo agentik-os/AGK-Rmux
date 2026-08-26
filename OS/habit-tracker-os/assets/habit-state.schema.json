@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.com/schemas/habit-tracker-os/state-v1.json",
+  "title": "Habit Tracker OS State",
+  "type": "object",
+  "required": ["schema_version", "user", "season", "habits", "logs", "experiments", "reviews"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "user": { "$ref": "#/$defs/user" },
+    "season": { "$ref": "#/$defs/season" },
+    "identity_refs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/externalRef" }
+    },
+    "goal_refs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/externalRef" }
+    },
+    "habits": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/habit" }
+    },
+    "habit_versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["habit_id", "version", "snapshot", "superseded_at", "superseded_reason"],
+        "properties": {
+          "habit_id": { "type": "string", "pattern": "^HAB-" },
+          "version": { "type": "integer", "minimum": 1 },
+          "snapshot": { "type": "object" },
+          "superseded_at": { "type": "string", "format": "date-time" },
+          "superseded_reason": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "logs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/log" }
+    },
+    "experiments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/experiment" }
+    },
+    "reviews": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/review" }
+    },
+    "safety": {
+      "type": "object",
+      "properties": {
+        "active_tier": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "boundaries": { "type": "array", "items": { "type": "string" } },
+        "human_support_plan_ref": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": ["type", "source"],
+      "properties": {
+        "type": { "enum": ["explicit", "observed", "inferred", "proposed"] },
+        "source": { "type": "string", "minLength": 1 },
+        "source_ref": { "type": ["string", "null"] },
+        "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "inferred" } }, "required": ["type"] },
+          "then": { "required": ["confidence"] }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "user": {
+      "type": "object",
+      "required": ["user_id", "timezone", "language", "coaching_tone", "notification_pressure"],
+      "properties": {
+        "user_id": { "type": "string", "pattern": "^USR-" },
+        "preferred_name": { "type": ["string", "null"] },
+        "timezone": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "minLength": 2 },
+        "week_start": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "coaching_tone": { "enum": ["gentle", "direct", "stoic", "strategic", "minimal"] },
+        "reflection_depth": { "enum": ["micro", "normal", "deep"] },
+        "notification_pressure": { "enum": ["low", "normal", "high"] },
+        "privacy_exclusions": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "season": {
+      "type": "object",
+      "required": ["season_id", "kind", "started_at", "provenance"],
+      "properties": {
+        "season_id": { "type": "string", "pattern": "^SEASON-" },
+        "kind": { "enum": ["build", "maintain", "recover", "travel", "crisis"] },
+        "reason": { "type": ["string", "null"] },
+        "started_at": { "type": "string", "format": "date-time" },
+        "review_at": { "type": ["string", "null"], "format": "date-time" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "additionalProperties": false
+    },
+    "externalRef": {
+      "type": "object",
+      "required": ["id", "statement", "system", "version", "provenance"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "statement": { "type": "string", "minLength": 1 },
+        "system": { "type": "string", "minLength": 1 },
+        "version": { "type": ["string", "integer"] },
+        "status": { "enum": ["active", "paused", "retired", "proposed"] },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "additionalProperties": false
+    },
+    "schedule": {
+      "type": "object",
+      "required": ["mode", "timezone"],
+      "properties": {
+        "mode": { "enum": ["daily", "weekdays", "weekly_target", "interval", "event", "opportunity"] },
+        "timezone": { "type": "string", "minLength": 1 },
+        "weekdays": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1, "maximum": 7 },
+          "uniqueItems": true
+        },
+        "target_per_week": { "type": ["integer", "null"], "minimum": 1, "maximum": 21 },
+        "interval_days": { "type": ["integer", "null"], "minimum": 1 },
+        "anchor_date": { "type": ["string", "null"], "format": "date" },
+        "event_definition": { "type": ["string", "null"] },
+        "local_times": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "measure": {
+      "type": "object",
+      "required": ["description"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "value": { "type": ["number", "null"] },
+        "unit": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "habit": {
+      "type": "object",
+      "required": [
+        "habit_id", "version", "name", "kind", "status", "behavior_definition", "why",
+        "schedule", "cue", "target", "minimum", "evidence_rule", "fallback_plan",
+        "review_at", "priority", "sensitivity", "provenance", "created_at", "updated_at"
+      ],
+      "properties": {
+        "habit_id": { "type": "string", "pattern": "^HAB-" },
+        "version": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["build", "maintain", "reduce", "stop"] },
+        "status": { "enum": ["draft", "active", "paused", "recovering", "retired", "archived"] },
+        "behavior_definition": { "type": "string", "minLength": 1 },
+        "why": { "type": "string", "minLength": 1 },
+        "goal_ids": { "type": "array", "items": { "type": "string" } },
+        "schedule": { "$ref": "#/$defs/schedule" },
+        "cue": {
+          "type": "object",
+          "required": ["type", "description"],
+          "properties": {
+            "type": { "enum": ["time", "event", "location", "social", "internal", "opportunity"] },
+            "description": { "type": "string", "minLength": 1 },
+            "context": { "type": ["string", "null"] }
+          },
+          "additionalProperties": false
+        },
+        "target": { "$ref": "#/$defs/measure" },
+        "minimum": { "$ref": "#/$defs/measure" },
+        "deep": {
+          "anyOf": [
+            { "$ref": "#/$defs/measure" },
+            { "type": "null" }
+          ]
+        },
+        "evidence_rule": {
+          "type": "object",
+          "required": ["description", "allowed_sources"],
+          "properties": {
+            "description": { "type": "string", "minLength": 1 },
+            "allowed_sources": {
+              "type": "array",
+              "items": { "enum": ["explicit", "observed"] },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "fallback_plan": { "type": "string", "minLength": 1 },
+        "replacement_response": { "type": ["string", "null"] },
+        "review_at": { "type": "string", "format": "date-time" },
+        "priority": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "sensitivity": { "enum": ["normal", "sensitive", "restricted"] },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "supersedes_version": { "type": ["integer", "null"], "minimum": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "enum": ["reduce", "stop"] } }, "required": ["kind"] },
+          "then": { "required": ["replacement_response"] }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "log": {
+      "type": "object",
+      "required": ["log_id", "habit_id", "occurred_at", "local_date", "outcome", "provenance", "sensitivity", "created_at"],
+      "properties": {
+        "log_id": { "type": "string", "pattern": "^LOG-" },
+        "habit_id": { "type": "string", "pattern": "^HAB-" },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "local_date": { "type": "string", "format": "date" },
+        "outcome": {
+          "enum": ["done", "minimum", "partial", "missed", "abstained", "urge", "resisted", "substituted", "interrupted", "lapse", "no_exposure", "blocked", "excused", "unknown"]
+        },
+        "value": { "type": ["number", "null"] },
+        "unit": { "type": ["string", "null"] },
+        "context": {
+          "type": "object",
+          "properties": {
+            "cue_observed": { "type": ["boolean", "null"] },
+            "energy": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+            "mood": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+            "urge": { "type": ["integer", "null"], "minimum": 0, "maximum": 10 },
+            "barrier_code": { "type": ["string", "null"] },
+            "trigger": { "type": ["string", "null"] }
+          },
+          "additionalProperties": false
+        },
+        "note": { "type": ["string", "null"] },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "sensitivity": { "enum": ["normal", "sensitive", "restricted"] },
+        "supersedes_log_id": { "type": ["string", "null"] },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "experiment": {
+      "type": "object",
+      "required": ["experiment_id", "habit_id", "hypothesis", "primary_change", "start_date", "end_date", "evidence", "success_threshold", "stop_condition", "rollback", "status"],
+      "properties": {
+        "experiment_id": { "type": "string", "pattern": "^EXP-" },
+        "habit_id": { "type": "string", "pattern": "^HAB-" },
+        "hypothesis": { "type": "string", "minLength": 1 },
+        "primary_change": { "type": "string", "minLength": 1 },
+        "start_date": { "type": "string", "format": "date" },
+        "end_date": { "type": "string", "format": "date" },
+        "evidence": { "type": "string", "minLength": 1 },
+        "success_threshold": { "type": "string", "minLength": 1 },
+        "stop_condition": { "type": "string", "minLength": 1 },
+        "rollback": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["proposed", "active", "completed", "stopped", "rolled_back"] }
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "required": ["review_id", "window_start", "window_end", "timezone", "evidence_completeness", "metrics", "decisions", "created_at"],
+      "properties": {
+        "review_id": { "type": "string", "pattern": "^REV-" },
+        "window_start": { "type": "string", "format": "date" },
+        "window_end": { "type": "string", "format": "date" },
+        "timezone": { "type": "string" },
+        "evidence_completeness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "metrics": { "type": "object" },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["action", "subject_id", "rationale"],
+            "properties": {
+              "action": { "enum": ["keep", "change", "stop", "pause", "graduate"] },
+              "subject_id": { "type": "string" },
+              "rationale": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "source_log_ids": { "type": "array", "items": { "type": "string", "pattern": "^LOG-" } },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

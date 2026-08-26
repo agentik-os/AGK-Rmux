@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Financial Account",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Account label"
+    },
+    "account_type": {
+      "type": "string",
+      "description": "Cash, debt, investment or other"
+    },
+    "currency": {
+      "type": "string",
+      "description": "ISO currency"
+    },
+    "balance": {
+      "type": "number",
+      "description": "Verified dated balance"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "name",
+    "account_type",
+    "currency"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.com/schemas/brainstorm-os/session-v3.schema.json",
+  "title": "Brainstorm OS Session",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "meta",
+    "frame",
+    "founder_dna",
+    "council",
+    "evolution",
+    "surface_lab",
+    "portfolio",
+    "sources",
+    "frames",
+    "genomes",
+    "ideas",
+    "surfaces",
+    "incubations",
+    "hypotheses",
+    "arguments",
+    "tensions",
+    "decisions",
+    "experiments",
+    "questions",
+    "parking_lot",
+    "rounds",
+    "lineage",
+    "quality",
+    "handoff"
+  ],
+  "properties": {
+    "schema_version": {"const": "3.0.0"},
+    "meta": {
+      "type": "object",
+      "required": ["session_id", "title", "domain", "depth", "concept_version", "status", "current_stage", "created_at", "updated_at"],
+      "properties": {
+        "session_id": {"type": "string", "minLength": 1},
+        "project_id": {"type": ["string", "null"]},
+        "title": {"type": "string", "minLength": 1},
+        "domain": {"type": "string"},
+        "depth": {"enum": ["SPARK", "IMAGINATION", "COUNCIL", "DEEP", "RED-TEAM", "CONVERGE", "AUDIT"]},
+        "concept_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "status": {
+          "enum": [
+            "BRAINSTORM IN PROGRESS",
+            "BRAINSTORM BLOCKED",
+            "BRAINSTORM CONVERGED — HANDOFF READY",
+            "BRAINSTORM PARKED"
+          ]
+        },
+        "current_stage": {"type": "string"},
+        "created_at": {"type": "string"},
+        "updated_at": {"type": "string"}
+      }
+    },
+    "frame": {
+      "type": "object",
+      "required": ["idea", "desired_change", "actors", "constraints", "non_goals", "success_signals", "locked_core", "central_tension", "highest_impact_unknown"],
+      "properties": {
+        "idea": {"type": "string"},
+        "desired_change": {"type": "string"},
+        "actors": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "constraints": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "non_goals": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "success_signals": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "locked_core": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "central_tension": {"type": "string"},
+        "highest_impact_unknown": {"type": "string"}
+      }
+    },
+    "founder_dna": {
+      "type": "object",
+      "required": ["obsessions", "beliefs", "taste_markers", "anti_patterns", "unfair_insights", "energy_preferences", "signature_tension", "confirmation_status"],
+      "properties": {
+        "obsessions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "beliefs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "taste_markers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "anti_patterns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "unfair_insights": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "energy_preferences": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "signature_tension": {"type": "string"},
+        "confirmation_status": {"enum": ["unconfirmed", "partially-confirmed", "confirmed"]}
+      }
+    },
+    "council": {
+      "type": "object",
+      "required": ["chambers", "core_cells", "specialists", "independence_preserved", "cross_examination_completed"],
+      "properties": {
+        "chambers": {"type": "array", "items": {"type": "string"}},
+        "core_cells": {"type": "array", "items": {"type": "string"}},
+        "specialists": {"type": "array", "items": {"type": "string"}},
+        "independence_preserved": {"type": ["boolean", "null"]},
+        "cross_examination_completed": {"type": "boolean"}
+      }
+    },
+    "evolution": {
+      "type": "object",
+      "required": ["generations", "current_generation", "selection_pressures", "genetic_diversity_warning"],
+      "properties": {
+        "generations": {"type": "array"},
+        "current_generation": {"type": "integer", "minimum": 0},
+        "selection_pressures": {"type": "array", "items": {"type": "string"}},
+        "genetic_diversity_warning": {"type": "boolean"}
+      }
+    },
+    "surface_lab": {
+      "type": "object",
+      "required": ["applicability", "selected_surface_ids", "primary_surface_id", "canonical_state_owner", "role_map", "multi_surface_rationale", "next_surface_trigger"],
+      "properties": {
+        "applicability": {"enum": ["unknown", "applicable", "not-applicable"]},
+        "selected_surface_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "primary_surface_id": {"type": ["string", "null"]},
+        "canonical_state_owner": {"type": "string"},
+        "role_map": {"type": "object", "additionalProperties": {"type": "string"}},
+        "multi_surface_rationale": {"type": "string"},
+        "next_surface_trigger": {"type": "string"}
+      }
+    },
+    "portfolio": {
+      "type": "object",
+      "required": ["active_idea_ids", "coherence_thesis", "shared_primitives", "conflicts"],
+      "properties": {
+        "active_idea_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "coherence_thesis": {"type": "string"},
+        "shared_primitives": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "conflicts": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "sources": {"$ref": "#/$defs/sourceArray"},
+    "frames": {"$ref": "#/$defs/frameArray"},
+    "genomes": {"$ref": "#/$defs/genomeArray"},
+    "ideas": {"$ref": "#/$defs/ideaArray"},
+    "surfaces": {"$ref": "#/$defs/surfaceArray"},
+    "incubations": {"$ref": "#/$defs/incubationArray"},
+    "hypotheses": {"$ref": "#/$defs/hypothesisArray"},
+    "arguments": {"$ref": "#/$defs/argumentArray"},
+    "tensions": {"$ref": "#/$defs/tensionArray"},
+    "decisions": {"$ref": "#/$defs/decisionArray"},
+    "experiments": {"$ref": "#/$defs/experimentArray"},
+    "questions": {"$ref": "#/$defs/questionArray"},
+    "parking_lot": {"type": "array"},
+    "rounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["number", "name", "lens", "delta", "material", "revisions", "at"],
+        "properties": {
+          "number": {"type": "integer", "minimum": 1},
+          "name": {"type": "string", "minLength": 1},
+          "lens": {"type": "string"},
+          "delta": {"type": "string", "minLength": 1},
+          "material": {"type": "boolean"},
+          "revisions": {"type": "array", "items": {"type": "string"}},
+          "at": {"type": "string"}
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "required": ["snapshots"],
+      "properties": {"snapshots": {"type": "array"}}
+    },
+    "quality": {
+      "type": "object",
+      "required": ["latest_audit", "history"],
+      "properties": {"latest_audit": {"type": ["object", "null"]}, "history": {"type": "array"}}
+    },
+    "handoff": {
+      "type": "object",
+      "required": ["target", "readiness", "gaps", "last_export"],
+      "properties": {
+        "target": {"type": ["string", "null"]},
+        "readiness": {"enum": ["not-ready", "ready", "partial"]},
+        "gaps": {"type": "array", "items": {"type": "string"}},
+        "last_export": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "$defs": {
+    "baseItem": {
+      "type": "object",
+      "required": ["id", "statement", "status", "confidence", "rationale", "provenance", "tags", "relations", "created_at", "updated_at"],
+      "properties": {
+        "id": {"type": "string"},
+        "statement": {"type": "string", "minLength": 1},
+        "status": {"type": "string"},
+        "confidence": {"enum": ["low", "medium", "high"]},
+        "rationale": {"type": "string"},
+        "provenance": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "relations": {"type": "array", "items": {"type": "string"}},
+        "created_at": {"type": "string"},
+        "updated_at": {"type": "string"},
+        "parent_id": {"type": "string"},
+        "target_id": {"type": "string"},
+        "polarity": {"enum": ["pro", "con", "mixed"]},
+        "falsifier": {"type": "string"},
+        "threshold": {"type": "string"},
+        "revisit_trigger": {"type": "string"}
+        ,"resurrection_trigger": {"type": "string"}
+        ,"surface_type": {"enum": ["mobile", "web", "desktop", "multi-surface", "chat", "api-agent", "ambient-wearable", "physical-spatial", "human-service", "no-interface"]}
+        ,"generation": {"type": "integer", "minimum": 0}
+        ,"strengths": {"type": "array", "items": {"type": "string"}}
+        ,"costs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "sourceArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-SRC-[0-9]{3,}$"}, "status": {"enum": ["active", "stale", "conflicted", "superseded"]}}}]}},
+    "frameArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-FRM-[0-9]{3,}$"}, "status": {"enum": ["candidate", "surviving", "selected", "rejected", "superseded"]}}}]}},
+    "genomeArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-GEN-[0-9]{3,}$"}, "status": {"enum": ["draft", "active", "selected", "superseded"]}}}]}},
+    "ideaArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-IDEA-[0-9]{3,}$"}, "status": {"enum": ["candidate", "surviving", "selected", "rejected", "parked", "superseded"]}}}]}},
+    "surfaceArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-SRF-[0-9]{3,}$"}, "status": {"enum": ["candidate", "selected", "rejected", "deferred", "experiment-first"]}}}]}},
+    "incubationArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-INC-[0-9]{3,}$"}, "status": {"enum": ["dormant", "triggered", "resurrected", "retired"]}}}]}},
+    "hypothesisArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-HYP-[0-9]{3,}$"}, "status": {"enum": ["untested", "supported", "weakened", "falsified", "research-needed"]}}}]}},
+    "argumentArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-ARG-[0-9]{3,}$"}, "status": {"enum": ["active", "accepted", "rebutted", "superseded"]}}}]}},
+    "tensionArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-TEN-[0-9]{3,}$"}, "status": {"enum": ["open", "resolved", "accepted", "deferred", "blocked"]}}}]}},
+    "decisionArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-DEC-[0-9]{3,}$"}, "status": {"enum": ["locked", "provisional", "experiment-first", "deferred", "rejected", "superseded"]}}}]}},
+    "experimentArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-EXP-[0-9]{3,}$"}, "status": {"enum": ["queued", "running", "passed", "failed", "inconclusive", "cancelled"]}}}]}},
+    "questionArray": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/baseItem"}, {"properties": {"id": {"pattern": "^BS-QUE-[0-9]{3,}$"}, "status": {"enum": ["open", "resolved", "deferred", "blocked"]}}}]}}
+  }
+}

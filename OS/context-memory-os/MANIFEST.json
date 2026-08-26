@@ -1,0 +1,578 @@
+{
+  "name": "Context & Memory OS",
+  "slug": "context-memory",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Create one trustworthy, inspectable and permissioned memory layer that lets Omega and its OSs recover context without mixing facts, inferences, temporary states, projects or identities.",
+  "category": "Omega Core / Context, Knowledge and Memory",
+  "position": "Omega Core: canonical shared context layer for every OS",
+  "counts": {
+    "agents": 14,
+    "skills": 20,
+    "protocols": 7,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 83
+  },
+  "files": [
+    {
+      "path": "agents/archivist.md",
+      "sha256": "15ef3ad259b165532ac654d8cf28b73667b0739e855253c32fa6c7b4f169ca8b",
+      "bytes": 989
+    },
+    {
+      "path": "agents/compression_agent.md",
+      "sha256": "e9d2816bb31841e7c38deb8de22e0b8b59c1bb939957781f1914d7f46e36747c",
+      "bytes": 1009
+    },
+    {
+      "path": "agents/context_compiler.md",
+      "sha256": "15d3669616e0bc3a28dfee29b312edbebbfe03fd5eeea874818957631086dbc7",
+      "bytes": 998
+    },
+    {
+      "path": "agents/contradiction_resolver.md",
+      "sha256": "983184304180ef07f6de20ea1d14bbd60c4f31a299af9d239bf4320b4b8a7920",
+      "bytes": 995
+    },
+    {
+      "path": "agents/decision_registrar.md",
+      "sha256": "e37ab69dac36ccb8e33b1a5128e16b4f35e581d0968c74f60bac2fc3ad3cb977",
+      "bytes": 1009
+    },
+    {
+      "path": "agents/entity_resolver.md",
+      "sha256": "d56dd7887125fc7ebbc9ea080384f38ebfa907b800533de25cf7a9312fc5940c",
+      "bytes": 1022
+    },
+    {
+      "path": "agents/ingestion_clerk.md",
+      "sha256": "d8aa86dc6eb66b9c6b606b4c44746a7fd55ed0ce92351c4addf7070b525d3819",
+      "bytes": 987
+    },
+    {
+      "path": "agents/knowledge_librarian.md",
+      "sha256": "1cec23b79e2e1666bef59b0af5f09c9e162225819debe673f98cd975023c1965",
+      "bytes": 992
+    },
+    {
+      "path": "agents/memory_integrator.md",
+      "sha256": "6ee5f74b91a2a88c4d5ebd79577b9d4cba00c0763f84efa63bd0c29f989341c2",
+      "bytes": 993
+    },
+    {
+      "path": "agents/privacy_steward.md",
+      "sha256": "ee99a411a475e772991870bb5d91a21242649540cedded45505ed68d93f57535",
+      "bytes": 992
+    },
+    {
+      "path": "agents/prompt_injection_guard.md",
+      "sha256": "b16736c119d99d8421d37d908ff72c0d4b20760b0ccf001f360dee7cadd0b655",
+      "bytes": 998
+    },
+    {
+      "path": "agents/provenance_auditor.md",
+      "sha256": "b291e082a043d1ac094d6f409c2a13765fa3b71e0a8257e1dd9e5690b8324e13",
+      "bytes": 1001
+    },
+    {
+      "path": "agents/temporal_analyst.md",
+      "sha256": "3d0ad1ffa15478ba22ae0c3f8f346ad987242bd6bc5fa5d32cc8657db0b2ccb1",
+      "bytes": 1004
+    },
+    {
+      "path": "agents/user_correction_advocate.md",
+      "sha256": "1b1e0f9555af5efdadc931c1dcfea6c4d39d634bf567a9906560a31a299c3bbc",
+      "bytes": 1009
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "f3b6c7eea3790b85464cfb54af667169b3080a171deabb10e7ac6d0fa2d37d66",
+      "bytes": 853
+    },
+    {
+      "path": "architecture/DATA_MODEL.txt",
+      "sha256": "ac65e4a5e54d9ad96496e2ed901991af4b565321e2c36fce69e27de94ed05693",
+      "bytes": 808
+    },
+    {
+      "path": "architecture/SECURITY.md",
+      "sha256": "09bb161554f62821c26901ebd873ccc7f234339bae1cfda351aa77b5a4c3b211",
+      "bytes": 964
+    },
+    {
+      "path": "architecture/STATE_MACHINE.md",
+      "sha256": "5eee07a1a756b5b1faefc6239a5efbf7e30d1b72f3dcb43bfbda5eb265335565",
+      "bytes": 833
+    },
+    {
+      "path": "config/os.yaml",
+      "sha256": "209cbfc3afe89a8b1fc1ec85b5b6c9d9ec38c058a8581267ee6b369f76ccee5f",
+      "bytes": 610
+    },
+    {
+      "path": "config/router.json",
+      "sha256": "4b762a90bc980efc51b072ab3b81ef8d4b2f25e974fc669f2df9d6d4c26f85aa",
+      "bytes": 1377
+    },
+    {
+      "path": "database/ARCHITECTURE.md",
+      "sha256": "593fca672e19e9c527c807df055a36ec29941cdec28af24291251df2d2ea82a7",
+      "bytes": 591
+    },
+    {
+      "path": "database/postgres_schema.sql",
+      "sha256": "01d17699296415458aa32016bb34e71204894de85acafcdfce49d6979178b769",
+      "bytes": 2591
+    },
+    {
+      "path": "evals/EVALS.md",
+      "sha256": "5cafae685457a9e0d31a1acb34417cfc8211543b38f597138c33af170a61fb70",
+      "bytes": 1762
+    },
+    {
+      "path": "examples/EXAMPLES.md",
+      "sha256": "f893cbbdb38496f234670243fb552299f10ae4da18cd43760b369bccdce9f5d0",
+      "bytes": 622
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "87695d6c7fb3acbf14e5f6dd6cef89283905fb10b3c067ad9ad6ca974572b8a2",
+      "bytes": 380
+    },
+    {
+      "path": "knowledge/BOOK_CANON.md",
+      "sha256": "bc5daa800f8e0c797c757b59857337d0685c52387b0d51a54fe195193f168923",
+      "bytes": 1256
+    },
+    {
+      "path": "knowledge/FRAMEWORKS.md",
+      "sha256": "a63b83ccba3f0f534f03a5986f18d454e8e459cd1cdab0a2a95bf8439c29c298",
+      "bytes": 712
+    },
+    {
+      "path": "knowledge/RESEARCH_NOTES.md",
+      "sha256": "8ce0031f3187eb1e5f289231d60130c78ed013602f23ae0b3eab7d38575ef90f",
+      "bytes": 928
+    },
+    {
+      "path": "knowledge/SOURCES.md",
+      "sha256": "7ad6d4f0912839db203a291c2ac7d824ff158039213d4be426114b07a97f8bed",
+      "bytes": 1176
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "d80f188ad75f4734ef6924181990e8871b0bf69ea80663df9c35f5586083b026",
+      "bytes": 6861
+    },
+    {
+      "path": "memory/MEMORY_MODEL.md",
+      "sha256": "f16192b95b18540bcb9acbd96398fd076e3fb311fe5ced511e72c82ab70235e4",
+      "bytes": 786
+    },
+    {
+      "path": "memory/PRIVACY.md",
+      "sha256": "01e3ad3ee9196caa12d70248fbb1f6a33c343c70c950cfc737ac38bcee349453",
+      "bytes": 595
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "7bd054a60233288006c6d2002202bec5835f5ae144910f955da9b946cb993cc2",
+      "bytes": 2625
+    },
+    {
+      "path": "protocols/context_compilation.md",
+      "sha256": "975a3650cf5e0c1bb6150e2adf0a51350248500202e2733ac99e6291f7d3fab9",
+      "bytes": 376
+    },
+    {
+      "path": "protocols/contradiction_resolution.md",
+      "sha256": "5f77780bd547dba68eb8e454b62aec92c2c3d229ba2c1c00e040864ac6dac018",
+      "bytes": 359
+    },
+    {
+      "path": "protocols/file_ingestion.md",
+      "sha256": "aacd65b2c288a02349c834d7c8ad5f5ea0d6dc843840d0ec15847151f6eb8bbc",
+      "bytes": 492
+    },
+    {
+      "path": "protocols/forgetting_correction.md",
+      "sha256": "d1ed85eeb3c412efef68390d531fa582b09176f46f587c35686d28527296aeae",
+      "bytes": 370
+    },
+    {
+      "path": "protocols/memory_write.md",
+      "sha256": "810a7d57f23910748f33b4f0914ee933d369b3823370411393b49faab985fdfb",
+      "bytes": 362
+    },
+    {
+      "path": "protocols/project_snapshot.md",
+      "sha256": "4a9dec84ff8b1f118a51e7d97dc9e733c107a7bc1619653aa7a26752c48b8f43",
+      "bytes": 318
+    },
+    {
+      "path": "protocols/weekly_memory_hygiene.md",
+      "sha256": "5226230b36deb6cb1412b32a4391763117ba2ca283e39bc9f3f787a1c1b866ac",
+      "bytes": 321
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "e3d04d7a83d323f2dd99b34d30336e7827ff2de8c4a65204c0a449f06fc515e6",
+      "bytes": 2031
+    },
+    {
+      "path": "README.md",
+      "sha256": "0e97d63e169bc239cc0d81b4c8ec1192a539172b4bc2f89e5eb51130e5217c4f",
+      "bytes": 2261
+    },
+    {
+      "path": "runtime/os_runtime.py",
+      "sha256": "926e255e98a7d8a8c9d0dcb51bbf2e22b30a4edfea47fbd4dc0a65bc46d9eef7",
+      "bytes": 2506
+    },
+    {
+      "path": "runtime/README.md",
+      "sha256": "85af73d6c19bb19d0c4413f0e47d0e5b60fcc99fd430aca2be0438018f7f9d82",
+      "bytes": 375
+    },
+    {
+      "path": "runtime/requirements.txt",
+      "sha256": "0d5b8d9408d93e3953b2a0117a8a9657d829f2e95f79d904093bab5eec894183",
+      "bytes": 24
+    },
+    {
+      "path": "schemas/access_policy.json",
+      "sha256": "b537d4ea1c0afe1458505aafd77e7344fecb71c0312cefec5b8b33c13ff37366",
+      "bytes": 948
+    },
+    {
+      "path": "schemas/context_pack.json",
+      "sha256": "780383bfeb53a6a255dd8434287729d74d90049c979cbf830b40f97bd9dbddd5",
+      "bytes": 1162
+    },
+    {
+      "path": "schemas/contradiction.json",
+      "sha256": "8827860a1ed44a18956eec52e85c6e729b58340d5c34703110ec51b2dad1cb0f",
+      "bytes": 1060
+    },
+    {
+      "path": "schemas/decision_record.json",
+      "sha256": "fb2d39ddbb3dc2387b3d426105a4a3df1db16b611e452637607f7926f3f6597a",
+      "bytes": 1073
+    },
+    {
+      "path": "schemas/entity.json",
+      "sha256": "fbbc86fcbb43b850aae2f6faf5c0845a4b3f6c7ca877d294998e8e58dff71418",
+      "bytes": 1029
+    },
+    {
+      "path": "schemas/memory_record.json",
+      "sha256": "d5a90e4dcb7a4f46c7af639d18e0a46a1dd53c0f36c41ae28275b802f2b06292",
+      "bytes": 1227
+    },
+    {
+      "path": "schemas/relationship_edge.json",
+      "sha256": "18bda88307deb27881728a47bc1525f3ca9f5703ecb076fc326d2a89b2722d05",
+      "bytes": 1033
+    },
+    {
+      "path": "schemas/source.json",
+      "sha256": "2547120c8f62f3c3564b07820eac0eb65249fe6c1522c07e76c05225a26d73ca",
+      "bytes": 1048
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "acd4a40ba417a338e2d5d91942ea392ae31490371748cd937d5c923fff21056e",
+      "bytes": 2603
+    },
+    {
+      "path": "skills/access_policy.md",
+      "sha256": "6a5596df93e042a2e35f779c3ab0dd87a9a6e90aab3e9af9e3f58e81fe2725a9",
+      "bytes": 948
+    },
+    {
+      "path": "skills/book_research_index.md",
+      "sha256": "ba3ab7e0c6fb8264b7b0bb768fc90664e8e65494d0a131d55ec2b6894fba3194",
+      "bytes": 956
+    },
+    {
+      "path": "skills/citation_trail.md",
+      "sha256": "eece62a17a57a2236d017d7b336bc7bac7388b62d19c3ad269451a4cbc85d05b",
+      "bytes": 955
+    },
+    {
+      "path": "skills/context_diff.md",
+      "sha256": "980e12c73e598271252e74ceb7a788e4e7a2183c06de91b0f1d06ec250c6ca87",
+      "bytes": 938
+    },
+    {
+      "path": "skills/context_pack_compiler.md",
+      "sha256": "1fb6d608effa0a2600cd110dc852579e4aa53790735eeee97e9fd74107b192da",
+      "bytes": 985
+    },
+    {
+      "path": "skills/contradiction_adjudication.md",
+      "sha256": "47d88b461bbe645ff7a5ea1aa12a4a9afb39b260910046017b6e8f6e25a7b884",
+      "bytes": 967
+    },
+    {
+      "path": "skills/contradiction_detection.md",
+      "sha256": "a03522f4540b879e54d583846752a30ff4ef5176516a6ad54390a6b708390077",
+      "bytes": 954
+    },
+    {
+      "path": "skills/conversation_distillation.md",
+      "sha256": "c30fde6ddf1fec9a8b7429601177bb7591dd8a33f6bcd87016c00052e6739d6f",
+      "bytes": 974
+    },
+    {
+      "path": "skills/decision_log.md",
+      "sha256": "0262ca370237ee667fb1f85d88f1fc014dc2ce60ce03e65522bf2a132c974844",
+      "bytes": 962
+    },
+    {
+      "path": "skills/entity_resolution.md",
+      "sha256": "64a38d743df05b78c378b16df689b6bea0cac1c9d67d147b428719aafd5638c9",
+      "bytes": 959
+    },
+    {
+      "path": "skills/memory_compression.md",
+      "sha256": "60ecf24b020456acf0fc3f5b8cff2d554c5e7109e8893698699ba542c0933f15",
+      "bytes": 949
+    },
+    {
+      "path": "skills/memory_write_proposal.md",
+      "sha256": "473703de9e03560ebb41c8a7a90326fb3f9c4b2f6e08b86f476f992b9616970a",
+      "bytes": 966
+    },
+    {
+      "path": "skills/project_snapshot.md",
+      "sha256": "ecfb1ed1165e685a42fbf8b850106ed2730772f7536f59cc76ee10b8e0d7d112",
+      "bytes": 953
+    },
+    {
+      "path": "skills/prompt_injection_screening.md",
+      "sha256": "b61bae0726be9b7a1a9a35edc538c5f7278cd26934703e4b6bb1b974131ce5e0",
+      "bytes": 956
+    },
+    {
+      "path": "skills/right_to_correct.md",
+      "sha256": "e6299f8f5d8e7a3a33731f3d867bf646076076261dae489f2543e8725a05404d",
+      "bytes": 949
+    },
+    {
+      "path": "skills/right_to_forget.md",
+      "sha256": "e277973b8c42445ac791b370850af5dae2ef360c9052a2ede23698884909a993",
+      "bytes": 947
+    },
+    {
+      "path": "skills/semantic_retrieval.md",
+      "sha256": "d1ef34525ac2869630da93adcaa97f44c46374493761da075ad7c0fe8135ac9e",
+      "bytes": 961
+    },
+    {
+      "path": "skills/source_ingestion.md",
+      "sha256": "c4f57e33f43ba51018cae86d9a92dad43869ef087f69368ad674270d5f36a75f",
+      "bytes": 958
+    },
+    {
+      "path": "skills/staleness_review.md",
+      "sha256": "bfdfc9364b44c73f719f3b42494c79ea32ea0a8b7afa8fd90c257c181404e90b",
+      "bytes": 936
+    },
+    {
+      "path": "skills/temporal_supersession.md",
+      "sha256": "8262418d6fac26571e0f7748f1a50fe2b5cc501d5a9f9574d5019ed752ac8587",
+      "bytes": 958
+    },
+    {
+      "path": "system/BOUNDARIES.md",
+      "sha256": "715feca4a85edd5093b637528427521e8f37e157b6eede3f8feb8b80eb82524b",
+      "bytes": 882
+    },
+    {
+      "path": "system/OUTPUT_CONTRACT.md",
+      "sha256": "76a3217380ef3affd8957e9ad7518ae99ce7334841c25717788d7d690c2cad2e",
+      "bytes": 579
+    },
+    {
+      "path": "system/PRINCIPLES.md",
+      "sha256": "e55851d9aae8a4926e1cca4355c885c33e38b730b668c62c6f198399beafd51a",
+      "bytes": 927
+    },
+    {
+      "path": "system/ROUTER.md",
+      "sha256": "4cf716c15f6f6fc1a6351dfa219a899f95946b74218de8969607cf5e91c6b9ca",
+      "bytes": 858
+    },
+    {
+      "path": "system/SYSTEM_PROMPT.md",
+      "sha256": "44894a29bfdbd2f118f9e60126cb918f5c92cfd468d9ee54f34f82f5a304fa3a",
+      "bytes": 6066
+    },
+    {
+      "path": "templates/CONTEXT_PACK.md",
+      "sha256": "2a7a54bda4e2e01575f6734d3089fded11a14f632d01a1e20542b8b0fcc89720",
+      "bytes": 376
+    },
+    {
+      "path": "templates/DECISION_RECORD.md",
+      "sha256": "7cac67c1bf0e430bf46bdd3cc03beb5491eaac81a196f23c2042d8a0b5775cb1",
+      "bytes": 199
+    },
+    {
+      "path": "templates/MEMORY_WRITE_PROPOSAL.md",
+      "sha256": "a37e87ba967082481dcc62aaf77502f90b877202c90ee4ac28e08a57518cc5df",
+      "bytes": 292
+    },
+    {
+      "path": "tests/test_package.py",
+      "sha256": "71885ea7b8fc36f20c4e4dd252af304ec93d6e20dadb4f33036fcc5c058c18ff",
+      "bytes": 573
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "memory.context.compiled",
+        "consumed_by": [
+          "mindset",
+          "health-energy",
+          "habit-tracker",
+          "alignment",
+          "strategy-portfolio",
+          "brainstorm",
+          "market-research",
+          "blueprint",
+          "design",
+          "stepper",
+          "builder",
+          "quality-evaluation-release",
+          "storyteller",
+          "revenue",
+          "delivery-customer-success",
+          "relationship-network",
+          "wealth-capital",
+          "execution",
+          "operations-automation",
+          "review-governance",
+          "ai-logic",
+          "content",
+          "books"
+        ],
+        "payload": {
+          "id": "string (record id)",
+          "context": "object (the context payload)",
+          "status": "string (compiled)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.record.verified",
+        "consumed_by": [
+          "mindset",
+          "health-energy",
+          "habit-tracker",
+          "alignment",
+          "strategy-portfolio",
+          "brainstorm",
+          "market-research",
+          "blueprint",
+          "design",
+          "stepper",
+          "builder",
+          "quality-evaluation-release",
+          "storyteller",
+          "revenue",
+          "delivery-customer-success",
+          "relationship-network",
+          "wealth-capital",
+          "execution",
+          "operations-automation",
+          "review-governance",
+          "ai-logic",
+          "content",
+          "books"
+        ],
+        "payload": {
+          "id": "string (record id)",
+          "record": "object (the record payload)",
+          "status": "string (verified)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.context.snapshot.created",
+        "consumed_by": "strategy-portfolio",
+        "payload": {
+          "id": "string (record id)",
+          "snapshot": "object (the snapshot payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "memory.record.staged",
+        "produced_by": [
+          "mindset",
+          "health-energy",
+          "habit-tracker",
+          "alignment",
+          "strategy-portfolio",
+          "brainstorm",
+          "market-research",
+          "blueprint",
+          "design",
+          "stepper",
+          "builder",
+          "quality-evaluation-release",
+          "storyteller",
+          "revenue",
+          "delivery-customer-success",
+          "relationship-network",
+          "wealth-capital",
+          "execution",
+          "operations-automation",
+          "review-governance",
+          "ai-logic",
+          "content",
+          "books"
+        ],
+        "payload": {
+          "id": "string (record id)",
+          "record": "object (the record payload)",
+          "status": "string (staged)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "review.learning.pack.created",
+        "produced_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "pack": "object (the pack payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "books.insight.confirmed",
+        "produced_by": [
+          "books"
+        ],
+        "payload": {
+          "id": "string",
+          "insight": "object",
+          "source": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

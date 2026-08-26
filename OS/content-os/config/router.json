@@ -1,0 +1,85 @@
+{
+  "os": "content",
+  "default_mode": "capture",
+  "commands": {
+    "/content": {
+      "mode": "strategy",
+      "purpose": "Open Content OS"
+    },
+    "/content-gps": {
+      "mode": "strategy",
+      "purpose": "Define positioning and content system"
+    },
+    "/capture-day": {
+      "mode": "capture",
+      "purpose": "Ingest the day as source material"
+    },
+    "/story-mine": {
+      "mode": "mine",
+      "purpose": "Find stories and insights"
+    },
+    "/pillar": {
+      "mode": "create",
+      "purpose": "Create a pillar asset"
+    },
+    "/cascade": {
+      "mode": "cascade",
+      "purpose": "Build a multi-platform waterfall"
+    },
+    "/instagram": {
+      "mode": "platform",
+      "purpose": "Create Instagram-native package"
+    },
+    "/tiktok": {
+      "mode": "platform",
+      "purpose": "Create TikTok-native package"
+    },
+    "/youtube": {
+      "mode": "platform",
+      "purpose": "Create YouTube package"
+    },
+    "/linkedin": {
+      "mode": "platform",
+      "purpose": "Create LinkedIn package"
+    },
+    "/x": {
+      "mode": "platform",
+      "purpose": "Create X package"
+    },
+    "/newsletter": {
+      "mode": "platform",
+      "purpose": "Create newsletter"
+    },
+    "/article": {
+      "mode": "create",
+      "purpose": "Create an article"
+    },
+    "/visual-brief": {
+      "mode": "produce",
+      "purpose": "Create image/design direction"
+    },
+    "/video-brief": {
+      "mode": "produce",
+      "purpose": "Create script, shots and edit plan"
+    },
+    "/sound-brief": {
+      "mode": "produce",
+      "purpose": "Create sound/music/voice direction"
+    },
+    "/content-calendar": {
+      "mode": "calendar",
+      "purpose": "Build the editorial calendar"
+    },
+    "/content-review": {
+      "mode": "measure",
+      "purpose": "Run performance council"
+    }
+  },
+  "handoffs": [
+    "Context & Memory OS provides authorized source material and voice history.",
+    "Storyteller OS may deepen narrative structures.",
+    "Revenue OS provides offer/audience-stage objectives and receives qualified intent signals.",
+    "Quality/Review govern sensitive claims and publication policy.",
+    "Operations OS automates production only after the workflow is stable."
+  ]
+}

@@ -1,0 +1,48 @@
+# OmegaOS — provisioning credentials (services.env)
+# =============================================================================
+# Used by /omega-new-project to AUTO-CREATE and WIRE external services for a
+# fresh project (Vercel + Convex + GitHub + Clerk + Stripe).
+#
+# Location at runtime : ~/.omega/provisioning/services.env   (chmod 600)
+# This file lives under ~/.omega/ which is GITIGNORED — secrets NEVER enter a
+# repo (Law L0). install.sh copies this template here ONCE and never clobbers
+# an existing real file.
+#
+# Sourceable shell env: `set -a; source services.env; set +a`.
+# Leave any token BLANK to fall back to manual / pause mode for that service.
+# =============================================================================
+
+# --- Vercel -------------------------------------------------------------------
+# FULL auto: create project, push env vars, link the GitHub repo.
+# Token: https://vercel.com/account/tokens  (scope: Full Account)
+export VERCEL_TOKEN=""
+export VERCEL_TEAM_ID=""          # optional — omit for personal scope
+
+# --- Convex -------------------------------------------------------------------
+# FULL auto: provision a new deployment non-interactively.
+# Team token: Convex dashboard -> Team Settings -> "Generate access token".
+export CONVEX_TEAM_TOKEN=""
+export CONVEX_TEAM_SLUG=""
+
+# --- GitHub -------------------------------------------------------------------
+# Create the repo. If blank, the skill falls back to `gh auth` (must be logged
+# in). Token scope: repo, workflow.
+export GITHUB_TOKEN=""
+export GITHUB_OWNER=""             # org/user that owns new repos (default: gh user)
+
+# --- Clerk --------------------------------------------------------------------
+# REALITY: Clerk has NO public API to CREATE an application/instance — apps are
+# dashboard-only. Two honest strategies:
+#   pool  : you pre-create a stock of Clerk apps; the skill pops one per project
+#           from ~/.omega/provisioning/clerk-pool.env and wires its keys.
+#   pause : the skill opens the Clerk dashboard, waits for you to paste the
+#           publishable + secret key once, then wires everything.
+export CLERK_PROVISION_MODE="pause"   # pool | pause
+
+# --- Stripe -------------------------------------------------------------------
+#   single  : ONE master account; the skill creates products/prices/webhooks +
+#             a restricted key scoped to this project (recommended for solo).
+#   connect : Stripe Connect `accounts.create` → a dedicated connected account
+#             per project. Powerful but each account needs KYC onboarding.
+export STRIPE_MODE="single"           # single | connect
+export STRIPE_SECRET_KEY=""           # master (single) or platform (connect) secret

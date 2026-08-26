@@ -1,0 +1,33 @@
+{
+  "_comment": "Catalogue source-de-vérité des apps connectables par Nova via Composio. Seedé par install.sh vers ~/.omega/nova-apps.json (jamais re-clobberé). Lu par nova-composio-connect.sh (et lisible par le cerveau Nova pour afficher le menu). auth: oauth2 = clic→URL→autoriser (géré Composio) | api_key = clé à mettre dans ~/.omega/nova-secrets.env (champ env) | dcr_oauth = flux OAuth dynamique MCP. 'connected' est un état runtime par opérateur — toujours false dans ce sample ; le fichier vécu (~/.omega/nova-apps.json) ne se committe JAMAIS.",
+  "_updated": "2026-06-10",
+  "apps": [
+    { "slug": "gmail",         "label": "Gmail",            "category": "Email & Productivité", "auth": "oauth2",    "connected": false },
+    { "slug": "googlecalendar","label": "Google Calendar",  "category": "Email & Productivité", "auth": "oauth2",    "connected": false },
+    { "slug": "notion",        "label": "Notion",           "category": "Email & Productivité", "auth": "oauth2",    "connected": false },
+
+    { "slug": "twitter",       "label": "Twitter / X",      "category": "Réseaux sociaux",      "auth": "oauth2",    "connected": false },
+    { "slug": "instagram",     "label": "Instagram",        "category": "Réseaux sociaux",      "auth": "oauth2",    "connected": false },
+    { "slug": "linkedin",      "label": "LinkedIn",         "category": "Réseaux sociaux",      "auth": "oauth2",    "connected": false },
+    { "slug": "reddit",        "label": "Reddit",           "category": "Réseaux sociaux",      "auth": "oauth2",    "connected": false },
+    { "slug": "youtube",       "label": "YouTube",          "category": "Réseaux sociaux",      "auth": "oauth2",    "connected": false },
+    { "slug": "discord",       "label": "Discord",          "category": "Réseaux sociaux",      "auth": "oauth2",    "connected": false },
+    { "slug": "ayrshare",      "label": "Ayrshare (multi-post organique)", "category": "Réseaux sociaux", "auth": "api_key", "env": "AYRSHARE_API_KEY", "connected": false },
+
+    { "slug": "metaads",       "label": "Meta Ads",         "category": "Publicité",            "auth": "oauth2",    "connected": false },
+    { "slug": "googleads",     "label": "Google Ads (inclut YouTube Ads)", "category": "Publicité", "auth": "oauth2", "connected": false },
+    { "slug": "linkedin_ads",  "label": "LinkedIn Ads",     "category": "Publicité",            "auth": "oauth2",    "connected": false },
+    { "slug": "reddit_ads",    "label": "Reddit Ads",       "category": "Publicité",            "auth": "oauth2",    "connected": false },
+
+    { "slug": "github",        "label": "GitHub",           "category": "Dev",                  "auth": "oauth2",    "connected": false },
+    { "slug": "gist",          "label": "Gist",             "category": "Dev",                  "auth": "api_key",   "env": "GIST_GITHUB_TOKEN", "connected": false },
+
+    { "slug": "apollo",        "label": "Apollo (prospection)", "category": "Sales",            "auth": "api_key",   "env": "APOLLO_API_KEY", "connected": false },
+
+    { "slug": "coinmarketcap", "label": "CoinMarketCap",     "category": "Finance & Marchés",    "auth": "api_key",   "env": "COINMARKETCAP_API_KEY", "connected": false },
+    { "slug": "mercury_mcp",   "label": "Mercury (banque)",  "category": "Finance & Marchés",    "auth": "dcr_oauth", "connected": false },
+
+    { "slug": "heygen",        "label": "HeyGen (vidéo IA)", "category": "Contenu / Média",      "auth": "api_key",   "env": "HEYGEN_API_KEY", "connected": false },
+    { "slug": "spotify",       "label": "Spotify",          "category": "Contenu / Média",      "auth": "oauth2",    "connected": false }
+  ]
+}

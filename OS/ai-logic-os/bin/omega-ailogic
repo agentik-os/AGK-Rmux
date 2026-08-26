@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# omega-ailogic — the OmegaOS command for AI Logic OS (AgentikOS suite, Systems
+# group). This OS is conversational + diagnostic (no state CLI): the wrapper
+# opens a Claude session running the AI Logic master agent, from the OS folder
+# so its audit ledger persists. The arbitration (code-vs-AI) and the
+# system-challenge happen in the agent (/ai-logic · /ailogic), or via the OS's
+# Telegram bot.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+OS_DIR="$OMEGA_DIR/os/ai-logic-os"
+mkdir -p "$OS_DIR/ledger"
+
+PERSONA="$OS_DIR/MASTER.md"
+[[ -f "$PERSONA" ]] || {
+    echo "omega-ailogic: no master persona at $PERSONA — run OmegaOS install.sh" >&2
+    exit 1
+}
+
+cd "$OS_DIR"
+exec claude --append-system-prompt "$(cat "$PERSONA")" "$@"

@@ -1,0 +1,343 @@
+{
+  "version": "1.0.0",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_run_initialize",
+        "description": "Initialize or resume a project-scoped Blueprint run and return canonical revision, counters, status, and continuation state.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "project_name", "namespace", "version", "mode", "request", "locale", "audience", "existing_state_ref", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string", "minLength": 1 },
+            "project_name": { "type": "string", "minLength": 1 },
+            "namespace": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+            "version": { "type": ["string", "null"] },
+            "mode": { "enum": ["NEW", "RECOVER", "EXTEND", "REVISE", "AUDIT", "DELTA"] },
+            "request": { "type": "string", "minLength": 1 },
+            "locale": { "type": ["string", "null"] },
+            "audience": { "type": ["string", "null"] },
+            "existing_state_ref": { "type": ["string", "null"] },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_state_read",
+        "description": "Read a filtered slice of canonical Blueprint state for a project and revision.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "revision", "record_ids", "kinds", "include_neighbors", "include_history"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "revision": { "type": ["integer", "null"], "minimum": 0 },
+            "record_ids": { "type": "array", "items": { "type": "string" }, "maxItems": 500 },
+            "kinds": { "type": "array", "items": { "type": "string" }, "maxItems": 50 },
+            "include_neighbors": { "type": "boolean", "default": false },
+            "include_history": { "type": "boolean", "default": false }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_source_register",
+        "description": "Register an authorized source, its authority, version, fingerprint, confidentiality, and evidence locators.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "expected_revision", "source", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "expected_revision": { "type": "integer", "minimum": 0 },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["title", "source_type", "uri", "version", "fingerprint", "authority_tier", "confidentiality", "evidence_locators"],
+              "properties": {
+                "title": { "type": "string" },
+                "source_type": { "type": "string" },
+                "uri": { "type": ["string", "null"] },
+                "version": { "type": ["string", "null"] },
+                "fingerprint": { "type": ["string", "null"] },
+                "authority_tier": { "type": "integer", "minimum": 1, "maximum": 8 },
+                "confidentiality": { "enum": ["public", "internal", "confidential", "restricted"] },
+                "evidence_locators": { "type": "array", "items": { "type": "string" }, "maxItems": 200 }
+              }
+            },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_id_allocate",
+        "description": "Allocate monotonic stable IDs for one canonical record prefix. Allocated IDs are never reused.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "expected_revision", "prefix", "count", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "expected_revision": { "type": "integer", "minimum": 0 },
+            "prefix": { "type": "string", "pattern": "^[A-Z]{2,8}$" },
+            "count": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_record_upsert",
+        "description": "Create or revise a typed canonical Blueprint record while preserving provenance and supersession history.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "expected_revision", "record", "change_reason", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "expected_revision": { "type": "integer", "minimum": 0 },
+            "record": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["id", "kind", "status", "title", "epistemic_type", "body", "sources", "dependencies", "supersedes"],
+              "properties": {
+                "id": { "type": "string", "pattern": "^[A-Z]{2,8}-[0-9]{3,}$" },
+                "kind": { "type": "string" },
+                "status": { "enum": ["proposed", "accepted", "rejected", "deferred", "superseded", "deprecated", "validated"] },
+                "title": { "type": "string" },
+                "epistemic_type": { "enum": ["FACT", "DECISION", "ASSUMPTION", "PROPOSAL", "UNKNOWN", "CONFLICT", "DEFERRED", "SUPERSEDED"] },
+                "body": { "type": "object" },
+                "sources": { "type": "array", "items": { "type": "string" } },
+                "dependencies": { "type": "array", "items": { "type": "string" } },
+                "supersedes": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "change_reason": { "type": "string", "minLength": 1 },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_trace_link",
+        "description": "Add a typed directional link between existing canonical records.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "expected_revision", "from_id", "relation", "to_id", "rationale", "status", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "expected_revision": { "type": "integer", "minimum": 0 },
+            "from_id": { "type": "string" },
+            "relation": { "enum": ["derived_from", "decides", "satisfies", "depends_on", "conflicts_with", "supersedes", "realized_by", "reads", "writes", "emits", "consumes", "authorized_by", "verified_by", "measured_by", "mitigated_by", "blocks"] },
+            "to_id": { "type": "string" },
+            "rationale": { "type": "string", "minLength": 1 },
+            "status": { "enum": ["active", "proposed", "superseded"] },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_finding_register",
+        "description": "Register a conflict, orphan, ambiguity, critic finding, or validation defect with severity and affected records.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "expected_revision", "finding", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "expected_revision": { "type": "integer", "minimum": 0 },
+            "finding": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["finding_type", "severity", "statement", "evidence_ids", "affected_ids", "status", "disposition"],
+              "properties": {
+                "finding_type": { "type": "string" },
+                "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
+                "statement": { "type": "string" },
+                "evidence_ids": { "type": "array", "items": { "type": "string" } },
+                "affected_ids": { "type": "array", "items": { "type": "string" } },
+                "status": { "enum": ["open", "resolved", "deferred", "rejected"] },
+                "disposition": { "type": ["string", "null"] }
+              }
+            },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_impact_analyze",
+        "description": "Traverse trace links from changed records and return affected artifacts, gates, and required revalidation without mutating them.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "revision", "changed_ids", "max_depth", "relations"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "revision": { "type": ["integer", "null"], "minimum": 0 },
+            "changed_ids": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "type": "string" } },
+            "max_depth": { "type": "integer", "minimum": 1, "maximum": 12 },
+            "relations": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_validate",
+        "description": "Run schema, referential, semantic, orphan, coverage, continuation, and handoff eligibility validation.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "revision", "levels", "strict_mode"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "revision": { "type": "integer", "minimum": 0 },
+            "levels": { "type": "array", "minItems": 1, "items": { "enum": ["schema", "referential", "semantic", "orphans", "coverage", "gates", "continuation", "handoff"] } },
+            "strict_mode": { "type": "boolean", "default": true }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_gate_evaluate",
+        "description": "Record one quality gate result with canonical evidence, blockers, and conditions.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "expected_revision", "gate_id", "result", "evidence_ids", "blocker_ids", "condition", "owner", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "expected_revision": { "type": "integer", "minimum": 0 },
+            "gate_id": { "type": "string", "pattern": "^G(0[1-9]|1[0-9]|20)$" },
+            "result": { "enum": ["PASS", "CONDITIONAL", "FAIL", "N/A"] },
+            "evidence_ids": { "type": "array", "items": { "type": "string" } },
+            "blocker_ids": { "type": "array", "items": { "type": "string" } },
+            "condition": { "type": ["string", "null"] },
+            "owner": { "type": ["string", "null"] },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_checkpoint_save",
+        "description": "Atomically save continuation state, counters, blockers, changes, and gate snapshot at a known revision.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "expected_revision", "checkpoint", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "expected_revision": { "type": "integer", "minimum": 0 },
+            "checkpoint": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "completed_sections", "current_section", "next_exact_section", "remaining_sections", "unresolved_blockers", "id_counters", "changed_record_ids"],
+              "properties": {
+                "status": { "enum": ["BLUEPRINT IN PROGRESS", "BLUEPRINT BLOCKED", "BLUEPRINT COMPLETE — STEPPER READY"] },
+                "completed_sections": { "type": "array", "items": { "type": "string" } },
+                "current_section": { "type": ["string", "null"] },
+                "next_exact_section": { "type": ["string", "null"] },
+                "remaining_sections": { "type": "array", "items": { "type": "string" } },
+                "unresolved_blockers": { "type": "array", "items": { "type": "string" } },
+                "id_counters": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+                "changed_record_ids": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_export",
+        "description": "Render a revision-linked Blueprint view without changing canonical meaning.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "revision", "view", "format", "include_confidential", "target_audience"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "revision": { "type": "integer", "minimum": 0 },
+            "view": { "enum": ["full", "executive", "audit", "delta", "ux", "technical", "stepper-manifest", "json-state"] },
+            "format": { "enum": ["markdown", "json", "yaml", "html", "docx", "pdf"] },
+            "include_confidential": { "type": "boolean", "default": false },
+            "target_audience": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "blueprint_handoff_create",
+        "description": "Validate and freeze an immutable Stepper Input Manifest for an eligible Blueprint revision. Does not invoke Stepper.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "run_id", "revision", "expected_checksum", "include_conditional_items", "idempotency_key"],
+          "properties": {
+            "project_id": { "type": "string" },
+            "run_id": { "type": "string" },
+            "revision": { "type": "integer", "minimum": 0 },
+            "expected_checksum": { "type": "string", "minLength": 8 },
+            "include_conditional_items": { "type": "boolean", "default": true },
+            "idempotency_key": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    }
+  ]
+}

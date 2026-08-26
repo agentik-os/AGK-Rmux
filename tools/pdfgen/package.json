@@ -1,0 +1,34 @@
+{
+  "name": "agentik-pdf",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Unified PDF generator — Next.js + Tailwind v4 + Playwright. Replaces all legacy stacks.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 4317",
+    "build": "next build",
+    "start": "next start --port 4317",
+    "pdf": "tsx bin/pdfgen.ts",
+    "smoke": "tsx bin/smoke.ts"
+  },
+  "dependencies": {
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "recharts": "^2.13.3",
+    "playwright": "^1.49.0",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "postcss": "^8.4.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# OmegaOS pixelrag wrapper — screenshot a page and READ it, instead of parsing HTML.
+# Wraps StarTrail-org/PixelRAG (Apache-2.0, Berkeley Sky Computing). RUNTIME OPT-IN:
+# the venv + pip install happen lazily on first run; install.sh ships only this
+# wrapper + SKILL.md, never a pip install and never the ~2 GB embedding extras
+# (same boundary as browser-use / higgsfield).
+#
+#   pixelrag shot <url|pdf|html> [more…] [-o DIR]   render to tiled JPEGs
+#   pixelrag search "<question>" [n]                query the hosted 26M-vector index
+#   pixelrag smoke                                  self-check, no network writes
+#
+# `search` hits https://api.pixelrag.ai — public, no API key, no account. It returns
+# the matching SCREENSHOT CROP, so the caller reads pixels rather than scraped text.
+set -uo pipefail
+
+VENV="$HOME/.omega/skills/pixelrag/.venv"
+API="${PIXELRAG_API:-https://api.pixelrag.ai}"
+
+die() { printf '\033[31m[pixelrag]\033[0m %s\n' "$*" >&2; exit 1; }
+info() { printf '\033[36m[pixelrag]\033[0m %s\n' "$*" >&2; }
+
+ensure_venv() {
+    if [ ! -x "$VENV/bin/pixelshot" ]; then
+        info "bootstrapping venv (first run, ~30 s)…"
+        mkdir -p "$(dirname "$VENV")"
+        if command -v uv >/dev/null 2>&1; then
+            uv venv --python 3.12 "$VENV" >/dev/null 2>&1 || die "uv venv failed"
+            uv pip install --python "$VENV/bin/python" --quiet pixelrag || die "pip install pixelrag failed"
+        else
+            python3 -m venv "$VENV" || die "python3 -m venv failed (need python >= 3.12)"
+            "$VENV/bin/pip" install --quiet --upgrade pip pixelrag || die "pip install pixelrag failed"
+        fi
+    fi
+}
+
+cmd="${1:-}"; shift || true
+case "$cmd" in
+  shot)
+    [ $# -gt 0 ] || die "usage: pixelrag shot <url|pdf|html> [more…] [-o DIR]"
+    ensure_venv
+    # Default output under the scratch tree, not the caller's cwd (R-ENV).
+    case " $* " in *" -o "*|*" --output "*) exec "$VENV/bin/pixelshot" "$@" ;; esac
+    out="${PIXELRAG_OUT:-$HOME/.omega/state/pixelrag-tiles}"
+    mkdir -p "$out"
+    exec "$VENV/bin/pixelshot" "$@" --output "$out"
+    ;;
+  search)
+    q="${1:-}"; n="${2:-5}"
+    [ -n "$q" ] || die "usage: pixelrag search \"<question>\" [n]"
+    # Pure HTTP — no venv, no model, no key. python3 is stdlib-only here.
+    python3 - "$API" "$q" "$n" <<'PY'
+import base64, json, os, sys, urllib.request
+api, q, n = sys.argv[1], sys.argv[2], int(sys.argv[3])
+body = json.dumps({"queries": [{"text": q}], "n_docs": n, "include_images": True}).encode()
+req = urllib.request.Request(f"{api}/search", data=body, headers={"Content-Type": "application/json"})
+hits = json.load(urllib.request.urlopen(req, timeout=180))["results"][0]["hits"]
+out = os.environ.get("PIXELRAG_OUT", os.path.expanduser("~/.omega/state/pixelrag-hits"))
+os.makedirs(out, exist_ok=True)
+for i, h in enumerate(hits, 1):
+    p = ""
+    if h.get("image_base64"):
+        p = os.path.join(out, f"hit{i}.jpg")
+        open(p, "wb").write(base64.b64decode(h["image_base64"]))
+    print(f"[{i}] {h.get('url','?')}  score={h.get('score',0):.4f}"
+          f"  tile={h.get('tile_index')}  y={h.get('y_offset')}")
+    if p:
+        print(f"    image: {p}   <- READ this file, the answer is in the pixels")
+PY
+    ;;
+  smoke)
+    ensure_venv
+    "$VENV/bin/pixelshot" --help >/dev/null 2>&1 || die "pixelshot not runnable"
+    st=$(curl -sS --max-time 30 "$API/status" | python3 -c 'import json,sys;d=json.load(sys.stdin);print(d["total_vectors"],d["dimension"])' 2>/dev/null) \
+        || die "hosted index unreachable at $API"
+    echo "pixelshot OK | hosted index OK (vectors=${st% *} dim=${st#* })"
+    ;;
+  *)
+    sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+    exit 2
+    ;;
+esac

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# omega-stepper — the OmegaOS command for Stepper OS (AgentikOS suite).
+# Thin launcher: creates the engine venv LAZILY on first run (install.sh
+# never pip-installs — same external-dependency boundary as pixelrag /
+# browser-use), then execs the real `stepper` CLI with all arguments.
+#
+# Engine source resolution: a checkout wins over the installed copy, so a
+# developer editing OS/stepper-os/engine/ tests their change immediately.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+VENV="$OMEGA_DIR/os/stepper-os/.venv"
+
+find_engine() {
+    local candidates=(
+        "${STEPPER_ENGINE_DIR:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/stepper-os/engine"
+        "$HOME/OmegaOS/OS/stepper-os/engine"
+        "$OMEGA_DIR/os/stepper-os/engine"
+    )
+    for dir in "${candidates[@]}"; do
+        [[ -n "$dir" && -f "$dir/pyproject.toml" ]] && { echo "$dir"; return 0; }
+    done
+    return 1
+}
+
+ENGINE_DIR="$(find_engine)" || {
+    echo "omega-stepper: Stepper engine not found (looked in the checkout and $OMEGA_DIR/os/stepper-os/engine)." >&2
+    echo "Run OmegaOS install.sh, or set STEPPER_ENGINE_DIR." >&2
+    exit 1
+}
+
+if [[ ! -x "$VENV/bin/stepper" ]]; then
+    echo "omega-stepper: first run — creating venv and installing the engine…" >&2
+    python3 -m venv "$VENV"
+    "$VENV/bin/pip" install --quiet --upgrade pip
+    "$VENV/bin/pip" install --quiet -e "$ENGINE_DIR"
+    echo "omega-stepper: engine installed ($ENGINE_DIR)." >&2
+fi
+
+exec "$VENV/bin/stepper" "$@"

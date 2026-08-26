@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Platform Brief",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "platform": {
+      "type": "string",
+      "description": "Platform"
+    },
+    "audience_context": {
+      "type": "string",
+      "description": "User context"
+    },
+    "opening": {
+      "type": "string",
+      "description": "Opening"
+    },
+    "native_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Native requirements"
+    },
+    "cta": {
+      "type": "string",
+      "description": "Next action"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "platform",
+    "audience_context",
+    "opening",
+    "native_rules"
+  ],
+  "additionalProperties": false
+}

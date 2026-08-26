@@ -1,0 +1,354 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/journal-os/tomorrow_protocol.json",
+  "title": "Tomorrow Protocol",
+  "description": "The executable design for the next day. Three caps are structural rather than advisory. missions has maxItems 3, so a fourth mission cannot be written however enthusiastic the session was. Every mission requires a non-empty success_condition, so a mission that cannot be answered yes or no tomorrow evening cannot be recorded. identity_challenge is a single object rather than an array, so there is exactly one per day and two is not expressible. Non-negotiables require active true, so a lapsed anchor cannot be listed as one to apply pressure. A zero-mission day is legal and must declare itself a rest day with a reason, which keeps an honest empty protocol distinct from an unfinished one.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "entry_id": {
+      "type": "string"
+    },
+    "for_date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "missions": {
+      "type": "array",
+      "description": "At most three. A list of seven produces a day of triage and an evening of explanations.",
+      "items": {
+        "$ref": "#/$defs/mission"
+      },
+      "maxItems": 3
+    },
+    "non_negotiables": {
+      "type": "array",
+      "description": "Only the anchors currently in force. Each item requires active true, so an inactive one cannot appear here at all.",
+      "items": {
+        "$ref": "#/$defs/non_negotiable"
+      },
+      "maxItems": 7
+    },
+    "identity_challenge": {
+      "$ref": "#/$defs/identity_challenge"
+    },
+    "optional_challenge": {
+      "$ref": "#/$defs/optional_challenge"
+    },
+    "unfinished_loops": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unfinished_loop"
+      },
+      "maxItems": 20
+    },
+    "rest_day": {
+      "type": "boolean",
+      "description": "A deliberate zero-mission day. The non-negotiables still stand."
+    },
+    "rest_reason": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Required on a rest day, so an honest empty protocol is distinguishable from an unfinished one"
+    },
+    "capacity_note": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Why the mission count matches the real day, for example eleven hours of client obligations"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "for_date",
+    "missions",
+    "non_negotiables",
+    "identity_challenge",
+    "unfinished_loops"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "Zero missions is legal, and it declares itself.",
+      "if": {
+        "properties": {
+          "missions": {
+            "type": "array",
+            "maxItems": 0
+          }
+        },
+        "required": [
+          "missions"
+        ]
+      },
+      "then": {
+        "required": [
+          "rest_day",
+          "rest_reason"
+        ],
+        "properties": {
+          "rest_day": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "description": "A rest day carries no missions. The two cannot both be asserted.",
+      "if": {
+        "properties": {
+          "rest_day": {
+            "const": true
+          }
+        },
+        "required": [
+          "rest_day"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missions": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "domain": {
+      "enum": [
+        "self",
+        "health",
+        "sobriety",
+        "wealth",
+        "build",
+        "work",
+        "people",
+        "love",
+        "world",
+        "mind",
+        "freedom"
+      ]
+    },
+    "mission": {
+      "type": "object",
+      "description": "One concrete action a stranger could execute, serving a named objective, answerable yes or no tomorrow evening",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "Ship the auth fix and deploy it. Not: work on the build."
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "The objective or contradiction this serves. A mission with no why is someone else's day leaking in."
+        },
+        "success_condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "The observable state that makes tomorrow's answer a yes or a no. Required and non-empty: a mission without one is not a mission."
+        },
+        "carried_from": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Set when this mission was already written for an earlier day"
+        }
+      },
+      "required": [
+        "domain",
+        "action",
+        "why",
+        "success_condition"
+      ],
+      "additionalProperties": false
+    },
+    "non_negotiable": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "The binary condition. Met or not met, with no partial credit and no commentary."
+        },
+        "active": {
+          "const": true,
+          "description": "Only currently active anchors are listable. An inactive one is not a non-negotiable, and a repeatedly broken one is a contradiction rather than an anchor."
+        }
+      },
+      "required": [
+        "name",
+        "condition",
+        "active"
+      ],
+      "additionalProperties": false
+    },
+    "identity_challenge": {
+      "type": "object",
+      "description": "Exactly one per day. An object rather than an array, so a second challenge is not expressible.",
+      "properties": {
+        "challenge": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "Concrete, with an observable result"
+        },
+        "why_uncomfortable": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "The friction that makes it a vote rather than a task"
+        },
+        "success_condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "achievable_today": {
+          "const": true,
+          "description": "It starts and finishes inside tomorrow. Anything larger is a project and belongs elsewhere."
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        }
+      },
+      "required": [
+        "challenge",
+        "success_condition",
+        "achievable_today"
+      ],
+      "additionalProperties": false
+    },
+    "optional_challenge": {
+      "type": "object",
+      "description": "Included only when it adds genuine value tomorrow. Omission is the normal case.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "curiosity",
+            "social",
+            "environment",
+            "creativity",
+            "generosity",
+            "exposure"
+          ]
+        },
+        "challenge": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        },
+        "adds_value_because": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Required. A challenge that cannot say what it adds is decoration and is dropped."
+        }
+      },
+      "required": [
+        "kind",
+        "challenge",
+        "adds_value_because"
+      ],
+      "additionalProperties": false
+    },
+    "unfinished_loop": {
+      "type": "object",
+      "properties": {
+        "loop": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        },
+        "opened_on": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "age_days": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "A fact, not a reproach"
+        },
+        "next_action": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "status": {
+          "enum": [
+            "open",
+            "scheduled",
+            "killed",
+            "done"
+          ]
+        },
+        "kill_reason": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Killing a loop is a legitimate outcome and is recorded as a decision, not as a failure"
+        },
+        "carried_forward_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Three untouched carry-forwards make this pattern input for the contradiction engine"
+        }
+      },
+      "required": [
+        "loop",
+        "age_days",
+        "next_action",
+        "status"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "killed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "kill_reason"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

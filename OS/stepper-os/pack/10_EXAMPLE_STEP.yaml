@@ -1,0 +1,116 @@
+step_id: STEP-000123
+schema_version: 1
+title: Implement Experience eligibility resolver
+module: MOD-010
+epic: EPIC-EXP-ELIGIBILITY
+slice: SLICE-EXP-002
+priority: P0
+status: PENDING
+weight: 5
+risk:
+  level: HIGH
+  reasons: [authorization, booking-access]
+objective:
+  concise: Implement the server-authoritative Experience eligibility resolver.
+  outcome: Return a typed ExperienceAccessDecision consumed by Member clients and AI tools.
+why:
+  - Prevent client-side authority.
+  - Centralize access policy.
+blueprint_references:
+  - doc: blueprint/03-system-architecture.md
+    sections: [387, 388, 498, 500]
+requirements: [EXP-003, EXP-SYS-001, UX-040]
+decisions: [DEC-068, DEC-080]
+invariants:
+  - Client never computes authoritative eligibility.
+  - Restriction overrides entitlement.
+attention:
+  critical:
+    - Never trust tier from client input.
+  watch_for:
+    - expired invitations
+    - full capacity
+  do_not:
+    - duplicate Membership rules
+forbidden_changes:
+  - membership pricing
+  - unrelated booking lifecycle
+dependencies:
+  hard: [STEP-000095, STEP-000110]
+  soft: []
+blocks: [STEP-000124]
+preconditions:
+  - Membership resolver exists.
+  - Trust restriction resolver exists.
+context_files:
+  read:
+    - convex/domains/experiences/types.ts
+    - convex/domains/membership/policies.ts
+expected_files:
+  create:
+    - convex/domains/experiences/eligibility.ts
+  modify:
+    - convex/domains/experiences/queries.ts
+implementation_prompt: |
+  Implement ExperienceEligibilityService using existing domain policies.
+  Keep the service read-only. Return state, allowedActions, reasonCodes and requirements.
+  Do not duplicate Membership or Trust logic.
+expected_contract:
+  inputs: [memberId, experienceId]
+  outputs: [state, allowedActions, reasonCodes, requirements]
+edge_cases:
+  - blocked Member
+  - suspended Member
+  - Circle-only Experience
+  - expired invitation
+  - full Experience
+tests_required:
+  unit:
+    - eligible Member returns ELIGIBLE_TO_BOOK
+    - blocked Member returns NOT_ELIGIBLE
+  integration:
+    - Circle eligibility respected
+  security:
+    - client-supplied tier cannot alter result
+commands:
+  test:
+    - pnpm test experience-eligibility
+  typecheck:
+    - pnpm typecheck
+  lint:
+    - pnpm lint
+acceptance_checks:
+  - type: file_exists
+    path: convex/domains/experiences/eligibility.ts
+  - type: command
+    command: pnpm test experience-eligibility
+  - type: command
+    command: pnpm typecheck
+acceptance_criteria:
+  - Required tests pass.
+  - Stable denial reason codes exist.
+  - Client contains no authoritative eligibility rule.
+security_checks:
+  - authorization server-side
+observability:
+  analytics: [experience_eligibility_denied]
+  pii_policy: no-sensitive-context-in-logs
+documentation:
+  update: [docs/domain/experience.md]
+review_roles: [backend, security, architecture]
+locks:
+  - domain: experiences
+provides:
+  - ExperienceEligibilityService
+  - ExperienceAccessDecision
+rollback:
+  strategy: Revert resolver wiring and return previous non-actionable projection.
+definition_of_done:
+  - implementation_complete
+  - required_tests_pass
+  - typecheck_pass
+  - lint_pass
+  - security_review_pass
+  - architecture_review_pass
+  - documentation_updated
+  - acceptance_pass

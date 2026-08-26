@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Change Request",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "engagement_id": {
+      "type": "string",
+      "description": "Engagement"
+    },
+    "request": {
+      "type": "string",
+      "description": "Requested change"
+    },
+    "impact": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Scope/time/cost/risk"
+    },
+    "decision": {
+      "type": "string",
+      "description": "Decision"
+    },
+    "approval_status": {
+      "type": "string",
+      "description": "Status"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "engagement_id",
+    "request",
+    "impact",
+    "approval_status"
+  ],
+  "additionalProperties": false
+}

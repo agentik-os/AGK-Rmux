@@ -1,0 +1,52 @@
+{
+  "os": "context-memory",
+  "default_mode": "capture",
+  "commands": {
+    "/memory": {
+      "mode": "retrieve",
+      "purpose": "Search or inspect memory"
+    },
+    "/remember": {
+      "mode": "capture",
+      "purpose": "Propose a memory write"
+    },
+    "/ingest": {
+      "mode": "capture",
+      "purpose": "Ingest a file or event"
+    },
+    "/context": {
+      "mode": "compile",
+      "purpose": "Compile a purpose-specific context pack"
+    },
+    "/snapshot": {
+      "mode": "snapshot",
+      "purpose": "Create a versioned snapshot"
+    },
+    "/decision-log": {
+      "mode": "capture",
+      "purpose": "Record a decision and rationale"
+    },
+    "/contradiction": {
+      "mode": "resolve",
+      "purpose": "Resolve conflicting records"
+    },
+    "/memory-audit": {
+      "mode": "govern",
+      "purpose": "Audit provenance and access"
+    },
+    "/forget": {
+      "mode": "forget",
+      "purpose": "Delete or archive authorized memory"
+    },
+    "/export-memory": {
+      "mode": "govern",
+      "purpose": "Create a user-readable export"
+    }
+  },
+  "handoffs": [
+    "All OSs request context packs rather than raw unrestricted memory.",
+    "Librarian outputs enter as sourced knowledge records.",
+    "Review & Governance OS audits decisions, permissions and stale records.",
+    "Strategy OS receives versioned project/goal snapshots."
+  ]
+}

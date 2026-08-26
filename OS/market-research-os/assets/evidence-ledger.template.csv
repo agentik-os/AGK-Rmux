@@ -1,0 +1,2 @@
+record_id,epistemic_type,statement,status,source_ids,method_ids,population,geography,time_window,unit,numerator,denominator,confidence,directness,independence,limitations,negative_or_conflicting_ids,linked_hypotheses,decision_relevance,validation_or_resolution
+MEA-001,MEASUREMENT,<statement>,proposed,SRC-001,MTH-001,<population>,<geography>,<window>,<unit>,0,0,0.00,direct,independent,<limitations>,,HYP-001,<impact>,<next check>

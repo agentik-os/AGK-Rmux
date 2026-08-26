@@ -1,0 +1,15 @@
+# Growth Engine — conversation-finding queries (one per line).
+# Goal: surface ACTIVE, relevant threads where a sharp reply from @Agentik_os
+# earns visibility in the AI-agents / Claude / build-in-public niche.
+# Edit freely. Lines starting with # are ignored.
+
+Claude Code
+building AI agents
+MCP server
+prompt engineering
+agentic workflow
+AI coding agent
+Claude vs GPT agents
+shipping AI product indie
+LLM orchestration
+building in public AI startup

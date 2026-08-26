@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Contradiction",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "record_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Conflicting records"
+    },
+    "conflict_type": {
+      "type": "string",
+      "description": "Temporal/definition/source/true conflict"
+    },
+    "resolution_status": {
+      "type": "string",
+      "description": "open/resolved"
+    },
+    "resolution_rationale": {
+      "type": "string",
+      "description": "Why"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "record_ids",
+    "conflict_type",
+    "resolution_status"
+  ],
+  "additionalProperties": false
+}

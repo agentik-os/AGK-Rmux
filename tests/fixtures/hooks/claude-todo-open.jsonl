@@ -1,0 +1,2 @@
+{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool_todo_1","name":"TodoWrite","input":{"todos":[{"content":"Inspect state","status":"completed"},{"content":"Verify runtime","status":"in_progress"}]}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool_todo_1","content":"Todos updated"}]}}

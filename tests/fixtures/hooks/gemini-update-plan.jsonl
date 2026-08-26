@@ -1,0 +1,2 @@
+{"event":{"type":"function_call","name":"update_plan","id":"gemini_plan_1","input":{"steps":[{"step":"Inspect state","status":"completed"},{"step":"Verify runtime","status":"pending"}]}}}
+{"event":{"type":"function_call_output","call_id":"gemini_plan_1","output":"Plan updated"}}

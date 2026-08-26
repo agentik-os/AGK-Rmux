@@ -1,0 +1,13 @@
+{
+ "phase": "complete",
+ "score": 82,
+ "grade": "A",
+ "iterations": 1,
+ "findings": {
+  "medium": 2,
+  "low": 5,
+  "info": 18
+ },
+ "fixed": 1,
+ "needs_review": 4
+}

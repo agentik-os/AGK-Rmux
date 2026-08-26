@@ -1,0 +1,386 @@
+diff --git a/crates/omega-cli/src/main.rs b/crates/omega-cli/src/main.rs
+index 94c0a11..82261dd 100644
+--- a/crates/omega-cli/src/main.rs
++++ b/crates/omega-cli/src/main.rs
+@@ -6792,6 +6792,56 @@ fn render_plan_checklist(key: &str, tasks: &[PlanTask]) -> String {
+     out
+ }
+ 
++/// The `--status` vocabulary, validated against the ledger's own state machine.
++///
++/// It used to be written to the file verbatim, so a typo minted a status no
++/// consumer knows: the Telegram card renders it as `todo`, the L4 gate counts it
++/// as unfinished forever, and `OracleTodo::load` cannot parse it at all. Failing
++/// here is the only way that stays a caller error instead of an unreadable
++/// ledger.
++fn parse_todo_status(status: &str) -> Result<omega_core::oracle_todo::TodoStatus> {
++    use omega_core::oracle_todo::TodoStatus;
++    Ok(match status {
++        "todo" => TodoStatus::Todo,
++        "doing" => TodoStatus::Doing,
++        "done" => TodoStatus::Done,
++        "fail" => TodoStatus::Fail,
++        _ => anyhow::bail!(
++            "Invalid task status: {}. Use: todo, doing, done, fail",
++            status
++        ),
++    })
++}
++
++/// The French refusal lines `cmd_done` records in `pending_actions`, derived
++/// from the ledger rather than from a second reading of the raw JSON.
++///
++/// Same wording, same order (failures first, then what is still owed) and the
++/// same ratio fallback as [`closure_verdict`], which `omega status` prints — the
++/// two surfaces must never describe one plan differently.
++fn l4_refusal_reasons(todo: &omega_core::oracle_todo::OracleTodo) -> Vec<String> {
++    let mut reasons: Vec<String> = todo
++        .failed()
++        .iter()
++        .map(|t| format!("échec: {}", t.title))
++        .collect();
++    reasons.extend(
++        todo.unfinished()
++            .iter()
++            .map(|t| format!("non fait: {}", t.title)),
++    );
++    if reasons.is_empty() {
++        // No titles to name: report the ratio, or the absence of a plan at all.
++        let (done, total) = todo.counts();
++        reasons.push(if total == 0 {
++            "plan missionnel absent ou vide; acceptation impossible".to_string()
++        } else {
++            format!("plan {}/{} — pas 100% (L4)", done, total)
++        });
++    }
++    reasons
++}
++
+ /// `omega progress <session>` with no mutating flag: PRINT the plan, write
+ /// nothing.
+ ///
+@@ -6850,65 +6900,36 @@ fn cmd_progress(
+         return cmd_progress_readback(&config.state_dir, session, json);
+     }
+     let key = session.strip_prefix("oracle-").unwrap_or(session);
+-    let path = config
+-        .state_dir
+-        .join(format!("oracle-{}.progress.json", key));
+-    // Preserve existing fields (chat/thread/msg/mission written by the bot).
+-    let mut obj: serde_json::Value = std::fs::read_to_string(&path)
+-        .ok()
+-        .and_then(|s| serde_json::from_str(&s).ok())
+-        .unwrap_or_else(|| serde_json::json!({}));
+-    let m = obj.as_object_mut().unwrap();
+-    // tasks: ordered [{t: title, s: status}]
+-    let mut tasks: Vec<serde_json::Value> = m
+-        .get("tasks")
+-        .and_then(|v| v.as_array())
+-        .cloned()
+-        .unwrap_or_default();
++    // The ledger owns this file now. It resolves the SAME path, keeps the same
++    // `{tasks:[{t,s}], done, total, ts}` keys, preserves every foreign field the
++    // Telegram bot writes (chat/thread/msgId/bot/project/oracle/mission),
++    // recomputes the counters from the task list and still publishes through
++    // tmp+rename — three readers poll this file concurrently (patrol's stall
++    // pass, the TUI worker bars, the Telegram card), so a torn read must stay
++    // impossible.
++    //
++    // DIVERGENCE (core wins): a progress file that does not PARSE used to be
++    // silently replaced by a fresh document; `OracleTodo::load` fails instead,
++    // because starting from empty here is what lets the next write overwrite a
++    // real plan with nothing.
++    let mut todo = omega_core::oracle_todo::OracleTodo::load(&config.state_dir, session)?;
+     if let Some(p) = plan {
+-        // Set the whole plan; each task starts todo.
+-        tasks = p
+-            .split('|')
+-            .map(|t| t.trim())
+-            .filter(|t| !t.is_empty())
+-            .map(|t| serde_json::json!({ "t": t, "s": "todo" }))
+-            .collect();
++        // DIVERGENCE (core wins): this used to reset every task to `todo`.
++        // `set_plan` keeps the status, evidence and unknown keys of a title it
++        // already knows (invariant 1) — an oracle re-stating its plan after a
++        // compaction is describing the same mission, not restarting it — and it
++        // folds a title named twice into one item.
++        todo.set_plan(p.split('|').map(|t| t.trim()).filter(|t| !t.is_empty()));
+     }
+     if let Some(t) = task {
+-        let st = status.unwrap_or("done");
+-        // Upsert by title (case-insensitive).
+-        if let Some(existing) = tasks.iter_mut().find(|x| {
+-            x.get("t")
+-                .and_then(|v| v.as_str())
+-                .map(|s| s.eq_ignore_ascii_case(t))
+-                == Some(true)
+-        }) {
+-            existing["s"] = serde_json::json!(st);
+-        } else {
+-            tasks.push(serde_json::json!({ "t": t, "s": st }));
+-        }
+-    }
+-    let total = tasks.len();
+-    let done = tasks
+-        .iter()
+-        .filter(|x| x.get("s").and_then(|v| v.as_str()) == Some("done"))
+-        .count();
+-    m.insert("tasks".into(), serde_json::json!(tasks));
+-    m.insert("done".into(), serde_json::json!(done));
+-    m.insert("total".into(), serde_json::json!(total));
+-    m.insert(
+-        "ts".into(),
+-        serde_json::json!(chrono::Utc::now().to_rfc3339()),
+-    );
+-    std::fs::create_dir_all(&config.state_dir).ok();
+-    // Atomic tmp+rename (same idiom as done.rs): three readers poll this file
+-    // concurrently — patrol's stall pass, the TUI worker bars, the Telegram
+-    // card — so a torn read of a half-written JSON must be impossible.
+-    let tmp = config
+-        .state_dir
+-        .join(format!(".oracle-{}.progress.json.tmp", key));
+-    std::fs::write(&tmp, serde_json::to_string_pretty(&obj)?)?;
+-    std::fs::rename(&tmp, &path)?;
++        // DIVERGENCE (core wins): the upsert is now a validated transition, so
++        // `done -> todo` is REFUSED instead of silently walking a finished task
++        // backwards (invariant 2). The refusal names the item.
++        let st = parse_todo_status(status.unwrap_or("done"))?;
++        todo.upsert(t, st, None).map_err(anyhow::Error::from)?;
++    }
++    todo.save(&config.state_dir, session)?;
++    let (done, total) = todo.counts();
+     println!("[+] progress {}/{} for oracle-{}", done, total, key);
+ 
+     // L4 GATE RESOLUTION: the `omega done` oracle path downgrades done_clean →
+@@ -6922,15 +6943,14 @@ fn cmd_progress(
+         .flatten()
+         .map(|g| g.overall_pass)
+         .unwrap_or(false);
++    // `is_complete` IS the old `total > 0 && done == total && no fail` test, read
++    // off the ledger instead of re-derived from raw JSON.
++    let plan_complete = todo.is_complete();
+     if session.starts_with("oracle-")
+         && task.is_some()
+         && status.unwrap_or("done") == "done"
+-        && total > 0
+-        && done == total
++        && plan_complete
+         && gate_passed
+-        && !tasks
+-            .iter()
+-            .any(|x| x.get("s").and_then(|v| v.as_str()) == Some("fail"))
+     {
+         if let Ok(Some(mut osignal)) =
+             omega_core::done::OracleDoneSignal::read(&config.state_dir, session)
+@@ -6973,7 +6993,7 @@ fn cmd_progress(
+                 }
+             }
+         }
+-    } else if session.starts_with("oracle-") && total > 0 && done == total && !gate_passed {
++    } else if session.starts_with("oracle-") && plan_complete && !gate_passed {
+         println!(
+             "[-] Plan complete, but independent quality gate is not accepted; mission remains pending"
+         );
+@@ -7273,64 +7293,43 @@ async fn cmd_done(session: &str, status: &str, summary: &str, commit: Option<&st
+             .map(|(p, _)| p)
+             .unwrap_or(key);
+         // L4 COMPLETENESS GATE: an oracle cannot claim done_clean while its plan is
+-        // unfinished. If the live progress (oracle-<key>.progress.json) shows tasks not
+-        // all done (or any failed), downgrade done_clean → pending and surface the
+-        // remaining tasks — the report then honestly shows incomplete (no 92%-is-done).
++        // unfinished. The verdict is the LEDGER's — `omega_core::oracle_todo` reads the
++        // same oracle-<key>.progress.json, `honest_status` decides the downgrade and the
++        // ledger's own accessors name what is missing — so the CLI no longer carries a
++        // second reading of the same rule. The report then honestly shows incomplete
++        // (no 92%-is-done).
++        //
++        // DIVERGENCE (core wins): `done` / `total` come from `counts()`, recomputed from
++        // the task list, where the inline gate trusted the on-disk `done` / `total`
++        // fields. A file whose counters disagree with its own tasks is exactly the drift
++        // this module exists to end, and a stale counter reading 5/5 over an unfinished
++        // list would have accepted the close.
+         let mut final_status = done_status;
+         let mut gate_pending: Vec<String> = Vec::new();
++        let mut ledger: Option<omega_core::oracle_todo::OracleTodo> = None;
+         if final_status == omega_core::done::DoneStatus::DoneClean {
+-            let pp = config
+-                .state_dir
+-                .join(format!("oracle-{}.progress.json", key));
+-            match std::fs::read_to_string(&pp)
+-                .ok()
+-                .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
+-                .ok_or(())
+-            {
+-                Ok(pj) => {
+-                    let total = pj.get("total").and_then(|v| v.as_u64()).unwrap_or(0);
+-                    let done = pj.get("done").and_then(|v| v.as_u64()).unwrap_or(0);
+-                    let tasks = pj
+-                        .get("tasks")
+-                        .and_then(|v| v.as_array())
+-                        .cloned()
+-                        .unwrap_or_default();
+-                    let failed: Vec<String> = tasks
+-                        .iter()
+-                        .filter(|t| t.get("s").and_then(|v| v.as_str()) == Some("fail"))
+-                        .filter_map(|t| {
+-                            t.get("t")
+-                                .and_then(|v| v.as_str())
+-                                .map(|s| format!("échec: {}", s))
+-                        })
+-                        .collect();
+-                    let unfinished: Vec<String> = tasks
+-                        .iter()
+-                        .filter(|t| {
+-                            matches!(
+-                                t.get("s").and_then(|v| v.as_str()),
+-                                Some("todo") | Some("doing")
+-                            )
+-                        })
+-                        .filter_map(|t| {
+-                            t.get("t")
+-                                .and_then(|v| v.as_str())
+-                                .map(|s| format!("non fait: {}", s))
+-                        })
+-                        .collect();
+-                    if total == 0 || done < total || !failed.is_empty() {
+-                        final_status = omega_core::done::DoneStatus::Pending;
+-                        gate_pending.extend(failed);
+-                        gate_pending.extend(unfinished);
+-                        if gate_pending.is_empty() {
+-                            gate_pending.push(if total == 0 {
+-                                "plan missionnel absent ou vide; acceptation impossible".to_string()
+-                            } else {
+-                                format!("plan {}/{} — pas 100% (L4)", done, total)
+-                            });
+-                        }
++            match omega_core::oracle_todo::OracleTodo::load(&config.state_dir, session) {
++                Ok(todo) => {
++                    // DIVERGENCE (core wins): a plan carrying a FAILED item now reports
++                    // `failed`, where the inline gate reported `pending`. Pending exists
++                    // so `cmd_progress` can upgrade the signal once the plan completes,
++                    // and that upgrade branch has always excluded a failed plan — so
++                    // pending over a failure was a status that could never resolve.
++                    // `honest_status` never upgrades, so an explicit failed/blocked/
++                    // pending request still passes through untouched.
++                    let honest = omega_core::oracle_todo::honest_status(final_status, &todo);
++                    if honest != final_status {
++                        final_status = honest;
++                        // DIVERGENCE (core wins): a MISSING progress file used to report
++                        // "projection … illisible". The ledger reads absence as an empty
++                        // plan, so it reports "plan missionnel absent ou vide" — the same
++                        // refusal `omega status` already prints for that case.
++                        gate_pending.extend(l4_refusal_reasons(&todo));
+                     }
++                    ledger = Some(todo);
+                 }
++                // An UNPARSEABLE file is the only load error left, and it stays
++                // fail-closed with the wording the bot and patrol already parse.
+                 Err(_) => {
+                     final_status = omega_core::done::DoneStatus::Pending;
+                     gate_pending.push(
+@@ -7356,26 +7355,47 @@ async fn cmd_done(session: &str, status: &str, summary: &str, commit: Option<&st
+         // clean close must take its FINISHED workers' sessions down with it —
+         // until now the auto-close killed only the oracle pane, leaving every
+         // worker session alive forever (no signal → no reaper).
+-        let mut cascade_workers: Vec<String> = Vec::new();
++        //
++        // `evaluate_closure` owns that decision now; the CLI only executes the
++        // ClosurePlan it hands back (kill the cascade, release the claims).
++        let mut closure = omega_core::oracle_todo::ClosurePlan::default();
+         if final_status == omega_core::done::DoneStatus::DoneClean {
+-            if let Ok(live) = async { SessionManager::connect().await?.list_sessions().await }.await
+-            {
++            if let (Some(todo), Ok(live)) = (
++                ledger.as_ref(),
++                async { SessionManager::connect().await?.list_sessions().await }.await,
++            ) {
+                 let lw = omega_core::oracle_lifecycle::live_workers_of_oracle(
+                     &config.state_dir,
+                     session,
+                     &live,
+                 );
+-                if !lw.running.is_empty() {
+-                    anyhow::bail!(
+-                        "done_clean REFUSED — {} worker(s) of this oracle still running: {}.\n\
+-                         An oracle cannot close while its workers run (zombie-worker guard).\n\
+-                         Wait for their done signals (omega workers), or close them explicitly \
+-                         (`omega kill <worker>`), then re-run `omega done`.",
+-                        lw.running.len(),
+-                        lw.running.join(", ")
+-                    );
++                // `None` for the existing signal, deliberately: `omega done` is
++                // re-runnable here (a resumed oracle and patrol both re-issue it,
++                // and the auto-close kill below must fire again if the first one
++                // did not land), so the CLI does not take the module's
++                // already-closed short circuit.
++                match omega_core::oracle_todo::evaluate_closure(
++                    todo,
++                    &lw,
++                    None,
++                    omega_core::done::DoneStatus::DoneClean,
++                ) {
++                    Ok(plan) => closure = plan,
++                    Err(omega_core::oracle_todo::ClosureRefusal::WorkersRunning(running)) => {
++                        anyhow::bail!(
++                            "done_clean REFUSED — {} worker(s) of this oracle still running: {}.\n\
++                             An oracle cannot close while its workers run (zombie-worker guard).\n\
++                             Wait for their done signals (omega workers), or close them explicitly \
++                             (`omega kill <worker>`), then re-run `omega done`.",
++                            running.len(),
++                            running.join(", ")
++                        );
++                    }
++                    // Unreachable: the L4 gate above already downgraded every
++                    // plan-based refusal out of done_clean. Loud rather than silent
++                    // if that ever stops being true.
++                    Err(refusal) => anyhow::bail!("done_clean REFUSED — {}", refusal),
+                 }
+-                cascade_workers = lw.terminal;
+             }
+         }
+         let mut osignal =
+@@ -7409,9 +7429,18 @@ async fn cmd_done(session: &str, status: &str, summary: &str, commit: Option<&st
+                 finalize_v3_oracle_delivery(&config.state_dir, session)?.or(osignal.projection);
+         }
+         osignal.write(&config.state_dir)?;
+-        // Release the scope claim on a clean close, mirroring the worker path.
++        // Release the scope claims on a clean close, mirroring the worker path.
++        // `ClosurePlan::scopes_to_release` names the oracle PLUS every worker that
++        // cascades with it; it is empty only when the daemon was unreachable, and the
++        // oracle's own claim is still released in that case.
+         if osignal.is_closeable() {
+-            let _ = omega_core::scope::ScopeClaim::release(&config.state_dir, session);
++            if closure.scopes_to_release.is_empty() {
++                let _ = omega_core::scope::ScopeClaim::release(&config.state_dir, session);
++            } else {
++                for scope in &closure.scopes_to_release {
++                    let _ = omega_core::scope::ScopeClaim::release(&config.state_dir, scope);
++                }
++            }
+         }
+         println!("[+] Oracle done signal written: oracle-{}.done.json", key);
+         // AUDIT JOURNAL: append the mission outcome to the per-project audit log,
+@@ -7447,11 +7476,8 @@ async fn cmd_done(session: &str, status: &str, summary: &str, commit: Option<&st
+         // notifier cron before the pane is killed. (Non-clean statuses stay open so the
+         // operator can inspect a failed/blocked/pending oracle.)
+         if final_status == omega_core::done::DoneStatus::DoneClean {
+-            // The finished workers die with their oracle — release their scope
+-            // claims now (their sessions are closed below) so no file lock leaks.
+-            for w in &cascade_workers {
+-                let _ = omega_core::scope::ScopeClaim::release(&config.state_dir, w);
+-            }
++            // The finished workers die with their oracle; their scope claims were
++            // released just above, with the oracle's, from the same ClosurePlan.
+             if let Ok(exe) = std::env::current_exe() {
+                 // Session names are sanitized to [A-Za-z0-9._-] (no shell metachars),
+                 // so this format is injection-safe. Workers first, oracle last —
+@@ -7466,7 +7492,8 @@ async fn cmd_done(session: &str, status: &str, summary: &str, commit: Option<&st
+                 // silently veto the auto-close and leave the oracle pane open
+                 // forever, which is a regression of the close contract, not a
+                 // safety win.
+-                let worker_kills: String = cascade_workers
++                let worker_kills: String = closure
++                    .cascade_workers
+                     .iter()
+                     .map(|w| format!("'{}' kill '{}' >/dev/null 2>&1; ", exe, w))
+                     .collect();

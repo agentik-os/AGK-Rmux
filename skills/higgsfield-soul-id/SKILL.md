@@ -1,0 +1,80 @@
+---
+name: higgsfield-soul-id
+description: >
+  Train a face-faithful Soul Character on a person's photos for identity-consistent image and video generation — the visual-identity anchor reused across all Soul-powered output. Use when the user says "/omg-higgsfield-soul-id", "/higgsfield-soul-id", "train my face", "create my Soul", "digital twin", "consistent character", or "brand avatar". R-VISUAL-ID: plugs into the brand-identity pipeline and chains into higgsfield-generate via --soul-id. Requires the higgsfield CLI, auth, and a paid plan.
+triggers: ["omg-higgsfield-soul-id","higgsfield-soul-id","soul id","train my face","create my Soul","digital twin","consistent character","brand avatar"]
+allowed-tools: ["Bash","Read","Glob","Grep"]
+domain: visual-identity
+read_only: false
+argument-hint: "[name] [photo paths...]"
+source: higgsfield-ai/skills (github.com/higgsfield-ai/skills)
+license: see upstream repo
+---
+
+> **OmegaOS skill** — vendored from higgsfield-ai/skills (github.com/higgsfield-ai/skills). Triggers `/omg-higgsfield-soul-id` (and `/higgsfield-soul-id`). Governed by R-VISUAL-ID. **Requires:** the higgsfield CLI (installed at runtime), `higgsfield auth login`, and a paid plan (Basic+).
+
+# Higgsfield Soul Character
+
+Train a face-faithful identity model. Reusable across all Soul-powered generations.
+
+## Step 0 — Bootstrap
+
+Before any other command:
+
+1. If `higgsfield` is not on `$PATH`, install it:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/higgsfield-ai/cli/main/install.sh | sh
+   ```
+2. If `higgsfield account status` fails with `Session expired` / `Not authenticated`, ask the user to run `higgsfield auth login` (interactive) and wait for confirmation.
+3. Soul training requires a paid plan (Basic+). If `higgsfield account status` shows free plan, tell the user before submitting.
+
+## UX Rules
+
+1. Be concise. No raw IDs in chat. Just say "Soul ready" with a name reference.
+2. Detect language and respond in it. CLI flags stay English.
+3. Ask for the smallest set of inputs: name + photos. Pick a sensible model variant.
+4. Polling is silent — training takes minutes. Don't repeat status updates.
+
+## Workflow
+
+1. **Get name.** One word, used for later reference. Ask if missing.
+2. **Get photos.** 5–20 face photos, varied angles and lighting. Local paths or already-uploaded IDs both work — `--image` accepts either.
+3. **Pick variant.**
+   - `--soul-2` — for image generation (default)
+   - `--soul-cinematic` — for cinematic / video work
+   Choose based on user's stated downstream use. Default to `--soul-2`.
+4. **Submit.**
+   ```bash
+   higgsfield soul-id create --name "<name>" --soul-2 --image ./photo1.png --image ./photo2.png ...
+   higgsfield soul-id create --name "<name>" --soul-2 --image <upload_id> --image <upload_id> ...
+   ```
+   CLI auto-uploads paths. Captures returned reference id.
+5. **Wait.** `higgsfield soul-id wait <id>`. Silent. Default timeout 30m.
+6. **Deliver.** "Soul `<name>` ready. Use in generate with `--soul-id <id>`."
+
+## Use the Soul
+
+Once trained, pass to `higgsfield-generate`:
+
+```bash
+higgsfield generate create text2image_soul_v2 --prompt "..." --soul-id <ref_id> --quality 2k --wait
+higgsfield generate create soul_cinematic --prompt "..." --soul-id <ref_id> --quality 2k --wait
+```
+
+## Listing existing Souls
+
+```bash
+higgsfield soul-id list                   # all references
+higgsfield soul-id get <id>               # one by id
+```
+
+## Errors
+
+- `Minimum Basic plan required` — user is on free plan; tell them.
+- `Training failed` — check photos quality (5+ unique faces, well-lit).
+- `Session expired` → `higgsfield auth login`.
+
+## Reference docs
+
+- `references/photo-guide.md` — what photos work best
+- `references/troubleshooting.md` — common training failures

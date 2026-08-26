@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Entity",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "person/project/org/concept"
+    },
+    "canonical_name": {
+      "type": "string",
+      "description": "Canonical label"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Known aliases"
+    },
+    "merge_status": {
+      "type": "string",
+      "description": "resolution state"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "entity_type",
+    "canonical_name",
+    "merge_status"
+  ],
+  "additionalProperties": false
+}

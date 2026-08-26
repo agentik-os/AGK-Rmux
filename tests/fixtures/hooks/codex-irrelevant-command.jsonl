@@ -1,0 +1,8 @@
+{"type":"response_item","payload":{"type":"function_call","name":"apply_patch","call_id":"call_edit_1","arguments":"*** Begin Patch\n*** End Patch"}}
+{"type":"response_item","payload":{"type":"function_call_output","call_id":"call_edit_1","output":"Success"}}
+{"type":"response_item","payload":{"type":"function_call","name":"exec_command","call_id":"call_pwd_1","arguments":"{\"cmd\":\"pwd\"}"}}
+{"type":"response_item","payload":{"type":"function_call_output","call_id":"call_pwd_1","output":"Process exited with code 0\nFinal output:\n/tmp/project"}}
+{"type":"response_item","payload":{"type":"function_call","name":"exec_command","call_id":"call_ls_1","arguments":"{\"cmd\":\"ls\"}"}}
+{"type":"response_item","payload":{"type":"function_call_output","call_id":"call_ls_1","output":"Process exited with code 0\nFinal output:\nsrc"}}
+{"type":"response_item","payload":{"type":"function_call","name":"exec_command","call_id":"call_status_1","arguments":"{\"cmd\":\"git status --short\"}"}}
+{"type":"response_item","payload":{"type":"function_call_output","call_id":"call_status_1","output":"Process exited with code 0\nFinal output:\n M src/lib.rs"}}

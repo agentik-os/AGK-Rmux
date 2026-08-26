@@ -1,0 +1,60 @@
+{
+  "version": "3.0.0",
+  "chambers": {
+    "imagination": {
+      "independent_cells": ["first-principles inventor", "human meaning anthropologist", "alien systems thinker"],
+      "outputs": ["Founder DNA", "frame fissions", "orthogonal mechanisms", "collision", "counterfactual", "anomaly"]
+    },
+    "evolution": {
+      "independent_cells": ["mutator", "crossover designer", "extinction selector"],
+      "outputs": ["idea genomes", "multi-locus mutations", "parentage", "generations", "selection pressure", "incubation triggers"]
+    },
+    "council": {
+      "independent_cells": ["expansion", "reality", "adversarial"],
+      "outputs": ["cross-examination", "cruxes", "red team", "synthesis", "decision", "experiments"]
+    }
+  },
+  "core_cells": {
+    "expansion": {
+      "hats": ["first-principles visionary", "human/JTBD anthropologist", "analogist"],
+      "outputs": ["outcome reframe", "orthogonal mechanisms", "inversion", "distant analogy", "minimum magical version"]
+    },
+    "reality": {
+      "hats": ["strategist", "economist", "operator", "systems architect"],
+      "outputs": ["value and incentive map", "alternatives and wedge", "dependencies", "bottlenecks", "scale effects"]
+    },
+    "adversarial": {
+      "hats": ["contrarian", "premortem red team", "trust and ethics examiner"],
+      "outputs": ["strongest case against", "causal premortem", "abuse and gaming", "second-order effects", "kill criteria", "salvage"]
+    }
+  },
+  "specialists": {
+    "customer-research": {"triggers": ["problem", "behavior", "switching", "trust"], "cell": "expansion"},
+    "market-category": {"triggers": ["category", "competitors", "market timing", "positioning"], "cell": "reality"},
+    "distribution-growth": {"triggers": ["channel", "adoption", "growth loop", "acquisition"], "cell": "reality"},
+    "enterprise-buyer": {"triggers": ["B2B", "procurement", "buying committee", "pilot"], "cell": "reality"},
+    "behavioral-science": {"triggers": ["habit", "motivation", "attention", "social behavior"], "cell": "expansion"},
+    "product-ux": {"triggers": ["interaction", "journey", "comprehension", "friction"], "cell": "expansion"},
+    "surface-embodiment": {"triggers": ["mobile", "web", "desktop", "multi-surface", "app", "device", "chat", "ambient", "physical", "service", "no interface"], "cell": "expansion"},
+    "technical-feasibility": {"triggers": ["technical unknown", "scale", "latency", "integration"], "cell": "reality"},
+    "ai-evals": {"triggers": ["LLM", "agent", "autonomy", "memory", "tool use"], "cell": "reality"},
+    "privacy-security": {"triggers": ["sensitive data", "identity", "surveillance", "abuse"], "cell": "adversarial"},
+    "legal-regulatory": {"triggers": ["regulated", "law", "compliance", "jurisdiction"], "cell": "adversarial"},
+    "game-theory": {"triggers": ["marketplace", "network", "incentives", "pricing"], "cell": "reality"},
+    "finance-capital": {"triggers": ["capital intensity", "margin", "runway", "portfolio"], "cell": "reality"},
+    "network-community": {"triggers": ["membership", "reputation", "matching", "governance"], "cell": "reality"},
+    "luxury-hospitality": {"triggers": ["rarity", "access", "premium", "curation", "service"], "cell": "expansion"},
+    "brand-culture": {"triggers": ["meaning", "identity", "status", "culture"], "cell": "expansion"},
+    "creative-story": {"triggers": ["campaign", "story", "world", "content"], "cell": "expansion"},
+    "futures-scenarios": {"triggers": ["long horizon", "unstable technology", "uncertainty"], "cell": "adversarial"},
+    "scientific-evidence": {"triggers": ["health", "education", "psychology", "science"], "cell": "adversarial"},
+    "service-operations": {"triggers": ["human delivery", "concierge", "quality variance", "recovery"], "cell": "reality"},
+    "sustainability-externalities": {"triggers": ["physical supply", "environment", "externality"], "cell": "adversarial"},
+    "founder-fit": {"triggers": ["focus", "energy", "opportunity cost", "founder edge"], "cell": "adversarial"}
+  },
+  "selection": {
+    "maximum_specialists": 2,
+    "criteria": ["decision impact", "knowledge specificity", "independence", "cost of being wrong"],
+    "tie_breaker": "choose the specialist whose evidence or causal model could most change the recommendation"
+  }
+}

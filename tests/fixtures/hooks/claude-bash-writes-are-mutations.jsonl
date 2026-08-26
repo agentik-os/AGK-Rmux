@@ -1,0 +1,6 @@
+{"type": "assistant", "isSidechain": false, "message": {"role": "assistant", "content": [{"type": "tool_use", "name": "Bash", "input": {"command": "cat > a.py <<'EOF'\nx=1\nEOF"}}]}}
+{"type": "assistant", "isSidechain": false, "message": {"role": "assistant", "content": [{"type": "tool_use", "name": "Bash", "input": {"command": "sed -i s/a/b/ b.py"}}]}}
+{"type": "assistant", "isSidechain": false, "message": {"role": "assistant", "content": [{"type": "tool_use", "name": "Bash", "input": {"command": "cp c.py d.py"}}]}}
+{"type": "assistant", "isSidechain": false, "message": {"role": "assistant", "content": [{"type": "tool_use", "name": "Bash", "input": {"command": "ls -la"}}]}}
+{"type": "assistant", "isSidechain": false, "message": {"role": "assistant", "content": [{"type": "tool_use", "name": "Bash", "input": {"command": "echo noise > /dev/null"}}]}}
+{"type": "assistant", "isSidechain": false, "message": {"role": "assistant", "content": [{"type": "text", "text": "Goal: x\nBlocking questions: none\nAssumptions: 1\nPlan: y"}]}}

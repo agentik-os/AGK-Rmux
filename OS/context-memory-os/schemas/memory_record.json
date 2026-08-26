@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Memory Record",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "record_type": {
+      "type": "string",
+      "description": "observation/user_statement/extraction/inference/decision"
+    },
+    "statement": {
+      "type": "string",
+      "description": "Atomic record"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Personal/project/OS scope"
+    },
+    "valid_from": {
+      "type": "string",
+      "description": "When it became true"
+    },
+    "valid_to": {
+      "type": "string",
+      "description": "When it ceased being true"
+    },
+    "status": {
+      "type": "string",
+      "description": "staged/canonical/superseded/archived"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "record_type",
+    "statement",
+    "scope",
+    "status"
+  ],
+  "additionalProperties": false
+}

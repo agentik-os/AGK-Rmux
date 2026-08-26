@@ -1,0 +1,62 @@
+{
+  "os": "operations-automation",
+  "default_mode": "diagnose",
+  "commands": {
+    "/operations": {
+      "mode": "diagnose",
+      "purpose": "Open operations diagnostic"
+    },
+    "/process-interview": {
+      "mode": "diagnose",
+      "purpose": "Interview process owners/users"
+    },
+    "/process-map": {
+      "mode": "map",
+      "purpose": "Map current state"
+    },
+    "/value-stream": {
+      "mode": "map",
+      "purpose": "Analyze flow and waste"
+    },
+    "/simplify": {
+      "mode": "challenge",
+      "purpose": "Remove and simplify work"
+    },
+    "/automation-audit": {
+      "mode": "score",
+      "purpose": "Find and score automation candidates"
+    },
+    "/automate": {
+      "mode": "design",
+      "purpose": "Create automation blueprint"
+    },
+    "/agent-automation": {
+      "mode": "agent",
+      "purpose": "Assess an AI-agent workflow"
+    },
+    "/future-state": {
+      "mode": "design",
+      "purpose": "Design target operating model"
+    },
+    "/runbook": {
+      "mode": "deploy",
+      "purpose": "Create operating runbook"
+    },
+    "/automation-review": {
+      "mode": "audit",
+      "purpose": "Audit live automations"
+    },
+    "/automation-incident": {
+      "mode": "incident",
+      "purpose": "Contain and recover failure"
+    }
+  },
+  "handoffs": [
+    "Strategy OS selects operational priorities.",
+    "Delivery/Revenue/Content provide current workflows and desired outcomes.",
+    "Builder OS receives approved build blueprints.",
+    "Quality OS tests and gates production automations.",
+    "Review & Governance approves risk/policy changes and postmortems.",
+    "Context & Memory stores maps, contracts and run evidence."
+  ]
+}

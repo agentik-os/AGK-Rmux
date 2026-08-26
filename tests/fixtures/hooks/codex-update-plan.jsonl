@@ -1,0 +1,2 @@
+{"type":"response_item","payload":{"type":"function_call","name":"update_plan","call_id":"call_plan_1","arguments":"{\"plan\":[{\"step\":\"Inspect state\",\"status\":\"completed\"},{\"step\":\"Verify runtime\",\"status\":\"in_progress\"}]}"}}
+{"type":"response_item","payload":{"type":"function_call_output","call_id":"call_plan_1","output":"Plan updated"}}

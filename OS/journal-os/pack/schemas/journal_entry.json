@@ -1,0 +1,1687 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/journal-os/journal_entry.json",
+  "title": "Journal Entry",
+  "description": "One nightly entry: the full sixteen-section artifact produced by MIRROR, plus the Tomorrow Protocol, the memory candidates, the content handoff and the final mirror. Five doctrines are enforced by this schema rather than by convention. (1) FACT, EMOTION, INTERPRETATION and LESSON are four separate arrays with four different item shapes, so an interpretation cannot be recorded in a fact field: a fact has no field for a meaning, a cause or a confidence, and an interpretation cannot exist without at least one fact reference and a competing explanation. (2) The identity vote is required and evidence-bound: identity_vote_evidence must reference at least one fact, so a vote with nothing behind it cannot be written, in either direction. (3) tomorrow_protocol.missions has maxItems 3 and every mission requires a non-empty success_condition. (4) A contradiction requires observed_days with minItems 2, so a single day cannot be recorded as a pattern. (5) Third-party privacy is structural: a person is a single given name plus a generic relation category, and there is no field anywhere in this file for a surname, an employer, an address, a phone number, an email, a handle, a profile link or a photo. additionalProperties is false at every level, so none of these can be added by a writer, and there is no field in the content handoff that a drafted post could be stored in. Section 8 LESSONS of the artifact renders the top-level lessons array; it is not duplicated.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "day_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "session_mode": {
+      "enum": [
+        "full",
+        "quick",
+        "mirror"
+      ]
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "fr",
+          "en",
+          "other"
+        ]
+      },
+      "uniqueItems": true,
+      "description": "The languages the session actually ran in. Mixed French and English is the expected shape, not a defect."
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 600
+    },
+    "privacy": {
+      "$ref": "#/$defs/privacy"
+    },
+    "facts": {
+      "type": "array",
+      "description": "What happened. Only what a camera and a clock would agree with. There is deliberately no field here for a meaning, a cause, a confidence or a judgement, so an interpretation cannot be written into a fact.",
+      "items": {
+        "$ref": "#/$defs/fact"
+      },
+      "minItems": 1,
+      "maxItems": 80
+    },
+    "emotions": {
+      "type": "array",
+      "description": "What was felt, attached to the facts that carried it. An emotion is not evidence of anything by itself, and there is no field here for what it means.",
+      "items": {
+        "$ref": "#/$defs/emotion"
+      },
+      "maxItems": 40
+    },
+    "interpretations": {
+      "type": "array",
+      "description": "What the user thinks it meant. Every interpretation must rest on at least one fact and must carry a competing explanation that fits the same facts, which is what keeps it from silently becoming a fact.",
+      "items": {
+        "$ref": "#/$defs/interpretation"
+      },
+      "maxItems": 20
+    },
+    "lessons": {
+      "type": "array",
+      "description": "Section 8 of the artifact. Only lessons genuinely supported by the day. An empty array is the correct output for most days, and manufacturing an entry here is the failure this OS exists to avoid.",
+      "items": {
+        "$ref": "#/$defs/lesson"
+      },
+      "maxItems": 5
+    },
+    "the_day": {
+      "$ref": "#/$defs/the_day"
+    },
+    "what_mattered": {
+      "type": "array",
+      "description": "Section 2. The few things that actually moved something, not a list of everything that happened.",
+      "items": {
+        "$ref": "#/$defs/anchored_statement"
+      },
+      "maxItems": 5
+    },
+    "objective_progress": {
+      "type": "array",
+      "description": "Section 3. Every active objective gets an honest movement value, including not_touched.",
+      "items": {
+        "$ref": "#/$defs/objective_progress_item"
+      },
+      "maxItems": 15
+    },
+    "identity_evidence": {
+      "$ref": "#/$defs/identity_evidence"
+    },
+    "contradictions": {
+      "type": "array",
+      "description": "Section 5. Empty is the normal case. A contradiction needs at least two observed days and a conversational investigation before it can appear here.",
+      "items": {
+        "$ref": "#/$defs/contradiction"
+      },
+      "maxItems": 2
+    },
+    "wins": {
+      "type": "array",
+      "description": "Section 6. Real ones only, each anchored to a fact.",
+      "items": {
+        "$ref": "#/$defs/anchored_statement"
+      },
+      "maxItems": 10
+    },
+    "misses": {
+      "type": "array",
+      "description": "Section 7, failures and misses. Stated as behavior and outcome, never as a character verdict.",
+      "items": {
+        "$ref": "#/$defs/miss"
+      },
+      "maxItems": 10
+    },
+    "ideas": {
+      "type": "array",
+      "description": "Section 9. Captured verbatim where possible, with the trigger that produced them.",
+      "items": {
+        "$ref": "#/$defs/idea"
+      },
+      "maxItems": 10
+    },
+    "people": {
+      "type": "array",
+      "description": "Section 10. First names only. What was done and what changed, never a guess at what they were thinking.",
+      "items": {
+        "$ref": "#/$defs/person_interaction"
+      },
+      "maxItems": 15
+    },
+    "body_and_recovery": {
+      "$ref": "#/$defs/body_and_recovery"
+    },
+    "sobriety": {
+      "$ref": "#/$defs/sobriety"
+    },
+    "wealth_and_work": {
+      "$ref": "#/$defs/wealth_and_work"
+    },
+    "build": {
+      "$ref": "#/$defs/build"
+    },
+    "mind": {
+      "$ref": "#/$defs/mind"
+    },
+    "relationships_and_life": {
+      "$ref": "#/$defs/relationships_and_life"
+    },
+    "tomorrow_protocol": {
+      "$ref": "#/$defs/tomorrow_protocol"
+    },
+    "memory_candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/memory_candidate"
+      },
+      "maxItems": 7
+    },
+    "content_handoff": {
+      "$ref": "#/$defs/content_handoff"
+    },
+    "final_mirror": {
+      "$ref": "#/$defs/final_mirror"
+    },
+    "identity_vote": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 200,
+      "description": "Completes: Today I voted for the identity of someone who ___ . A behavior, not a trait. It may be a vote in the wrong direction, and on some days it must be."
+    },
+    "identity_vote_evidence": {
+      "type": "array",
+      "description": "Fact ids supporting the vote. Required and non-empty, so the vote is always derived from the day rather than chosen for how it sounds.",
+      "items": {
+        "$ref": "#/$defs/fact_ref"
+      },
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "interview_check": {
+      "$ref": "#/$defs/interview_check"
+    },
+    "reflection": {
+      "$ref": "#/$defs/reflection"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "date",
+    "day_number",
+    "privacy",
+    "facts",
+    "emotions",
+    "interpretations",
+    "lessons",
+    "the_day",
+    "identity_evidence",
+    "identity_vote",
+    "identity_vote_evidence",
+    "tomorrow_protocol",
+    "final_mirror"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "A full session produces the memory pass and the content handoff. A quick or mirror session may skip both.",
+      "if": {
+        "properties": {
+          "session_mode": {
+            "const": "full"
+          }
+        },
+        "required": [
+          "session_mode"
+        ]
+      },
+      "then": {
+        "required": [
+          "memory_candidates",
+          "content_handoff"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "domain": {
+      "enum": [
+        "self",
+        "health",
+        "sobriety",
+        "wealth",
+        "build",
+        "work",
+        "people",
+        "love",
+        "world",
+        "mind",
+        "freedom"
+      ],
+      "description": "Not every domain moves every day. A day that touched four domains records four, and fake balance is a defect."
+    },
+    "fact_ref": {
+      "type": "string",
+      "pattern": "^F[0-9]{1,3}$"
+    },
+    "privacy": {
+      "type": "object",
+      "description": "The journal is private by default and by structure. visibility is a single closed value: an entry cannot be marked public. Publishable material leaves only through content_handoff candidates, each carrying its own privacy classification.",
+      "properties": {
+        "visibility": {
+          "const": "private",
+          "default": "private"
+        },
+        "retention": {
+          "enum": [
+            "session_only",
+            "keep",
+            "until_user_deletes"
+          ],
+          "default": "keep"
+        },
+        "third_party_present": {
+          "type": "boolean"
+        },
+        "user_excluded_material": {
+          "type": "boolean",
+          "description": "The user asked for something to stay out of the record. The flag exists so the omission is visible; the material itself is not stored anywhere."
+        }
+      },
+      "required": [
+        "visibility"
+      ],
+      "additionalProperties": false
+    },
+    "fact": {
+      "type": "object",
+      "description": "One observable event. A camera and a clock would agree with every field.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^F[0-9]{1,3}$"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "What happened. No meaning, no cause, no adjective about the user."
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        },
+        "when": {
+          "enum": [
+            "morning",
+            "midday",
+            "afternoon",
+            "evening",
+            "night",
+            "unspecified"
+          ]
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "reported_as": {
+          "enum": [
+            "user_reported",
+            "user_quoted",
+            "carried_from_prior_entry"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "statement"
+      ],
+      "additionalProperties": false
+    },
+    "emotion": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^E[0-9]{1,3}$"
+        },
+        "emotion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60,
+          "description": "In the user's own word, in the language they used"
+        },
+        "intensity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "at_facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact_ref"
+          },
+          "maxItems": 5,
+          "uniqueItems": true
+        },
+        "when": {
+          "enum": [
+            "morning",
+            "midday",
+            "afternoon",
+            "evening",
+            "night",
+            "unspecified"
+          ]
+        }
+      },
+      "required": [
+        "emotion"
+      ],
+      "additionalProperties": false
+    },
+    "interpretation": {
+      "type": "object",
+      "description": "Everything that is not a fact. It cannot exist without a fact under it and a competing explanation beside it.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^I[0-9]{1,3}$"
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "rests_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact_ref"
+          },
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "alternative_explanation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "A competing explanation fitting the same facts. Mandatory, because an interpretation with no alternative is already being treated as a fact."
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "held_by": {
+          "enum": [
+            "user",
+            "mirror"
+          ]
+        }
+      },
+      "required": [
+        "claim",
+        "rests_on",
+        "alternative_explanation"
+      ],
+      "additionalProperties": false
+    },
+    "lesson": {
+      "type": "object",
+      "description": "Only where genuinely supported. A lesson with no fact under it is manufactured profundity.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^L[0-9]{1,3}$"
+        },
+        "lesson": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "supported_by": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact_ref"
+          },
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "cost": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "What this lesson was paid for with. A lesson with no cost is usually a slogan."
+        },
+        "applies_to": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "durable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "lesson",
+        "supported_by"
+      ],
+      "additionalProperties": false
+    },
+    "the_day": {
+      "type": "object",
+      "description": "Section 1. The shape of the day before any analysis of it.",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 900,
+          "description": "The day reconstructed in sequence, factual, no framing"
+        },
+        "shape": {
+          "enum": [
+            "ordinary",
+            "good",
+            "hard",
+            "mixed",
+            "broken",
+            "recovery",
+            "exceptional"
+          ],
+          "description": "ordinary is the most common honest value"
+        },
+        "energy": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "dimensions_touched": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "events",
+              "decisions",
+              "work",
+              "money",
+              "build",
+              "body",
+              "sobriety",
+              "attention",
+              "people",
+              "love",
+              "mind",
+              "emotions",
+              "identity",
+              "world",
+              "gratitude"
+            ]
+          },
+          "uniqueItems": true,
+          "description": "What the interview actually covered. Untouched dimensions stay untouched rather than being filled."
+        }
+      },
+      "required": [
+        "summary"
+      ],
+      "additionalProperties": false
+    },
+    "anchored_statement": {
+      "type": "object",
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "fact_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact_ref"
+          },
+          "minItems": 1,
+          "maxItems": 6,
+          "uniqueItems": true
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        }
+      },
+      "required": [
+        "statement",
+        "fact_refs"
+      ],
+      "additionalProperties": false
+    },
+    "objective_progress_item": {
+      "type": "object",
+      "properties": {
+        "objective": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        },
+        "movement": {
+          "enum": [
+            "shipped",
+            "advanced",
+            "none",
+            "regressed",
+            "blocked",
+            "not_touched"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact_ref"
+          },
+          "maxItems": 6,
+          "uniqueItems": true
+        },
+        "blocked_by": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "objective",
+        "movement"
+      ],
+      "additionalProperties": false
+    },
+    "identity_evidence": {
+      "type": "object",
+      "description": "Section 4. Two directions, collected from facts only. The columns are not balanced: a day may be five to zero in either direction, and inventing a counterweight destroys the record.",
+      "properties": {
+        "future_self": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identity_evidence_item"
+          },
+          "maxItems": 10
+        },
+        "old_self": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identity_evidence_item"
+          },
+          "maxItems": 10
+        }
+      },
+      "required": [
+        "future_self",
+        "old_self"
+      ],
+      "additionalProperties": false
+    },
+    "identity_evidence_item": {
+      "type": "object",
+      "description": "Behavioral language only: verb, object, quantity or duration, observable result. The pattern guard below rejects the recurring character-attack vocabulary outright, because a trait is not evidence and cannot be changed tomorrow.",
+      "properties": {
+        "behavior": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "not": {
+            "pattern": "\\b([Ll]azy|[Uu]ndisciplined|[Cc]oward|[Pp]athetic|[Ww]orthless|[Hh]opeless|[Uu]seless|[Pp]rocrastinator)\\b"
+          }
+        },
+        "fact_ref": {
+          "$ref": "#/$defs/fact_ref"
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        },
+        "cost_or_result": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "behavior",
+        "fact_ref"
+      ],
+      "additionalProperties": false
+    },
+    "contradiction": {
+      "type": "object",
+      "description": "The entry-embedded form of contradiction.json. observed_days has minItems 2, so one day cannot be recorded as a pattern, and an uninvestigated gap can only be held.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        },
+        "intention": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "observed_days": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "minItems": 2,
+          "maxItems": 60,
+          "uniqueItems": true
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "day": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+              },
+              "observation": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "fact_ref": {
+                "$ref": "#/$defs/fact_ref"
+              }
+            },
+            "required": [
+              "day",
+              "observation"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 40
+        },
+        "gap": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "possible_cause": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "next_experiment": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            },
+            "observable_result": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "run_by": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+            }
+          },
+          "required": [
+            "action",
+            "observable_result"
+          ],
+          "additionalProperties": false
+        },
+        "severity": {
+          "enum": [
+            "emerging",
+            "established",
+            "structural"
+          ]
+        },
+        "investigated_with_user": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "held_for_investigation",
+            "recorded",
+            "resolved",
+            "withdrawn"
+          ]
+        }
+      },
+      "required": [
+        "intention",
+        "observed_days",
+        "evidence",
+        "gap",
+        "investigated_with_user"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "investigated_with_user": {
+                "const": false
+              }
+            },
+            "required": [
+              "investigated_with_user"
+            ]
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "const": "held_for_investigation"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        }
+      ]
+    },
+    "miss": {
+      "type": "object",
+      "properties": {
+        "miss": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "What did not happen, and what that cost. Not a verdict on the person."
+        },
+        "fact_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact_ref"
+          },
+          "minItems": 1,
+          "maxItems": 6,
+          "uniqueItems": true
+        },
+        "what_blocked_it": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        }
+      },
+      "required": [
+        "miss",
+        "fact_refs"
+      ],
+      "additionalProperties": false
+    },
+    "idea": {
+      "type": "object",
+      "properties": {
+        "idea": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "trigger": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "What produced it. Where ideas come from is itself a durable pattern."
+        },
+        "fact_ref": {
+          "$ref": "#/$defs/fact_ref"
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        }
+      },
+      "required": [
+        "idea"
+      ],
+      "additionalProperties": false
+    },
+    "person_ref": {
+      "type": "object",
+      "description": "The ONLY permitted representation of a third party anywhere in this file. There is no field for a surname, an employer, an address, a phone number, an email, a handle, a profile link or a photo, and additionalProperties is false, so none can be added.",
+      "properties": {
+        "first_name": {
+          "type": "string",
+          "maxLength": 24,
+          "pattern": "^[^\\s0-9@.,;:/\\\\<>]{1,24}$",
+          "description": "A single given name or an initial. The pattern rejects whitespace, digits and punctuation, so a full name, an email or a handle cannot be written here."
+        },
+        "relation": {
+          "enum": [
+            "friend",
+            "family",
+            "partner",
+            "colleague",
+            "client",
+            "acquaintance",
+            "professional_contact",
+            "other"
+          ]
+        }
+      },
+      "required": [
+        "first_name"
+      ],
+      "additionalProperties": false
+    },
+    "person_interaction": {
+      "type": "object",
+      "properties": {
+        "person_ref": {
+          "$ref": "#/$defs/person_ref"
+        },
+        "interaction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "What was done and said. Not a guess at what they were thinking."
+        },
+        "what_changed": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "follow_up": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "fact_ref": {
+          "$ref": "#/$defs/fact_ref"
+        }
+      },
+      "required": [
+        "person_ref",
+        "interaction"
+      ],
+      "additionalProperties": false
+    },
+    "body_and_recovery": {
+      "type": "object",
+      "description": "Section 11. Observations, never a verdict on the body.",
+      "properties": {
+        "sleep_hours": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 24
+        },
+        "sleep_quality": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "training": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "energy": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "symptoms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "maxItems": 8
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": false
+    },
+    "sobriety": {
+      "type": "object",
+      "description": "Section 12. Data with a trigger attached. There is no field for praise, disappointment, a moral judgement or a streak trophy, because MIRROR never moralizes here in either direction.",
+      "properties": {
+        "status": {
+          "enum": [
+            "clean",
+            "slip",
+            "not_tracked",
+            "not_applicable"
+          ]
+        },
+        "trigger": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "context": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Where, with whom (first name only if relevant), after what"
+        },
+        "what_followed": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "days_since_reset": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Surfaced to the user only when they ask for the count"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "wealth_and_work": {
+      "type": "object",
+      "description": "Section 13.",
+      "properties": {
+        "revenue_activity": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "maxItems": 10,
+          "description": "Conversations, offers made, prices named. An empty array against a revenue goal is the signal, not an omission."
+        },
+        "money_in": {
+          "type": "number"
+        },
+        "money_out": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "work_delivered": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "maxItems": 10
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": false
+    },
+    "build": {
+      "type": "object",
+      "description": "Section 14.",
+      "properties": {
+        "project": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shipped": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "maxItems": 10,
+          "description": "Output, not time spent"
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "maxItems": 10
+        },
+        "blocked_by": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "block_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1440,
+          "description": "Time in the build block. Recorded, never used as the success measure."
+        }
+      },
+      "additionalProperties": false
+    },
+    "mind": {
+      "type": "object",
+      "description": "Section 15. Attention, inputs and thinking.",
+      "properties": {
+        "attention_quality": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "longest_focus_block_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "maxItems": 10,
+          "description": "What went in: read, watched, listened to, talked through"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": false
+    },
+    "relationships_and_life": {
+      "type": "object",
+      "description": "Section 16, including LOVE. There is deliberately no field for sexual detail anywhere in this schema. If the user volunteers it, it is not recorded here and it never reaches the content handoff.",
+      "properties": {
+        "person_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/person_ref"
+          },
+          "maxItems": 10
+        },
+        "connection_quality": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "effort_made": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "What the user actually did: contacted, listened, showed up, repaired"
+        },
+        "tension": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": false
+    },
+    "tomorrow_protocol": {
+      "type": "object",
+      "description": "The entry-embedded form of tomorrow_protocol.json. missions has maxItems 3 and every mission requires a non-empty success_condition.",
+      "properties": {
+        "for_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "missions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "domain": {
+                "$ref": "#/$defs/domain"
+              },
+              "action": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "why": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "success_condition": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "carried_from": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+              }
+            },
+            "required": [
+              "domain",
+              "action",
+              "why",
+              "success_condition"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 3
+        },
+        "non_negotiables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "condition": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "active": {
+                "const": true
+              }
+            },
+            "required": [
+              "name",
+              "condition",
+              "active"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 7
+        },
+        "identity_challenge": {
+          "type": "object",
+          "properties": {
+            "challenge": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            },
+            "why_uncomfortable": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "success_condition": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "achievable_today": {
+              "const": true
+            },
+            "domain": {
+              "$ref": "#/$defs/domain"
+            }
+          },
+          "required": [
+            "challenge",
+            "success_condition",
+            "achievable_today"
+          ],
+          "additionalProperties": false
+        },
+        "optional_challenge": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "curiosity",
+                "social",
+                "environment",
+                "creativity",
+                "generosity",
+                "exposure"
+              ]
+            },
+            "challenge": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 250
+            },
+            "adds_value_because": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "kind",
+            "challenge",
+            "adds_value_because"
+          ],
+          "additionalProperties": false
+        },
+        "unfinished_loops": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "loop": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 250
+              },
+              "opened_on": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+              },
+              "age_days": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "next_action": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "status": {
+                "enum": [
+                  "open",
+                  "scheduled",
+                  "killed",
+                  "done"
+                ]
+              },
+              "kill_reason": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "carried_forward_count": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "loop",
+              "age_days",
+              "next_action",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 20
+        },
+        "rest_day": {
+          "type": "boolean"
+        },
+        "rest_reason": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "capacity_note": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "missions",
+        "non_negotiables",
+        "identity_challenge",
+        "unfinished_loops"
+      ],
+      "additionalProperties": false
+    },
+    "memory_candidate": {
+      "type": "object",
+      "description": "The entry-embedded form of memory_candidate.json. A memory cannot exist without its reason and at least one supporting fact.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "new_person",
+            "relationship_development",
+            "business_decision",
+            "important_idea",
+            "changed_belief",
+            "new_preference",
+            "major_lesson",
+            "commitment",
+            "project_decision",
+            "recurring_trigger",
+            "recurring_performance_pattern",
+            "meaningful_place"
+          ]
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "why_it_earns_preservation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "supported_by": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact_ref"
+          },
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "person_ref": {
+          "$ref": "#/$defs/person_ref"
+        },
+        "durability": {
+          "enum": [
+            "durable",
+            "provisional"
+          ]
+        },
+        "domain": {
+          "$ref": "#/$defs/domain"
+        }
+      },
+      "required": [
+        "kind",
+        "statement",
+        "why_it_earns_preservation",
+        "supported_by",
+        "durability"
+      ],
+      "additionalProperties": false
+    },
+    "content_handoff": {
+      "type": "object",
+      "description": "Raw material only. There is no field here, or anywhere below it, for a post, a caption, a hook, a headline, a thread, a script or a draft. The journal agent never writes posts, and additionalProperties false makes that structural rather than a matter of restraint.",
+      "properties": {
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/content_candidate"
+          },
+          "maxItems": 5
+        },
+        "recommendation": {
+          "enum": [
+            "strong_signal",
+            "some_signal",
+            "no_need_to_publish"
+          ]
+        },
+        "recommendation_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "candidates",
+        "recommendation",
+        "recommendation_reason"
+      ],
+      "additionalProperties": false
+    },
+    "content_candidate": {
+      "type": "object",
+      "description": "The entry-embedded form of content_candidate.json. privacy is a closed enum defaulting to the most protective value, and a private candidate cannot carry a publish recommendation.",
+      "properties": {
+        "moment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "raw_facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "minItems": 1,
+          "maxItems": 15
+        },
+        "why_it_may_matter": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "evidence_available": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "maxItems": 10
+        },
+        "privacy": {
+          "enum": [
+            "public_safe",
+            "needs_review",
+            "private"
+          ],
+          "default": "private"
+        },
+        "possible_themes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "maxItems": 3
+        },
+        "third_party_present": {
+          "type": "boolean"
+        },
+        "quotable_raw_thoughts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "quote": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "language": {
+                "enum": [
+                  "fr",
+                  "en",
+                  "mixed",
+                  "other"
+                ]
+              },
+              "said_verbatim": {
+                "const": true
+              }
+            },
+            "required": [
+              "quote",
+              "said_verbatim"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 3
+        },
+        "visual_assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "photo",
+                  "video",
+                  "screen_recording",
+                  "screenshot",
+                  "whiteboard",
+                  "place",
+                  "build_in_progress",
+                  "other"
+                ]
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "mentioned_by_user": {
+                "const": true
+              }
+            },
+            "required": [
+              "kind",
+              "description",
+              "mentioned_by_user"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 10
+        },
+        "recommendation": {
+          "enum": [
+            "strong_signal",
+            "some_signal",
+            "no_need_to_publish"
+          ]
+        }
+      },
+      "required": [
+        "moment",
+        "raw_facts",
+        "why_it_may_matter",
+        "privacy"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "description": "A private candidate cannot carry a publish recommendation.",
+          "if": {
+            "properties": {
+              "privacy": {
+                "const": "private"
+              }
+            },
+            "required": [
+              "privacy"
+            ]
+          },
+          "then": {
+            "properties": {
+              "recommendation": {
+                "const": "no_need_to_publish"
+              }
+            }
+          }
+        },
+        {
+          "description": "Anyone but the user in the material means a human reviews it first.",
+          "if": {
+            "properties": {
+              "third_party_present": {
+                "const": true
+              }
+            },
+            "required": [
+              "third_party_present"
+            ]
+          },
+          "then": {
+            "properties": {
+              "privacy": {
+                "enum": [
+                  "needs_review",
+                  "private"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "final_mirror": {
+      "type": "object",
+      "description": "The four closing lines. The fourth is the top-level identity_vote and is not duplicated here.",
+      "properties": {
+        "todays_truth": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "The one thing that is true about today, said plainly, in either direction"
+        },
+        "todays_proof": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "The evidence behind that truth. A fact, not a feeling."
+        },
+        "tomorrows_priority": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "The single thing that matters most tomorrow, drawn from the missions"
+        }
+      },
+      "required": [
+        "todays_truth",
+        "todays_proof",
+        "tomorrows_priority"
+      ],
+      "additionalProperties": false
+    },
+    "interview_check": {
+      "type": "object",
+      "description": "The end-of-interview gate, recorded so a rushed close is visible later",
+      "properties": {
+        "checks_failed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        },
+        "gap_question_asked": {
+          "type": "boolean"
+        },
+        "closing_question_asked": {
+          "type": "boolean"
+        },
+        "reopened": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reflection": {
+      "type": "object",
+      "description": "At most ONE philosophical reflection per entry, which is why this is a single object and not an array. It must attach to a specific fact from this day, and on an ordinary day the correct output is to omit it entirely.",
+      "properties": {
+        "tradition": {
+          "enum": [
+            "stoicism",
+            "jim_rohn",
+            "taoism"
+          ]
+        },
+        "reflection": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "bound_to_fact": {
+          "$ref": "#/$defs/fact_ref"
+        }
+      },
+      "required": [
+        "tradition",
+        "reflection",
+        "bound_to_fact"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

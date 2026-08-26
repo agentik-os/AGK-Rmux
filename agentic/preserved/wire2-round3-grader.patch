@@ -1,0 +1,80 @@
+diff --git a/crates/omega-cli/src/main.rs b/crates/omega-cli/src/main.rs
+index dd83f0a..e8d16e2 100644
+--- a/crates/omega-cli/src/main.rs
++++ b/crates/omega-cli/src/main.rs
+@@ -6835,6 +6835,21 @@ fn parse_todo_status(status: &str) -> Result<omega_core::oracle_todo::TodoStatus
+ /// which would flip the honest refusal to `done_clean` within one cycle. That
+ /// case is never armed, and nothing legitimate is lost: `omega progress` exits
+ /// 1 on such a file, so there is no honest upgrade waiting to happen.
++///
++/// WHAT THIS PREDICATE DELIBERATELY DOES NOT COVER, so the next reader does not
++/// mistake it for a complete guard. Patrol's upgrader does not read the quality
++/// gate either — `GateResult` appears nowhere in patrol.rs — while the upgrader
++/// in `cmd_progress` does. So a signal downgraded ONLY because the independent
++/// gate is absent is still armed here, and patrol can clear that refusal on its
++/// next minute without ever consulting the gate. Refusing to arm it would close
++/// that hole from this file, and it is NOT done, for two reasons: the arming
++/// rule predates this change byte for byte, and narrowing it would also delete
++/// the legitimate upgrade for a gate that passes AFTER `omega done` — the
++/// behaviour this crate is explicitly required to preserve. The honest fix is
++/// one crate down, in patrol's own copy of the rule: read `GateResult` exactly
++/// as `cmd_progress` does, or call `OracleTodo::is_complete` instead of
++/// trusting the counters. Until then, a mission refused only by the gate can be
++/// auto-accepted by patrol, and the gate's own refusal text is cleared with it.
+ fn arms_gate_upgrade(
+     requested: omega_core::done::DoneStatus,
+     final_status: omega_core::done::DoneStatus,
+@@ -6912,6 +6927,20 @@ fn cmd_progress_readback(state_dir: &std::path::Path, session: &str, json: bool)
+         println!("oracle-{key}: no plan file yet ({}).", path.display());
+     } else {
+         println!("{}", render_plan_checklist(key, &tasks));
++        // This reader is TOLERANT by design — one bad entry must not blank the
++        // read-back an oracle is resuming from — but every WRITER now fails
++        // closed on the same file. Without this line the checklist above reads
++        // like a healthy plan while `omega progress --task …` exits 1 and
++        // `omega done done_clean` refuses, and a post-compaction resume is
++        // exactly when an oracle consults this surface and exactly when it has
++        // to learn its ledger is unwritable.
++        if omega_core::oracle_todo::OracleTodo::load(state_dir, session).is_err() {
++            println!(
++                "[!] this plan file does not parse strictly — the checklist above skips what it \
++                 could not read, and every WRITE to it will be refused until it is repaired. \
++                 tasks[] entries need both `t` and `s`, and `s` must be todo|doing|done|fail."
++            );
++        }
+     }
+     Ok(())
+ }
+@@ -6956,11 +6985,12 @@ fn cmd_progress(
+     let mut todo =
+         omega_core::oracle_todo::OracleTodo::load(&config.state_dir, session).map_err(|e| {
+             anyhow::anyhow!(
+-                "{e}\nThe plan was NOT changed. Repair the file in place — the error above \
++                "{e}\nThe plan was NOT changed. Repair the file in place, NOW — the error above \
+                  names the spot; tasks[] entries need both `t` and `s`, and `s` must be one of \
+                  todo|doing|done|fail. `omega progress {session}` still prints what it holds. \
+-                 Prefer repairing to deleting: the file also carries the Telegram card's \
+-                 chat/msgId, and deleting it orphans the live card at the bot's next restart."
++                 Repair rather than delete (the file also carries the Telegram card's \
++                 chat/msgId), and do not leave it: once this oracle signals done, the bot \
++                 finalizes its card and removes this file within seconds."
+             )
+         })?;
+     if let Some(p) = plan {
+@@ -7411,6 +7441,16 @@ async fn cmd_done(session: &str, status: &str, summary: &str, commit: Option<&st
+                 }
+                 // An UNPARSEABLE file is the only load error left, and it stays
+                 // fail-closed with the wording the bot and patrol already parse.
++                //
++                // THE COST OF THAT, recorded rather than discovered later: not
++                // arming the upgrade (see `arms_gate_upgrade`) means the bot sees
++                // no gate hold, finalizes the card and removes this progress file
++                // on its next poll (telegram-bot/omega-tg-bot.ts:1491, :1530), so
++                // the unreadable plan is GONE rather than waiting to be repaired.
++                // The trade is still the right way round — patrol forging a
++                // done_clean over a plan nobody could parse is worse than losing a
++                // file that already failed to parse — but the repair hint
++                // `cmd_progress` prints says "now" for this reason.
+                 Err(_) => {
+                     final_status = omega_core::done::DoneStatus::Pending;
+                     ledger_unreadable = true;

@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/seductive-os/magnetism_profile.json",
+  "title": "Magnetism Profile",
+  "description": "The baseline read. The seven factors of the core equation are fixed properties rather than an open map, and every score carries the evidence it rests on, because a score with no evidence line is a mood. The equation is multiplicative, so the profile names one bottleneck with a confidence and a falsifier, plus an explicit list of what is NOT the problem, which is the output that stops months of misdirected effort. This record describes the user only: there is no field anywhere for another person.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "depth": {
+      "enum": [
+        "QUICK",
+        "STANDARD",
+        "DEEP"
+      ],
+      "description": "DEEP is opt-in only and never run on a first contact unless the user asks"
+    },
+    "factors": {
+      "type": "object",
+      "description": "All seven, scored 1 to 5 against behaviour in the last 90 days. Not an open map: the factor set is the equation.",
+      "properties": {
+        "presence": {
+          "$ref": "#/$defs/factor"
+        },
+        "warmth": {
+          "$ref": "#/$defs/factor"
+        },
+        "self_respect": {
+          "$ref": "#/$defs/factor"
+        },
+        "curiosity": {
+          "$ref": "#/$defs/factor"
+        },
+        "competence": {
+          "$ref": "#/$defs/factor"
+        },
+        "calibration": {
+          "$ref": "#/$defs/factor"
+        },
+        "consent": {
+          "$ref": "#/$defs/factor"
+        }
+      },
+      "required": [
+        "presence",
+        "warmth",
+        "self_respect",
+        "curiosity",
+        "competence",
+        "calibration",
+        "consent"
+      ],
+      "additionalProperties": false
+    },
+    "exposure": {
+      "type": "object",
+      "description": "Three counts. Zero exposure invalidates the calibration and consent scores, and the profile says so rather than guessing.",
+      "properties": {
+        "hours_in_rooms_per_week": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Hours per week in a room where meeting someone new is even possible"
+        },
+        "new_conversations_last_14_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "romantic_context_last_90_days": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "hours_in_rooms_per_week",
+        "new_conversations_last_14_days",
+        "romantic_context_last_90_days"
+      ],
+      "additionalProperties": false
+    },
+    "avoidance_map": {
+      "type": "array",
+      "description": "What the user reliably does not do, and the cost they predict for doing it",
+      "items": {
+        "type": "object",
+        "properties": {
+          "situation": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "predicted_cost": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "exit_point": {
+            "enum": [
+              "before_leaving_home",
+              "at_the_door",
+              "on_approach",
+              "mid_conversation",
+              "at_the_invitation"
+            ]
+          }
+        },
+        "required": [
+          "situation",
+          "predicted_cost"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "bottleneck": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Exactly one, named. Not three."
+    },
+    "bottleneck_confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "bottleneck_falsifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "The evidence that would change this read. Mandatory whenever a bottleneck is named."
+    },
+    "not_the_problem": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "minItems": 2,
+      "description": "Load-bearing output, not reassurance. At least two."
+    },
+    "clinical_flag": {
+      "type": "object",
+      "description": "Screened at every depth, answered explicitly even when the answer is none",
+      "properties": {
+        "present": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "body_dysmorphia",
+            "compulsive_pursuit_or_surveillance",
+            "disabling_social_anxiety",
+            "substance_as_precondition",
+            "post_breakup_crisis",
+            "self_harm",
+            "coercive_control",
+            "other"
+          ]
+        },
+        "routed_to_professional": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "present"
+      ],
+      "additionalProperties": false
+    },
+    "next_action": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "One action inside 48 hours: small, real, involving the user's actual body in an actual room"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "depth",
+    "factors",
+    "bottleneck",
+    "bottleneck_falsifier",
+    "not_the_problem",
+    "next_action"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "A positive clinical flag must record where it was routed. The OS does not coach through it.",
+      "if": {
+        "properties": {
+          "clinical_flag": {
+            "properties": {
+              "present": {
+                "const": true
+              }
+            },
+            "required": [
+              "present"
+            ]
+          }
+        },
+        "required": [
+          "clinical_flag"
+        ]
+      },
+      "then": {
+        "properties": {
+          "clinical_flag": {
+            "required": [
+              "kind",
+              "routed_to_professional"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "factor": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "The incident behind the number, quoted from the user's own answers. Mandatory: a score with no evidence is not recorded."
+        },
+        "unknown": {
+          "type": "boolean",
+          "description": "True when there is not enough recent behaviour to score honestly. Get a rep before scoring."
+        }
+      },
+      "required": [
+        "score",
+        "evidence"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

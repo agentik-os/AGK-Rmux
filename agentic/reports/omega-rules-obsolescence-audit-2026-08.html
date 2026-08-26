@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmegaOS Doctrine vs the 2026 AI Stack: Obsolescence Audit</title>
+<style>
+:root {
+  --bg: #f4f2ec;
+  --surface: #fdfcf8;
+  --ink: #1f2429;
+  --ink-soft: #565e66;
+  --line: #d8d3c6;
+  --accent: #9a5b2d;
+  --accent-ink: #7c4620;
+  --hold: #2d6a4f;
+  --stale: #b0722a;
+  --gap: #8c3a3a;
+  --minor: #5b6770;
+  --chip-bg: #ece8dd;
+  --code-bg: #ece9e0;
+}
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14171b;
+    --surface: #1c2127;
+    --ink: #e8e4da;
+    --ink-soft: #a2a8ae;
+    --line: #333a42;
+    --accent: #d99a5b;
+    --accent-ink: #e2ab73;
+    --hold: #6fbf9a;
+    --stale: #dca55e;
+    --gap: #d97f7f;
+    --minor: #93a1ac;
+    --chip-bg: #262c33;
+    --code-bg: #232930;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14171b;
+  --surface: #1c2127;
+  --ink: #e8e4da;
+  --ink-soft: #a2a8ae;
+  --line: #333a42;
+  --accent: #d99a5b;
+  --accent-ink: #e2ab73;
+  --hold: #6fbf9a;
+  --stale: #dca55e;
+  --gap: #d97f7f;
+  --minor: #93a1ac;
+  --chip-bg: #262c33;
+  --code-bg: #232930;
+}
+:root[data-theme="light"] {
+  --bg: #f4f2ec;
+  --surface: #fdfcf8;
+  --ink: #1f2429;
+  --ink-soft: #565e66;
+  --line: #d8d3c6;
+  --accent: #9a5b2d;
+  --accent-ink: #7c4620;
+  --hold: #2d6a4f;
+  --stale: #b0722a;
+  --gap: #8c3a3a;
+  --minor: #5b6770;
+  --chip-bg: #ece8dd;
+  --code-bg: #ece9e0;
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.65 ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  padding: 0 0 6rem;
+}
+main { max-width: 60rem; margin: 0 auto; padding: 0 1.25rem; }
+header.masthead {
+  border-bottom: 1px solid var(--line);
+  padding: 3.5rem 1.25rem 2.5rem;
+  margin-bottom: 2.5rem;
+}
+.masthead-inner { max-width: 60rem; margin: 0 auto; }
+.kicker {
+  font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent-ink); font-weight: 700;
+}
+h1 { font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1.15; text-wrap: balance; margin: .6rem 0 .8rem; }
+.standfirst { color: var(--ink-soft); max-width: 65ch; }
+.meta-row { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin-top: 1.4rem; font-size: .82rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+h2 {
+  font-size: 1.35rem; margin: 3rem 0 1rem; padding-top: 1rem;
+  border-top: 2px solid var(--accent); display: inline-block; text-wrap: balance;
+}
+h3 { font-size: 1.05rem; margin: 1.8rem 0 .6rem; }
+p { max-width: 65ch; margin-bottom: .9rem; }
+p.wide { max-width: none; }
+a { color: var(--accent-ink); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+nav.toc {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 1.1rem 1.4rem; margin: 0 0 2rem; font-size: .9rem;
+}
+nav.toc strong { font-size: .72rem; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-soft); }
+nav.toc ol { margin: .5rem 0 0 1.1rem; padding: 0; }
+nav.toc li { margin: .2rem 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 1.5rem 0 2rem; }
+.stat {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: .9rem 1rem;
+}
+.stat .n { font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; display: block; }
+.stat .l { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+.stat.hold .n { color: var(--hold); }
+.stat.stale .n { color: var(--stale); }
+.stat.gap .n { color: var(--gap); }
+.badge {
+  display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; padding: .15rem .55rem; border-radius: 999px;
+  vertical-align: middle;
+}
+.badge.stale { background: color-mix(in srgb, var(--stale) 16%, transparent); color: var(--stale); }
+.badge.gap { background: color-mix(in srgb, var(--gap) 16%, transparent); color: var(--gap); }
+.badge.minor { background: color-mix(in srgb, var(--minor) 16%, transparent); color: var(--minor); }
+.badge.hold { background: color-mix(in srgb, var(--hold) 16%, transparent); color: var(--hold); }
+.finding {
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--stale);
+  border-radius: 6px; padding: 1.2rem 1.4rem; margin: 1.1rem 0;
+}
+.finding.gap { border-left-color: var(--gap); }
+.finding.minor { border-left-color: var(--minor); }
+.finding h3 { margin: 0 0 .5rem; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.finding .rule { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .95rem; }
+.finding p { font-size: .92rem; }
+.finding .fix {
+  margin-top: .7rem; padding: .7rem .9rem; background: var(--chip-bg); border-radius: 4px;
+  font-size: .88rem; max-width: none;
+}
+.finding .fix strong { color: var(--accent-ink); }
+blockquote {
+  border-left: 3px solid var(--line); margin: .6rem 0; padding: .1rem 0 .1rem .9rem;
+  color: var(--ink-soft); font-size: .88rem; max-width: 65ch;
+}
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .86em; background: var(--code-bg); padding: .1em .35em; border-radius: 3px; }
+.tablewrap { overflow-x: auto; margin: 1rem 0 1.5rem; border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; background: var(--surface); }
+th, td { text-align: left; padding: .55rem .8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.prio { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--accent-ink); }
+ul { padding-left: 1.2rem; max-width: 65ch; }
+li { margin: .3rem 0; }
+footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); font-size: .8rem; color: var(--ink-soft); }
+@media print {
+  body { background: #fff; color: #000; }
+  .finding, .stat, nav.toc, .tablewrap, table { background: #fff; border-color: #bbb; }
+  nav.toc { page-break-after: avoid; }
+  .finding { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <span class="kicker">OmegaOS · Doctrine Audit</span>
+    <h1>OmegaOS vs the 2026 AI Stack: What Aged, What Holds</h1>
+    <p class="standfirst">All 58 compiled rules were audited against the August 2026 state of the harness and the agent ecosystem. Every finding below survived an adversarial verification pass that tried to refute it; nine candidate findings did not survive and were discarded. <strong>Status: all confirmed findings are now fixed in <code>rules.rs</code></strong> (11 rules touched, 1 new rule R-XSESSION), built, re-exported, tested, and shipped to npm + GitHub. The one item left open by design is arming the nightly self-improvement loop, which is an operator decision.</p>
+    <div class="meta-row">
+      <span>2026-08-07</span>
+      <span>Claude Code 2.1.224 · omega 0.1.9 · npm omega-os 1.5.11</span>
+      <span>26 audit agents · 2.68M tokens</span>
+      <span>58 rules → 59 · 351 skills</span>
+    </div>
+  </div>
+</header>
+<main>
+
+<nav class="toc" aria-label="Table of contents">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#verdict">The verdict in numbers</a></li>
+    <li><a href="#meta">The meta finding: the self-improvement loop was off</a></li>
+    <li><a href="#confirmed">Confirmed findings (9)</a></li>
+    <li><a href="#refuted">Challenged and refuted (9)</a></li>
+    <li><a href="#trends">Where OmegaOS stands vs the ecosystem</a></li>
+    <li><a href="#plan">Prioritized upgrade plan</a></li>
+    <li><a href="#method">Method</a></li>
+  </ol>
+</nav>
+
+<h2 id="verdict">1. The verdict in numbers</h2>
+<div class="stats">
+  <div class="stat hold"><span class="n">50</span><span class="l">rule checks hold</span></div>
+  <div class="stat stale"><span class="n">6</span><span class="l">stale clauses</span></div>
+  <div class="stat gap"><span class="n">3</span><span class="l">coverage gaps</span></div>
+  <div class="stat"><span class="n">9</span><span class="l">findings refuted</span></div>
+</div>
+<p>The registry is in good shape. No rule needs retiring: every confirmed finding is a stale clause inside an otherwise valid rule, or a new native capability the registry does not yet govern. The deliberate pins (council seats, monitor scars, verification doctrine) all survived adversarial challenge. The real story is the meta finding below: the mechanism that should have caught this drift automatically was disarmed.</p>
+
+<h2 id="meta">2. The meta finding: the self-improvement loop was off</h2>
+<p>OmegaOS ships <code>changelog-adopt</code>, a skill whose whole job is absorbing the official Claude Code changelog and proposing doctrine upgrades. Its watermark sits at <strong>2.1.202</strong> while <strong>2.1.224</strong> is installed: 22 versions of features unabsorbed, and its 08:15 cron is disarmed. Every harness-level finding in this report (cross-session messaging, background code review, sandbox credential masking, subagent cap removal) landed inside that unabsorbed window. The single highest-leverage improvement is not any one rule edit: it is arming the loop that makes this audit unnecessary.</p>
+
+<h2 id="confirmed">3. Confirmed findings</h2>
+<p>Each finding quotes the live rule text and names the current fact that contradicts it. Severity: <span class="badge stale">stale</span> a better native path exists or a premise died, <span class="badge gap">gap</span> a capability with no governing doctrine at all, <span class="badge minor">minor</span> cosmetic drift.</p>
+
+<div class="finding">
+  <h3><span class="rule">R-LOOP</span> <span class="badge stale">stale</span> Cache-pacing clause built on a dead 5-minute TTL</h3>
+  <p>The rule instructs loops to "pick delaySeconds by the 5-minute prompt-cache window: 60-270s keeps the cache warm, never 300s". The harness now runs a <strong>1-hour</strong> prompt-cache TTL: there is no cache cliff anywhere in the schedulable range, and current guidance explicitly forbids wakeups whose only purpose is keeping the cache warm. A session obeying R-LOOP today fires wasteful 60-270s wakeups to defend a cache that survives an hour on its own.</p>
+  <div class="fix"><strong>Fix:</strong> rewrite clause (b) only: pace by the work's real cadence, keep 1200-1800s as the idle default, drop the "never 300s" prohibition, note the overage edge case (TTL drops to 5 min) without reviving warm-keeping. Retry ceilings (THRASH_CAP, GATE_RETRY_CAP) and every other clause stay untouched.</div>
+</div>
+
+<div class="finding">
+  <h3><span class="rule">R-MODEL</span> <span class="badge stale">stale</span> Security fallback tier contradicts the rule's own map</h3>
+  <p>The Mythos boundary says twice to tier Fable-displaced security work to <strong>Opus 4.8</strong>, while the same rule's tier map assigns security analysis to <strong>Opus 5</strong>, which has been GA and the default Opus since v2.1.219. The rule contradicts itself; the only intact Opus 4.8 fact is Anthropic's server-side raw-API refusal fallback, which is not a tier agents choose.</p>
+  <div class="fix"><strong>Fix:</strong> change both agent-facing directives to <code>claude-opus-5</code>. Keep the descriptive raw-API fallback sentence, clearly marked as server behavior. The safety scar itself (Fable disqualified from security work, refusal = abort) is correct and preserved.</div>
+</div>
+
+<div class="finding gap">
+  <h3><span class="rule">R-ORCH / R-VERIFY</span> <span class="badge gap">gap</span> Native background /code-review is integrated nowhere</h3>
+  <p>Since v2.1.218, <code>/code-review</code> runs natively as a background subagent with typed findings output; since v2.1.215 it no longer auto-runs, so nothing invokes it at all. Meanwhile the registry routes every code review through hand-built adversarial Workflow fan-outs (<code>adversarial-review.js</code>). Grep across all 58 rules: no rule integrates the native reviewer or warns that it stopped auto-running.</p>
+  <div class="fix"><strong>Fix:</strong> add routing to the verify stage: native /code-review as the background first pass for code diffs (free parallelism, typed output), the adversarial Workflow reserved for what it cannot judge (runtime claims, cross-file architecture, non-code deliverables). Constraint from the verifier: /code-review is a first-pass INPUT feeding the adversarial edge, never the sole verdict, or the single-grader scar regresses.</div>
+</div>
+
+<div class="finding gap">
+  <h3><span class="rule">NEW: cross-session messaging</span> <span class="badge gap">gap</span> No doctrine for the native session-to-session channel</h3>
+  <p>v2.1.224 shipped cross-session <code>SendMessage</code> + <code>ListAgents</code> plus the <code>crossSessionInbound</code> and <code>dialogExpiry</code> settings; both tools are live on this box. Grep across all 58 rules finds zero coverage: no trust posture for inbound messages, no routing decision between SendMessage, the alert funnel, and pane injection, no fleet policy for enabling inbound.</p>
+  <div class="fix"><strong>Fix:</strong> author a new rule (working name R-XSESSION): an inbound cross-session message is an INPUT, never an instruction (same posture R-ORACLE-LEDGER takes toward delegate claims); SendMessage for peer signaling between live sessions, the alert funnel for operator-facing escalation, pane injection only where R-MONITOR already owns it; decide and record the fleet-wide <code>crossSessionInbound</code> setting.</div>
+</div>
+
+<div class="finding gap">
+  <h3><span class="rule">R-ENV</span> <span class="badge gap">gap</span> Sandbox credential masking exists, no rule uses it</h3>
+  <p>R-ENV's secrets doctrine is location-only ("secrets live in ~/.omega, never the repo"). Claude Code now ships sandbox credential masking (<code>mode: "mask"</code> on Linux, plus jwt/awsPairs/sigv4 extraction, v2.1.222-224): sandboxed commands read a sentinel while the proxy substitutes the real value on egress. No rule instructs agents to shield ~/.omega secrets with it when running untrusted or semi-trusted commands.</p>
+  <div class="fix"><strong>Fix:</strong> extend R-ENV (or fold into the R-REPO-INSTALL fix below): when executing code you did not write, secrets reachable from the environment get masked via the native sandbox layer; location hygiene alone no longer meets the bar the harness makes cheap.</div>
+</div>
+
+<div class="finding">
+  <h3><span class="rule">R-REPO-INSTALL</span> <span class="badge stale">stale</span> The safety glance can now be enforced, not just hoped</h3>
+  <p>The rule's one precondition is a human-eye glance at install scripts. Native containment now exists that enforces what the glance can only spot: <code>sandbox.network.strictAllowlist</code> (v2.1.219), credential masking (v2.1.222), and SHA-256 pinned zip installs (v2.1.224). An exfiltration attempt the glance misses is stopped by an egress allowlist; a credential harvest reads sentinels.</p>
+  <div class="fix"><strong>Fix:</strong> keep the glance (it catches destructive commands containment does not), add a second layer: run operator-given repo installs under the sandbox with strict network allowlist and masked credentials by default. The rule keeps its no-friction spirit; the enforcement gets teeth.</div>
+</div>
+
+<div class="finding">
+  <h3><span class="rule">R-CLI</span> <span class="badge stale">stale</span> The MCP-bloat premise is factually dead</h3>
+  <p>"Minimize MCP servers: they bloat context every turn" was true when written. On current Claude Code, MCP schemas are deferred and load on demand via ToolSearch (live-confirmed in this very session: open-design and convex tools appear as names only, schemas unloaded), and MCP calls auto-background after 2 minutes. The cost model that justified the rule no longer exists.</p>
+  <div class="fix"><strong>Fix:</strong> rewrite the rationale, keep the preference. CLI-first remains right for scriptability, inspectability, and composability (real reasons that did not age), but the rule should stop citing a context cost the harness eliminated, and soften the blanket ban into a judgment call per integration.</div>
+</div>
+
+<div class="finding">
+  <h3><span class="rule">R-DESIGN</span> <span class="badge stale">stale</span> "MCP is NOT the path here" contradicted by the box's own Open Design integration</h3>
+  <p>The design router closes with a blanket "MCP is NOT the path here (R-CLI)" while the box now carries a vendored open-design MCP server (configured and live in sessions), open-design skills, and the omega-design CLI. The router claims to route ANY design request and never mentions any of them.</p>
+  <div class="fix"><strong>Fix:</strong> add an Open Design lane to the router (when the OD workspace is the right surface vs the generator skills), and drop or scope the blanket MCP clause to match reality.</div>
+</div>
+
+<div class="finding minor">
+  <h3><span class="rule">R-SKILLPUB</span> <span class="badge minor">minor</span> Plugin zip + marketplace distribution unmentioned</h3>
+  <p>The two-SSOT publishing contract (skill library repo + OmegaOS repo) stands. Claude Code's plugin infrastructure (zip-over-HTTPS install with SHA-256 pinning, marketplaces with owner wildcards) is a distribution channel the rule predates and never mentions.</p>
+  <div class="fix"><strong>Fix:</strong> one added sentence: plugin packaging is an optional third distribution surface for skills meant to travel beyond OmegaOS installs; the two SSOTs remain mandatory.</div>
+</div>
+
+<h2 id="refuted">4. Challenged and refuted</h2>
+<p>Nine candidate findings were killed by the adversarial pass. Listing them matters: they are the places where the doctrine looked outdated but is not, and each refutation defends a deliberate design decision.</p>
+<div class="tablewrap"><table>
+  <tr><th>Rule</th><th>Challenge</th><th>Why it was refuted</th></tr>
+  <tr><td><code>R-COUNCIL</code></td><td>Sonnet 4.6 seat predates Sonnet 5</td><td>R-MODEL explicitly names council seats as deliberately pinned doctrine, re-tiered only by editing their own doc.</td></tr>
+  <tr><td><code>R-MONITOR</code></td><td>SendMessage could replace pane-nudging</td><td>The canonical deliverer is the Rust watcher, not an agent; the four-state classifier and its scars stand regardless of delivery channel.</td></tr>
+  <tr><td><code>R-VERIFY</code></td><td>Predates native /code-review</td><td>The rule says "independent lenses" generically; Workflow 2-of-3 is an example, not the only mechanism. Native review already qualifies as a lens.</td></tr>
+  <tr><td><code>R-RUBRIC</code></td><td>prompt-audit could check briefs</td><td>prompt-audit audits for legacy model incantations (migration cruft), not brief quality. Wrong tool for the claimed gap.</td></tr>
+  <tr><td><code>R-CITE</code></td><td>No OTel-based citation form</td><td>The existing "log line" category already covers transcripts and timelines as on-disk evidence.</td></tr>
+  <tr><td><code>R-ZERNIO</code></td><td>Funnel down since 07-26, no outage posture</td><td>Live re-check during the audit: Zernio answers HTTP 200 again. Point-in-time billing lapse, not a standing contradiction.</td></tr>
+  <tr><td><code>R-ORCH</code></td><td>Primitive ladder pushes mid-size fan-outs to spawn-worker</td><td>The rule already names Workflow as the in-process default for exactly those cases.</td></tr>
+  <tr><td><code>L3</code></td><td>SendMessage lets dispatched sessions ask questions</td><td>L3 regulates stops, not inter-agent communication. A non-blocking message while continuing work was never forbidden.</td></tr>
+  <tr><td><code>R-ORACLE-LEDGER</code></td><td>Signaling doctrine ignores the new channel</td><td>Point 4 already makes ANY delegate claim, however delivered, an input under R-VERIFY. Principle covers the new channel.</td></tr>
+</table></div>
+
+<h2 id="trends">5. Where OmegaOS stands vs the ecosystem</h2>
+<p>Against the August 2026 landscape (majority of orgs now running multi-step agent workflows in production; the industry converging on governance, observability, and shared memory as the hard problems), OmegaOS is ahead of the curve on most axes, not behind:</p>
+<ul>
+  <li><strong>Orchestration:</strong> pipeline/graph doctrine (R-GRAPH, R-GRAPH-EXEC) matches or exceeds what commercial frameworks ship as "patterns". The subagent cap removal and depth-3 nesting raise the ceiling OmegaOS can already exploit.</li>
+  <li><strong>Governance:</strong> risk gates, bounded loops, oracle ledgers, and the finish contract are exactly the "auditability and stage-gating" the enterprise playbooks now preach.</li>
+  <li><strong>Shared memory:</strong> omega-mem (Graphiti + FalkorDB) is the "knowledge fabric" the trend pieces call critical; it predates the trend.</li>
+  <li><strong>The lag is harness absorption,</strong> not architecture: every confirmed finding traces to the 22 unabsorbed Claude Code versions, which is an armed-cron problem, not a design problem.</li>
+</ul>
+
+<h2 id="plan">6. Prioritized upgrade plan</h2>
+<div class="tablewrap"><table>
+  <tr><th>Prio</th><th>Action</th><th>Effort</th><th>Why first</th></tr>
+  <tr><td class="prio">P1</td><td>Patch R-LOOP clause (b): drop 5-min cache pacing, pace by real cadence. Patch R-MODEL: Opus 4.8 to claude-opus-5 in both security-fallback directives. Recompile registry, re-export ~/.omega/rules.</td><td class="num">2 edits in rules.rs</td><td>Both actively misdirect running sessions today (wasteful wakeups; contradictory security tiering).</td></tr>
+  <tr><td class="prio">P2</td><td>Catch changelog-adopt up: watermark 2.1.202 to 2.1.224, then decide arming the 08:15 cron (or a weekly gated variant).</td><td class="num">1 run + 1 decision</td><td>The meta finding. Everything else in this report is what the disarmed loop failed to absorb.</td></tr>
+  <tr><td class="prio">P3</td><td>Author R-XSESSION: trust + routing doctrine for cross-session SendMessage/ListAgents; set the fleet crossSessionInbound policy.</td><td class="num">1 new rule</td><td>A live, ungoverned channel into every session is a safety gap, not a feature gap.</td></tr>
+  <tr><td class="prio">P4</td><td>Extend R-ORCH/R-VERIFY verify stage with native background /code-review as first-pass input; note it no longer auto-runs.</td><td class="num">1 rule edit</td><td>Free parallel review capacity currently invoked by nothing.</td></tr>
+  <tr><td class="prio">P5</td><td>Harden R-REPO-INSTALL + R-ENV with native containment: strict network allowlist + credential masking for operator-given installs and untrusted commands.</td><td class="num">2 rule edits</td><td>Turns a hope-based glance into enforced containment.</td></tr>
+  <tr><td class="prio">P6</td><td>Rewrite R-CLI rationale (keep CLI preference, drop dead premise); add Open Design lane to R-DESIGN router.</td><td class="num">2 rule edits</td><td>Doctrine citing false facts erodes trust in the registry.</td></tr>
+  <tr><td class="prio">P7</td><td>R-SKILLPUB: mention plugin zip/SHA-256 packaging as optional third distribution surface.</td><td class="num">1 sentence</td><td>Minor; batch with any P4-P6 commit.</td></tr>
+</table></div>
+<p><strong>Applied 2026-08-07.</strong> P1 and P3 through P7 are done in <code>rules.rs</code>: R-LOOP cache clause rewritten, R-MODEL security fallback moved to <code>claude-opus-5</code>, R-XSESSION authored (cross-session trust + routing), R-ORCH given the native /code-review lane, R-REPO-INSTALL + R-ENV hardened with sandbox containment and the zip-pin clause, R-CLI rationale corrected, R-DESIGN given an Open Design lane, R-SKILLPUB given the plugin surface. P2 held a surprise: the changelog-adopt watermark had already self-caught to 2.1.224 (the daily cron ran this morning), and its opus gate independently vetted 7 real proposals that overlapped this audit; 4 are now the edits above and the other 3 (subagent-cap removal into R-BUDGET, sandbox-violation visibility into R-ENV, feedback-share consent into R-DESTRUCT) were folded in too. The build passed, 24 rule tests pass including the registry-markdown parity gate, 59 rules re-exported, npm omega-os bumped to 1.5.11 and published, GitHub pushed. The single item deliberately NOT auto-done: ARMING the nightly loop to full-auto dispatch. That is a standing autonomy change (nightly self-modification of doctrine), reversible via a kill-switch but real, and arming it in the same breath would risk re-dispatching the work just done by hand, so it stays disarmed pending an explicit operator go (the 7 handled proposals are marked seen so an eventual arm will not re-propose them).</p>
+
+<h2 id="method">7. Method</h2>
+<p>Four stages. (1) Inventory: registry, repo, versions, skills, workflows. (2) Trends research: official Claude Code changelog 2.1.202 to 2.1.224, model landscape, ecosystem surveys. (3) Fan-out: six category reviewers, each reading the live rule files against the trends digest, returning structured findings plus explicit holds. (4) Adversarial verification: one skeptic per finding instructed to refute it, checking the quoted rule text verbatim, the contradicting fact's currency, deliberate-pin carve-outs, and whether the proposed fix breaks a paid-for scar. 20 candidate findings entered verification; 11 verdicts confirmed (9 distinct findings after dedupe), 9 refuted. 26 agents, 2.68M tokens, 224 seconds wall clock.</p>
+
+<footer>
+  OmegaOS doctrine audit · 2026-08-07 · generated by the rules-obsolescence-audit workflow (26 agents, adversarially verified) · repo twin: agentic/reports/omega-rules-obsolescence-audit-2026-08.html
+</footer>
+</main>
+</body>
+</html>

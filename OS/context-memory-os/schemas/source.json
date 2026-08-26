@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Source",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "source_type": {
+      "type": "string",
+      "description": "file/message/url/event"
+    },
+    "uri": {
+      "type": "string",
+      "description": "Location or reference"
+    },
+    "file_hash": {
+      "type": "string",
+      "description": "Content hash"
+    },
+    "captured_at": {
+      "type": "string",
+      "description": "Capture time"
+    },
+    "sensitivity": {
+      "type": "string",
+      "description": "Data class"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "source_type",
+    "captured_at",
+    "sensitivity"
+  ],
+  "additionalProperties": false
+}

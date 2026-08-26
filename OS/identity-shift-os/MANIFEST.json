@@ -1,0 +1,114 @@
+{
+  "name": "Identity Shift OS",
+  "slug": "identity-shift",
+  "version": "1.0.0",
+  "generated_at": "2026-08-14",
+  "purpose": "Convert a declared future identity into daily evidence through reflection, challenge, planning, execution, measurement, memory and selective storytelling. Identity is accumulated evidence, not a statement.",
+  "category": "Personal Stack / Transformation",
+  "position": "Personal Stack: orchestration layer that decides WHY and WHAT NEXT and hands HOW to the specialist OSes (Mindset, Habit Tracker, Execution, Intuitive, Alignment, Health & Energy and the build chain)",
+  "counts": {
+    "protocols": 7,
+    "prompts": 2,
+    "schemas": 2,
+    "integrations": 2,
+    "examples": 1,
+    "files": 19
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "24edee0ac0bcefeb544c9e975fe7ab074401078c7cbf87ab2c0e5b10380ac7e3",
+      "bytes": 1977
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "a6dfb84e75d88d9cd9722f4e291fdccb3010ed666223af6754d4b5fe6ce15b76",
+      "bytes": 6027
+    },
+    {
+      "path": "SYSTEM_PROMPT.md",
+      "sha256": "e35cc461daa2f203380e437eebdf0cf6d58bfc08953cf29d80d3edb80bf223a6",
+      "bytes": 5408
+    },
+    {
+      "path": "VERSION.md",
+      "sha256": "aab1d3d16ff541c97d1ef3876c3225e8e48fd8a9256b652979a55dc114f346c3",
+      "bytes": 180
+    },
+    {
+      "path": "examples/DAILY_OUTPUT_EXAMPLE.md",
+      "sha256": "f7f7ea25705fb61cfb49af7567a567322fd13f0b7e467e8b420927e4799a0c7d",
+      "bytes": 1088
+    },
+    {
+      "path": "integrations/0RA_CONCIERGE.md",
+      "sha256": "f33093389ec6203d40b36334a0df19a2505f89fa49a710171b5fc68b862ac693",
+      "bytes": 1125
+    },
+    {
+      "path": "integrations/OMEGA_OS.md",
+      "sha256": "24b0c42eb319fa6e01bf92e6c409493971b72a2e37228d008328862010b559a6",
+      "bytes": 998
+    },
+    {
+      "path": "prompts/MIRROR.md",
+      "sha256": "91fde2733be847e040681e62afdecdb342290cf29084687e47c814c8089b2e27",
+      "bytes": 400
+    },
+    {
+      "path": "prompts/START_IDENTITY_SHIFT.md",
+      "sha256": "b15fcac24220f42b737d3d96908b1ed65a3e63f39cb8f994172836968f754579",
+      "bytes": 397
+    },
+    {
+      "path": "protocols/180_DAY_PROTOCOL.md",
+      "sha256": "6955d3d85fd78020676924b7ba952e425c1f3f2ae87815894aed6697b0ba2a8a",
+      "bytes": 2159
+    },
+    {
+      "path": "protocols/CONTENT_ENGINE.md",
+      "sha256": "5d576e3c6c16e0daa87ac55159ebaeaf9bc9fad6acdaa165e63f9ccbadc65fed",
+      "bytes": 1217
+    },
+    {
+      "path": "protocols/CONTRADICTION_ENGINE.md",
+      "sha256": "0c685be2469cb37adee80cc4c21b146d3403fa52029cf72132f4105f349e815d",
+      "bytes": 710
+    },
+    {
+      "path": "protocols/DAILY_JOURNAL.md",
+      "sha256": "2177a4faff0344b65225a020f28285299d4baeb5a64344ff517f6a854d6c533a",
+      "bytes": 883
+    },
+    {
+      "path": "protocols/EVIDENCE_LEDGER.md",
+      "sha256": "4e5bfbde597bfb2c7d81dd6fd8959f4f1c6b19a8c2c985d111206e9a5668a035",
+      "bytes": 422
+    },
+    {
+      "path": "protocols/TOMORROW_PROTOCOL.md",
+      "sha256": "000e892b69d073ef17dd8bb4a200cc8e7de4109e9dbea620a38daf2395294840",
+      "bytes": 809
+    },
+    {
+      "path": "protocols/WEEKLY_REVIEW.md",
+      "sha256": "948f1c39ef99c878afd110b69b186addcadb82545b50ca81f67d239edb59d749",
+      "bytes": 636
+    },
+    {
+      "path": "schemas/daily_log.json",
+      "sha256": "c5f84345ef96387125dea8dd54e8f611466aa6ddfa1dd148a2336b4ce0834747",
+      "bytes": 359
+    },
+    {
+      "path": "schemas/identity_state.json",
+      "sha256": "b53a899141620729559072626fd5ce51a16e31a4a4c7550842acdfe5ae3863f7",
+      "bytes": 418
+    },
+    {
+      "path": "skill/identity-shift.skill.md",
+      "sha256": "5cb753d905499155e354bf210b9b1cc51fa4dae2d5b4ec7f5df10806ebf7ff29",
+      "bytes": 936
+    }
+  ]
+}

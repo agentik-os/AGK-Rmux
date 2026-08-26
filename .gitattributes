@@ -1,0 +1,11 @@
+# Force TypeScript/source files to be treated as text so diffs render normally.
+# (The Telegram bot uses UTF-8 box-drawing glyphs — ━ █ Ω — for its branded UI,
+# which git's content heuristic can otherwise misclassify as binary.)
+*.ts    text
+*.tsx   text
+*.js    text
+*.rs    text
+*.md    text
+*.toml  text
+*.yaml  text
+*.yml   text

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Review Record",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "review_type": {
+      "type": "string",
+      "description": "daily/weekly/monthly/quarterly"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Review scope"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Findings"
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Decisions"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "review_type",
+    "scope",
+    "findings",
+    "decisions"
+  ],
+  "additionalProperties": false
+}

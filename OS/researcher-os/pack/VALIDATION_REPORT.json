@@ -1,0 +1,42 @@
+{
+  "package": "Market Research {OS}",
+  "version": "1.0.0",
+  "validated_on": "2026-08-10",
+  "status": "PASS",
+  "inventory": {
+    "skill_files": 36,
+    "reference_modules": 13,
+    "asset_and_template_files": 18,
+    "deterministic_scripts": 3,
+    "tool_function_definitions": 20,
+    "specialist_roles": 18,
+    "quality_gates": 24,
+    "required_research_artifacts": 31,
+    "command_routes": 14
+  },
+  "checks": [
+    {"name": "Skill structure and frontmatter", "status": "PASS"},
+    {"name": "JSON assets parse", "status": "PASS"},
+    {"name": "Python scripts compile", "status": "PASS"},
+    {"name": "Internal Markdown links", "status": "PASS", "broken_links": 0},
+    {"name": "Incomplete TODO/TBD/FIXME markers", "status": "PASS", "count": 0},
+    {"name": "Canonical state initialization", "status": "PASS"},
+    {"name": "Checksum verification", "status": "PASS"},
+    {"name": "Stable ID allocation", "status": "PASS"},
+    {"name": "Checkpoint and continuation", "status": "PASS"},
+    {"name": "State validation and strict mode", "status": "PASS"},
+    {"name": "Markdown and JSON export", "status": "PASS"},
+    {"name": "Omega installer dry run", "status": "PASS"},
+    {"name": "Omega installer apply", "status": "PASS"},
+    {"name": "Omega installer idempotent second run", "status": "PASS"},
+    {"name": "Installed skill reconciliation", "status": "PASS"}
+  ],
+  "semantic_invariants": [
+    "SIGNAL depth cannot claim full validation or complete with GO/PIVOT.",
+    "GO/PIVOT requires depth-appropriate behavioral validation and G17 PASS.",
+    "Automated collection requires a permitted source preflight.",
+    "Critical gate failures block completion and Blueprint handoff.",
+    "Frozen Blueprint handoffs are immutable and versioned.",
+    "Negative evidence, conflicts, limitations, samples, denominators, and source lineage remain visible."
+  ]
+}

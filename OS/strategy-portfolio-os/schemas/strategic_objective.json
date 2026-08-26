@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Strategic Objective",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Outcome objective"
+    },
+    "horizon": {
+      "type": "string",
+      "description": "Time horizon"
+    },
+    "success_measures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Outcome measures"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "name",
+    "horizon",
+    "success_measures"
+  ],
+  "additionalProperties": false
+}

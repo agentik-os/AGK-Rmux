@@ -1,0 +1,243 @@
+#!/usr/bin/env bash
+# ═══════════════════════════════════════════════════════════════════════════
+# omega-skills — list & search every skill in the system and how to run it.
+# Reads ~/.omega/skills-atlas.json (rebuild: python3 <atlas-generator>).
+#   omega-skills                list all native OmegaOS skills + commands
+#   omega-skills <term>         search native skills (name/desc/command)
+#   omega-skills --powerups <t> search the Power-Up library (907 paid skills)
+#   omega-skills --cookbooks <t> search Anthropic's pinned cookbook recipes
+#   omega-skills --all <term>   search native, Power-Ups, and cookbooks
+#   omega-skills --rag "<need>" SEMANTIC retrieval by meaning (native + library)
+#   omega-skills --html         print the served catalog URL
+# ═══════════════════════════════════════════════════════════════════════════
+set -uo pipefail
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+ATLAS="$OMEGA_DIR/skills-atlas.json"
+CATALOG="${OMEGA_SKILL_CATALOG:-$OMEGA_DIR/skill-catalog-v1.json}"
+ATLAS_GENERATOR="$OMEGA_DIR/bin/omega-skills-atlas.py"
+URL="https://station.tail64d114.ts.net:8443/omega-skill-atlas.html"
+
+# Rebuild when either projection drifts. A catalog that still matches the Atlas
+# can itself be stale, so V1 catalogs carry source_roots + source_tree_digest;
+# those inputs are re-hashed before the Atlas is trusted.
+skill_state() {
+    python3 - "$ATLAS" "$CATALOG" "$OMEGA_DIR/skills" <<'PY'
+import hashlib
+import json
+import os
+import sys
+
+atlas_path, catalog_path, skills_root = sys.argv[1:]
+excluded = {".git", ".venv", "build", "dist", "node_modules", "target", "vendor"}
+
+
+def sha256_digest(value):
+    return (isinstance(value, str) and len(value) == 64 and
+            all(character in "0123456789abcdefABCDEF" for character in value))
+
+
+def invalid(message):
+    print(f"invalid canonical skill catalog: {message}", file=sys.stderr)
+    raise SystemExit(2)
+
+
+def valid_atlas(candidate):
+    if (not isinstance(candidate, dict) or candidate.get("schema_version") != 2 or
+            not isinstance(candidate.get("native"), list) or
+            not isinstance(candidate.get("powerups"), list) or
+            not isinstance(candidate.get("cookbooks"), list) or
+            candidate.get("native_count") != len(candidate["native"]) or
+            candidate.get("powerup_count") != len(candidate["powerups"]) or
+            candidate.get("cookbook_count") != len(candidate["cookbooks"]) or
+            candidate.get("total") !=
+            len(candidate["native"]) + len(candidate["powerups"]) + len(candidate["cookbooks"])):
+        return False
+    payload = {
+        "catalog_hash": candidate.get("catalog_hash"),
+        "source_tree_digest": candidate.get("source_tree_digest"),
+        "native": candidate["native"],
+        "powerups": candidate["powerups"],
+        "cookbooks": candidate["cookbooks"],
+    }
+    actual = hashlib.sha256(json.dumps(
+        payload, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":")).encode()).hexdigest()
+    return actual == candidate.get("atlas_hash")
+
+
+atlas = None
+if os.path.isfile(atlas_path):
+    try:
+        atlas = json.load(open(atlas_path, encoding="utf-8"))
+        if not valid_atlas(atlas):
+            atlas = None
+    except (OSError, ValueError, TypeError):
+        atlas = None
+if os.path.isfile(catalog_path):
+    try:
+        catalog = json.load(open(catalog_path, encoding="utf-8"))
+    except (OSError, ValueError, TypeError) as error:
+        invalid(str(error))
+    if not isinstance(catalog, dict) or catalog.get("schema_version") != 1:
+        invalid("schema_version must be 1")
+    if not sha256_digest(catalog.get("content_digest")):
+        invalid("content_digest must be a SHA-256 hex digest")
+    skills = catalog.get("skills")
+    if not isinstance(skills, list):
+        invalid("skills must be a list")
+    projected = json.dumps([1, skills], ensure_ascii=False, separators=(",", ":")).encode()
+    if hashlib.sha256(projected).hexdigest() != catalog["content_digest"]:
+        invalid("content_digest does not match skills")
+    roots = catalog.get("source_roots") or []
+    expected = catalog.get("source_tree_digest") or ""
+    if expected:
+        if not sha256_digest(expected):
+            invalid("source_tree_digest must be a SHA-256 hex digest")
+        if not isinstance(roots, list) or not roots:
+            invalid("source_tree_digest requires source_roots")
+        seen_ids = set()
+        normalized_roots = []
+        for root in roots:
+            if not isinstance(root, dict):
+                invalid("source_roots entries must be objects")
+            root_id, root_path = root.get("id"), root.get("path")
+            if not isinstance(root_id, str) or not root_id.strip() or root_id in seen_ids:
+                invalid("source root ids must be non-empty and unique")
+            if not isinstance(root_path, str) or not os.path.isabs(root_path):
+                invalid("source root paths must be absolute")
+            if os.path.islink(root_path) or not os.path.isdir(root_path):
+                invalid(f"source root is unavailable or symlinked: {root_path}")
+            seen_ids.add(root_id)
+            normalized_roots.append((root_id, root_path))
+        rows = []
+        for root_id, root_path in normalized_roots:
+            for current, dirs, files in os.walk(root_path, topdown=True, followlinks=False):
+                dirs[:] = sorted(d for d in dirs if d not in excluded and
+                                 not os.path.islink(os.path.join(current, d)))
+                if "SKILL.md" not in files:
+                    continue
+                path = os.path.join(current, "SKILL.md")
+                if os.path.islink(path):
+                    continue
+                relative = os.path.relpath(path, root_path).replace(os.sep, "/")
+                try:
+                    normalized = open(path, "rb").read().replace(b"\r\n", b"\n")
+                except OSError as error:
+                    invalid(f"cannot read {path}: {error}")
+                rows.append([root_id, relative, hashlib.sha256(normalized).hexdigest()])
+        rows.sort()
+        actual = hashlib.sha256(json.dumps(
+            rows, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+        if actual != expected:
+            print("catalog-source-drift")
+            raise SystemExit
+    if atlas is None:
+        print("atlas-missing-or-invalid")
+    elif (atlas.get("catalog_hash") != catalog["content_digest"] or
+          atlas.get("source_tree_digest") != catalog.get("source_tree_digest")):
+        print("atlas-catalog-drift")
+    raise SystemExit
+
+if atlas is None:
+    raise SystemExit
+atlas_mtime = os.path.getmtime(atlas_path)
+for current, dirs, files in os.walk(skills_root, topdown=True, followlinks=False):
+    dirs[:] = sorted(d for d in dirs if d not in excluded and
+                     not os.path.islink(os.path.join(current, d)))
+    path = os.path.join(current, "SKILL.md")
+    if "SKILL.md" in files and not os.path.islink(path) and os.path.getmtime(path) > atlas_mtime:
+        print("legacy-source-drift")
+        raise SystemExit
+PY
+}
+
+if ! STALE_REASON="$(skill_state)"; then
+    echo "canonical skill catalog is invalid; refusing to serve a stale Atlas" >&2
+    exit 1
+fi
+if [ -n "$STALE_REASON" ]; then
+    if [ "$STALE_REASON" = "catalog-source-drift" ]; then
+        SOURCE_ROOT="$(python3 - "$CATALOG" <<'PY'
+import json, os, sys
+catalog = json.load(open(sys.argv[1], encoding="utf-8"))
+roots = [root["path"] for root in catalog.get("source_roots", [])
+         if root.get("id") == "omegaos" and os.path.isdir(root.get("path", ""))]
+print(roots[0] if len(roots) == 1 else "")
+PY
+)"
+        OMEGA_CLI="${OMEGA_CLI:-$(command -v omega 2>/dev/null || true)}"
+        [ -n "$OMEGA_CLI" ] && [ -n "$SOURCE_ROOT" ] || {
+            echo "skill catalog source changed but cannot be recompiled automatically" >&2
+            exit 1
+        }
+        "$OMEGA_CLI" skills compile --root "$SOURCE_ROOT" --out "$CATALOG" >/dev/null || {
+            echo "skill catalog rebuild failed; refusing to serve a stale Atlas" >&2
+            exit 1
+        }
+        if ! POST_COMPILE_REASON="$(skill_state)"; then
+            echo "rebuilt skill catalog is invalid; refusing to serve a stale Atlas" >&2
+            exit 1
+        fi
+        if [ "$POST_COMPILE_REASON" = "catalog-source-drift" ]; then
+            echo "skill catalog is still stale after rebuild; refusing to serve it" >&2
+            exit 1
+        fi
+    fi
+    [ -f "$ATLAS_GENERATOR" ] || {
+        echo "skill Atlas is stale and generator is unavailable: $ATLAS_GENERATOR" >&2
+        exit 1
+    }
+    python3 "$ATLAS_GENERATOR" >/dev/null || {
+        echo "skill Atlas rebuild failed; stale data was not served" >&2
+        exit 1
+    }
+    if ! POST_BUILD_REASON="$(skill_state)" || [ -n "$POST_BUILD_REASON" ]; then
+        echo "skill Atlas is still stale after rebuild; refusing to serve it" >&2
+        exit 1
+    fi
+fi
+[ -f "$ATLAS" ] || { echo "atlas not found and could not be built: $ATLAS" >&2; exit 1; }
+
+if [ "${1:-}" = "--html" ]; then echo "$URL"; exit 0; fi
+
+# Semantic RAG: retrieve by MEANING across the whole corpus (native + library).
+if [ "${1:-}" = "--rag" ]; then
+    shift
+    RAG="$OMEGA_DIR/bin/omega-skills-rag.py"
+    [ -f "$RAG" ] || { echo "rag backend not found: $RAG" >&2; exit 1; }
+    exec python3 "$RAG" query "$@"
+fi
+
+SCOPE="native"; TERM=""
+case "${1:-}" in
+  --powerups) SCOPE="powerups"; TERM="${2:-}";;
+  --cookbooks) SCOPE="cookbooks"; TERM="${2:-}";;
+  --all)      SCOPE="all";      TERM="${2:-}";;
+  "")         SCOPE="native";   TERM="";;
+  *)          SCOPE="native";   TERM="$1";;
+esac
+
+python3 - "$ATLAS" "$SCOPE" "$TERM" <<'PY'
+import json,sys,re
+atlas,scope,term=json.load(open(sys.argv[1])),sys.argv[2],sys.argv[3].lower()
+rows=[]
+if scope in ("native","all"):
+    for r in atlas["native"]:
+        rows.append((r["name"]," ".join(r["commands"]),r.get("description","") or "","omegaos"))
+if scope in ("powerups","all"):
+    for r in atlas["powerups"]:
+        rows.append((r["name"],"","(library) "+r.get("description","") ,r["source"]))
+if scope in ("cookbooks","all"):
+    for r in atlas.get("cookbooks", []):
+        rows.append((r["name"],"","(cookbook) "+r.get("description",""),"cookbook"))
+def hit(row): return not term or term in row[0].lower() or term in row[2].lower() or term in row[1].lower()
+rows=[r for r in rows if hit(r)]
+rows.sort(key=lambda r:(r[3]!="omegaos",r[0].lower()))
+w=max((len(r[0]) for r in rows),default=10)
+cw=max((len(r[1]) for r in rows),default=8)
+for name,cmd,desc,src in rows:
+    d=re.sub(r"\s+"," ",desc).strip()
+    print(f"\033[1m{name.ljust(w)}\033[0m  \033[36m{cmd.ljust(cw)}\033[0m  {d[:96]}")
+print(f"\n{len(rows)} skill(s) · scope={scope}"+(f" · term='{term}'" if term else ""))
+print("Full catalog: https://station.tail64d114.ts.net:8443/omega-skill-atlas.html")
+PY

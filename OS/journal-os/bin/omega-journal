@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# omega-journal — the OmegaOS command for Journal OS (AgentikOS suite, personal
+# group; Journal {OS}, the MIRROR daily-journal agent). This OS is
+# conversational (no CLI engine): the wrapper opens a Claude session running
+# MIRROR, working from the OS folder so the journal ledger persists. The
+# interview happens in the agent (/journal), or via the OS's Telegram bot.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+OS_DIR="$OMEGA_DIR/os/journal-os"
+# The journal is private by default: the ledger is user-only (0700).
+mkdir -p "$OS_DIR/ledger"
+chmod 700 "$OS_DIR/ledger" 2>/dev/null || true
+
+PERSONA="$OS_DIR/MASTER.md"
+[[ -f "$PERSONA" ]] || {
+    echo "omega-journal: no master persona at $PERSONA — run OmegaOS install.sh" >&2
+    exit 1
+}
+
+cd "$OS_DIR"
+exec claude --append-system-prompt "$(cat "$PERSONA")" "$@"

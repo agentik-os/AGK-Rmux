@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Financial Decision",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "decision": {
+      "type": "string",
+      "description": "Decision"
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Reasoning"
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Considered alternatives"
+    },
+    "review_trigger": {
+      "type": "string",
+      "description": "When to revisit"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "decision",
+    "rationale",
+    "review_trigger"
+  ],
+  "additionalProperties": false
+}

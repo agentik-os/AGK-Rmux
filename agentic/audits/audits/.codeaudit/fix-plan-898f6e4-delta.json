@@ -1,0 +1,88 @@
+{
+  "source_verdict": "verdict-898f6e4-delta.json",
+  "mode": "NEEDS_REVIEW — read-only mission, NOT executed; oracle decides fix5 scope",
+  "root_cause_note": "FIX-A/B/C/D share one root cause: armed-confirm state with a TTL-mortal, overwritable, render-invisible warning. Prefer the structural fix (state-driven render) over per-site exemptions.",
+  "tasks": [
+    {
+      "id": "FIX-A",
+      "finding": "R-1 HIGH + R-2 + D-3 + D-4 + ADJ-1/2/3 (the armed-confirm class)",
+      "severity": "HIGH",
+      "file": "crates/omega-tui/src/ui.rs + app.rs",
+      "fix": "Render armed confirms state-driven in draw_status_bar: a single App::armed_confirm_warning() -> Option<String> covering menu_confirm_pending, project_delete_pending, settings_confirm_pending, monitor_disconnect_armed; draw it with priority over status_message. Kills the entire TTL-wipe AND overwrite class (launcher shortcuts, Ctrl-T, paste, forwarder sticky) in one change. Then the consume_status_ttl menu exemption can stay or be simplified.",
+      "blast_radius": "MEDIUM (draw_status_bar priority chain)",
+      "status": "pending"
+    },
+    {
+      "id": "FIX-B",
+      "finding": "R-5 + ADJ-1 (project 'D': Esc advertised but dead)",
+      "severity": "HIGH",
+      "file": "crates/omega-tui/src/input.rs:1554-1565, app.rs:1983-1986",
+      "fix": "Add project_delete_pending (and settings_confirm_pending, monitor_disconnect_armed) to the Esc cancel arm and to leave_tab(); fix the lying doc at app.rs:1080.",
+      "blast_radius": "LOW",
+      "status": "pending"
+    },
+    {
+      "id": "FIX-C",
+      "finding": "D-1 HIGH + D-2 (kitty wrong-screen push/pop)",
+      "severity": "HIGH",
+      "file": "crates/omega-cli/src/main.rs:745-775, 1179-1188",
+      "fix": "Move PushKeyboardEnhancementFlags AFTER EnterAlternateScreen; move pop_kbd_enhancement BEFORE LeaveAlternateScreen is wrong-ordered too — pop must run while still in the alt screen ONLY if push also ran there: push after Enter, pop before Leave (both quit and Ctrl+R paths). Verify on a kitty terminal: shell Ctrl+C works after quit; Alt+Esc fires the kitty arm inside the TUI.",
+      "blast_radius": "LOW (init/teardown only)",
+      "status": "pending"
+    },
+    {
+      "id": "FIX-D",
+      "finding": "D-5 (300ms cliff) + D-11 (silent swallows)",
+      "severity": "MEDIUM",
+      "file": "crates/omega-tui/src/app.rs:1298-1327, input.rs:1599-1605",
+      "fix": "Make the grace window longer than the chord window (e.g. grace 800ms, chord 300ms) so a slow second Esc is swallowed with a notice instead of quitting; emit a one-line notice when the grace swallows a key.",
+      "blast_radius": "LOW",
+      "status": "pending"
+    },
+    {
+      "id": "FIX-E",
+      "finding": "D-6 (Ctrl+C copy wrong in list focus)",
+      "severity": "MEDIUM",
+      "file": "crates/omega-tui/src/input.rs:1927-1929",
+      "fix": "Esc notice: replace 'Ctrl+C = interrupt' with a list-focus-true recovery (e.g. 'Esc Esc = ESC to agent · Enter = back to chat') or make Ctrl+C interrupt-forward from list focus when a session is selected.",
+      "blast_radius": "LOW",
+      "status": "pending"
+    },
+    {
+      "id": "FIX-F",
+      "finding": "R-3 + R-4 (Tab and '.' grace bypasses)",
+      "severity": "MEDIUM",
+      "file": "crates/omega-tui/src/input.rs (Tab arm, '.' arm)",
+      "fix": "Add in_post_drop_grace() guards to the Sessions Tab arm and the '.' protection toggle (and consider the launcher letters). Alternative: invert the model — swallow ALL non-navigation keys during the grace.",
+      "blast_radius": "LOW",
+      "status": "pending"
+    },
+    {
+      "id": "FIX-G",
+      "finding": "D-7 + D-8 (sticky deadline leak; hint vs sticky)",
+      "severity": "MEDIUM",
+      "file": "crates/omega-tui/src/app.rs:1290-1297, main.rs:2047-2052",
+      "fix": "Clear status_sticky_until whenever status_message is overwritten by a plain write (setter method or clear-in-TTL on text change); add '&& app.status_sticky_until-unexpired' guard to the hint-seeding condition.",
+      "blast_radius": "LOW",
+      "status": "pending"
+    },
+    {
+      "id": "FIX-H",
+      "finding": "D-9 + D-10 (stale chord arm; wrong-target forward)",
+      "severity": "LOW",
+      "file": "crates/omega-tui/src/app.rs, input.rs:1591-1598",
+      "fix": "Clear chat_esc_at in leave_tab(); pin the target session name at arm time and verify it still exists/matches at fire time (else drop the chord silently with a notice).",
+      "blast_radius": "LOW",
+      "status": "pending"
+    },
+    {
+      "id": "FIX-I",
+      "finding": "D-12 (panic teardown)",
+      "severity": "LOW",
+      "file": "crates/omega-cli/src/main.rs",
+      "fix": "Install a panic hook before TUI init: disable raw mode, pop kbd enhancement (if pushed), LeaveAlternateScreen, then default hook.",
+      "blast_radius": "LOW",
+      "status": "pending"
+    }
+  ]
+}

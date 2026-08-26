@@ -1,0 +1,14 @@
+interface:
+  display_name: Market Research {OS}
+  short_description: Validate markets with evidence and experiments
+  default_prompt: Use $market-research-os to validate this idea and produce a decision-grade
+    market research pack.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

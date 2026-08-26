@@ -1,0 +1,77 @@
+{
+  "audit": "code",
+  "skill_used": "codeaudit",
+  "preamble_version": "1.0",
+  "ticket": "F-2-audit",
+  "target": "commit 5cf827b diff vs 7eeda0e — crates/omega-tui/src/input.rs",
+  "mode": "audit-only (READ-ONLY per brief; fix phases 21-23 skipped by contract)",
+  "score": 81,
+  "score_raw": "194/240",
+  "score_normalized": 81,
+  "grade": "A",
+  "confidence": "high",
+  "v2_inputs_derivation": {
+    "note": "Brief omitted literal --user-need/--hinge flags but supplied both in substance; refusing with request_redispatch would idle a dispatched mission against L3. Derived inputs recorded here.",
+    "user_need": "forensic code audit of commit 5cf827b ONLY — the F-2 Esc-to-list fix in crates/omega-tui/src/input.rs (diff vs 7eeda0e)",
+    "hinge": "crates/omega-tui/src/input.rs:1521-1528 + 1811-1818 (manual override: hinge-analyzer.sh --ref=7eeda0e returned 0 hinges — JS/TS-shaped patterns miss Rust match-arm control flow; see INFO-1)"
+  },
+  "user_need_match": {
+    "quote": "forensic code audit of commit 5cf827b ONLY — the F-2 Esc-to-list fix in crates/omega-tui/src/input.rs (diff vs 7eeda0e)",
+    "addressed": true,
+    "evidence": "The audited fix achieves its stated F-2 goal: Esc in chat focus (Chat and ChatFullscreen, both routed via input.rs:828-835) is handled TUI-locally at input.rs:1811-1818 (session_focus=List, Action::None, never forwarded), closing the CONTRACT-vs-BEHAVIOR violation against ui.rs:694 (title hint), ui.rs:2752 (Help tab) and the layered-Esc pattern. Runtime-verified BEFORE/AFTER in audits/.fixes/evidence-fix2/ (^[ count unchanged 2->2 across split+fullscreen Esc; C-c still delivered). The dead-arm removal at input.rs:1521-1528 is provably safe (refuter AF-6 failed to construct any counter-path).",
+    "edge_cases_covered": ["ChatFullscreen Esc (runtime evidence 05)", "Ctrl+C interrupt still delivered (evidence 06)", "dead-session Esc re-dispatch (AF-5, pre-existing)", "Tab.Esc.Tab 400ms chord (AF-7, introduced regression found)"],
+    "findings": ["AF-7", "AF-2", "AF-1"],
+    "untouched_findings_relevant_to_user_need": []
+  },
+  "falsifiable_tests": [
+    {"name": "cargo test -p omega-tui", "hypothesis": "fix breaks key routing or the soft-lock invariant", "command": "cargo test -p omega-tui", "expected": "all pass", "actual": "7 passed; 0 failed (incl. chat_focus_with_empty_list_does_not_soft_lock)", "passed": true},
+    {"name": "Escape-forwarder census", "hypothesis": "a surviving \"Escape\" producer falsifies the commit's never-forwarded claim", "command": "grep -rn '\"Escape\"' crates/omega-tui/src/", "expected": "0 matches", "actual": "0 matches", "passed": true},
+    {"name": "AF-6 adversarial counter-path search", "hypothesis": "hunk 1 deleted LIVE code -> Esc quits the TUI from chat focus", "command": "independent Explore refuter: exhaust InputMode dispatch, mouse focus writers, tab-switch staleness, re-dispatch (workflow wf_c96cdbd3-cdd)", "expected": "no path reaches the removed arm with focus in {Chat,ChatFullscreen}", "actual": "no path exists; router input.rs:828-835 + reset-before-redispatch input.rs:1631-1632 form a complete barrier", "passed": true},
+    {"name": "push-state probe", "hypothesis": "commit pushed -> L0 satisfied", "command": "git ls-remote origin main; git rev-parse HEAD; git merge-base --is-ancestor 5cf827b origin/main", "expected": "origin/main == HEAD", "actual": "origin/main=7eeda0e != HEAD=5cf827b; not an ancestor -> AF-0 stands", "passed": false},
+    {"name": "runtime harness BEFORE/AFTER", "hypothesis": "^[ count rises after Esc -> still forwarded", "command": "rmux harness per audits/.fixes/evidence-fix2/NOTES.md (pre-captured by the commit, re-read and cross-checked)", "expected": "count unchanged", "actual": "unchanged 2->2 across split + fullscreen Esc; ^C delivered in 06-after-ctrlc-cat-killed.txt", "passed": true},
+    {"name": "pre-existing vs introduced bisection", "hypothesis": "AF-5/AF-7 behaviors existed before the commit", "command": "git show 7eeda0e:crates/omega-tui/src/input.rs + path trace", "expected": "classification per finding", "actual": "AF-5 identical pre-fix (pre-existing); AF-7 impossible pre-fix (old Esc arm forwarded, never changed focus) -> introduced", "passed": true},
+    {"name": "AF-7 steel-man refutation", "hypothesis": "Tab.Esc.Tab misroute is intended chord UX or unreachable", "command": "independent Explore refuter, 4 refutation avenues (a)-(d)", "expected": "refuted if intended/unreachable", "actual": "claim valid, high confidence; chord keys off timing only (app.rs:1218-1226)", "passed": true}
+  ],
+  "hinge_findings": [
+    {"location": "crates/omega-tui/src/input.rs:1521-1528", "concern": "removed guard could have been live -> Esc in chat focus quits the TUI", "verified_safe_by": "AF-6 adversarial counter-path search (no path exists); cargo test routing invariants", "is_load_bearing": true, "confidence_after_scrutiny": "high"},
+    {"location": "crates/omega-tui/src/input.rs:1811-1818", "concern": "local Esc handling could break interrupt/fullscreen/capture flows or leak state", "verified_safe_by": "runtime harness BEFORE/AFTER; Escape-forwarder census; AF-3 control-flow proof (cmd_capture provably None). Residual defects it DOES carry: AF-7 (stale chord), AF-1 (no ESC hatch)", "is_load_bearing": true, "confidence_after_scrutiny": "high"}
+  ],
+  "findings": [
+    {"id": "AF-0", "severity": "high", "introduced_by_commit": false, "location": "git: HEAD=5cf827b vs origin/main=7eeda0e; install.sh:32", "issue": "audited commit unpushed — L0 install-parity violation; fresh clone+install lacks the F-2 fix", "refuted": false, "fix": "git push origin main (operator)", "status": "NEEDS_REVIEW"},
+    {"id": "AF-7", "severity": "medium", "introduced_by_commit": true, "cross_audit_confirmed": true, "location": "crates/omega-tui/src/input.rs:1811-1818 x crates/omega-tui/src/app.rs:1218-1226", "issue": "Esc exit leaves last_tab_press/tab_seq_start stale -> Tab.Esc.Tab within 400ms chords to ChatFullscreen instead of Chat (impossible pre-fix)", "refuted": false, "fix": "reset last_tab_press/tab_seq_start in the Esc arm; consider mouse (input.rs:198) and Ctrl+X (input.rs:1706) writers too", "status": "NEEDS_REVIEW"},
+    {"id": "AF-1", "severity": "medium", "introduced_by_commit": true, "location": "crates/omega-tui/src/input.rs:1811 (any-modifier match); 0 producers of ForwardKeyToSession{key:\"Escape\"}", "issue": "no remaining way to deliver a literal ESC keypress to the embedded PTY (vim/less in Agent::Shell sessions; Esc-driven dismissals in Claude Code). Deliberate documented tradeoff without an escape hatch", "refuted": false, "fix": "forwarding chord (Alt+Esc or double-Esc) + Help entry", "status": "NEEDS_REVIEW"},
+    {"id": "AF-2", "severity": "medium", "introduced_by_commit": true, "cross_audit_confirmed": true, "location": "crates/omega-tui/src/input.rs:2090-2201 (0 Esc assertions)", "issue": "no automated regression test pins Esc-in-chat -> List + Action::None; only one-time manual harness evidence. Second consecutive F-series fix with this gap (F-1 verdict, same class)", "refuted": false, "fix": "unit tests: Chat Esc, ChatFullscreen Esc, Tab.Esc.Tab chord", "status": "NEEDS_REVIEW"},
+    {"id": "AF-5", "severity": "low", "introduced_by_commit": false, "location": "crates/omega-tui/src/input.rs:1631-1632 -> 1526-1527; comment 1523-1525", "issue": "dead-session chat Esc quits the TUI in one keypress (pre-existing, verified identical in 7eeda0e); new comment 'owns chat Esc' overbroad for this path", "refuted": false, "fix": "swallow the first re-dispatched Esc (drop to list only) or narrow the comment", "status": "NEEDS_REVIEW"},
+    {"id": "AF-3", "severity": "low", "introduced_by_commit": true, "location": "crates/omega-tui/src/input.rs:1815-1817 vs crates/omega-tui/src/app.rs:1243-1244", "issue": "Esc exit skips cmd_capture/chat_line_chars resets the Tab exit performs — proven harmless today (cmd_capture provably None at the arm; chat_line_chars has no reader), latent only", "refuted": false, "fix": "mirror the Tab exit resets for symmetry", "status": "NEEDS_REVIEW"},
+    {"id": "AF-4", "severity": "low", "introduced_by_commit": false, "location": "crates/omega-tui/src/app.rs:1025 (+7 write sites, 0 reads)", "issue": "chat_line_chars is write-only dead state; sole reader removed in 43fbf5a; likely drags the unreachable cmd_capture branch (input.rs:1636-1689) with it", "refuted": false, "fix": "remove field + maintenance writes (+audit cmd_capture reachability)", "status": "NEEDS_REVIEW"}
+  ],
+  "edge_cases": [
+    {"finding_id": "AF-7", "scenario": "power user backs out fast: Tab (into chat), immediate Esc, immediate Tab — all within 400ms — lands fullscreen, not chat", "covered_by_existing_test": false, "evidence_gathered": "code trace input.rs:1811-1818 x app.rs:1218-1226, independent refuter confirmation", "fix_includes_coverage": false},
+    {"finding_id": "AF-1", "scenario": "vim opened inside an Agent::Shell session via chat focus: insert mode cannot be exited (Esc swallowed with any modifier; Ctrl+[ is the same byte)", "covered_by_existing_test": false, "evidence_gathered": "Ctrl-table input.rs:1854-1861 a-z only; 0 Escape producers", "fix_includes_coverage": false},
+    {"finding_id": "AF-5", "scenario": "session dies while chat-focused; user presses Esc expecting back-to-list; TUI quits", "covered_by_existing_test": false, "evidence_gathered": "trace input.rs:1631-1632 -> 1526-1527; verified pre-existing via git show 7eeda0e", "fix_includes_coverage": false}
+  ],
+  "cross_audit_links": [
+    {"this_finding_id": "AF-7", "sibling_audit": "codeaudit-8ea3a4a-F1", "sibling_finding": "stale last_tab_press/tab_seq_start on forced focus drop (app.rs:1727 vs app.rs:1216-1248, LOW)", "shared_location": "app.rs last_tab_press/tab_seq_start symbols", "joint_fix_recommended": true, "severity_bumped": "LOW-MEDIUM base -> MEDIUM"},
+    {"this_finding_id": "AF-2", "sibling_audit": "codeaudit-8ea3a4a-F1", "sibling_finding": "zero durable test coverage of critical-class behavior (MEDIUM)", "shared_location": "omega-tui test suite (pattern, not same line)", "joint_fix_recommended": true, "severity_bumped": "none (pattern-level link only)"},
+    {"this_finding_id": "INFO-3", "sibling_audit": "codeaudit-8ea3a4a-F1", "sibling_finding": "commit-cited runtime proof gitignored (R-CITE auditability gap, info)", "shared_location": ".gitignore:19 audits/.*/", "joint_fix_recommended": true, "severity_bumped": "none"}
+  ],
+  "info_findings": [
+    {"id": "INFO-1", "issue": "hinge-analyzer.sh returns 0 hinges on Rust match-arm control-flow diffs (JS/TS-shaped patterns) — OmegaOS tool gap", "location": "~/.omega/skills/audits/_shared/hinge-analyzer.sh"},
+    {"id": "INFO-2", "issue": "input.rs 2201 lines / 97 KB — past the 2000-line refactor alarm (pre-existing; gather large-file-scanner)", "location": "crates/omega-tui/src/input.rs"},
+    {"id": "INFO-3", "issue": "commit-cited evidence dir audits/.fixes/evidence-fix2/ is gitignored (.gitignore:19) — unreproducible from a clone", "location": ".gitignore:19"},
+    {"id": "INFO-4", "issue": "cargo clippy: zero warnings on lines this commit added", "location": "crates/omega-tui/src/input.rs"}
+  ],
+  "issues_found_and_fixed": [],
+  "evidence_summary_path": ".linear-fix/F-2-audit/.code/evidence-summary.json",
+  "evidence_dir": "audits/.codeaudit/evidence/",
+  "adversarial_verification": {"workflow_run": "wf_c96cdbd3-cdd", "refuters": 8, "claims_refuted": 0, "gate": ">=2-of-3 lenses per finding (reproduce + independent refute + cross-check)"},
+  "confidence_basis": "Every finding passed 2-3 independent lenses: my reproduce evidence (grep/code-trace/cargo/git, verbatim outputs above), one dedicated adversarial refuter per claim (7-agent workflow + 1 follow-up, 0 refutations, all high confidence), and cross-checks against the commit's runtime harness evidence, the F-1 sibling verdict, and git history (7eeda0e bisection for introduced-vs-pre-existing). The hinge got 10x scrutiny including a dedicated attempt to falsify the commit's own dead-arm claim, which failed (the claim is true). Score below 100 is forced by gating: AF-0 (HIGH) is unfixed and this is a read-only audit.",
+  "banned_phrase_check": "passed (no occurrences of looks-correct / should-be-fine / appears-to-work / streamlined / to-save-time)",
+  "not_done": [
+    "Fix phases 21-23 not executed (read-only brief) — all 7 findings NEEDS_REVIEW",
+    "rmux-core side of key delivery (string table) not audited — out of scope",
+    "terminal-emulator ESC-byte variance covered only by the commit's own harness evidence",
+    "AF-7 verified by code-trace + independent refuter, not by a live TUI repro (would need a fresh interactive harness; recommend adding the unit test from AF-2 instead)"
+  ],
+  "finished_at": "2026-06-05T17:05:00+02:00"
+}

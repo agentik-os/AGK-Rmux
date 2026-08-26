@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Requirement",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "requirement_id": {
+      "type": "string",
+      "description": "Stable ID"
+    },
+    "statement": {
+      "type": "string",
+      "description": "Contract"
+    },
+    "criticality": {
+      "type": "string",
+      "description": "Criticality"
+    },
+    "source_artifact": {
+      "type": "string",
+      "description": "Blueprint/design source"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "requirement_id",
+    "statement",
+    "criticality",
+    "source_artifact"
+  ],
+  "additionalProperties": false
+}

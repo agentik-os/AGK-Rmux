@@ -1,0 +1,15 @@
+name: Delivery & Customer Success OS
+slug: delivery-customer-success
+version: 1.0.0
+category: Business Stack / Client Delivery and Value Realization
+position: Business Stack: converts sold promises into accepted outcomes, adoption, retention and advocacy
+default_mode: handoff
+primary_boundary: "Delivery & Customer Success OS owns post-sale value realization; Revenue OS owns commercial records and billing, Builder/Operations own technical execution, and Strategy owns portfolio choices."
+requires_human_approval_for:
+  - accepting nonstandard promise
+  - changing scope/timeline/price
+  - sharing customer data
+  - declaring customer value/result
+  - requesting/publishing testimonial
+  - closing engagement
+  - granting production access

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Payment",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "invoice_id": {
+      "type": "string",
+      "description": "Matched invoice"
+    },
+    "received_at": {
+      "type": "string",
+      "description": "Date"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency"
+    },
+    "reconciliation_status": {
+      "type": "string",
+      "description": "Status"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "received_at",
+    "amount",
+    "currency",
+    "reconciliation_status"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,12 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_seductive_os)">
+<path opacity="0.45" d="M8 6C11.3137 6 14 8.6863 14 12C14 15.3137 11.3137 18 8 18C4.6863 18 2 15.3137 2 12C2 8.6863 4.6863 6 8 6Z" fill="#E0567C"/>
+<path opacity="0.45" d="M16 6C19.3137 6 22 8.6863 22 12C22 15.3137 19.3137 18 16 18C12.6863 18 10 15.3137 10 12C10 8.6863 12.6863 6 16 6Z" fill="#E0567C"/>
+<path d="M12 7.5279A6 6 0 0 1 12 16.4721A6 6 0 0 1 12 7.5279Z" fill="#E0567C"/>
+</g>
+<defs>
+<clipPath id="clip0_seductive_os">
+<rect width="24" height="24" fill="white"/>
+</clipPath>
+</defs>
+</svg>

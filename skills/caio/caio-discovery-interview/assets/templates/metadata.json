@@ -1,0 +1,53 @@
+{
+  "schema": "caio-discovery-interview/v1.2",
+  "generated_at": "{{YYYY-MM-DDTHH:MM}}",
+  "language_of_interview": "{{language}}",
+  "interview": {
+    "interviewer": "{{name_or_self}}",
+    "mode": "{{live-interview|self-serve}}",
+    "duration_min": "{{number_or_null}}",
+    "completeness": "{{full|partial}}"
+  },
+  "consent": {
+    "interview_consented": true,
+    "sharing_level": "{{named|anonymized}}"
+  },
+  "company_context": {
+    "website": "{{url_or_null}}",
+    "sector": "{{...}}",
+    "business_model": "{{...}}",
+    "sells_to": "{{B2B|B2C|both}}",
+    "brand_notes": "{{short}}"
+  },
+  "person": {
+    "first_name": "{{first_name_or_null_if_anonymized}}",
+    "last_name": "{{last_name_or_null_if_anonymized}}",
+    "company": "{{company}}",
+    "position": "{{position}}",
+    "job_family": "{{EXEC|SALES|MARKETING|FINANCE|OPS|HR|PRODUCT|TECH|CS|LEGAL|GENERALIST}}",
+    "tenure": "{{tenure}}",
+    "age": "{{age_or_null}}",
+    "reports_to": "{{role_or_name_or_null}}",
+    "role_headcount": "{{number_or_null}}",
+    "decision_authority": "{{short}}"
+  },
+  "handoffs": {
+    "upstream_from": ["{{role}}", "..."],
+    "downstream_to": ["{{role}}", "..."],
+    "blockers": ["{{short}}", "..."]
+  },
+  "index": {
+    "tools": ["{{tool}}", "..."],
+    "ai_tools_today": ["{{tool}}", "..."],
+    "shadow_it": ["{{tool}}", "..."],
+    "sensitive_data": ["{{type}}", "..."],
+    "ai_appetite": "{{champion|neutral|skeptic}}",
+    "top_frictions": ["{{short_friction}}", "..."],
+    "keep_as_is": ["{{short_item}}", "..."],
+    "improvements_wanted": ["{{short_item}}", "..."],
+    "repetitive_hours_per_week_est": "{{number_or_null}}",
+    "current_feeling_score": "{{1-10}}",
+    "ideal_feeling_score": "{{1-10}}",
+    "gap_headline": "{{one line current -> ideal}}"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Exception Case",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "process_id": {
+      "type": "string",
+      "description": "Process"
+    },
+    "condition": {
+      "type": "string",
+      "description": "Exception condition"
+    },
+    "frequency": {
+      "type": "number",
+      "description": "Frequency"
+    },
+    "handling": {
+      "type": "string",
+      "description": "Current handling"
+    },
+    "risk": {
+      "type": "string",
+      "description": "Risk"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "process_id",
+    "condition",
+    "handling",
+    "risk"
+  ],
+  "additionalProperties": false
+}

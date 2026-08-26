@@ -1,0 +1,133 @@
+{
+  "name": "Journal OS",
+  "slug": "journal",
+  "version": "1.0.0",
+  "generated_at": "2026-08-14",
+  "purpose": "MIRROR, a nightly daily-journal agent that reconstructs the day truthfully and turns it into evidence: a one-question-at-a-time voice-first interview, strict separation of fact from emotion from interpretation from lesson, pattern-based contradiction detection, memory extraction, and a Tomorrow Protocol capped at three missions. Private by default; it never writes social posts.",
+  "category": "Personal Stack / Daily Review",
+  "position": "Personal Stack: owns the nightly interview and the journal artifact; Identity Shift OS consumes that artifact into longitudinal state and decides what next",
+  "counts": {
+    "protocols": 7,
+    "schemas": 5,
+    "templates": 3,
+    "philosophy": 6,
+    "files": 23
+  },
+  "files": [
+    {
+      "path": "MIRROR_SYSTEM_PROMPT.md",
+      "sha256": "4db085e751b81022736169d8b6f541b145a7d970dd7a542b60f57ec718f33b80",
+      "bytes": 9618
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "2f67c74704508be73ea1dd6ee20edde085022e7be9e59b6d592d596e65a8dc61",
+      "bytes": 6655
+    },
+    {
+      "path": "philosophy/README.md",
+      "sha256": "d18a7529d9e96cc1414d32b94465ff829ece3a8bc948da69b40d430331998fa4",
+      "bytes": 9243
+    },
+    {
+      "path": "philosophy/jim-rohn.md",
+      "sha256": "c467ea444705dcf4ae3761daa40871f6dc6e9f1975045e6d6eb5c5b4639532ae",
+      "bytes": 16243
+    },
+    {
+      "path": "philosophy/quotes.md",
+      "sha256": "01d41f8bfbfedd40e3b388b142714b87dcd70fcbb0896d08d2f79b0184cdc847",
+      "bytes": 17370
+    },
+    {
+      "path": "philosophy/reflection-engine.md",
+      "sha256": "9840a84dbc8d312cbb54d90c8fd1389f74eb064443406783260e7692368eda0b",
+      "bytes": 16870
+    },
+    {
+      "path": "philosophy/stoicism.md",
+      "sha256": "18f2fe174e0aea22443bb7e385a5f11a18f9a48ad32e57ecb4064c886fbf0cde",
+      "bytes": 16097
+    },
+    {
+      "path": "philosophy/taoism.md",
+      "sha256": "72a133bd40b1c4aec74cc915e3abc800793f73ac30e3f2b62b4881e1212245f4",
+      "bytes": 18845
+    },
+    {
+      "path": "protocols/content_handoff.md",
+      "sha256": "c95457e25aabe58a83b93806faf669e1c4e3b3ca818f60f6e968dd3bfd4ee476",
+      "bytes": 7255
+    },
+    {
+      "path": "protocols/contradiction_engine.md",
+      "sha256": "4c6e06fce8c7cd1d77012843351a6c4b27c105a76ee6fc045b669ff1c6b4480e",
+      "bytes": 9287
+    },
+    {
+      "path": "protocols/end_of_interview_check.md",
+      "sha256": "443230fdc6f3eff3610b5b1c2ec27c88932e2154addd67d0fdef266e5c8d1bc6",
+      "bytes": 5505
+    },
+    {
+      "path": "protocols/identity_evidence.md",
+      "sha256": "fba036a39c58d930b45347342f6d5ed6d7fcd3c9aab1619350fd148e448caa6d",
+      "bytes": 7497
+    },
+    {
+      "path": "protocols/interview_engine.md",
+      "sha256": "734c912049b2ad2dd862057ab59ee58b03cc7212e40014419beb12949ea748b0",
+      "bytes": 7926
+    },
+    {
+      "path": "protocols/memory_extraction.md",
+      "sha256": "e440cebf4a047103350e10d89432bc2f9e06093a461828beec4286d1bed48c6d",
+      "bytes": 7413
+    },
+    {
+      "path": "protocols/tomorrow_protocol.md",
+      "sha256": "044a02a9a1fe641815294b49c0f994ad1ea29fc41199171d7057090cb707926e",
+      "bytes": 8248
+    },
+    {
+      "path": "schemas/content_candidate.json",
+      "sha256": "f229712bc360f1b0f1f6e13abb5022127ef39077d32bde94767dc0c101b58a54",
+      "bytes": 10406
+    },
+    {
+      "path": "schemas/contradiction.json",
+      "sha256": "de458e75e209840dc4aa6cd43469de54fc997c873cfc90cb84741462af6b2d9e",
+      "bytes": 8694
+    },
+    {
+      "path": "schemas/journal_entry.json",
+      "sha256": "fff3f1caeed66798a1083cd795b4e46ae1e3ea30e67d8c3d348c09aa07e4e24b",
+      "bytes": 46212
+    },
+    {
+      "path": "schemas/memory_candidate.json",
+      "sha256": "dee5c666d8b31e387ecac6320bd6a56466521e6e6ab95a444d8d8639ffee6e72",
+      "bytes": 8751
+    },
+    {
+      "path": "schemas/tomorrow_protocol.json",
+      "sha256": "3e87e8a94ea5bb6820ba140cc1d00e313f2b4b41caa8935caef6a0e2531f158b",
+      "bytes": 9844
+    },
+    {
+      "path": "templates/daily_journal.md",
+      "sha256": "ed35dc338f7e20397ac34a218a15507b5a880a014784b64def03bac81288259b",
+      "bytes": 9050
+    },
+    {
+      "path": "templates/final_mirror.md",
+      "sha256": "07cc09b835438edde0d6d83fad95216589d4b01e3e3a2c9f382d32dd8264a06a",
+      "bytes": 2150
+    },
+    {
+      "path": "templates/weekly_rollup.md",
+      "sha256": "2c54d214c6192738c029f48ebe8d035122fa625a9a287b988d1bd6b33723b36e",
+      "bytes": 4886
+    }
+  ]
+}

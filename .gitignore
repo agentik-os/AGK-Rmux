@@ -1,0 +1,43 @@
+/target
+# Cargo.lock IS committed — this is a binary/app workspace, so the lockfile is
+# what makes a fresh `git clone && cargo build --locked` reproducible.
+*.swp
+*.swo
+.DS_Store
+
+# User config — contains secrets (bot tokens, API keys)
+.omega/
+telegram.toml
+*.env
+*.env.*
+.env.local
+tools/pdfgen/node_modules/
+tools/pdfgen/.next/
+tools/pdfgen/output/
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+audits/.*/
+
+# Python bytecode (never ship — embeds absolute source paths)
+__pycache__/
+*.pyc
+
+# OmegaOS hygiene — agent/test artifacts (auto-added)
+.audit/
+.code/
+.linear-fix/
+.orchestrator/
+playwright-report/
+test-results/
+.playwright-mcp/
+.planner-cache/
+
+# operator-specific marketing data — never ship to the public OmegaOS repo
+/marketing/
+/tools/marketing-machine/projects.tsv
+/docs/marketing-machine-upgrade-research.md
+/tools/marketing-machine/AUDIT.md
+telegram-bot/node_modules/
+
+# OS-suite runtime ledgers (personal memory of each OS master agent/bot)
+OS/*/ledger/

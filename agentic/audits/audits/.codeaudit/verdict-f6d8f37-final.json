@@ -1,0 +1,96 @@
+{
+  "audit": "code",
+  "ticket": "wfview-fix-final",
+  "score": 84,
+  "score_raw": "289.5/345",
+  "score_normalized": 84,
+  "grade": "A",
+  "confidence": "high",
+  "skill_used": "codeaudit",
+  "preamble_version": "1.0",
+  "mode": "audit-only (read-only per dispatch brief)",
+  "head": "f6d8f37bed016ee3e297970ca37a343793a32d18",
+  "surface_note": "HEAD moved mid-audit (4ff5b94 -> f6d8f37); git diff on the 4 audited files is empty — surface byte-identical to fix3 commit 4ff5b94",
+  "commits_audited": ["8ea3a4a", "5cf827b", "4ff5b94"],
+  "files": [
+    "crates/omega-tui/src/app.rs",
+    "crates/omega-tui/src/input.rs",
+    "crates/omega-tui/src/ui.rs",
+    "crates/omega-cli/src/main.rs"
+  ],
+  "user_need_match": {
+    "addressed": true,
+    "quote": "(a) For EVERY finding listed above, verify closed-at-HEAD with a file:line citation at HEAD — a finding without a verifying citation stays OPEN; (b) hunt NEW introductions, especially interactions between chord-state clearing, the kill-confirm path, and Esc/Alt+Esc routing; (c) grade the cumulative surface, not just the newest diff.",
+    "evidence": "(a) 16-row closure table, every row cited file:line@HEAD (verdict-f6d8f37-final.md): 13 CLOSED, 2 PARTIAL (AF-1 terminal-dependent reachability, CA-1 confirm-half declined by documented design), 1 OPEN (AF-4, never claimed). (b) The requested interaction lens found the run's only HIGH: the fix3 clear-on-keypress TTL (main.rs:1105-1109) wipes the Kill-All/Nuclear-Cleanup confirm warning while menu_confirm_pending stays armed (input.rs:1971-1992) — exactly a chord/kill-confirm/status interaction. (c) Cumulative grade 84/100-A over all three commits as one surface.",
+    "findings": ["NEW-1", "NEW-2", "NEW-3", "NEW-4"],
+    "untouched_findings_relevant_to_user_need": []
+  },
+  "closures": [
+    {"id": "F-1", "severity": "critical", "status": "closed", "citation": "app.rs:1648-1651,1746,1755-1782; tests app.rs:2109-2147"},
+    {"id": "F-2", "severity": "high", "status": "closed", "citation": "input.rs:1859-1870; router input.rs:852-861"},
+    {"id": "F-7/DESIGN-002", "severity": "high", "status": "closed", "citation": "ui.rs:3216-3218; main.rs:1101-1109"},
+    {"id": "F-12/DESIGN-004", "severity": "high", "status": "closed", "citation": "input.rs:1744-1751; tests input.rs:2296-2326; same-index proof app.rs:1883-1885", "residual": "unprotected one-press kill = documented list-x parity; uiux exit-affordance-on-title still absent (mitigated by F-2)"},
+    {"id": "AF-0", "severity": "high", "status": "closed", "citation": "git ls-remote origin main == HEAD f6d8f37"},
+    {"id": "AF-1", "severity": "medium", "status": "partial", "citation": "input.rs:1858,1819; ui.rs:2969; main.rs:1756-1763; rmux@726d9e7 string_table.rs:240", "residual": "terminal-dependent: legacy ESC-ESC terminals may never synthesize Alt+Esc; degrades to plain Esc silently"},
+    {"id": "AF-2+CA-3", "severity": "medium", "status": "closed", "citation": "input.rs:2273,2296,2313,2329,2346; app.rs:2109,2121,2129; 19/19 pass", "residual": "refresh() snapshot-before-rebuild ordering pinned by reading only (daemon needed to test)"},
+    {"id": "AF-3", "severity": "low", "status": "closed", "citation": "input.rs:1867; cmd_capture proven dead (writers input.rs:1680/1688/1697/1723 all re-stores)"},
+    {"id": "AF-4", "severity": "low", "status": "open", "citation": "app.rs:1047,1140,1276; input.rs:1102,1835,1848,1852,1925 — 8 sites, 0 readers", "note": "never claimed by fix3"},
+    {"id": "AF-5", "severity": "low", "status": "closed", "citation": "input.rs:1659-1668; comment input.rs:1551-1554; test input.rs:2346-2360"},
+    {"id": "AF-7", "severity": "medium", "status": "closed", "citation": "input.rs:1867; test input.rs:2273-2292"},
+    {"id": "CA-1", "severity": "medium", "status": "partial", "citation": "announce: app.rs:1773-1774 + ui.rs:3216-3217 + test app.rs:2129-2147; confirm half open: input.rs:1446-1457 single-keystroke kill", "residual": "confirm declined by documented design (4ff5b94 message); announce fragile per NEW-2"},
+    {"id": "CA-2", "severity": "low", "status": "closed", "citation": "app.rs:1770-1772; test app.rs:2129-2147"},
+    {"id": "CA-4", "severity": "low", "status": "closed", "citation": "main.rs:1405-1409"},
+    {"id": "CA-5", "severity": "info", "status": "closed", "citation": "input.rs:626-629"},
+    {"id": "CA-6", "severity": "info", "status": "closed", "citation": "4ff5b94 commit body 'Runtime evidence (CA-6)' section; 19/19 reproduced at HEAD", "residual": "trailing audit refs still gitignored (.gitignore:19)"}
+  ],
+  "new_findings": [
+    {"id": "NEW-1", "severity": "high", "introduced_by": "4ff5b94", "title": "TTL wipes Kill-All/Nuclear-Cleanup confirm warning while armed state persists; later single Enter mass-kills with no visible confirm", "location": "main.rs:1105-1109 x input.rs:1971-1992; disarms only input.rs:1525/1973/1977; zero ui.rs render of armed state", "lenses": "3/3 (2 workflow verifiers + lead re-derivation), high confidence"},
+    {"id": "NEW-2", "severity": "medium", "introduced_by": "interplay 8ea3a4a x 4ff5b94", "title": "F-1 vanish notice unreadable in primary scenario — actively-typing user's next keystroke clears it (as little as one ~16ms frame)", "location": "app.rs:1774 x main.rs:1105-1109 x main.rs:944", "lenses": "2/2 stands, high"},
+    {"id": "NEW-3", "severity": "medium", "introduced_by": "pre-existing class, quantified (CA-1 residual)", "title": "vanish-drop converts in-flight chat keystream into live list hotkeys: q quits, x kills neighbor, Enter re-enters wrong chat", "location": "app.rs:1769-1780 x input.rs:877-880,1446-1457,1099-1106", "lenses": "2/2 downgrade high->medium, high"},
+    {"id": "NEW-4", "severity": "low", "introduced_by": "pre-existing writers; 4ff5b94 overclaims coverage", "title": "chord-reset invariant violators survive: mouse both arms (input.rs:201/204, app.rs:1198-1202), Enter list->chat (input.rs:1099-1106), 2col cross-tab leak (app.rs:1285-1292) — fix3 claim 'every Tab-less focus change' is false", "location": "vs contract app.rs:1228-1232", "lenses": "4 confirming lens runs across seeded+hunted"},
+    {"id": "NEW-5", "severity": "low", "introduced_by": "4ff5b94", "title": "per-tab hint now masks Sessions git status on every tab switch until next keypress", "location": "main.rs:1991-1999 x ui.rs:3216-3218", "lenses": "2/2 stands"},
+    {"id": "NEW-6", "severity": "low", "introduced_by": "4ff5b94", "title": "mouse events never consume the TTL — stale notice masks Sessions git status indefinitely in mouse-only flows", "location": "main.rs:1105-1109 (Event::Key only)", "lenses": "2/2 downgrade medium->low"},
+    {"id": "INFO-1", "severity": "info", "introduced_by": "visibility by 4ff5b94 (clobber pre-existing)", "title": "filter ack dead: 'Filter: ...' clobbered by reordered 'Refreshed' with no draw between; 'Filter cleared' branch unreachable", "location": "input.rs:622-634 x main.rs:1409; input.rs:2121-2124", "lenses": "2/2 stands"},
+    {"id": "INFO-2", "severity": "info", "introduced_by": "4ff5b94", "title": "'press . to unlock' hint wrong in chat focus ('.' forwards to PTY; toggle is list-only input.rs:1491)", "location": "input.rs:1746 x input.rs:1925-1926", "lenses": "2/2 stands"},
+    {"id": "INFO-3", "severity": "info", "introduced_by": "8ea3a4a (silent gate) + 4ff5b94 (chord delta)", "title": "empty-list phantom Chat focus bounces silently (Some(name) gate); post-fix3 empty-list ChatFullscreen unreachable (improvement)", "location": "app.rs:1247-1281,1773-1775", "lenses": "2/2 stands"},
+    {"id": "INFO-4", "severity": "info", "introduced_by": "pre-existing", "title": "AF-4 dead state + dead cmd_capture block (input.rs:1680-1727) carrying a stale no-chord-reset contract", "location": "see AF-4 row", "lenses": "closure verifier + refuter census"}
+  ],
+  "falsified_or_killed": [
+    {"claim": "/command tab-jump chord violation", "outcome": "killed — structurally dead code (cmd_capture never Some at HEAD; '/' forwarded since 3be50db)"},
+    {"claim": "kill-during-stale-chat-focus notice clobber via /menu", "outcome": "refuted 2/2 — path unreachable"},
+    {"claim": "TTL same-drain zero-frame erase", "outcome": "refuted"},
+    {"claim": "TTL regresses OAuth/progress notices on non-Sessions tabs", "outcome": "refuted"},
+    {"claim": "TTL mouse/paste notice-persists as standalone defect", "outcome": "refuted as harm; masking variant survives as NEW-6"},
+    {"claim": "AF-5 commit-claim overreach (q quits in one press)", "outcome": "split 1/2 — folded into AF-5 row as wording nuance, not scored"}
+  ],
+  "falsifiable_tests": [
+    {"name": "cargo test -p omega-tui @HEAD", "hypothesis": "any closure broken or refactor drift breaks a regression test", "command": "cargo test -p omega-tui", "expected": "19 passed", "actual": "test result: ok. 19 passed; 0 failed; 0 ignored", "passed": true},
+    {"name": "clippy delta-line check", "hypothesis": "fix series added lint debt", "command": "cargo clippy -p omega-tui -p omega --message-format=short + git blame -L on each of the 14 warning lines", "expected": "all warnings blame to pre-series commits", "actual": "14/14 blame to 3be50db/f093e24/e85b3a2; zero on series lines", "passed": true},
+    {"name": "release build", "hypothesis": "HEAD does not compile in release", "command": "cargo build --release", "expected": "exit 0", "actual": "Finished `release` profile [optimized] (exit 0)", "passed": true},
+    {"name": "push state (AF-0)", "hypothesis": "series still local-only (L0 violation)", "command": "git ls-remote origin main; git merge-base --is-ancestor HEAD origin/main", "expected": "HEAD on origin/main", "actual": "f6d8f37 == origin/main — PUSHED", "passed": true},
+    {"name": "rmux Escape deliverability (AF-1)", "hypothesis": "rmux cannot parse key string 'Escape'", "command": "grep -n '\"Escape\"' ~/.cargo/git/checkouts/rmux-*/726d9e7/crates/rmux-core/src/keys/string_table.rs", "expected": "parse entry exists", "actual": "string_table.rs:240: string: \"Escape\"", "passed": true},
+    {"name": "surface stability across HEAD move", "hypothesis": "audited files changed between 4ff5b94 and f6d8f37", "command": "git diff --name-only 4ff5b94 f6d8f37 -- <4 files>", "expected": "empty", "actual": "empty", "passed": true},
+    {"name": "NEW-1 hidden-disarm hunt", "hypothesis": "menu_confirm_pending has a disarm/render path that defuses NEW-1", "command": "grep -rn menu_confirm_pending crates/", "expected": "a ui.rs render or extra disarm exists", "actual": "only input.rs:1525/1971/1973/1977/1984 + app.rs:940/1109 — NEW-1 stands", "passed": true}
+  ],
+  "hinge_findings": [
+    {"location": "crates/omega-cli/src/main.rs:1101-1109", "concern": "global TTL — blast radius is every status_message producer", "verified_safe_by": "NOT fully safe: yielded NEW-1 (HIGH), NEW-2, NEW-6; status_before capture-after-clear ordering verified correct vs main.rs:1991", "is_load_bearing": true},
+    {"location": "crates/omega-tui/src/input.rs:1859-1870", "concern": "chat Esc arm — F-2/AF-7 closure point", "verified_safe_by": "test input.rs:2273-2292 + refuter sweep of all chat-exit paths", "is_load_bearing": true},
+    {"location": "crates/omega-tui/src/app.rs:1755-1782", "concern": "reanchor_selection refactor equivalence vs fix1 inline block", "verified_safe_by": "line-by-line diff vs git show 8ea3a4a; sole delta = intentional chord reset; tests app.rs:2109-2147", "is_load_bearing": true},
+    {"location": "crates/omega-tui/src/input.rs:1744-1752", "concern": "Ctrl+X guard-vs-kill index consistency", "verified_safe_by": "both reads via selected_session()=sessions.get(selected) (app.rs:1883-1885); no mutating path between; tests 2296-2326", "is_load_bearing": true}
+  ],
+  "edge_cases": [
+    {"finding_id": "NEW-1", "scenario": "arm KillAll, switch tabs, return minutes later, press Enter expecting the prompt", "covered_by_existing_test": false, "fix_includes_coverage": "FIX-1 demands a regression test"},
+    {"finding_id": "NEW-2", "scenario": "session killed externally while user mid-word; inter-keystroke gap 50-200ms vs one 16ms frame", "covered_by_existing_test": false, "fix_includes_coverage": "FIX-2"},
+    {"finding_id": "NEW-4", "scenario": "Tab -> mouse click -> Tab inside 400ms; Tab -> Enter -> Tab inside 400ms", "covered_by_existing_test": false, "fix_includes_coverage": "FIX-4"},
+    {"finding_id": "INFO-3", "scenario": "fresh install / all-dead list / no-match filter + Tab", "covered_by_existing_test": false, "fix_includes_coverage": "FIX-10"}
+  ],
+  "cross_audit_links": [
+    {"this_finding_id": "F-7/DESIGN-002", "sibling_audit": "uiuxaudit", "sibling_finding_id": "F-7", "shared_location": "ui.rs draw_status_bar", "joint_fix_recommended": false, "note": "closure verified against audits/.uiuxaudit/verdict-f432154.md:32"},
+    {"this_finding_id": "F-12/DESIGN-004", "sibling_audit": "uiuxaudit", "sibling_finding_id": "F-12", "shared_location": "input.rs chat Ctrl+X", "joint_fix_recommended": false, "note": "uiux demanded guard+confirm+title-affordance; guard shipped, confirm declined with rationale, affordance absent (mitigated by F-2)"}
+  ],
+  "issues_found_and_fixed": [],
+  "evidence_summary_path": "workflow wf_ff7d3650-f20 (47 agents) + /tmp/codeaudit-phase0-runtime.log; audit-gather skipped per brief (Rust gap), Phase 0 run manually",
+  "confidence_basis": "Every closure row and every new finding carries a file:line citation read at HEAD; 36 adversarial lens runs (2 independent verdicts per candidate, all surviving findings 2/2 or 3/3 at high confidence); NEW-1 additionally re-derived by the lead auditor (grep census of menu_confirm_pending writers); runtime evidence (19/19 tests, clippy blame-to-baseline, release build, push state) captured and quoted; refactor equivalence proven by line diff against 8ea3a4a. Not covered: live TTY repro, terminal Alt+Esc variance (the reason AF-1 is PARTIAL), daemon-backed refresh() execution.",
+  "banned_phrase_check": "passed (no occurrences of 'looks correct', 'should be fine', 'appears to work', 'streamlined', 'to save time')",
+  "finished_at": "2026-06-06T00:00:00+02:00"
+}

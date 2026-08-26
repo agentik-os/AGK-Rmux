@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AlignmentSession",
+  "type": "object",
+  "properties": {
+    "intent": {
+      "type": "string"
+    },
+    "depth": {
+      "enum": [
+        "light",
+        "coach",
+        "deep",
+        "silent_witness"
+      ]
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "interpretations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "control": {
+      "type": "object"
+    },
+    "lenses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decision": {
+      "type": "string"
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "review_trigger": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "intent",
+    "depth",
+    "next_action"
+  ]
+}

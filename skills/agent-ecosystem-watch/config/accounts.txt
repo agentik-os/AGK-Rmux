@@ -1,0 +1,15 @@
+# Reference X accounts (context hint for the analyzer; without the @).
+# High-signal agents/LLM builders. Used to weight authority in scoring.
+# Not scraped one-by-one in v1 (topic queries already surface them);
+# passed to the analyzer as a trust hint.
+
+AnthropicAI
+alexalbert__
+_catwu
+skirano
+mckaywrigley
+tom_doerr
+swyx
+simonw
+hwchase17
+karpathy

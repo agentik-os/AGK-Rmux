@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gathering",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Purpose"
+    },
+    "guest_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Guests"
+    },
+    "format": {
+      "type": "string",
+      "description": "Format"
+    },
+    "hospitality_plan": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Thoughtful details"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "purpose",
+    "format"
+  ],
+  "additionalProperties": false
+}

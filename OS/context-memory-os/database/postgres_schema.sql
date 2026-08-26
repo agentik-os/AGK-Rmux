@@ -1,0 +1,13 @@
+create extension if not exists pgcrypto;
+create schema if not exists memory;
+create table if not exists memory.source(id uuid primary key default gen_random_uuid(),type text not null,uri text,file_hash text,sensitivity text not null,captured_at timestamptz not null default now(),metadata jsonb not null default '{}');
+create table if not exists memory.entity(id uuid primary key default gen_random_uuid(),type text not null,canonical_name text not null,aliases jsonb not null default '[]',merge_status text not null default 'resolved',created_at timestamptz not null default now());
+create table if not exists memory.record(id uuid primary key default gen_random_uuid(),record_type text not null,statement text not null,scope text not null,status text not null,valid_from timestamptz,valid_to timestamptz,confidence numeric(5,4),created_at timestamptz not null default now());
+create table if not exists memory.record_source(record_id uuid references memory.record(id),source_id uuid references memory.source(id),locator jsonb not null default '{}',primary key(record_id,source_id));
+create table if not exists memory.edge(id uuid primary key default gen_random_uuid(),from_entity uuid not null references memory.entity(id),to_entity uuid not null references memory.entity(id),relation text not null,evidence_ids jsonb not null default '[]',valid_from timestamptz,valid_to timestamptz);
+create table if not exists memory.decision(id uuid primary key default gen_random_uuid(),scope text not null,decision text not null,rationale text not null,alternatives jsonb not null default '[]',owner text not null,review_trigger text,status text not null default 'active',created_at timestamptz not null default now());
+create table if not exists memory.contradiction(id uuid primary key default gen_random_uuid(),record_ids jsonb not null,conflict_type text not null,status text not null default 'open',resolution text,created_at timestamptz not null default now());
+create table if not exists memory.access_policy(id uuid primary key default gen_random_uuid(),subject text not null,resource_scope text not null,purpose text not null,permissions jsonb not null,expires_at timestamptz,created_at timestamptz not null default now());
+create table if not exists memory.event(id bigint generated always as identity primary key,event_type text not null,actor text not null,payload jsonb not null,created_at timestamptz not null default now());
+create index if not exists idx_record_scope_status on memory.record(scope,status);
+create index if not exists idx_entity_name on memory.entity(canonical_name);

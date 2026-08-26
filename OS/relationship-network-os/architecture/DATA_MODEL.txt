@@ -1,0 +1,35 @@
+Relationship & Network OS — Logical data model
+
+ENTITIES
+- person
+- interaction
+- commitment
+- introduction
+- gathering
+- relationship_plan
+
+RELATIONSHIPS
+- person HAS interaction
+- interaction CREATES commitment
+- introduction CONNECTS persons
+- gathering INCLUDES persons
+- relationship_plan REFERENCES person
+- commitment MAY TRIGGER follow-up
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- relationship.interaction.captured
+- relationship.commitment.created
+- relationship.commitment.closed
+- relationship.followup.drafted
+- relationship.introduction.requested
+- relationship.gathering.created
+- relationship.data.deleted

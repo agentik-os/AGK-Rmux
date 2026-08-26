@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Commitment",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "owner": {
+      "type": "string",
+      "description": "Who owns promise"
+    },
+    "description": {
+      "type": "string",
+      "description": "Promise"
+    },
+    "due_or_trigger": {
+      "type": "string",
+      "description": "Date or trigger"
+    },
+    "status": {
+      "type": "string",
+      "description": "open/done/renegotiated"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "owner",
+    "description",
+    "status"
+  ],
+  "additionalProperties": false
+}

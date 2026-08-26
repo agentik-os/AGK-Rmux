@@ -1,0 +1,11 @@
+{
+  "name": "caio-enablement-and-transfer",
+  "version": "1.0.0",
+  "description": "CAIO adoption + transfer-to-autonomy. From a built system to trained operators to a team that adds an agent, connects a tool, and adjusts a report unaided.",
+  "skill": {
+    "entry": "SKILL.md",
+    "type": "agent",
+    "category": "14-strategy"
+  },
+  "compatibility": ["claude-code"]
+}

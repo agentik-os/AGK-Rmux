@@ -1,0 +1,53 @@
+plan_id: MTH-001
+run_id: MRR-...
+version: 1.0.0
+decision_question: <exact question>
+evidence_questions:
+  - id: RQ-001
+    question: <what must be known>
+    hypothesis_ids: [HYP-001]
+    decision_criticality: P0
+    minimum_evidence: <claim-specific requirement>
+    methods:
+      - method_id: MTH-001
+        type: secondary|interview|observation|survey|choice|experiment|internal-data
+        source_or_population: <definition>
+        sample_or_coverage_rule: <rule>
+        pass_threshold: <threshold>
+        fail_threshold: <threshold>
+        ambiguous_rule: <rule>
+        bias_controls: []
+        owner: <role>
+        budget: <amount>
+        dependency_ids: []
+source_queries:
+  - query_plan_id: QST-001
+    source_lane: official-statistics|competitor|search|social|reviews|filings|internal
+    exact_query_or_endpoint: <query>
+    filters: {}
+    preflight_id: DAT-001
+    output_schema: <schema-ref>
+    coverage_target: <rule>
+    validation_sample: <rule>
+    stop_rule: <rule>
+primary_research:
+  studies: []
+  experiments: []
+analysis:
+  preregistered_primary_metrics: []
+  segment_analysis: []
+  uncertainty: <interval-or-scenario-plan>
+  conflicting_source_rule: <rule>
+  missing_data_rule: <rule>
+stopping:
+  sufficient_evidence_rule: <rule>
+  budget_stop: <amount>
+  deadline_stop: <date>
+  kill_gate_stop: <rule>
+governance:
+  consent: <plan>
+  privacy: <plan>
+  retention: <plan>
+  legal_or_ethics_reviews: []
+deliverables: []
+approved_by: []

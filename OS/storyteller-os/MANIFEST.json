@@ -1,0 +1,149 @@
+{
+  "name": "Storyteller OS",
+  "slug": "storyteller",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Turn verified experience, evidence and ideas into truthful story objects ready for responsible adaptation.",
+  "category": "Growth Stack",
+  "position": "Growth Stack: narrative truth and structure upstream of Content OS",
+  "counts": {
+    "agents": 1,
+    "skills": 1,
+    "protocols": 0,
+    "references": 9,
+    "scripts": 2,
+    "assets": 1,
+    "files": 18
+  },
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "d384e2dea7692930747b3463c29481b080b09caf945b7b7e8a4d4139dbb781a9",
+      "bytes": 401
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "9be88f8dd4c5e658961515c71389eafd45142ffa68bcae58e8dcff57d178ed91",
+      "bytes": 667
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "317f35881d2a259afdab16d1f0b48d5aec2513a24d0de10970d6e5751879877b",
+      "bytes": 7237
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "6b0b9018ac5c1d45f298c050a9f99d50bced134050a3cc1d1ec61570e7df2321",
+      "bytes": 1896
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "55c814bb010d8b393d92ead17dd781cd4189376d3310b3a03d2c4d0b04415b2d",
+      "bytes": 1663
+    },
+    {
+      "path": "README.md",
+      "sha256": "aceb2c307536a9da9312949b41bf962d7ab2e9950a549a2febf7be62d9f145cd",
+      "bytes": 7462
+    },
+    {
+      "path": "references/channel-playbooks.md",
+      "sha256": "d244b0606089c0b740316c7c566044a7c0a6340571c5d0b88870733cb400c9ae",
+      "bytes": 12109
+    },
+    {
+      "path": "references/commands.md",
+      "sha256": "83075de6ddf4e1fc1fc52b43661fa6fcf583202c66820bc1219de8c3519b2e9c",
+      "bytes": 14529
+    },
+    {
+      "path": "references/gareth-context.md",
+      "sha256": "3dc2c953b42e73551327f8def391bcfcc04581b3fc4f12d944ae9b35b55fefac",
+      "bytes": 1292
+    },
+    {
+      "path": "references/operating-manual.md",
+      "sha256": "514f096c12e1f4e9b66d8d37000bae5d86718803e1f66fe4b2616db8dd11f7b3",
+      "bytes": 14171
+    },
+    {
+      "path": "references/quality-and-evals.md",
+      "sha256": "855994b9977352da5687f273ad86fb0147168d5e4a8042e04414d73fcb1bdda6",
+      "bytes": 10663
+    },
+    {
+      "path": "references/research-and-canon.md",
+      "sha256": "46c05de3dde9e690d1bd6ec0891bde058dc04bc4b6c4cbc26bf7786a2aa3dc86",
+      "bytes": 21395
+    },
+    {
+      "path": "references/story-models.md",
+      "sha256": "66a6eea725c410eefe89417069276cdc37fc588bc4b668cef5cfbd0d43c58d1e",
+      "bytes": 10892
+    },
+    {
+      "path": "references/story-object.md",
+      "sha256": "fe3e3bc667f14fa0467024043c4aa87407cb409313c70b1e771d8199eb40c233",
+      "bytes": 5702
+    },
+    {
+      "path": "references/system-prompt.md",
+      "sha256": "d62a2dadb91e1d92c80097c2e692b03e01bcf0fe667edad3d2c170795e20957a",
+      "bytes": 14186
+    },
+    {
+      "path": "scripts/storyteller_os.py",
+      "sha256": "1f097aef66997a542df434182a0a0c76862c19f50fd3d62c6d30b48170e39ab9",
+      "bytes": 28244
+    },
+    {
+      "path": "scripts/test_storyteller_os.py",
+      "sha256": "0699251a79577a72e528fd86cce727a059a3787a0ed6456f633f605950a9abe7",
+      "bytes": 5182
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "62ac77ac70eb2f847ed4bc7f4a68c29e772e83decb1de00d3145df1b36799a96",
+      "bytes": 9944
+    }
+  ],
+  "commands": {
+    "root": "/story",
+    "aliases": [
+      "/storyteller-os"
+    ]
+  },
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "story.ready_for_adaptation",
+        "consumed_by": [
+          "content"
+        ],
+        "payload": {
+          "story_id": "string",
+          "story_object": "object",
+          "truth_status": "string",
+          "consent_status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "content.performance.feedback",
+        "produced_by": [
+          "content"
+        ],
+        "payload": {
+          "story_id": "string",
+          "signals": "object",
+          "window": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

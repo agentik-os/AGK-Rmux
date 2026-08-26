@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Health Observation",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "kind": {
+      "type": "string",
+      "description": "Observation type"
+    },
+    "value": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Value and units"
+    },
+    "context": {
+      "type": "string",
+      "description": "Relevant context"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "kind",
+    "value"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Deliverable",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "milestone_id": {
+      "type": "string",
+      "description": "Milestone"
+    },
+    "name": {
+      "type": "string",
+      "description": "Deliverable"
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Completion evidence"
+    },
+    "acceptance_status": {
+      "type": "string",
+      "description": "pending/accepted/rejected"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "milestone_id",
+    "name",
+    "acceptance_status"
+  ],
+  "additionalProperties": false
+}

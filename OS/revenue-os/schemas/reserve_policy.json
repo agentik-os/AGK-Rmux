@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Reserve Policy",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "target_method": {
+      "type": "string",
+      "description": "Method"
+    },
+    "target_amount": {
+      "type": "number",
+      "description": "Target"
+    },
+    "minimum_floor": {
+      "type": "number",
+      "description": "Floor"
+    },
+    "approval_owner": {
+      "type": "string",
+      "description": "Owner"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "target_method",
+    "approval_owner"
+  ],
+  "additionalProperties": false
+}

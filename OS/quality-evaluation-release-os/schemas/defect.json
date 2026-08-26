@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Defect",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "title": {
+      "type": "string",
+      "description": "Defect"
+    },
+    "severity": {
+      "type": "string",
+      "description": "Impact"
+    },
+    "reproduction": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Reproduction"
+    },
+    "release_disposition": {
+      "type": "string",
+      "description": "block/accept/fix"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "title",
+    "severity",
+    "reproduction",
+    "release_disposition"
+  ],
+  "additionalProperties": false
+}

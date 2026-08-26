@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Strategic Metric",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Metric"
+    },
+    "metric_type": {
+      "type": "string",
+      "description": "leading/lagging/guardrail"
+    },
+    "decision_link": {
+      "type": "string",
+      "description": "Decision affected"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "name",
+    "metric_type",
+    "decision_link"
+  ],
+  "additionalProperties": false
+}

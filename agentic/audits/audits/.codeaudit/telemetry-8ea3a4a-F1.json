@@ -1,0 +1,1 @@
+{"audit":"codeaudit","ticket":"commit-8ea3a4a","preamble_version":"1.0","model":"opus-4.8","phases_applicable":12,"score":79,"grade":"B","findings":6,"falsified":3,"workflow_run":"wf_6f81a9f5-94a","subagents":5,"subagent_tokens":312403,"mode":"audit-only"}

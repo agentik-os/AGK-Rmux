@@ -1,0 +1,39 @@
+{
+  "name": "Brainstorm {OS}",
+  "version": "3.0.0",
+  "package_type": "portable-agentic-skill",
+  "entrypoints": {
+    "native_skill": "SKILL.md",
+    "standalone_system_prompt": "references/system-prompt.md",
+    "session_cli": "scripts/brainstorm_os.py",
+    "omega_installer": "scripts/install_omega_os.py",
+    "tests": "scripts/test_brainstorm_os.py"
+  },
+  "capabilities": [
+    "multi-agent independent council",
+    "three-chamber imagination, evolution, and adjudication architecture",
+    "Founder DNA and signature tension",
+    "Frame Fission and 14-locus idea genomes",
+    "multi-generation mutation, crossover, speciation, extinction, and incubation",
+    "distant-domain collisions, counterfactual worlds, anomaly preservation, and portfolio coherence",
+    "Surface Lab for mobile, web, desktop, multi-surface, chat/API, ambient, physical, service, and no-interface concepts",
+    "adaptive specialist selection",
+    "cross-examination and crux resolution",
+    "red team, premortem, abuse, incentives, and second-order effects",
+    "structural idea mutation and recombination",
+    "evidence routing and Market Research return loop",
+    "decision, experiment, and kill criteria",
+    "stable ledgers, lineage, semantic concept versions, and continuation",
+    "quality scoring and anti-false-consensus evaluations",
+    "research, Blueprint, decision, and creative handoffs",
+    "Omega OS extension installation"
+  ],
+  "contracts": {
+    "session_schema": "assets/session.schema.json",
+    "council_profiles": "assets/council-profiles.json",
+    "omega_extension": "assets/omega-extension.json",
+    "surface_profiles": "assets/surface-profiles.json"
+  },
+  "compatibility": ["ChatGPT Skills", "Codex", "portable LLM system prompts", "Omega OS", "mobile-product ideation", "desktop-product ideation", "web-product ideation", "multi-surface product ideation"],
+  "status": "validated"
+}

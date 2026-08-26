@@ -1,0 +1,14 @@
+interface:
+  display_name: Execution OS
+  short_description: Run a persistent personal execution control loop
+  default_prompt: Use $execution-os to load my execution truth, protect one Single
+    Thread, manage promises, and produce the next verified proof.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

@@ -1,0 +1,74 @@
+{
+  "version": "3.0.0",
+  "surface_types": {
+    "mobile": {
+      "native_strengths": ["always carried", "camera and sensors", "location", "notifications", "quick capture", "offline context"],
+      "risks": ["install friction", "small canvas", "notification abuse", "store dependency"]
+    },
+    "web": {
+      "native_strengths": ["instant access", "links", "search and discovery", "broad compatibility", "fast iteration"],
+      "risks": ["tab abandonment", "browser limits", "weak background behavior"]
+    },
+    "desktop": {
+      "native_strengths": ["large canvas", "keyboard", "local files", "sustained focus", "local compute", "OS integration"],
+      "risks": ["installation and updates", "device lock-in", "weak field capture"]
+    },
+    "multi-surface": {
+      "native_strengths": ["moment specialization", "cross-device continuity", "capture-to-deep-work handoff"],
+      "risks": ["feature duplication", "sync conflict", "fragmented identity", "scope and maintenance explosion"]
+    },
+    "chat": {
+      "native_strengths": ["flexible input", "clarification", "exception handling", "low learning cost"],
+      "risks": ["hidden state", "poor scanability", "verbosity", "weak precision"]
+    },
+    "api-agent": {
+      "native_strengths": ["automation", "composability", "embedded distribution"],
+      "risks": ["permissions", "reliability", "observability", "misuse"]
+    },
+    "ambient-wearable": {
+      "native_strengths": ["hands-free", "contextual", "low-friction presence"],
+      "risks": ["surveillance", "false triggers", "consent", "battery", "social acceptability"]
+    },
+    "physical-spatial": {
+      "native_strengths": ["ritual", "embodiment", "sensory meaning", "location", "trust"],
+      "risks": ["logistics", "capital", "maintenance", "accessibility", "limited scale"]
+    },
+    "human-service": {
+      "native_strengths": ["empathy", "judgment", "high-context recovery", "concierge learning"],
+      "risks": ["labor intensity", "variance", "training", "margin", "founder dependency"]
+    },
+    "no-interface": {
+      "native_strengths": ["automatic value", "existing-channel distribution", "minimal behavior change"],
+      "risks": ["opacity", "limited control", "hard-to-explain value"]
+    }
+  },
+  "comparison_criteria": [
+    "native affordance advantage",
+    "moment and context fit",
+    "frequency and session shape",
+    "input and output complexity",
+    "device, file, sensor, or compute dependency",
+    "collaboration and shareability",
+    "trust, privacy, safety, and control",
+    "distribution and activation friction",
+    "offline and degraded mode",
+    "accessibility and inclusion",
+    "build, sync, QA, support, and maintenance burden",
+    "speed to decisive validation"
+  ],
+  "multi_surface_required_fields": [
+    "role per surface",
+    "canonical state owner",
+    "cross-surface handoff object",
+    "identity and permission continuity",
+    "degraded mode",
+    "release sequence",
+    "scope firewall"
+  ],
+  "selection_rules": [
+    "the primary surface owns the highest-leverage value event, not necessarily the most frequent interaction",
+    "a companion surface owns a distinct moment rather than a mirrored feature set",
+    "validate a companion role through an existing channel or lightweight prototype before funding a native client",
+    "add a surface only when native affordances materially improve completion, context, trust, or quality"
+  ]
+}

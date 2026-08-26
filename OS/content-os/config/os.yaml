@@ -1,0 +1,14 @@
+name: Content OS
+slug: content
+version: 1.0.0
+category: Communication Stack / End-to-End Content Intelligence and Production
+position: Communication Stack: turns life, expertise, products and proof into native multi-platform content
+default_mode: capture
+primary_boundary: "Content OS owns editorial strategy and production; Revenue OS owns offers, pipeline and commercial conversion, Storyteller OS may own deep narrative craft, and Quality/Governance own consequential policy and release controls."
+requires_human_approval_for:
+  - publishing or scheduling content
+  - using another person’s likeness/story
+  - making factual/commercial claims
+  - using licensed music/media
+  - sending newsletter campaigns
+  - connecting content leads to Revenue OS

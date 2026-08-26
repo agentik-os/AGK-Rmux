@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Strategic Decision",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "question": {
+      "type": "string",
+      "description": "Decision"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Options"
+    },
+    "decision": {
+      "type": "string",
+      "description": "Selected choice"
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Rationale"
+    },
+    "review_trigger": {
+      "type": "string",
+      "description": "Review trigger"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "question",
+    "options",
+    "decision",
+    "rationale",
+    "review_trigger"
+  ],
+  "additionalProperties": false
+}

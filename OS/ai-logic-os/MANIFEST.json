@@ -1,0 +1,114 @@
+{
+  "name": "AI Logic OS",
+  "slug": "ai-logic",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Cross-cutting doctrine that arbitrates deterministic code versus AI judgment for any workflow or agentic system, defaulting to NO and ending in an argued decision plus an executable spec.",
+  "category": "Core Stack",
+  "position": "Core Stack (cross-cutting): reasoning/automation-arbitration doctrine, a consulting layer any OS may invoke",
+  "counts": {
+    "agents": 0,
+    "skills": 1,
+    "protocols": 0,
+    "references": 2,
+    "scripts": 0,
+    "assets": 0,
+    "files": 12
+  },
+  "files": [
+    {
+      "path": "bin/omega-ailogic",
+      "sha256": "af936dca519a44cf4ff802b93971418a2ce8f2ac64567232e59e3c26f8a60e16",
+      "bytes": 770
+    },
+    {
+      "path": "commands/codex-ai-logic-os.md",
+      "sha256": "2dff8c663b5b14c1ce50b299cf90b2b9b11d96382886654735e18824773f2895",
+      "bytes": 2107
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "da0df528f9e015d4beb06119f77393f81ba52b169ab1b3ce43b817e207216629",
+      "bytes": 3538
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "aa23ee2e33a8d53ce107f6cb9682c0aa4b483dfb7661714f488158688c69b7c7",
+      "bytes": 1896
+    },
+    {
+      "path": "pack/references/system-challenger.md",
+      "sha256": "beef85a6b03bd13fe841bfa377ebd351baa17378c0dbc89a8af6efe1321bf6a1",
+      "bytes": 7682
+    },
+    {
+      "path": "pack/references/workflow-optimizer.md",
+      "sha256": "26ffb29e8f8b3fbf380516159d88860c37e4af49121db5139e85ef7a63dde9d7",
+      "bytes": 9301
+    },
+    {
+      "path": "pack/SKILL.md",
+      "sha256": "778ac42286269d2f33857723b29ba3220d87166bc5306c1744b0957eac9e418b",
+      "bytes": 5644
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "bfc1c8cb87ba0d0d1b9beed9621aaddecb176ad33893be155be7a246e3edc0a2",
+      "bytes": 3084
+    },
+    {
+      "path": "README.md",
+      "sha256": "36cc02c4501e270b1215ef25dedfe71cd9f81b5f3f1d2ef940fc1ab3bffaef43",
+      "bytes": 2894
+    },
+    {
+      "path": "references/system-challenger.md",
+      "sha256": "beef85a6b03bd13fe841bfa377ebd351baa17378c0dbc89a8af6efe1321bf6a1",
+      "bytes": 7682
+    },
+    {
+      "path": "references/workflow-optimizer.md",
+      "sha256": "26ffb29e8f8b3fbf380516159d88860c37e4af49121db5139e85ef7a63dde9d7",
+      "bytes": 9301
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "ed05135e83ecbfcee91b76fe7b336855f9a15994deb941bc909f0b26fb898f39",
+      "bytes": 5799
+    }
+  ],
+  "commands": {
+    "root": "/ai-logic",
+    "aliases": [
+      "/ailogic"
+    ]
+  },
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "ailogic.arbitration.decided",
+        "consumed_by": "operations-automation",
+        "payload": {
+          "id": "string (record id)",
+          "arbitration": "object (deterministic-vs-AI verdict, target automation/agent/skill, rationale)",
+          "status": "string (decided)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "automation.candidate.scored",
+        "produced_by": "operations-automation",
+        "payload": {
+          "id": "string (record id)",
+          "candidate": "object (the automation candidate under arbitration)",
+          "score": "number",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

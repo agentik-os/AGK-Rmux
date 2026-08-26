@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Customer",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Customer/account"
+    },
+    "status": {
+      "type": "string",
+      "description": "prospect/customer/churned"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Commercial owner"
+    },
+    "billing_profile": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Approved billing data"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "name",
+    "status",
+    "owner"
+  ],
+  "additionalProperties": false
+}

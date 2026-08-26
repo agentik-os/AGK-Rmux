@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Automation Blueprint",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "objective": {
+      "type": "string",
+      "description": "Objective"
+    },
+    "trigger": {
+      "type": "string",
+      "description": "Trigger"
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "States"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Rules"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Actions"
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Human approvals"
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Exception handling"
+    },
+    "rollback": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recovery"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "objective",
+    "trigger",
+    "states",
+    "rules",
+    "actions",
+    "approvals",
+    "exceptions",
+    "rollback"
+  ],
+  "additionalProperties": false
+}

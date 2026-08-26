@@ -1,0 +1,57 @@
+{
+  "audit": "code",
+  "preamble_version": "1.0",
+  "score": 79,
+  "score_raw": "242/305",
+  "score_normalized": 79,
+  "grade": "B",
+  "confidence": "high",
+  "skill_used": "codeaudit",
+  "ticket": "commit-8ea3a4a",
+  "mode": "audit-only (read-only per dispatch brief; Phases 21-23 skipped by contract)",
+  "scope": "diff 8ea3a4a vs 07ef5d0 — crates/omega-tui/src/app.rs refresh() re-anchor + direct blast radius only",
+  "user_need_match": {
+    "quote": "chat keystream never silently retargets across refresh (F-1)",
+    "addressed": true,
+    "evidence": "The diff (app.rs:1611-1619 name snapshot, app.rs:1712-1736 re-anchor + vanish->List) closes the reproduced index-shift misroute: runtime BEFORE leg shows MISROUTE1 into a wrong live pane on the old binary, AFTER leg shows ROUTED_OK + vanish->LIST on the fixed one (audits/.fixes/evidence-fix1/). Residual: one narrow Tab-double-tap race (CA-2, app.rs:1727 vs 1216-1248) still allows a silent fullscreen retarget within a ~400ms x 2s-cadence window — the claim holds in substance, not in absolute letter.",
+    "edge_cases_covered": ["session vanish while chat-focused", "session vanish while fullscreen", "list reshuffle by external create/kill", "empty-list clamp", "same-name kill+recreate (falsified as a defect of this diff)", "filter-commit selected=0 interaction", "early-? error returns"]
+  },
+  "falsifiable_tests": [
+    {"name": "cargo test -p omega-tui", "hypothesis": "diff breaks build or existing tests", "command": "cargo test -p omega-tui", "expected": "all pass", "actual": "7 passed; 0 failed", "passed": true},
+    {"name": "hinge confirmation", "hypothesis": "hinge differs from brief designation", "command": "hinge-analyzer.sh --ref=07ef5d0 --project-path=$PWD", "expected": "re-anchor branch", "actual": "1 hinge: app.rs:1718-1733 new_branch 'if !reanchored'", "passed": true},
+    {"name": "cited runtime proof exists", "hypothesis": "commit-cited evidence fabricated", "command": "ls audits/.fixes/evidence-fix1/", "expected": "BEFORE/AFTER captures", "actual": "10 capture files + NOTES.md, MISROUTE1 (before) / ROUTED_OK + vanish-to-LIST (after)", "passed": true},
+    {"name": "proof reachability from repo", "hypothesis": "proof reachable from a fresh clone", "command": "git check-ignore audits/.fixes/evidence-fix1; git ls-files audits/.fixes", "expected": "tracked", "actual": "IGNORED / empty -> CA-6", "passed": false},
+    {"name": "adversarial refutation fleet", "hypothesis": "each candidate finding is wrong/unreachable", "command": "Workflow wf_6f81a9f5-94a (4 refuters + completeness critic, 111 tool uses)", "expected": "refute or confirm with citations", "actual": "F-A HIGH->MEDIUM (partially refuted), F-B killed, F-C LOW->INFO, F-D confirmed MEDIUM, +2 new findings (CA-2, CA-4)", "passed": true}
+  ],
+  "hinge_findings": [
+    {"location": "crates/omega-tui/src/app.rs:1718-1733", "concern": "vanish branch behavior: focus drop visibility, landing-zone safety, state-machine completeness", "verified_safe_by": "10x scrutiny: all 15 refresh() callers read, select_by_name callee read, all selected_session() consumers verified .get-guarded; CA-1 (unannounced landing on unconfirmed kill) and CA-2 (stale tab_seq_start) found HERE — the hinge concentrated 2 of the 3 surviving defects", "is_load_bearing": true, "confidence_after_scrutiny": "high"}
+  ],
+  "findings": [
+    {"id": "CA-1", "severity": "medium", "location": "app.rs:1727-1730 x ui.rs:3061-3077 x input.rs:1419-1430", "issue": "vanish->List drop unannounced (F-7 dead status channel) + keystream lands on unconfirmed single-key kill; prose Enter re-enters chat on wrong session (input.rs:1066-1078); prose '.' unprotects target (input.rs:1464-1488)", "cross_audit_confirmed": true, "status": "NEEDS_REVIEW"},
+    {"id": "CA-3", "severity": "medium", "location": "app.rs:1712-1736, 1165-1173 (untested)", "issue": "zero durable test coverage of critical-class behavior; impracticality disproven (block is pure sync; in-file daemon-free test pattern app.rs:1995-2003; CI hard-gates cargo test)", "cross_audit_confirmed": false, "status": "NEEDS_REVIEW"},
+    {"id": "CA-2", "severity": "low", "location": "app.rs:1727 vs app.rs:1216-1248", "issue": "forced focus drop leaves last_tab_press/tab_seq_start stale -> Tab/die/Tab race (~400ms x 2s cadence) lands ChatFullscreen on index-fallback neighbor — narrow survivor of the exact misroute class the commit claims closed", "cross_audit_confirmed": false, "status": "NEEDS_REVIEW"},
+    {"id": "CA-4", "severity": "low", "location": "main.rs:1392-1398 vs app.rs:1729", "issue": "F5 handler unconditionally overwrites status_message after refresh, clobbering the vanish explanation in the same tick (latent until F-7 fixed)", "cross_audit_confirmed": false, "status": "NEEDS_REVIEW"},
+    {"id": "CA-5", "severity": "info", "location": "input.rs:616-625 vs app.rs:1712-1717", "issue": "SessionFilter reset-to-top intent overridden by re-anchor in narrow paths; comment at input.rs:620 now misleading; no misroute possible", "cross_audit_confirmed": false, "status": "NEEDS_REVIEW"},
+    {"id": "CA-6", "severity": "info", "location": ".gitignore:18 vs commit message", "issue": "commit-cited runtime proof (audits/.fixes/evidence-fix1/) gitignored — unreproducible from a clone (R-CITE auditability gap)", "cross_audit_confirmed": false, "status": "NEEDS_REVIEW"}
+  ],
+  "falsified_findings": [
+    {"id": "F-B", "claim": "same-name kill+recreate window silently re-attaches chat keystream via re-anchor", "falsified_at": "input.rs:1625-1626 + forwarder.rs:111-115 + rmux-sdk session.rs:17-24 — routing is name-keyed end-to-end at keypress/write time; re-anchor block causally irrelevant; diff neutral-to-better (deterministic slot ordering app.rs:1678-1696)"},
+    {"id": "F-E", "claim": "stale self.selected on emptied list is a defect", "falsified_at": "all consumers guarded: app.rs:1840-1842 (.get), 1955-1969 (is_empty), 1184-1204 (n=0 guard + %n)"},
+    {"id": "F-F", "claim": "'{name} ended' mislabels rename as death", "falsified_at": "folded into CA-1 as copy nit — channel is dead (F-7) so no user-visible lie today"}
+  ],
+  "edge_cases": [
+    {"finding_id": "CA-1", "scenario": "user typing prose when session dies; first mode-changing key is 'x' -> unconfirmed kill of clamped-to neighbor (possibly live worker mid-mission)", "covered_by_existing_test": false, "probability": "well under 1% per vanish event (mode-swallowing keys ~32% letter freq vs x ~0.15%)"},
+    {"finding_id": "CA-2", "scenario": "Tab tap -> session dies within 400ms double-tap window -> second tap reads stale tab_seq_start=Chat -> ChatFullscreen on wrong session", "covered_by_existing_test": false, "probability": "~400ms window x 2s refresh cadence, requires concurrent session kill"}
+  ],
+  "cross_audit_links": [
+    {"this_finding_id": "CA-1", "sibling_audit": "uiuxaudit", "sibling_finding_id": "F-7", "shared_location": "ui.rs:3061-3077", "joint_fix_recommended": true},
+    {"this_finding_id": "CA-1", "sibling_audit": "uiuxaudit", "sibling_finding_id": "F-12", "shared_location": "input.rs:1419-1426 / 1708-1711", "joint_fix_recommended": true},
+    {"this_finding_id": "user_need_match", "sibling_audit": "flowaudit", "sibling_finding_id": "F-02/FIX-002", "shared_location": "app.rs:1712-1736", "joint_fix_recommended": false}
+  ],
+  "spofs": [],
+  "timebombs": [],
+  "evidence_summary_path": ".linear-fix/commit-8ea3a4a/.code/evidence-summary.json",
+  "confidence_basis": "Every load-bearing claim cites file:line verified at HEAD=8ea3a4a; 4 candidate findings each attacked by an independent adversarial refuter (1 killed, 2 downgraded, 1 confirmed) + completeness critic surfaced 2 misses; runtime evidence inspected directly (build, 7/7 tests, 10-file capture pack with timestamps minutes before commit). Not covered: no live TUI repro of CA-1/CA-2 in this run (read-only mission; CA-1 components runtime-proven by sibling uiux audit, CA-2 code-deterministic); rmux daemon verified only to SDK surface. Score below 100 is the honest audit grade of the commit's surroundings (dead notice channel, no regression test, Tab race), not a gate failure of the fix itself.",
+  "banned_phrase_check": "passed (no occurrences of 'looks correct', 'should be fine', 'appears to work', 'streamlined', 'to save time')",
+  "finished_at": "2026-06-05T00:00:00+02:00"
+}

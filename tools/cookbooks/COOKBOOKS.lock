@@ -1,0 +1,16 @@
+# OmegaOS <- anthropics/claude-cookbooks pin
+#
+# The INDEX (recipes.json) is generated from this exact commit and ships in the
+# OmegaOS repo. The CORPUS (the notebooks themselves) is optional and installed
+# by install-cookbooks.sh at the same commit, so a local notebook always matches
+# the indexed description and the recorded upstream URL.
+#
+# To bump: re-clone upstream, run
+#     tools/cookbooks/install-cookbooks.sh --update
+#   which refreshes this pin, then
+#     tools/cookbooks/build-index.py ~/.omega/cookbooks -o tools/cookbooks/recipes.json
+#   and commit both.
+UPSTREAM=https://github.com/anthropics/claude-cookbooks.git
+COMMIT=35f2eec7e44897c537e44441b7dff2f0ecbfb804
+COMMIT_DATE=2026-08-14T16:50:15-04:00
+LICENSE=MIT (c) Anthropic

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://omega-os.local/schemas/plugin-manifest.v1.json",
+  "id": "blueprint-os",
+  "name": "Blueprint {OS}",
+  "version": "3.0.0",
+  "kind": "definition-compiler",
+  "description": "Compiles product ideas and project context into a complete, traceable Product + Technical Definition Pack before Stepper or Build.",
+  "entrypoints": {
+    "system_prompt": "references/system-prompt.md",
+    "skill": "SKILL.md",
+    "portable_skill_source": "assets/omega-blueprint-skill.md",
+    "role_prompts": "assets/blueprint-role-prompts.json",
+    "tool_definitions": "assets/blueprint-tools.json",
+    "state_schema": "assets/blueprint-state.schema.json",
+    "local_cli": "scripts/blueprint_os.py"
+  },
+  "commands": [
+    { "name": "/blueprint", "mode": "infer", "handler": "blueprint.compile" },
+    { "name": "/blueprint recover", "mode": "RECOVER", "handler": "blueprint.compile" },
+    { "name": "/blueprint extend", "mode": "EXTEND", "handler": "blueprint.compile" },
+    { "name": "/blueprint revise", "mode": "REVISE", "handler": "blueprint.compile" },
+    { "name": "/blueprint audit", "mode": "AUDIT", "handler": "blueprint.audit" },
+    { "name": "/blueprint delta", "mode": "DELTA", "handler": "blueprint.delta" },
+    { "name": "/blueprint continue", "mode": "resume", "handler": "blueprint.resume" },
+    { "name": "/blueprint status", "mode": "read", "handler": "blueprint.status" },
+    { "name": "/blueprint export", "mode": "read", "handler": "blueprint.export" }
+  ],
+  "status_values": [
+    "BLUEPRINT IN PROGRESS",
+    "BLUEPRINT BLOCKED",
+    "BLUEPRINT COMPLETE — STEPPER READY"
+  ],
+  "boundaries": {
+    "next_system": "stepper-os",
+    "forbidden_capabilities": [
+      "write_product_code",
+      "mutate_production_infrastructure",
+      "declare_build_ready",
+      "invoke_stepper_implicitly",
+      "invoke_build_implicitly"
+    ]
+  },
+  "orchestration": {
+    "strategy": "shared-state-fan-out-fan-in",
+    "merge_authority": "chief-blueprint-editor",
+    "optimistic_concurrency": true,
+    "checkpoint_required": true,
+    "specialists": [
+      "context-librarian",
+      "product-strategist",
+      "jtbd-analyst",
+      "business-analyst",
+      "capability-architect",
+      "ux-ia-architect",
+      "domain-modeler",
+      "system-architect",
+      "data-api-event-architect",
+      "ai-agent-architect",
+      "security-privacy-abuse-analyst",
+      "quality-engineer",
+      "traceability-auditor",
+      "red-team-critic",
+      "chief-blueprint-editor"
+    ]
+  },
+  "persistence": {
+    "source_of_truth": "canonical-state",
+    "append_only_journal": true,
+    "stable_ids": true,
+    "semantic_versions": true,
+    "frozen_handoffs": true
+  },
+  "quality": {
+    "minimum_weighted_score": 0.9,
+    "critical_decision_trace_coverage": 1.0,
+    "critical_requirement_verification_coverage": 1.0,
+    "normative_requirement_trace_coverage": 0.95,
+    "allow_critical_gate_failures": false
+  }
+}

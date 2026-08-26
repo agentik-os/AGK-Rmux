@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Engagement",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Customer"
+    },
+    "contract_id": {
+      "type": "string",
+      "description": "Approved contract"
+    },
+    "status": {
+      "type": "string",
+      "description": "onboarding/active/at-risk/complete"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Delivery owner"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "customer_id",
+    "contract_id",
+    "status",
+    "owner"
+  ],
+  "additionalProperties": false
+}

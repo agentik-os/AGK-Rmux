@@ -1,0 +1,94 @@
+{
+  "name": "Intuitive OS",
+  "slug": "intuitive",
+  "version": "1.0.0",
+  "generated_at": "2026-08-14",
+  "purpose": "Train, test and calibrate intuition as a measurable skill: raw capture before contamination, five-layer separation, provenance classification, falsifiable probabilistic forecasting, decision journaling, Brier scoring and per-domain calibration, pattern and mental-model libraries, and a 90-day curriculum.",
+  "category": "Personal Stack / Judgment Calibration",
+  "position": "Personal Stack: judgment layer beside Alignment (values and decisions) and Mindset (identity); feeds Execution and Strategy with calibrated forecasts",
+  "counts": {
+    "docs": 3,
+    "templates": 4,
+    "schemas": 1,
+    "engine": 1,
+    "tests": 1,
+    "files": 15
+  },
+  "files": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "cb0859c515165007cf50bb5ab6d8b722896559f9aae9f30d76f0789e9623c3f6",
+      "bytes": 262
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "db798ea415ffee692e6819fdc63d19c74aa47976e99e276eb0292cf4f63a7839",
+      "bytes": 399
+    },
+    {
+      "path": "README.md",
+      "sha256": "65280ff796dc6d4894fc9cf5c3ed01afb8d008dbdbbbf41e53aa0cf723b6215b",
+      "bytes": 1238
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "dba7a5e69de23a61d1676b2fa609cef263c8d3ad7c88eab81f13aea215322322",
+      "bytes": 2911
+    },
+    {
+      "path": "docs/BOOK_FOUNDATIONS.md",
+      "sha256": "5eb98c40ce8df1990365716a6b98e482521a0b25d81ae87685261e36484165b9",
+      "bytes": 906
+    },
+    {
+      "path": "docs/MENTAL_MODELS.md",
+      "sha256": "2af70d5e221b73319660679ec7827ead06ce64e3f7259d9217dc00a999d3449e",
+      "bytes": 598
+    },
+    {
+      "path": "docs/PLAYBOOK.md",
+      "sha256": "3e6e777a6cd7af75b5505abe355b3d64c0a2fd99fb62bcf8690594af6781dc24",
+      "bytes": 1125
+    },
+    {
+      "path": "engine/calibration.py",
+      "sha256": "02df9a9ce2222f78685bc33210e6eac26bdfed5ae7fdfe9dc248e2b2bbd4ec0f",
+      "bytes": 812
+    },
+    {
+      "path": "prompt/INTUITIVE_OS_SYSTEM.md",
+      "sha256": "bbc4077738c1e9d766354187b1c5090c326da30d64ac04846808de03bf0aa7c2",
+      "bytes": 5216
+    },
+    {
+      "path": "schemas/prediction.schema.json",
+      "sha256": "07520177d19d44c033de0dadd1fe446f2465713fde8c79764c6a899f92baacd0",
+      "bytes": 396
+    },
+    {
+      "path": "templates/decision_journal.md",
+      "sha256": "a135d28015a773e6604a2cf3677b727f0f44d8f4f70cc5e61fddec0260f10368",
+      "bytes": 292
+    },
+    {
+      "path": "templates/intuition_capture.md",
+      "sha256": "705c5c61a1c6434547cfef0d749e2da14893e710b9104d6531f91cc5779b2ff2",
+      "bytes": 258
+    },
+    {
+      "path": "templates/pattern_card.md",
+      "sha256": "a4a60e806901264f42632f5e5b0f74b1ecb72c9cce04ee56fd37cd154f8c167e",
+      "bytes": 258
+    },
+    {
+      "path": "templates/prediction.md",
+      "sha256": "e7bf0242a6a6c7da34a6f456df9fe754698348f66cf2329878cba4cbd837e9f3",
+      "bytes": 307
+    },
+    {
+      "path": "tests/test_calibration.py",
+      "sha256": "0581834e9b7fffca22b85f4d6121265c6bcf4933889d113299c6d3cf9857ebfe",
+      "bytes": 134
+    }
+  ]
+}

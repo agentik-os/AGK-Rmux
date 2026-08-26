@@ -1,0 +1,458 @@
+{
+  "name": "Relationship & Network OS",
+  "slug": "relationship-network",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Help the user build, protect and deepen valuable human relationships through attention, memory, generous relevance, follow-through, boundaries, communication and thoughtful introductions.",
+  "category": "Personal Stack / Relationships and Network",
+  "position": "Personal Stack: trusted relationship memory, communication and network stewardship",
+  "counts": {
+    "agents": 12,
+    "skills": 18,
+    "protocols": 7,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 77
+  },
+  "files": [
+    {
+      "path": "agents/commitment_keeper.md",
+      "sha256": "1b57bb6c68bdea50c9026112ddefb0bbf42958ac7e096ddcb5b9574b8df3aaee",
+      "bytes": 961
+    },
+    {
+      "path": "agents/conflict_boundary_coach.md",
+      "sha256": "b8f4d2d6051ce747822a1fab7a36fe22856e84163699eede8b147da073573c87",
+      "bytes": 974
+    },
+    {
+      "path": "agents/connector.md",
+      "sha256": "79eca5343af261b7f41ed04ad334f292214b6f092d5a4055626b8f1646490a82",
+      "bytes": 964
+    },
+    {
+      "path": "agents/conversation_coach.md",
+      "sha256": "77e70b9ec65578efdc1e5e7b1ff304214263253a6a70084cbf8d9b7d70d86901",
+      "bytes": 982
+    },
+    {
+      "path": "agents/follow_up_writer.md",
+      "sha256": "682b8a196e5f82f3f6007d40f67fcde2964f72bba9e3af2bfecb1c7957634d65",
+      "bytes": 966
+    },
+    {
+      "path": "agents/gathering_architect.md",
+      "sha256": "a948c49defa5c02cff5ee27423c5bdfc1eb9dcc2de8e71527e184837fb8996a9",
+      "bytes": 969
+    },
+    {
+      "path": "agents/hospitality_designer.md",
+      "sha256": "b5ce168f58245beeab03b349aa38f1213c73d3250601e00036e0f3c470988d20",
+      "bytes": 971
+    },
+    {
+      "path": "agents/network_architect.md",
+      "sha256": "ea4a12a7845644c0c17920fc21db7efae9845e7bc9555a0edb78ae0c259673da",
+      "bytes": 971
+    },
+    {
+      "path": "agents/privacy_steward.md",
+      "sha256": "d92614c53d265e60d7da034c73ea25631ed1d562bf6964f98509c814e945146b",
+      "bytes": 962
+    },
+    {
+      "path": "agents/relationship_integrator.md",
+      "sha256": "41f604c2280309c08ef22395d8d8bcb10cc9e8def7239b95b1c44560870ec823",
+      "bytes": 973
+    },
+    {
+      "path": "agents/relationship_steward.md",
+      "sha256": "1186fb8d9ae38b61a0aceeafb26ea0538f543cbc140e4abc9722c875e85930e2",
+      "bytes": 962
+    },
+    {
+      "path": "agents/reputation_ethics_guard.md",
+      "sha256": "6ca57b443cdd757a3542e3639c1c1ba92d67aeec272876611afa61fe5e14cf6d",
+      "bytes": 970
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "8d6106d2c0ff1e267b6080650c25d218463de97e31130d647bd72824cf01788f",
+      "bytes": 859
+    },
+    {
+      "path": "architecture/DATA_MODEL.txt",
+      "sha256": "77617379cc6428294921e5aa9fae00b1980ff64dd55d6b2376f6c370070491f2",
+      "bytes": 736
+    },
+    {
+      "path": "architecture/SECURITY.md",
+      "sha256": "92159af5ef30be161c3c278a1140c2a35b1ef12edcb91209459091eef6a1de03",
+      "bytes": 958
+    },
+    {
+      "path": "architecture/STATE_MACHINE.md",
+      "sha256": "1597b1e2bb9a9871492e3c56186208ae1d28528a6ba6ea0044b4a06dd9941a9f",
+      "bytes": 840
+    },
+    {
+      "path": "config/os.yaml",
+      "sha256": "bc5c1042b8d2fa97856711bfa30464c00fd638d88c1f04fcb37160d1b53c1629",
+      "bytes": 637
+    },
+    {
+      "path": "config/router.json",
+      "sha256": "9a647599c1aabc27fc80237f6f9869d964e061c05ce6335342bbce16a6289a76",
+      "bytes": 1405
+    },
+    {
+      "path": "evals/EVALS.md",
+      "sha256": "3d90b7daed9bd0eb2cfefb474c5ccf4e71974f68a0cd5e0d7208eca38d3fbdae",
+      "bytes": 1705
+    },
+    {
+      "path": "examples/EXAMPLES.md",
+      "sha256": "43dd83389d0fdf0a18defb65f67a9591b7b44259d82ed0837e7e39d3fc6cd2b1",
+      "bytes": 623
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "d4d9e41e8d27f9a6625d36505f29fae394f15dd01d60928ef1255c5227a317ac",
+      "bytes": 386
+    },
+    {
+      "path": "knowledge/BOOK_CANON.md",
+      "sha256": "e2e88e9acbf4fe0369f6756fc89ef20fc7b2d3dfb7c9d0088c671cfd0b93fdd2",
+      "bytes": 1339
+    },
+    {
+      "path": "knowledge/FRAMEWORKS.md",
+      "sha256": "fa935db7dc04b3043d85bdafd2d8f250c701be0eb2c10a302ac47ed8278762ef",
+      "bytes": 536
+    },
+    {
+      "path": "knowledge/RESEARCH_NOTES.md",
+      "sha256": "75b13de43e30c9dc0ca73300656238b890261d2013b4c9f7702aac240f8cebc8",
+      "bytes": 905
+    },
+    {
+      "path": "knowledge/SOURCES.md",
+      "sha256": "392e551772647c840e2015e5498b7c8d1086046bf289409ae71cf76e53b2c17f",
+      "bytes": 1136
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "ab662e6016c0b2645427cdc6ab00fc20be9021c3614c4498deb8fcf94c552a3a",
+      "bytes": 9099
+    },
+    {
+      "path": "memory/MEMORY_MODEL.md",
+      "sha256": "556d5f3870fd94cb2f7ad875a5ec10e6eb2fa768fca987ba96ef250d746f097f",
+      "bytes": 749
+    },
+    {
+      "path": "memory/PRIVACY.md",
+      "sha256": "e4aa054573ee87f58579f0b61d24f1bd6e3599ed0dca4f64857d0c54a60432e9",
+      "bytes": 591
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "448542ac80c96f0173e917a414945f88ff2bf3649a0ade917f08d75773d4123e",
+      "bytes": 2312
+    },
+    {
+      "path": "protocols/difficult_conversation.md",
+      "sha256": "aa2244caf734ec2e9b8b6e6a31630ce83548d69e33e0c79ffc9edc08f77751f1",
+      "bytes": 336
+    },
+    {
+      "path": "protocols/gathering_design.md",
+      "sha256": "c0178b04308f05e174b9b1f15e315cd236c6acf39f8cb913c44770e631629741",
+      "bytes": 338
+    },
+    {
+      "path": "protocols/interaction_capture.md",
+      "sha256": "92b216bcde45b5e391b697b06829c3f1f183871223bcf5dda16801c3afd376ff",
+      "bytes": 344
+    },
+    {
+      "path": "protocols/person_brief.md",
+      "sha256": "517676a7a3871672509de1e149e833fc629d3b6c0c044c9248273df7a1012453",
+      "bytes": 351
+    },
+    {
+      "path": "protocols/reputation_protection.md",
+      "sha256": "c326241dddbf162d43abad48b0e41a52c81fee8649366199689d4985007e6533",
+      "bytes": 312
+    },
+    {
+      "path": "protocols/warm_introduction.md",
+      "sha256": "13b7daff8ffa7132deb3530f934b365751e76b3aa9b21015f4efe36228ba3112",
+      "bytes": 334
+    },
+    {
+      "path": "protocols/weekly_relationship_review.md",
+      "sha256": "4070d8ee435e56b06fa4c1e2e54c8e1ee0de5011d4159c6d5416eef22228cde6",
+      "bytes": 316
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "73c593b003c81009c2f62cd8481c337fccd5d08acc137d39de0c0bf26fb69010",
+      "bytes": 2061
+    },
+    {
+      "path": "README.md",
+      "sha256": "7ac00ce315f52cbbc412a9e009628041d532c0f91896c3379a5fa625396e483d",
+      "bytes": 2268
+    },
+    {
+      "path": "runtime/os_runtime.py",
+      "sha256": "926e255e98a7d8a8c9d0dcb51bbf2e22b30a4edfea47fbd4dc0a65bc46d9eef7",
+      "bytes": 2506
+    },
+    {
+      "path": "runtime/README.md",
+      "sha256": "32cf82c4a24ca41764e892447955ba93081c59cbeb3a0230634333cb10b15ada",
+      "bytes": 376
+    },
+    {
+      "path": "runtime/requirements.txt",
+      "sha256": "0d5b8d9408d93e3953b2a0117a8a9657d829f2e95f79d904093bab5eec894183",
+      "bytes": 24
+    },
+    {
+      "path": "schemas/commitment.json",
+      "sha256": "69326df3f29b9554045d42879c3304eaa5130508a0e0177d6157f9df6d76e518",
+      "bytes": 950
+    },
+    {
+      "path": "schemas/gathering.json",
+      "sha256": "f819a5b82033ec57f2749fac7573caea2a927d6f2f8b4865a7228a7ae8294879",
+      "bytes": 1011
+    },
+    {
+      "path": "schemas/interaction.json",
+      "sha256": "374479c4228f4999c8fdfbddfb33d2fd0f9c768599415a38e912933b90e6d30b",
+      "bytes": 1165
+    },
+    {
+      "path": "schemas/introduction.json",
+      "sha256": "a70657a1ef2adeb6abdf203aa69e8cc68cc9f2daaad52ac037e3f078823f7831",
+      "bytes": 1030
+    },
+    {
+      "path": "schemas/person.json",
+      "sha256": "3cdf1045691b4fa88cdd1ef3a655ff7ed3fdb60f0bfd7772034053e81ee3131e",
+      "bytes": 1033
+    },
+    {
+      "path": "schemas/relationship_plan.json",
+      "sha256": "77ffb540ba3d4e91e8c648039acf6ce22ecabf1bc34ef02171377c854abf5294",
+      "bytes": 950
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "892e0c7803341b3db8ce007213a4e6084fbbcaaa2603901481527bb6c12f74c0",
+      "bytes": 2492
+    },
+    {
+      "path": "skills/boundary_script.md",
+      "sha256": "5df9f4213176538a528cea3c6f4caeddc746231be6f424b1ddd17cb8b8ff7b0f",
+      "bytes": 963
+    },
+    {
+      "path": "skills/consent_based_introduction.md",
+      "sha256": "e5021499d8fccdb4aaa22a768ab247242c52613a4b12a853454c9401bb0a8d65",
+      "bytes": 976
+    },
+    {
+      "path": "skills/conversation_repair.md",
+      "sha256": "6262661a1ebf28aca1f9392cd7cec85a374e4008c9452e92406ef9a11ab0fae6",
+      "bytes": 966
+    },
+    {
+      "path": "skills/crm_to_human_translation.md",
+      "sha256": "5aa9349bffd0b6949a4b4036e7a0e011a568df89e03d8ca58632562d059111fe",
+      "bytes": 978
+    },
+    {
+      "path": "skills/difficult_conversation.md",
+      "sha256": "256df61467262c86208c2d3a8cc93259d71348a183b9ee0e722d166132aba603",
+      "bytes": 974
+    },
+    {
+      "path": "skills/dormant_tie_reactivation.md",
+      "sha256": "14de1388d60aee95d6b144d40d683e58c3dac608a180f0aca3f6a2668f8d418f",
+      "bytes": 962
+    },
+    {
+      "path": "skills/follow_up_draft.md",
+      "sha256": "fa84a16519e51329c65f1c23e8ce23b04cd1072a3ca12a897354282bc0706c24",
+      "bytes": 967
+    },
+    {
+      "path": "skills/gathering_design.md",
+      "sha256": "5387b6af25526f87dffd57dff5bdd6224315cabe1be6533ff393487279378bfa",
+      "bytes": 966
+    },
+    {
+      "path": "skills/hospitality_detail.md",
+      "sha256": "6f4e2378f83081cc05c45f2be3498124131ab65a235ed08a9a5ca890bb651076",
+      "bytes": 975
+    },
+    {
+      "path": "skills/interaction_capture.md",
+      "sha256": "408b809d2850b0eacd0a2c2c33ee430d0070c14c80450cfe7ebe34750d95c03a",
+      "bytes": 986
+    },
+    {
+      "path": "skills/meeting_preparation.md",
+      "sha256": "777ef77039cc778d95ba619c6d131733ed65a9f6eff54ce6703ebfce69fa752b",
+      "bytes": 975
+    },
+    {
+      "path": "skills/network_diversity_review.md",
+      "sha256": "01e48559ccd8a8b9547e6dca6468830b9d85afefee4670d36721bd7731c7f931",
+      "bytes": 966
+    },
+    {
+      "path": "skills/person_brief.md",
+      "sha256": "aab8674b878a3e430a0d7f04fb57bdd3f147cd8bbc9a64945c68be1b4d81ebc0",
+      "bytes": 993
+    },
+    {
+      "path": "skills/promise_tracker.md",
+      "sha256": "653320e1db814653de1659e325272de46414de1b6059556d95d361913cd548c0",
+      "bytes": 935
+    },
+    {
+      "path": "skills/reciprocity_audit.md",
+      "sha256": "a9bbb5404a413d86af4c5e948b87fc09822a67ef6b1c037e7c5b01d009789c6a",
+      "bytes": 987
+    },
+    {
+      "path": "skills/relationship_cadence.md",
+      "sha256": "889e27ddc2e8703b1d9ec710c6237b4dc2d5c3e1857e0bf76451bccd492eb2ad",
+      "bytes": 968
+    },
+    {
+      "path": "skills/relationship_map.md",
+      "sha256": "56fd157dfa9cbebcfd2eb67db8aa09bddfe548df0cc31cbe2b3aa7e05c4f6284",
+      "bytes": 985
+    },
+    {
+      "path": "skills/reputation_risk_review.md",
+      "sha256": "b56ccb718d0ba5d58d5f47119667fa91833e36e98bd235acb44e06b3e8053179",
+      "bytes": 967
+    },
+    {
+      "path": "system/BOUNDARIES.md",
+      "sha256": "cf6fb9dd9d4c5e977c4bab5ad8dae6420c710bc1f4d0d9a5f6b45a623ea0f6d0",
+      "bytes": 840
+    },
+    {
+      "path": "system/OUTPUT_CONTRACT.md",
+      "sha256": "14e9f363d6190abb0a8665b25d2e5b452563951e40ad01fcdd2675620ffeecb7",
+      "bytes": 566
+    },
+    {
+      "path": "system/PRINCIPLES.md",
+      "sha256": "07114ee8264457704e1daeab6e6a1d4fdeb2b6c9f1f7148e9ef2d46cf3f66ed4",
+      "bytes": 831
+    },
+    {
+      "path": "system/ROUTER.md",
+      "sha256": "b06c443c5a7e765966feddceb5f172417b7eaaa14f66216e2bc1c15d2253472f",
+      "bytes": 847
+    },
+    {
+      "path": "system/SYSTEM_PROMPT.md",
+      "sha256": "929ef7c4b2d978d962c219be5b397f49c90044787de6148c8a6ac1ccd85b8944",
+      "bytes": 5827
+    },
+    {
+      "path": "templates/DIFFICULT_CONVERSATION.md",
+      "sha256": "6c80b441dc5c527732db7e869290f3f6534590d6a71d22b58f72f14e8e7958df",
+      "bytes": 222
+    },
+    {
+      "path": "templates/FOLLOW_UP.md",
+      "sha256": "bb7bd7e24915525496cf1c4fe7dc2f7b1099faa9cd9f8262568b2780ca1fd669",
+      "bytes": 198
+    },
+    {
+      "path": "templates/GATHERING.md",
+      "sha256": "23afbee6edf9ce70e4edf66e7aa7dd55c765403c9a50ca3ebe5f130c747eb4d7",
+      "bytes": 241
+    },
+    {
+      "path": "templates/PERSON_BRIEF.md",
+      "sha256": "a416a807597d211cb989a0d528974598d17dc8b3d4b5fb8dd903501e0825f529",
+      "bytes": 267
+    },
+    {
+      "path": "templates/WARM_INTRODUCTION.md",
+      "sha256": "5fc7a2f38d0276ce9f3a14208b5b6cb1307f1f3f481eb92edbbdd567191eff13",
+      "bytes": 196
+    },
+    {
+      "path": "tests/test_package.py",
+      "sha256": "71885ea7b8fc36f20c4e4dd252af304ec93d6e20dadb4f33036fcc5c058c18ff",
+      "bytes": 573
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "relationship.followup.drafted",
+        "consumed_by": "execution",
+        "payload": {
+          "id": "string (record id)",
+          "followup": "object (the followup payload)",
+          "status": "string (drafted)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "relationship.gathering.created",
+        "consumed_by": "content",
+        "payload": {
+          "id": "string (record id)",
+          "gathering": "object (the gathering payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "relationship.revenue_introduction.ready",
+        "consumed_by": [
+          "revenue"
+        ],
+        "payload": {
+          "id": "string",
+          "introduction": "object",
+          "consent_status": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "relationship.delivery_commitment.ready",
+        "consumed_by": [
+          "delivery-customer-success"
+        ],
+        "payload": {
+          "id": "string",
+          "commitment": "object",
+          "consent_status": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": []
+  },
+  "schema_version": 1
+}

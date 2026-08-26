@@ -1,0 +1,52 @@
+{
+  "os": "relationship-network",
+  "default_mode": "brief",
+  "commands": {
+    "/network": {
+      "mode": "audit",
+      "purpose": "Open relationship overview"
+    },
+    "/person": {
+      "mode": "brief",
+      "purpose": "Prepare a person brief"
+    },
+    "/meeting-prep": {
+      "mode": "brief",
+      "purpose": "Prepare for a meeting"
+    },
+    "/interaction": {
+      "mode": "capture",
+      "purpose": "Capture interaction and commitments"
+    },
+    "/follow-up": {
+      "mode": "follow-up",
+      "purpose": "Draft a relevant follow-up"
+    },
+    "/intro": {
+      "mode": "connect",
+      "purpose": "Create a consent-based introduction"
+    },
+    "/nurture": {
+      "mode": "nurture",
+      "purpose": "Design a relationship rhythm"
+    },
+    "/difficult-conversation": {
+      "mode": "conflict",
+      "purpose": "Prepare a truthful conversation"
+    },
+    "/boundary": {
+      "mode": "conflict",
+      "purpose": "Set or reinforce a boundary"
+    },
+    "/gathering": {
+      "mode": "gather",
+      "purpose": "Design a gathering"
+    }
+  },
+  "handoffs": [
+    "Content OS receives only explicit, consent-safe stories or testimonials.",
+    "Revenue OS receives business CRM events—not private relationship notes.",
+    "Delivery OS receives client commitments relevant to service.",
+    "Execution OS receives follow-up tasks without unnecessary personal detail."
+  ]
+}

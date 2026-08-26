@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Interaction",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "person_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Participants"
+    },
+    "date": {
+      "type": "string",
+      "description": "Date"
+    },
+    "context": {
+      "type": "string",
+      "description": "Interaction context"
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Known facts"
+    },
+    "commitments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Promises made"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "person_ids",
+    "date",
+    "context"
+  ],
+  "additionalProperties": false
+}

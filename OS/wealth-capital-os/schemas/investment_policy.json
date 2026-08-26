@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Investment Policy",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Objectives"
+    },
+    "horizon": {
+      "type": "string",
+      "description": "Horizon"
+    },
+    "allocation_rules": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Rules"
+    },
+    "prohibited_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Behavioral constraints"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "objectives",
+    "horizon",
+    "allocation_rules",
+    "prohibited_actions"
+  ],
+  "additionalProperties": false
+}

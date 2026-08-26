@@ -1,0 +1,17 @@
+# OmegaOS — Clerk app pool (clerk-pool.env)
+# =============================================================================
+# Used only when CLERK_PROVISION_MODE="pool" in services.env.
+#
+# Clerk has no public app-creation API, so you pre-create a stock of Clerk
+# applications in the dashboard (https://dashboard.clerk.com) and paste their
+# keys here, ONE app per line. /omega-new-project pops the first UNUSED line,
+# wires its keys into the new project, and marks it used (prepends `# USED `).
+#
+# Location at runtime : ~/.omega/provisioning/clerk-pool.env   (chmod 600)
+# Gitignored via ~/.omega/. Refill whenever it runs low.
+#
+# Format (pipe-separated):
+#   <publishable_key>|<secret_key>|<label>
+# Example:
+#   pk_test_xxx|sk_test_xxx|spare-app-1
+# =============================================================================

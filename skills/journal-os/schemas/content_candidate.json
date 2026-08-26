@@ -1,0 +1,365 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/journal-os/content_candidate.json",
+  "title": "Content Candidate",
+  "description": "Raw material handed to a separate downstream Content Agent. The absolute rule of this OS is enforced here by structure: THE JOURNAL AGENT NEVER WRITES POSTS. There is no field in this file for a post, a caption, a hook, a headline, a thread, a script, an angle or a draft of any kind, and additionalProperties is false at every level, so a written post cannot be stored even by a writer that wants to. Privacy defaults to the most protective value: a candidate is private until it has been positively cleared, a candidate marked private cannot carry a publish recommendation, and any third party present forces at least needs_review. Quotes must be verbatim (said_verbatim is const true), so a polished version of what the user meant cannot be recorded as something they said. Third parties are a single given name and nothing else.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "entry_id": {
+      "type": "string"
+    },
+    "day": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "moment": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "What happened, in one line, as a fact"
+    },
+    "raw_facts": {
+      "type": "array",
+      "description": "The concrete details a writer would need: numbers, sequence, what was said, what broke, what it cost. No framing.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      },
+      "minItems": 1,
+      "maxItems": 15
+    },
+    "why_it_may_matter": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "The external reason someone unrelated to the user would care. Not because it was a big day."
+    },
+    "evidence_available": {
+      "type": "array",
+      "description": "What can be shown. An empty array is a valid and common answer, recorded rather than glossed.",
+      "items": {
+        "$ref": "#/$defs/evidence_asset"
+      },
+      "maxItems": 10
+    },
+    "privacy": {
+      "$ref": "#/$defs/privacy",
+      "default": "private"
+    },
+    "possible_themes": {
+      "type": "array",
+      "description": "Themes only. Not angles, not hooks, not titles.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 60
+      },
+      "maxItems": 3
+    },
+    "third_party_present": {
+      "type": "boolean",
+      "description": "True whenever anyone but the user appears in the material. It forces at least needs_review."
+    },
+    "person_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/person_ref"
+      },
+      "maxItems": 5
+    },
+    "quotable_raw_thoughts": {
+      "type": "array",
+      "description": "Things the user actually said tonight, verbatim, in the language they said them in. Never manufactured, never tightened.",
+      "items": {
+        "$ref": "#/$defs/quotable"
+      },
+      "maxItems": 3
+    },
+    "visual_assets": {
+      "type": "array",
+      "description": "Only what the user mentioned already exists. MIRROR never assigns a shoot.",
+      "items": {
+        "$ref": "#/$defs/visual_asset"
+      },
+      "maxItems": 10
+    },
+    "recommendation": {
+      "$ref": "#/$defs/recommendation"
+    },
+    "recommendation_reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "One sentence. Why this verdict and not the neighbouring one."
+    },
+    "user_flagged_off_the_record": {
+      "type": "boolean",
+      "description": "The user asked for it to stay out. Absolute, requires no reason, and forces private."
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "moment",
+    "raw_facts",
+    "why_it_may_matter",
+    "privacy",
+    "recommendation",
+    "recommendation_reason"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "A private candidate cannot carry a publish recommendation. This is the core boundary of the content handoff.",
+      "if": {
+        "properties": {
+          "privacy": {
+            "const": "private"
+          }
+        },
+        "required": [
+          "privacy"
+        ]
+      },
+      "then": {
+        "properties": {
+          "recommendation": {
+            "const": "no_need_to_publish"
+          }
+        },
+        "required": [
+          "recommendation"
+        ]
+      }
+    },
+    {
+      "description": "Anyone but the user in the material means a human reviews it, whatever the user feels about it tonight.",
+      "if": {
+        "properties": {
+          "third_party_present": {
+            "const": true
+          }
+        },
+        "required": [
+          "third_party_present"
+        ]
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "enum": [
+              "needs_review",
+              "private"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "A named person is a third party present. The two cannot disagree.",
+      "if": {
+        "properties": {
+          "person_refs": {
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": [
+          "person_refs"
+        ]
+      },
+      "then": {
+        "properties": {
+          "third_party_present": {
+            "const": true
+          }
+        },
+        "required": [
+          "third_party_present"
+        ]
+      }
+    },
+    {
+      "description": "Off the record is absolute.",
+      "if": {
+        "properties": {
+          "user_flagged_off_the_record": {
+            "const": true
+          }
+        },
+        "required": [
+          "user_flagged_off_the_record"
+        ]
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "const": "private"
+          },
+          "recommendation": {
+            "const": "no_need_to_publish"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "privacy": {
+      "enum": [
+        "public_safe",
+        "needs_review",
+        "private"
+      ],
+      "description": "Closed by design. public_safe means nothing here identifies or exposes anyone but the user. needs_review means a human decides before anything goes out. private means not publishable at any distance, and is the default a candidate keeps until it is positively cleared."
+    },
+    "recommendation": {
+      "enum": [
+        "strong_signal",
+        "some_signal",
+        "no_need_to_publish"
+      ],
+      "description": "no_need_to_publish is the most common correct answer and is never a shortfall. A handoff that reports strong signal every night has started performing."
+    },
+    "person_ref": {
+      "type": "object",
+      "description": "The ONLY permitted representation of a third party. There is no field for a surname, an employer, an address, a phone number, an email, a handle, a profile link or a photo.",
+      "properties": {
+        "first_name": {
+          "type": "string",
+          "maxLength": 24,
+          "pattern": "^[^\\s0-9@.,;:/\\\\<>]{1,24}$",
+          "description": "A single given name or an initial. The pattern rejects whitespace, digits and punctuation, so a full name, an email or a handle cannot be written here."
+        },
+        "relation": {
+          "enum": [
+            "friend",
+            "family",
+            "partner",
+            "colleague",
+            "client",
+            "acquaintance",
+            "professional_contact",
+            "other"
+          ]
+        }
+      },
+      "required": [
+        "first_name"
+      ],
+      "additionalProperties": false
+    },
+    "quotable": {
+      "type": "object",
+      "properties": {
+        "quote": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400,
+          "description": "Exactly as said, in the language it was said in"
+        },
+        "language": {
+          "enum": [
+            "fr",
+            "en",
+            "mixed",
+            "other"
+          ]
+        },
+        "said_verbatim": {
+          "const": true,
+          "description": "Const true by design. A tidied or invented line cannot be stored as something the user said."
+        }
+      },
+      "required": [
+        "quote",
+        "said_verbatim"
+      ],
+      "additionalProperties": false
+    },
+    "evidence_asset": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "screenshot",
+            "metric",
+            "commit_or_diff",
+            "before_and_after",
+            "message",
+            "document",
+            "recording",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "exists": {
+          "const": true,
+          "description": "Only evidence that already exists is listed. Nothing here is a request to go and produce it."
+        }
+      },
+      "required": [
+        "kind",
+        "description",
+        "exists"
+      ],
+      "additionalProperties": false
+    },
+    "visual_asset": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "photo",
+            "video",
+            "screen_recording",
+            "screenshot",
+            "whiteboard",
+            "place",
+            "build_in_progress",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "mentioned_by_user": {
+          "const": true,
+          "description": "Const true by design. MIRROR never assigns a shoot and never suggests capturing something tomorrow for content purposes."
+        },
+        "where": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Where the user said it is, if they said"
+        }
+      },
+      "required": [
+        "kind",
+        "description",
+        "mentioned_by_user"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

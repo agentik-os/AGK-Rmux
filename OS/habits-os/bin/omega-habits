@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# omega-habits — the OmegaOS command for Habits OS (AgentikOS suite, personal
+# group; Habit Tracker {OS}). Thin launcher for the pack's deterministic state
+# engine (stdlib Python, no venv): init / add / update / list / log / correct /
+# today / review / chart / context / export / season / experiment / delete /
+# doctor over a per-user SQLite db. The COACHING half (the conversation-first
+# check-ins, urge/lapse handling, reviews) is the /habits-os skill (Claude) or
+# the Codex prompt; this CLI owns the durable habit state + evidence.
+#
+# Default db: ~/.omega/os/habits-os/ledger/habits.db (override with --db).
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+
+find_engine() {
+    local candidates=(
+        "${HABITS_ENGINE:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/habits-os/pack/scripts/habit_os.py"
+        "$HOME/OmegaOS/OS/habits-os/pack/scripts/habit_os.py"
+        "$OMEGA_DIR/os/habits-os/pack/scripts/habit_os.py"
+        "$OMEGA_DIR/skills/habit-tracker-os/scripts/habit_os.py"
+    )
+    for f in "${candidates[@]}"; do
+        [[ -n "$f" && -f "$f" ]] && { echo "$f"; return 0; }
+    done
+    return 1
+}
+
+ENGINE="$(find_engine)" || {
+    echo "omega-habits: habit_os.py not found (run OmegaOS install.sh, or set HABITS_ENGINE)" >&2
+    exit 1
+}
+
+# Default the db to the OS ledger unless the caller passes --db.
+default_db="$OMEGA_DIR/os/habits-os/ledger/habits.db"
+mkdir -p "$(dirname "$default_db")"
+case " $* " in
+    *" --db "*) exec python3 "$ENGINE" "$@" ;;
+    *)          exec python3 "$ENGINE" --db "$default_db" "$@" ;;
+esac

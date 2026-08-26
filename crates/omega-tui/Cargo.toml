@@ -1,0 +1,24 @@
+[package]
+name = "omega-tui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "TUI session manager for OmegaOS: ratatui-based session browser with project grouping"
+
+[dependencies]
+omega-core.workspace = true
+rmux-sdk.workspace = true
+ratatui-rmux.workspace = true
+ratatui.workspace = true
+crossterm.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+dirs.workspace = true
+tracing.workspace = true
+# Mouse drag-selection over the session mirror: display-column slicing +
+# OSC 52 clipboard payload. Both already in the lockfile transitively.
+unicode-width = "0.2"
+base64 = "0.22"

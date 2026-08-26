@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# omega-blueprint — the OmegaOS command for Blueprint OS v3 (AgentikOS suite).
+# Thin launcher for the pack's deterministic state helper (stdlib-only Python,
+# no venv needed): init / validate / status / checkpoint / demo over the
+# canonical blueprint state file. The REASONING half is the /blueprint-os
+# skill (Claude) or ~/.codex/prompts/blueprint-os.md (Codex); this CLI owns
+# the state contract those agents must keep.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+
+find_engine() {
+    local candidates=(
+        "${BLUEPRINT_ENGINE:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/blueprint-os/pack/blueprint_os.py"
+        "$HOME/OmegaOS/OS/blueprint-os/pack/blueprint_os.py"
+        "$OMEGA_DIR/os/blueprint-os/pack/blueprint_os.py"
+        "$OMEGA_DIR/skills/blueprint-os/scripts/blueprint_os.py"
+    )
+    for f in "${candidates[@]}"; do
+        [[ -n "$f" && -f "$f" ]] && { echo "$f"; return 0; }
+    done
+    return 1
+}
+
+ENGINE="$(find_engine)" || {
+    echo "omega-blueprint: blueprint_os.py not found (run OmegaOS install.sh, or set BLUEPRINT_ENGINE)" >&2
+    exit 1
+}
+
+exec python3 "$ENGINE" "$@"

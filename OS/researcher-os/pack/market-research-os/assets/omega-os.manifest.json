@@ -1,0 +1,106 @@
+{
+  "$schema": "https://omega-os.local/schemas/plugin-manifest.v1.json",
+  "id": "market-research-os",
+  "name": "Market Research {OS}",
+  "version": "1.0.0",
+  "kind": "evidence-and-validation-compiler",
+  "description": "Compiles an idea or market decision into a source-backed Market Evidence + Validation Pack and a gated Blueprint input manifest.",
+  "entrypoints": {
+    "system_prompt": "references/system-prompt.md",
+    "skill": "SKILL.md",
+    "role_prompts": "assets/market-research-role-prompts.json",
+    "tool_definitions": "assets/market-research-tools.json",
+    "state_schema": "assets/market-research-state.schema.json",
+    "blueprint_handoff_schema": "assets/blueprint-input-manifest.schema.json",
+    "local_cli": "scripts/market_research_os.py"
+  },
+  "commands": [
+    {"name": "/market-research", "mode": "infer", "handler": "market_research.compile"},
+    {"name": "/market-research scan", "mode": "RAPID_SCAN", "handler": "market_research.compile"},
+    {"name": "/market-research validate", "mode": "FULL_VALIDATION", "handler": "market_research.compile"},
+    {"name": "/market-research diligence", "mode": "DILIGENCE", "handler": "market_research.compile"},
+    {"name": "/market-research recover", "mode": "RECOVER", "handler": "market_research.compile"},
+    {"name": "/market-research deep", "mode": "DEEP_DIVE", "handler": "market_research.compile"},
+    {"name": "/market-research monitor", "mode": "MONITOR", "handler": "market_research.monitor"},
+    {"name": "/market-research audit", "mode": "AUDIT", "handler": "market_research.audit"},
+    {"name": "/market-research delta", "mode": "DELTA", "handler": "market_research.delta"},
+    {"name": "/market-research continue", "mode": "resume", "handler": "market_research.resume"},
+    {"name": "/market-research status", "mode": "read", "handler": "market_research.status"},
+    {"name": "/market-research score", "mode": "read", "handler": "market_research.score"},
+    {"name": "/market-research export", "mode": "read", "handler": "market_research.export"},
+    {"name": "/market-research handoff", "mode": "gated", "handler": "market_research.handoff"}
+  ],
+  "status_values": [
+    "MARKET RESEARCH IN PROGRESS",
+    "MARKET RESEARCH BLOCKED",
+    "MARKET RESEARCH COMPLETE — DECISION READY"
+  ],
+  "decision_values": ["GO", "PIVOT", "HOLD", "NO-GO", "INSUFFICIENT EVIDENCE"],
+  "boundaries": {
+    "previous_system": "idea-or-opportunity",
+    "next_system": "blueprint-os",
+    "forbidden_capabilities": [
+      "write_product_code",
+      "declare_build_ready",
+      "invoke_blueprint_implicitly",
+      "invoke_stepper_implicitly",
+      "invoke_build_implicitly",
+      "bypass_access_controls",
+      "launch_external_research_without_authority",
+      "hide_negative_evidence"
+    ]
+  },
+  "autonomy_tiers": {
+    "A0": "read and design",
+    "A1": "preflight-approved bounded collection",
+    "A2": "authorized participant or client contact",
+    "A3": "authorized publish, spend, or tracking",
+    "A4": "human-confirmed contract, payment, or production change"
+  },
+  "orchestration": {
+    "strategy": "shared-state-fan-out-fan-in",
+    "merge_authority": "chief-research-editor",
+    "optimistic_concurrency": true,
+    "checkpoint_required": true,
+    "specialists": [
+      "engagement-director",
+      "context-librarian",
+      "research-architect",
+      "acquisition-provenance-lead",
+      "market-category-analyst",
+      "market-sizing-modeler",
+      "customer-jtbd-researcher",
+      "survey-quant-methodologist",
+      "competitive-intelligence-analyst",
+      "demand-signal-analyst",
+      "pricing-economics-analyst",
+      "gtm-strategist",
+      "experiment-designer",
+      "privacy-ethics-governance-reviewer",
+      "data-quality-auditor",
+      "red-team-investment-critic",
+      "traceability-auditor",
+      "chief-research-editor"
+    ]
+  },
+  "persistence": {
+    "source_of_truth": "canonical-evidence-state",
+    "append_only_journal": true,
+    "stable_ids": true,
+    "semantic_versions": true,
+    "frozen_handoffs": true,
+    "source_rights_aware": true,
+    "retention_aware": true
+  },
+  "quality": {
+    "minimum_weighted_score": {
+      "SIGNAL": 0.75,
+      "VALIDATION": 0.88,
+      "INVESTMENT_GRADE": 0.93
+    },
+    "critical_trace_coverage": 1.0,
+    "material_trace_coverage": 0.95,
+    "allow_critical_gate_failures": false,
+    "go_requires_depth_appropriate_behavior": true
+  }
+}

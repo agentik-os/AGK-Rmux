@@ -1,0 +1,14 @@
+{
+  "source_audit": "codeaudit 5cf827b (F-2 Esc-to-list fix)",
+  "mode": "READ-ONLY audit — plan emitted for the oracle/operator, NOT executed (brief: do not fix, do not commit)",
+  "tasks": [
+    {"id": "FIX-001", "finding": "AF-0 unpushed commit (L0)", "file": null, "line": null, "fix": "git push origin main (after operator review; verify-install.sh should then pass remote-in-sync)", "status": "pending", "severity": "HIGH"},
+    {"id": "FIX-002", "finding": "AF-7 stale Tab chord on Esc exit", "file": "crates/omega-tui/src/input.rs", "line": 1815, "fix": "add app.last_tab_press=None; app.tab_seq_start=None; in the Esc arm; consider same for mouse (input.rs:198) and Ctrl+X (input.rs:1706)", "status": "pending", "severity": "MEDIUM"},
+    {"id": "FIX-003", "finding": "AF-2 no regression test", "file": "crates/omega-tui/src/input.rs", "line": 2201, "fix": "unit tests: live-session Chat Esc -> List+None; ChatFullscreen Esc; Tab.Esc.Tab chord stays Chat", "status": "pending", "severity": "MEDIUM"},
+    {"id": "FIX-004", "finding": "AF-1 no literal-ESC hatch", "file": "crates/omega-tui/src/input.rs", "line": 1811, "fix": "forwarding chord (Alt+Esc or double-Esc -> ForwardKeyToSession{key:\"Escape\"}) + Help tab entry", "status": "pending", "severity": "MEDIUM"},
+    {"id": "FIX-005", "finding": "AF-5 dead-session Esc one-keypress quit + overbroad comment", "file": "crates/omega-tui/src/input.rs", "line": 1631, "fix": "swallow the first re-dispatched Esc (return Action::None after focus reset) or narrow the comment at 1523-1525", "status": "pending", "severity": "LOW"},
+    {"id": "FIX-006", "finding": "AF-3 exit-path reset asymmetry", "file": "crates/omega-tui/src/input.rs", "line": 1815, "fix": "mirror app.rs:1243-1244 resets in the Esc arm (folds into FIX-002)", "status": "pending", "severity": "LOW"},
+    {"id": "FIX-007", "finding": "AF-4 chat_line_chars dead state", "file": "crates/omega-tui/src/app.rs", "line": 1025, "fix": "remove field + 7 write sites; audit cmd_capture branch (input.rs:1636-1689) reachability for joint removal", "status": "pending", "severity": "LOW"},
+    {"id": "FIX-008", "finding": "INFO-1 hinge-analyzer Rust gap", "file": "~/.omega/skills/audits/_shared/hinge-analyzer.sh", "line": null, "fix": "add Rust patterns (match arms, if-let, early return) — also update the vendored skills/audits copy (L0 install parity)", "status": "pending", "severity": "LOW"}
+  ]
+}

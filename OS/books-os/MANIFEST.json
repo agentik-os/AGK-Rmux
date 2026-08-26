@@ -1,0 +1,95 @@
+{
+  "name": "Books OS",
+  "slug": "books",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Turn reading into retained, connected and applied knowledge through the canonical ALEXANDRIA librarian.",
+  "category": "Systems",
+  "position": "Systems group: learning and knowledge application",
+  "counts": {
+    "agents": 0,
+    "skills": 1,
+    "protocols": 0,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 7
+  },
+  "files": [
+    {
+      "path": "bin/omega-books",
+      "sha256": "1af381c9d2212f45b82c5f87d6934247d21e92a6aa25882b8dbacb307c5e5213",
+      "bytes": 724
+    },
+    {
+      "path": "commands/codex-books-os.md",
+      "sha256": "ab254b0d90896277f369368ef7eac55c5ba04b6414a8bc52eb489cf850235e25",
+      "bytes": 1029
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "16190ee402089979096fa6fbe466cce30987c20966e586a69a5c3ede30446068",
+      "bytes": 1357
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "3dd0f1245d46c46937710b55afdc5d9f0bfa27b5077d11c6f69ef2fb15624747",
+      "bytes": 1024
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "149e30ce0fc59a980b066f34cad1ba1556ff899ad085ed31c1274bf4a60def50",
+      "bytes": 1536
+    },
+    {
+      "path": "README.md",
+      "sha256": "5ccffc47f8e7e43e1e4cf353cf7009c99a6fa8d9a5d89c3d521125894388e950",
+      "bytes": 2697
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "ac4895992e6b4bc714740168468a8c00996c821ac8357f19875929c3cc2e19e5",
+      "bytes": 1198
+    }
+  ],
+  "commands": {
+    "root": "/books-os",
+    "aliases": [
+      "/alexandria"
+    ]
+  },
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "books.insight.confirmed",
+        "consumed_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "insight_id": "string",
+          "source": "object",
+          "claim": "string",
+          "interpretation": "string",
+          "confidence": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "memory.context.compiled",
+        "produced_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "context_id": "string",
+          "records": "array<object>",
+          "authorized_scope": "string",
+          "compiled_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,362 @@
+# OmegaOS rmux integration
+# Source from your ~/.rmux.conf with:
+#   source-file ~/.omega/rmux.conf.omega
+#
+# OmegaOS menu entry points are intentionally one root binding plus two
+# prefix-table aliases: Ctrl+Space, prefix+o, and prefix+z.
+
+# Keep the FULL conversation scrollback for agent sessions. The rmux default
+# (2000 lines) silently discards the top of long chats; OmegaOS lets you
+# scroll all the way back, so retain a large history. Set here so it persists
+# across daemon restarts (the omega binary also sets it at startup as a
+# fallback for daemons that began before this config was sourced).
+set-option -g history-limit 500000
+
+# Localized status-bar clock. rmux's built-in `%H:%M` strftime uses the rmux
+# SERVER's timezone, which is UTC on a headless VPS — so the clock reads hours
+# off from the operator's wall time. Instead, render it via `omega clock`, which
+# honors the `timezone` field in ~/.omega/config.toml (one source of truth,
+# shared with the TUI clock). Refreshed every status-interval; falls back to
+# the system `date` if the omega binary isn't on the server's PATH.
+set-option -g status-interval 15
+set-option -g status-right "\"#{=21:pane_title}\" #(omega clock --full 2>/dev/null || date '+%H:%M %d-%b-%y')"
+
+# Option/Alt + Up/Down — scroll the pane's scrollback by one line (the
+# tmux-default user UX). If the pane is already in copy/view-mode, just
+# scroll. Otherwise, enter copy-mode with -e (auto-exits when you scroll
+# back to the bottom) then scroll one line. Matches what desktop tmux users
+# are used to inside Claude sessions, without touching rmux internals.
+#
+# Does NOT break the omega TUI: that app intercepts Alt+Up via crossterm
+# BEFORE rmux ever sees a key (when the user is in the omega TUI, the
+# foreground binary is the TUI itself); these root bindings only fire when
+# the user is attached directly to a session, which is exactly the case the
+# tmux-style scroll is meant for.
+#
+# Mobile (Termius without rmux on top) is unaffected — rmux is not in the
+# pipeline there, so PageUp/Down super-scroll keeps working unchanged.
+#
+# NOTE: quoted-string if-shell form (cmd-true / cmd-false as quoted args), NOT
+# the brace `{ … }` command-list form — rmux 0.3.1 rejects braces here with
+# "bind-key does not accept a parsed command-list argument", which silently
+# drops the binding so Alt+Up/Down scroll never works on a fresh install.
+bind-key -n M-Up   if-shell -F '#{pane_in_mode}' 'send-keys -X scroll-up'   'copy-mode -e ; send-keys -X scroll-up'
+bind-key -n M-Down if-shell -F '#{pane_in_mode}' 'send-keys -X scroll-down' 'copy-mode -e ; send-keys -X scroll-down'
+
+# Ctrl+Space → OmegaOS session manager popup (full-screen)
+bind-key -n C-Space display-popup -E -w 100% -h 100% "omega menu"
+
+# Prefix + o → omega menu (works even on terminals that swallow Alt)
+bind-key o display-popup -E -w 100% -h 100% "omega menu"
+
+# Prefix + z → equivalent mnemonic alias
+bind-key z display-popup -E -w 100% -h 100% "omega menu"
+
+# Prefix + O → dispatch oracle (interactive)
+bind-key O display-popup -E -w 80% -h 30% "read -p 'Project: ' p && read -p 'Mission: ' m && omega dispatch \"\$p\" \"\$m\""
+
+# Prefix + L → omega list (in-place)
+bind-key L display-popup -E -w 80% -h 60% "omega list; read -p 'Press Enter to close...'"
+
+# Prefix + P → omega patrol once
+bind-key P display-popup -E -w 80% -h 40% "omega patrol --once; read -p 'Press Enter to close...'"
+
+# ─── Terminal UX hardening ────────────────────────────────────────────────
+# Derived from a runtime crash-test of the session layer (input / scroll /
+# copy-paste / color). Each line fixes a behavior the rmux defaults get wrong
+# for an agent session you live in all day. Evidence in scripts/crash-test-session.sh.
+
+# Mouse: wheel-scroll the scrollback + drag-to-select. Combined with
+# set-clipboard=external (below), a drag-select copies straight to your LOCAL
+# clipboard over SSH via OSC 52. Tradeoff: the terminal's own native selection
+# now needs Shift+drag to bypass rmux — the one accepted side effect.
+set -g mouse on
+
+# OSC 52: let a yank inside the pane reach the operator's local clipboard, and
+# let apps running inside the pane drive the clipboard / emit passthrough
+# sequences (images, DCS). Default leaves copy stuck on the server.
+set -g set-clipboard external
+set -g allow-passthrough on
+
+# Escape-time: the rmux/tmux default is 500ms, which makes Alt/Meta keys (incl.
+# the Alt+Up/Down scroll bindings above) and a bare ESC feel laggy and
+# ambiguous. 10ms is the standard snappy value.
+set -g escape-time 10
+
+# Truecolor: advertise RGB to apps in the pane so Claude's syntax highlighting
+# and themes render in 24-bit instead of banded 256-color. terminal-features
+# is a server option (-s), appended (-a) so we don't clobber existing entries.
+set -sa terminal-features ",*:RGB"
+
+# Cursor/CI agent shells start the rmux daemon with NO_COLOR=1 FORCE_COLOR=0.
+# Every pane inherits that and Claude/Codex emit dim/bold only. Force color
+# back on for new panes. A live agent process keeps the env it started with
+# until relaunch (Menu → R). `unset NO_COLOR` also lives in the agent launch
+# prefix because rmux cannot delete an OS-inherited variable from the daemon.
+set-environment -g COLORTERM truecolor
+set-environment -g FORCE_COLOR 1
+
+# Mouse/trackpad scroll: `mouse on` (above) only takes effect if rmux tells the
+# OUTER terminal to emit mouse events — which it gates on a TERM-family allowlist
+# (xterm*/kitty/iterm/foot/wezterm/ghostty) with NO fallback. On any other TERM
+# (screen-256color, alacritty, vte*, st, AirMux-hosted clients…) the enable
+# sequence is never sent, so wheel bytes never arrive and trackpad scroll is
+# dead. Forcing the `mouse` feature for ALL terminals removes that silent
+# dependency so wheel-scroll → copy-mode scrollback works everywhere.
+set -sa terminal-features ",*:mouse"
+
+# Alternate-scroll fallback — trackpad/wheel inside the FULLSCREEN views of the
+# agent CLIs (Codex's Ctrl+T transcript, `less`, `git log`, any altscreen TUI).
+#
+# The rmux default binding is
+#   WheelUpPane { if '#{||:#{alternate_on},#{pane_in_mode},#{mouse_any_flag}}' { send -M } { copy-mode -e } }
+# so an app on the ALTERNATE SCREEN takes the `send -M` branch — and `send -M`
+# encodes nothing when the app never requested mouse reporting
+# (input_keys/mouse.rs: `pane_mode & ALL_MOUSE_MODES == 0` → None). The wheel
+# bytes are then dropped on the floor: scroll is DEAD, not merely inert.
+# Measured (2026-07-31, rmux 0.3.1):
+#   claude (altscreen renderer)  → alt=1 mouse_any=1 sgr=1  → wheel forwarded, fine
+#   claude CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1 → alt=0 mouse_any=0 → wheel = rmux scrollback
+#   codex 0.146 main view        → alt=0 mouse_any=0        → wheel = rmux scrollback
+#   codex 0.146 Ctrl+T transcript→ alt=1 mouse_any=0        → WHEEL DEAD (this fix)
+# Codex itself asks for DECSET 1007 (alternate scroll = "send me arrow keys for
+# the wheel"), which rmux does not implement (csi_helpers.rs has no 1007 arm),
+# so honoring it here at the binding layer is exactly what the app expects.
+#
+# Order of the three branches matters: app-requested mouse and copy-mode keep
+# their existing behavior untouched, ONLY the previously-dead altscreen case
+# gains the arrow-key translation (3 lines per notch, the xterm convention).
+# Quoted-string if-shell form, never the brace form (see the M-Up NOTE above).
+bind-key -n WheelUpPane   if-shell -F '#{||:#{pane_in_mode},#{mouse_any_flag}}' 'send-keys -M' 'if-shell -F "#{alternate_on}" "send-keys -N3 Up" "copy-mode -e"'
+bind-key -n WheelDownPane if-shell -F '#{||:#{pane_in_mode},#{mouse_any_flag}}' 'send-keys -M' 'if-shell -F "#{alternate_on}" "send-keys -N3 Down"'
+
+# Dual-access wheel bindings for applications that capture mouse reporting.
+# Claude's fullscreen renderer requests 1000+1006, so rmux no longer sees the
+# wheel as a root binding: there is no copy-mode and no rmux drag-select while
+# the application owns the mouse stream. A modified wheel gives rmux the
+# explicit takeover path without changing the naked wheel's application path.
+#
+# The alternate screen suspends the rmux grid history. Therefore copy-mode here
+# is a takeover of the current alternate view, not a way to reveal the same
+# conversation in rmux scrollback: it shows only the alternate-screen content.
+# Bind both Shift and Alt because many terminal emulators intercept
+# Shift+wheel for their own scrollback and never emit it to rmux.
+bind-key -n S-WheelUpPane copy-mode -e
+bind-key -n M-WheelUpPane copy-mode -e
+# No modified down binding is needed. Once copy-mode is active, its copy-mode
+# table already handles WheelUpPane and WheelDownPane via scroll-up/scroll-down.
+# Also, WheelDownPane doing nothing in a normal shell pane is not a regression:
+# rmux 0.3.1 defines no root-table WheelDownPane default binding at all.
+
+
+# Non-modal scroll — the wheel scrolls, then you just type. No prefix, no
+# modifier, no key to press to get out.
+#
+# The wheel already enters copy-mode with no key (WheelUpPane above), but
+# copy-mode is MODAL: until now every keystroke after a scroll was eaten by the
+# mode instead of reaching the agent, so scrolling felt like a trap you had to
+# escape with q or Escape. That modality is what makes people ask for a
+# "real" scroll: the scroll itself was never the problem.
+#
+# Every key you can actually type is therefore rebound in the copy-mode table to
+# cancel the mode AND deliver the keystroke to the pane, so the first character
+# of a sentence is never swallowed. `Any` is the catch-all for everything else
+# (function keys, exotic sequences): it just leaves the mode. Explicit bindings
+# win over `Any`, so WheelUp/WheelDownPane and the arrows keep scrolling INSIDE
+# the mode — verified at runtime, wheel + `Bonjour` landed all seven characters.
+#
+# Punctuation that the config parser treats specially (; " ' # $ ` \ { } and
+# friends) is deliberately NOT listed: it falls through to `Any`, which still
+# leaves the mode, and no sentence starts with those characters. Trade one rare
+# lost keystroke for a config that cannot silently abort on a quoting error.
+#
+# Consequence accepted on purpose: copy-mode's own keyboard search (/ ? n N) and
+# keyboard selection are gone, because `/` must reach Claude to open its command
+# menu. Mouse drag-select still copies via OSC 52, which is how selection is
+# actually done here.
+bind-key -T copy-mode Any 'send-keys -X cancel'
+bind-key -T copy-mode a 'send-keys -X cancel ; send-keys a'
+bind-key -T copy-mode b 'send-keys -X cancel ; send-keys b'
+bind-key -T copy-mode c 'send-keys -X cancel ; send-keys c'
+bind-key -T copy-mode d 'send-keys -X cancel ; send-keys d'
+bind-key -T copy-mode e 'send-keys -X cancel ; send-keys e'
+bind-key -T copy-mode f 'send-keys -X cancel ; send-keys f'
+bind-key -T copy-mode g 'send-keys -X cancel ; send-keys g'
+bind-key -T copy-mode h 'send-keys -X cancel ; send-keys h'
+bind-key -T copy-mode i 'send-keys -X cancel ; send-keys i'
+bind-key -T copy-mode j 'send-keys -X cancel ; send-keys j'
+bind-key -T copy-mode k 'send-keys -X cancel ; send-keys k'
+bind-key -T copy-mode l 'send-keys -X cancel ; send-keys l'
+bind-key -T copy-mode m 'send-keys -X cancel ; send-keys m'
+bind-key -T copy-mode n 'send-keys -X cancel ; send-keys n'
+bind-key -T copy-mode o 'send-keys -X cancel ; send-keys o'
+bind-key -T copy-mode p 'send-keys -X cancel ; send-keys p'
+bind-key -T copy-mode q 'send-keys -X cancel ; send-keys q'
+bind-key -T copy-mode r 'send-keys -X cancel ; send-keys r'
+bind-key -T copy-mode s 'send-keys -X cancel ; send-keys s'
+bind-key -T copy-mode t 'send-keys -X cancel ; send-keys t'
+bind-key -T copy-mode u 'send-keys -X cancel ; send-keys u'
+bind-key -T copy-mode v 'send-keys -X cancel ; send-keys v'
+bind-key -T copy-mode w 'send-keys -X cancel ; send-keys w'
+bind-key -T copy-mode x 'send-keys -X cancel ; send-keys x'
+bind-key -T copy-mode y 'send-keys -X cancel ; send-keys y'
+bind-key -T copy-mode z 'send-keys -X cancel ; send-keys z'
+bind-key -T copy-mode A 'send-keys -X cancel ; send-keys A'
+bind-key -T copy-mode B 'send-keys -X cancel ; send-keys B'
+bind-key -T copy-mode C 'send-keys -X cancel ; send-keys C'
+bind-key -T copy-mode D 'send-keys -X cancel ; send-keys D'
+bind-key -T copy-mode E 'send-keys -X cancel ; send-keys E'
+bind-key -T copy-mode F 'send-keys -X cancel ; send-keys F'
+bind-key -T copy-mode G 'send-keys -X cancel ; send-keys G'
+bind-key -T copy-mode H 'send-keys -X cancel ; send-keys H'
+bind-key -T copy-mode I 'send-keys -X cancel ; send-keys I'
+bind-key -T copy-mode J 'send-keys -X cancel ; send-keys J'
+bind-key -T copy-mode K 'send-keys -X cancel ; send-keys K'
+bind-key -T copy-mode L 'send-keys -X cancel ; send-keys L'
+bind-key -T copy-mode M 'send-keys -X cancel ; send-keys M'
+bind-key -T copy-mode N 'send-keys -X cancel ; send-keys N'
+bind-key -T copy-mode O 'send-keys -X cancel ; send-keys O'
+bind-key -T copy-mode P 'send-keys -X cancel ; send-keys P'
+bind-key -T copy-mode Q 'send-keys -X cancel ; send-keys Q'
+bind-key -T copy-mode R 'send-keys -X cancel ; send-keys R'
+bind-key -T copy-mode S 'send-keys -X cancel ; send-keys S'
+bind-key -T copy-mode T 'send-keys -X cancel ; send-keys T'
+bind-key -T copy-mode U 'send-keys -X cancel ; send-keys U'
+bind-key -T copy-mode V 'send-keys -X cancel ; send-keys V'
+bind-key -T copy-mode W 'send-keys -X cancel ; send-keys W'
+bind-key -T copy-mode X 'send-keys -X cancel ; send-keys X'
+bind-key -T copy-mode Y 'send-keys -X cancel ; send-keys Y'
+bind-key -T copy-mode Z 'send-keys -X cancel ; send-keys Z'
+bind-key -T copy-mode 0 'send-keys -X cancel ; send-keys 0'
+bind-key -T copy-mode 1 'send-keys -X cancel ; send-keys 1'
+bind-key -T copy-mode 2 'send-keys -X cancel ; send-keys 2'
+bind-key -T copy-mode 3 'send-keys -X cancel ; send-keys 3'
+bind-key -T copy-mode 4 'send-keys -X cancel ; send-keys 4'
+bind-key -T copy-mode 5 'send-keys -X cancel ; send-keys 5'
+bind-key -T copy-mode 6 'send-keys -X cancel ; send-keys 6'
+bind-key -T copy-mode 7 'send-keys -X cancel ; send-keys 7'
+bind-key -T copy-mode 8 'send-keys -X cancel ; send-keys 8'
+bind-key -T copy-mode 9 'send-keys -X cancel ; send-keys 9'
+bind-key -T copy-mode / 'send-keys -X cancel ; send-keys /'
+bind-key -T copy-mode - 'send-keys -X cancel ; send-keys -'
+bind-key -T copy-mode . 'send-keys -X cancel ; send-keys .'
+bind-key -T copy-mode , 'send-keys -X cancel ; send-keys ,'
+bind-key -T copy-mode ? 'send-keys -X cancel ; send-keys ?'
+bind-key -T copy-mode ! 'send-keys -X cancel ; send-keys !'
+bind-key -T copy-mode : 'send-keys -X cancel ; send-keys :'
+bind-key -T copy-mode @ 'send-keys -X cancel ; send-keys @'
+bind-key -T copy-mode + 'send-keys -X cancel ; send-keys +'
+bind-key -T copy-mode = 'send-keys -X cancel ; send-keys ='
+bind-key -T copy-mode _ 'send-keys -X cancel ; send-keys _'
+bind-key -T copy-mode % 'send-keys -X cancel ; send-keys %'
+bind-key -T copy-mode Space 'send-keys -X cancel ; send-keys Space'
+bind-key -T copy-mode Enter 'send-keys -X cancel ; send-keys Enter'
+bind-key -T copy-mode BSpace 'send-keys -X cancel ; send-keys BSpace'
+bind-key -T copy-mode Tab 'send-keys -X cancel ; send-keys Tab'
+
+# Focus events: let editors / Claude know when the pane gains or loses focus
+# (autosave, pause-on-blur, etc.).
+set -g focus-events on
+
+# ─── Theme — Omega chrome (Monogram model) ───────────────────────────────────
+# Quiet grayscale chrome + ONE signature accent: the same user-validated
+# "Monogram model" every omega TUI theme is built on (crates/omega-tui/src/
+# theme.rs — mono()). Accent = the Omega cyan; alert hues are the SYSTEM
+# alert tokens (theme.rs: error #ff6e6e, warn #ffa500) so the same pixel
+# means the same thing in the TUI and on the chrome. The chrome itself is
+# deliberately STATIC: one quiet Monogram-Omega bar frames all 15 switchable
+# TUI themes. Grays are tuned to the repo's WCAG-AA contrast contract
+# (theme.rs doc table), measured against THIS bar's bg #16161a:
+#   dim #7f7f7f = 4.51:1 (contract: dim ≥ 4.5:1) · dim2 #636363 = 3.00:1
+#   (contract: dim2 ≥ 3.0:1) · bright #e1e1e1 = 13.8:1 — and the gray
+#   hierarchy ratio(dim2) < ratio(dim) < ratio(bright) holds.
+# State language, everywhere on the chrome:
+#   active = bright+bold · passive = dim · focus = cyan accent (nothing else
+#   is cyan) · error/alert = amber/red (used for NOTHING else).
+# Truecolor hex is safe: terminal-features ",*:RGB" is advertised above.
+# Every line below was runtime-validated against rmux 0.3.1 (set-option +
+# show-options round-trip) — a rejected option/form silently aborts this whole
+# source-file (see the bind-key NOTE above), so never add unvalidated lines.
+
+# Status bar: near-black chrome (#16161a — one step above the Monogram #0a0a0c
+# canvas so the bar still reads as a bar), default text dim. The bar is
+# passive by default; elements opt INTO prominence. Replaces the legacy
+# bg=green,fg=black tmux look.
+set -g status-style "bg=#16161a,fg=#7f7f7f"
+
+# Session name: bold black-on-cyan block at the left edge — the strongest mark
+# on the bar answers "where am I". Truncation happens INSIDE the format
+# (#{=29:…}: 29 name chars + 2 pad spaces fit status-left-length 32) so the
+# closing pad and the #[default] reset always survive a long session name —
+# a raw #{session_name} overflow would swallow them and bleed the cyan block
+# into the window list.
+# status-right (the omega clock) is defined earlier and stays untouched.
+set -g status-left "#[fg=#000000,bg=#00ffff,bold] #{=29:session_name} #[default] "
+set -g status-left-length 32
+
+# Window list: passive windows are dim; the focused window is the ONLY other
+# cyan block on the bar — same language as the session block, so the two cyan
+# things together read "you are here".
+set -g window-status-style "fg=#7f7f7f"
+set -g window-status-current-style "fg=#000000,bg=#00ffff,bold"
+
+# Background activity: bright+bold — alive and wants a look; clearly above the
+# dim passive row, clearly below the focus block. monitor-activity is OFF by
+# default in rmux: without it this rung of the ladder never fires. Style the
+# tab only — visual-activity stays off, no message popups.
+set -g monitor-activity on
+set -g window-status-activity-style "fg=#e1e1e1,bold"
+
+# Bell is the alarm channel: a self-contained black-on-error block. The bg is
+# load-bearing — rmux appends this style AFTER window-status-current-style,
+# so a fg-only bell on the focused window would composite red-on-cyan at
+# 2.68:1 (illegible exactly where bells usually land). A block also keeps the
+# alarm readable for red-blind operators: shape, not hue, carries it.
+# #ff6e6e = the system error token (theme.rs).
+set -g window-status-bell-style "fg=#000000,bg=#ff6e6e,bold"
+
+# Panes: passive borders recede into dim2; the active pane wears the accent —
+# one glance finds the focus even in a 6-pane team layout.
+set -g pane-border-style "fg=#636363"
+set -g pane-active-border-style "fg=#00ffff"
+
+# Messages: rmux renders errors AND benign status messages through ONE shared
+# channel, message-style (tmux model) — bold black on the system warn token
+# #ffa500 is the "look now" block. message-command-style (the quieter `:`
+# prompt) is stored but NOT consulted by rmux 0.3.1 at render time
+# (rmux-server handler_prompt.rs:203 hardcodes command_prompt: false): kept
+# as documented intent + forward-compat; today the prompt wears message-style.
+set -g message-style "bg=#ffa500,fg=#000000,bold"
+set -g message-command-style "bg=#16161a,fg=#ffa500"
+
+# Copy-mode selection: reverse-accent (black on cyan) — focus language again;
+# the default yellow is gone, its family survives only as the amber alerts.
+set -g mode-style "bg=#00ffff,fg=#000000"
+
+# Copy-mode search & marks + menus: the rmux DEFAULTS carry stray hues here
+# (match bg=cyan, current-match bg=magenta, mark bg=red, menu-selected
+# bg=yellow) — red/magenta/yellow off the alert channel would break the
+# discipline. menu-selected-style renders today (handler_overlay/layout.rs);
+# the three copy-mode styles are stored-only in rmux 0.3.1 (no render path
+# yet) — themed anyway so the stray defaults can never surface once the
+# renderer learns them. Ladder: plain matches sit on the dim gray, the
+# CURRENT match and the menu selection speak focus (black-on-cyan), the mark
+# speaks active (black-on-bright).
+set -g copy-mode-match-style "bg=#7f7f7f,fg=#000000"
+set -g copy-mode-current-match-style "bg=#00ffff,fg=#000000"
+set -g copy-mode-mark-style "bg=#e1e1e1,fg=#000000"
+set -g menu-selected-style "bg=#00ffff,fg=#000000"
+
+# Popups are the chrome's flagship surface — every omega menu / dispatch
+# binding above opens one (rendered: handler_overlay/layout.rs). Accent
+# border = focus language; chrome bg behind the content.
+set -g popup-style "bg=#16161a"
+set -g popup-border-style "fg=#00ffff"
+
+# display-panes overlay: active pane number in accent, the rest in dim2 — the
+# same active/passive split as the borders (replaces tmux red/blue).
+set -g display-panes-active-colour "#00ffff"
+set -g display-panes-colour "#636363"
+
+# Clock mode: the accent, like every other "alive" element.
+set -g clock-mode-colour "#00ffff"

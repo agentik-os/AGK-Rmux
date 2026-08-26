@@ -1,0 +1,381 @@
+{
+  "ref": "f432154",
+  "ticket": "",
+  "files_analyzed": 11,
+  "files_list": [
+    "crates/omega-cli/src/main.rs",
+    "crates/omega-core/src/config.rs",
+    "crates/omega-core/src/doctor.rs",
+    "crates/omega-core/src/executor.rs",
+    "crates/omega-core/src/planner.rs",
+    "crates/omega-tui/src/app.rs",
+    "crates/omega-tui/src/input.rs",
+    "crates/omega-tui/src/lib.rs",
+    "crates/omega-tui/src/theme.rs",
+    "crates/omega-tui/src/ui.rs",
+    "telegram-bot/omega-tg-bot.ts"
+  ],
+  "hinges_count": 45,
+  "hinges": [
+    {
+      "file": "crates/omega-cli/src/main.rs",
+      "line_start": 1105,
+      "line_end": 1106,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+            if matches!(&evt, crossterm::event::Event::Key(k)"
+    },
+    {
+      "file": "crates/omega-cli/src/main.rs",
+      "line_start": 1674,
+      "line_end": 1677,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                    if config_key == \"general.theme\" {"
+    },
+    {
+      "file": "crates/omega-cli/src/main.rs",
+      "line_start": 1690,
+      "line_end": 1690,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                        if let Err(e) = set_config_value(&mut providers, &config_key, &value) {"
+    },
+    {
+      "file": "crates/omega-core/src/doctor.rs",
+      "line_start": 157,
+      "line_end": 157,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+    if laws == EXPECTED_LAWS && ops == EXPECTED_OPS {"
+    },
+    {
+      "file": "crates/omega-core/src/executor.rs",
+      "line_start": 215,
+      "line_end": 220,
+      "kind": "shared_state",
+      "why": "Shared-state setter \u2014 cross-component effects",
+      "evidence_first_line": "+        // CRITICAL: tell the worker HOW to signal completion. Without this the"
+    },
+    {
+      "file": "crates/omega-core/src/executor.rs",
+      "line_start": 226,
+      "line_end": 226,
+      "kind": "shared_state",
+      "why": "Shared-state setter \u2014 cross-component effects",
+      "evidence_first_line": "+             That writes the done signal the engine waits for. If you genuinely cannot finish, run\\n  \\"
+    },
+    {
+      "file": "crates/omega-core/src/planner.rs",
+      "line_start": 158,
+      "line_end": 166,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+        if self.steps.is_empty() {"
+    },
+    {
+      "file": "crates/omega-core/src/planner.rs",
+      "line_start": 172,
+      "line_end": 172,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                if dep == &s.step_id {"
+    },
+    {
+      "file": "crates/omega-core/src/planner.rs",
+      "line_start": 181,
+      "line_end": 181,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+            if trivial {"
+    },
+    {
+      "file": "crates/omega-core/src/planner.rs",
+      "line_start": 188,
+      "line_end": 188,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+        if !errs.is_empty() {"
+    },
+    {
+      "file": "crates/omega-tui/src/app.rs",
+      "line_start": 1760,
+      "line_end": 1765,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+        if !reanchored {"
+    },
+    {
+      "file": "crates/omega-tui/src/app.rs",
+      "line_start": 1773,
+      "line_end": 1778,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                if let Some(name) = selected_name {"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 158,
+      "line_end": 158,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+    if matches!(app.input_mode, InputMode::SelectModel(..)) {"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 159,
+      "line_end": 159,
+      "kind": "new_early_return",
+      "why": "Early return changes function exit logic",
+      "evidence_first_line": "+        return Action::None;"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 718,
+      "line_end": 718,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                    if is_theme {"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 728,
+      "line_end": 729,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                    if is_theme {"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 738,
+      "line_end": 739,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                    if is_theme {"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 1666,
+      "line_end": 1666,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+            if key.code == KeyCode::Esc {"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 1668,
+      "line_end": 1668,
+      "kind": "new_early_return",
+      "why": "Early return changes function exit logic",
+      "evidence_first_line": "+                return Action::None;"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 1745,
+      "line_end": 1745,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+        if app.selected_session().is_some_and(|e| e.is_protected) {"
+    },
+    {
+      "file": "crates/omega-tui/src/input.rs",
+      "line_start": 1747,
+      "line_end": 1747,
+      "kind": "new_early_return",
+      "why": "Early return changes function exit logic",
+      "evidence_first_line": "+            return Action::None;"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 22,
+      "line_end": 27,
+      "kind": "auth_gate",
+      "why": "Authorization gate touched",
+      "evidence_first_line": "+//! | dim2 (dead role \u2014 hierarchy guard only)           | 3.0 : 1       |"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 83,
+      "line_end": 83,
+      "kind": "auth_gate",
+      "why": "Authorization gate touched",
+      "evidence_first_line": "+/// role; themes that want distinct brights override via struct update."
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 188,
+      "line_end": 188,
+      "kind": "auth_gate",
+      "why": "Authorization gate touched",
+      "evidence_first_line": "+        Color::LightRed, // warn \u2014 named ANSI like every other Omega role, so"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 647,
+      "line_end": 647,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+        for id in ThemeId::all() {"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 684,
+      "line_end": 684,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+        if v <= 0.04045 {"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 697,
+      "line_end": 697,
+      "kind": "auth_gate",
+      "why": "Authorization gate touched",
+      "evidence_first_line": "+    /// sRGB \u2192 CIE Lab (D65) \u2014 for the role-vs-role distinctness floor."
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 705,
+      "line_end": 705,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+            if t > 0.008856 {"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 727,
+      "line_end": 727,
+      "kind": "auth_gate",
+      "why": "Authorization gate touched",
+      "evidence_first_line": "+    /// The contract from the module doc: AA thresholds per role, plus the"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 732,
+      "line_end": 732,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+        for id in ThemeId::all() {"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 750,
+      "line_end": 754,
+      "kind": "auth_gate",
+      "why": "Authorization gate touched",
+      "evidence_first_line": "+            let check = |role: &str, c: Color, min: f64| {"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 791,
+      "line_end": 791,
+      "kind": "auth_gate",
+      "why": "Authorization gate touched",
+      "evidence_first_line": "+            // Role-vs-role distinctness: an alert must read as a DIFFERENT"
+    },
+    {
+      "file": "crates/omega-tui/src/theme.rs",
+      "line_start": 795,
+      "line_end": 795,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+            if !matches!("
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 58,
+      "line_end": 58,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+    if area.width < 70 || area.height < 20 {"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 59,
+      "line_end": 59,
+      "kind": "new_early_return",
+      "why": "Early return changes function exit logic",
+      "evidence_first_line": "+        return area;"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 72,
+      "line_end": 72,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+    if let Some(bg) = th::bg() {"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 236,
+      "line_end": 236,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+            if selected {"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 1837,
+      "line_end": 1838,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+    if pct < 50.0 { th::success() }"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 2379,
+      "line_end": 2379,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+    if app.selected_settings_section() == crate::app::SettingsSection::Theme {"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 2387,
+      "line_end": 2387,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+        for id in crate::theme::ThemeId::all() {"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 2398,
+      "line_end": 2398,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                    if *id == active {"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 2406,
+      "line_end": 2406,
+      "kind": "auth_gate",
+      "why": "Authorization gate touched",
+      "evidence_first_line": "+            // the accent (duplicate swatch), while warn is a real distinct role."
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 2407,
+      "line_end": 2407,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+            for c in [p.accent, p.accent2, p.warn, p.error, p.info, p.special, p.dim] {"
+    },
+    {
+      "file": "crates/omega-tui/src/ui.rs",
+      "line_start": 3093,
+      "line_end": 3093,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+                if config_key == \"general.theme\" {"
+    },
+    {
+      "file": "telegram-bot/omega-tg-bot.ts",
+      "line_start": 1586,
+      "line_end": 1588,
+      "kind": "new_branch",
+      "why": "New control-flow branch \u2014 boundary conditions live here",
+      "evidence_first_line": "+  for (const id of Object.keys(loadAgentBots())) {"
+    }
+  ]
+}

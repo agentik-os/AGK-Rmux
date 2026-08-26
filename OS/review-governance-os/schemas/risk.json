@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Risk",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "description": {
+      "type": "string",
+      "description": "Risk"
+    },
+    "likelihood": {
+      "type": "number",
+      "description": "Likelihood"
+    },
+    "impact": {
+      "type": "number",
+      "description": "Impact"
+    },
+    "controls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Controls"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "description",
+    "likelihood",
+    "impact",
+    "owner"
+  ],
+  "additionalProperties": false
+}

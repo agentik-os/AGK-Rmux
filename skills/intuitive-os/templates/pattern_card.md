@@ -1,0 +1,13 @@
+# Pattern Card
+- Name:
+- Domain:
+- Cues:
+- Context where valid:
+- Expected outcome:
+- Exceptions / failure modes:
+- Confidence:
+- Supporting cases:
+- Contradicting cases:
+- Sample size:
+- Last tested:
+- Status: hypothesis | provisional | validated | retired

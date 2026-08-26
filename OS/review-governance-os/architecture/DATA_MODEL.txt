@@ -1,0 +1,40 @@
+Review & Governance OS — Logical data model
+
+ENTITIES
+- review_record
+- metric_definition
+- risk
+- policy
+- change_request
+- incident
+- decision_audit
+
+RELATIONSHIPS
+- review_record EVALUATES metric_definition
+- incident CREATES change_request
+- risk CONTROLLED_BY policy
+- change_request MODIFIES policy or system
+- decision_audit REVIEWS strategic_decision
+- AI governance review CREATES risks and controls
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- review.completed
+- risk.created
+- risk.changed
+- policy.approved
+- policy.exception.granted
+- change.requested
+- change.approved
+- change.verified
+- incident.opened
+- incident.closed
+- decision.audited

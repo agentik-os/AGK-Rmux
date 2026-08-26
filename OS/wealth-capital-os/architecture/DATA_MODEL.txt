@@ -1,0 +1,36 @@
+Wealth & Capital OS — Logical data model
+
+ENTITIES
+- financial_account
+- transaction
+- financial_goal
+- investment_policy
+- financial_scenario
+- financial_document
+- financial_decision
+
+RELATIONSHIPS
+- financial_account HAS transaction
+- financial_goal HAS funding plan
+- investment_policy GOVERNS investment account
+- financial_document SUPPORTS transaction or balance
+- financial_decision REFERENCES scenario
+- Revenue OS PROVIDES verified personal distribution data
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- finance.document.staged
+- finance.transaction.verified
+- finance.month.closed
+- finance.goal.updated
+- finance.reminder.created
+- finance.decision.recorded
+- handoff.revenue.received

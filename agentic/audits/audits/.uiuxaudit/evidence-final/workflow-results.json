@@ -1,0 +1,596 @@
+{
+ "head": "f6d8f37",
+ "findings": [
+  {
+   "id": "DESIGN-001",
+   "status": "FIXED",
+   "evidence": [
+    {
+     "claim": "Selected session NAME is snapshotted before every list rebuild, replacing the index-only clamp",
+     "citation": "crates/omega-tui/src/app.rs:1643-1651@HEAD \u2014 'F-1 (critical): snapshot the selected session's NAME before the rebuild'; let selected_name = self.sessions.get(self.selected).map(|e| e.session.name.clone())"
+    },
+    {
+     "claim": "Re-anchor runs at the end of refresh(), after the rebuild and protection-flag restore",
+     "citation": "crates/omega-tui/src/app.rs:1744-1746@HEAD \u2014 self.reanchor_selection(selected_name.as_deref())"
+    },
+    {
+     "claim": "reanchor_selection re-anchors by name via select_by_name; on vanish while Chat OR ChatFullscreen it drops focus to List, clears the Tab chord (AF-7), sets a status_message, and only then length-clamps as fallback \u2014 exactly the prescribed fix",
+     "citation": "crates/omega-tui/src/app.rs:1755-1782@HEAD (vanish branch 1765-1776: session_focus = SessionFocus::List; reset_tab_chord(); status_message = '{name} ended \u2014 back to list'; clamp 1778-1780)"
+    },
+    {
+     "claim": "The re-anchor covers EVERY refresh path structurally: self.sessions is rebuilt only inside refresh() (clear + flush_group_rows push), and reanchor_selection is the last statement of that method",
+     "citation": "crates/omega-tui/src/app.rs:1701@HEAD (self.sessions.clear()), app.rs:1878@HEAD (only push, inside flush_group_rows called solely from refresh at 1719/1726); grep of '.sessions.push|.sessions.clear' shows no other non-test mutation site"
+    },
+    {
+     "claim": "All 13 refresh() call sites (startup, 2s tick, kill, kill-all, nuclear cleanup, create, create-with-agent, attach return, F5/menu Refresh, rename) funnel through App::refresh and therefore re-anchor",
+     "citation": "crates/omega-cli/src/main.rs:666,688,837,1205,1240,1260,1276,1283,1397,1410,1598,1708,2034@HEAD (grep '\\.refresh()' output quoted in transcript)"
+    },
+    {
+     "claim": "Kill path never touches self.selected directly \u2014 Action::KillSession kills via daemon then calls refresh(), letting the name re-anchor handle the shift",
+     "citation": "crates/omega-cli/src/main.rs:1211-1246@HEAD (mgr.kill_session \u2192 let _ = app.refresh().await)"
+    },
+    {
+     "claim": "Filter commit sets selected=0 deliberately (documented as the predictable landing spot) and dispatches Action::Refresh; it cannot fire while chat-focused because chat focus routes all keys to handle_key_chat before any list shortcut",
+     "citation": "crates/omega-tui/src/input.rs:622-635@HEAD (comment 'the dispatched Refresh re-anchors by the NAME at this index') and input.rs:855-862@HEAD (chat-focus early return in handle_key_normal); '/' filter entry gated to List focus at input.rs:1474-1480"
+    },
+    {
+     "claim": "Rename re-anchors by the NEW name; chat keystrokes resolve the target session by NAME at keypress time in a single-threaded event loop, closing the retarget window even between refreshes",
+     "citation": "crates/omega-cli/src/main.rs:1709@HEAD (app.select_by_name(&new)); crates/omega-tui/src/input.rs:1651-1653@HEAD (let session = app.selected_session()... name.clone())"
+    },
+    {
+     "claim": "CA-4 ordering preserved: the generic 'Refreshed' ack is set BEFORE refresh() so the vanish notice produced inside reanchor wins, not the ack",
+     "citation": "crates/omega-cli/src/main.rs:1404-1411@HEAD ('Ack BEFORE refreshing (KillSession-style ordering, CA-4)')"
+    },
+    {
+     "claim": "Regression tests assert the exact F-1 contract: name anchor survives an index shift (insert above selection \u2192 selected moves 1\u21922 staying on 'b'); vanished name clamps the stale index; chat-focused vanish drops to List, clears both chord fields, and sets the 'gone ended' notice",
+     "citation": "crates/omega-tui/src/app.rs:2109-2147@HEAD (reanchor_keeps_selection_on_name_across_list_mutation, reanchor_clamps_index_when_the_name_vanished, chat_on_vanished_session_drops_to_list_and_clears_chord)"
+    },
+    {
+     "claim": "Tests pass at runtime on HEAD",
+     "citation": "cargo test -p omega-tui reanchor \u2192 'test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out'"
+    }
+   ],
+   "reasoning": "Every prescribed element of the F-1 fix is present at HEAD and verified: (a) the name snapshot (app.rs:1643-1651) + reanchor_selection call (app.rs:1746) live INSIDE App::refresh(), and code inspection shows self.sessions is rebuilt nowhere else (the only clear/push outside tests are in refresh/flush_group_rows), so all 13 refresh call sites in main.rs \u2014 periodic tick, kill, kill-all, nuclear, create, rename, attach-return, F5 \u2014 get the re-anchor structurally, not by convention. (b) The vanish branch covers both Chat and ChatFullscreen, drops to List, resets the Tab chord, posts a status message, and only falls back to an index clamp \u2014 keystrokes can no longer silently retarget; additionally handle_key_chat resolves the target by NAME at keypress time and the dead-session branch (input.rs:1651+) re-dispatches in normal mode rather than soft-locking. (c) All other selected/sessions mutators were audited: select_next/prev and jump_to_next_flagged are user navigation; filter commit sets selected=0 intentionally and is unreachable from chat focus (chat keys are intercepted at input.rs:855-862 before list shortcuts); rename re-selects by new name; kill/create paths mutate nothing directly and rely on refresh's re-anchor. No surviving index-shift path found. (d) The three reanchor_tests assert the precise behaviors (shift survival, clamp fallback, chat-drop+chord-clear+notice) and pass: 3/3 ok. Status: FIXED.",
+   "residual_risk": "Two theoretical, low-severity residuals inherent to name-keyed anchoring: (1) if another actor kills a session and immediately recreates one with the SAME name between two refreshes, the re-anchor will attach to the impostor \u2014 indistinguishable by design from the session surviving; (2) within the ~2s window between refreshes a chat keystroke is forwarded by name to a session the daemon may have just killed \u2014 it fails harmlessly at the daemon rather than retargeting (the original bug was retargeting, which is closed). Neither is an index-shift path; neither requires a live TUI run to characterize.",
+   "needs_live_tui": false,
+   "sev": "CRITICAL",
+   "refute": {
+    "upheld": true,
+    "reasoning": "Adversarial spot-check of every citation at HEAD f6d8f37 confirms the FIXED verdict; no surviving path reopens F-1.\n\nCitations verified against real code: (1) Name snapshot before rebuild \u2014 app.rs:1643-1651 contains the exact 'F-1 (critical): snapshot the selected session's NAME before the rebuild' comment and `let selected_name = self.sessions.get(self.selected).map(|e| e.session.name.clone())`. (2) `self.reanchor_selection(selected_name.as_deref())` at app.rs:1746 is the last statement of refresh() before `Ok(())` (1748), after the rebuild (clear at 1701) and protection-flag restore (1730-1742). (3) reanchor_selection (app.rs:1755-1782): select_by_name at 1757; vanish branch 1765-1776 matches Chat|ChatFullscreen, sets SessionFocus::List (1769), calls reset_tab_chord() (1772), sets \"{name} ended \u2014 back to list\" (1774); index clamp fallback 1778-1780. (4) Structural coverage: `self.sessions` is mutated only at app.rs:1701 (clear, in refresh) and app.rs:1878 (push, in flush_group_rows, called only from refresh at 1719/1726); the only other push/clear sites are tests (input.rs:2210/2258 inside `mod tests` starting 2142; app.rs:2046/2070 test callers). (5) grep '\\.refresh()' on main.rs returns exactly the 13 cited lines (666,688,837,1205,1240,1260,1276,1283,1397,1410,1598,1708,2034). (6) KillSession (main.rs:1211-1246) kills via mgr.kill_session then `let _ = app.refresh().await` (1240) \u2014 never touches selected. (7) Filter commit input.rs:622-635 sets selected=0 with the cited comment and dispatches Action::Refresh; chat focus early-return at input.rs:855-862 makes the '/' entry (input.rs:1474-1480) unreachable while chat-focused. (8) Rename re-selects by new name (main.rs:1709 `app.select_by_name(&new)`); handle_key_chat resolves the target by NAME at keypress time (input.rs:1651-1653) and every forwarded action carries the name (`Action::ForwardKeyToSession { session: String, .. }`, input.rs:107), so even between refreshes a keystroke cannot retarget by index. (9) CA-4 ordering: main.rs:1404-1410 sets the 'Refreshed' ack BEFORE refresh() with the cited comment. (10) The three reanchor_tests at app.rs:2109-2147 assert exactly the claimed contract. (11) Runtime: `cargo test -p omega-tui reanchor` \u2192 'test result: ok. 3 passed; 0 failed'.\n\nRefutation hunt beyond the citations: audited ALL writes to app.selected \u2014 select_by_name (app.rs:1190), jump_to_next_flagged (app.rs:1224, 'b' key gated to handle_key_normal), reanchor clamp (1779), select_next/prev (app.rs:2000+, called from arrow keys at input.rs:1021/1057 in handle_key_normal and mouse scroll at input.rs:232) and filter commit (input.rs:629). The mouse path cannot silently retarget chat keystrokes: scroll while chat-focused scrolls the preview, not the selection (input.rs:227-229), and a left-panel click sets focus to List (input.rs:204) before any selection change matters. Dead-session chat (input.rs:1652-1670) drops to List, resets the chord, swallows Esc (AF-5), re-dispatches other keys \u2014 no soft-lock and no retarget. Modal input modes that could mutate selection (SessionFilter, RenameSession) are only enterable from List focus because chat focus diverts at input.rs:855-862.\n\nOne immaterial imprecision noted below (claim 7 wording); it does not change the substance. Verdict: DESIGN-001 = FIXED is upheld.",
+    "counter_evidence": [
+     {
+      "claim": "Verifier claim 7 says the '/' filter entry is 'gated to List focus at input.rs:1474-1480' \u2014 the literal guard there is `app.tab == Tab::Sessions && app.config.session_shortcuts`, with no explicit focus check; the List-focus gating is structural (chat focus early-returns into handle_key_chat before the branch is reachable). Substance correct, citation wording imprecise.",
+      "citation": "crates/omega-tui/src/input.rs:1474@HEAD (`KeyCode::Char('/') if app.tab == Tab::Sessions && app.config.session_shortcuts`) vs input.rs:855-862@HEAD (chat-focus early return that actually provides the gate)"
+     }
+    ]
+   }
+  },
+  {
+   "id": "DESIGN-002",
+   "status": "FIXED",
+   "evidence": [
+    {
+     "claim": "Old suppression arm existed at baseline: git text matched first and `None if on_sessions` rendered an empty string, structurally hiding every status_message on Sessions",
+     "citation": "git show f432154:crates/omega-tui/src/ui.rs (old ~3069-3071): `match git_text { Some(g) => ..., None if on_sessions => (String::new(), Style::default()), None => (app.status_message...) }`"
+    },
+    {
+     "claim": "(a) At HEAD the match is over the tuple (status_message, git_text) and `(Some(msg), _)` is the first arm \u2014 a live notice always wins, Sessions tab included; git text only fills `(None, Some(g))`",
+     "citation": "crates/omega-tui/src/ui.rs:3216-3220@HEAD: `match (app.status_message.as_deref(), git_text) { (Some(msg), _) => ..., (None, Some(g)) => ..., (None, None) => ... }`"
+    },
+    {
+     "claim": "(b) Clear-on-next-keypress runs BEFORE handle_event dispatch and only on Key events whose kind != Release \u2014 so the keypress that causes a message cannot eat its own message, and mouse/paste/resize/focus/key-release events do not clear; key-repeat does clear",
+     "citation": "crates/omega-cli/src/main.rs:1105-1111@HEAD: `if matches!(&evt, Event::Key(k) if k.kind != KeyEventKind::Release) { app.status_message = None; } let status_before = app.status_message.clone(); match handle_event(app, evt) {...}`"
+    },
+    {
+     "claim": "(b) A message set by a handler or by the async sink is guaranteed at least one rendered frame at normal interaction speed: the forwarder drain (main.rs:931-935) and reauth drain run at the top of each loop iteration, immediately followed by terminal.draw at main.rs:944, before the event poll/drain",
+     "citation": "crates/omega-cli/src/main.rs:929-944@HEAD: loop { drain async_status -> app.status_message; drain reauth_sink; terminal.draw(...)?; ... }"
+    },
+    {
+     "claim": "(c) Forwarder errors reach the bar: the forwarder consumer writes failures to the shared StatusSink, which the event loop drains into app.status_message every tick; combined with (a) they now render on Sessions",
+     "citation": "crates/omega-cli/src/forwarder.rs:19-21,34-38,42-48@HEAD (`set_err` / `Forward failed: {e}` into StatusSink) + crates/omega-cli/src/main.rs:888-894,931-935@HEAD (sink drained into app.status_message)"
+    },
+    {
+     "claim": "(c/d) The per-tab hint seeded on tab switch cannot clobber a handler-set message: it only fires when `app.status_message == status_before` (handler left the message untouched this iteration)",
+     "citation": "crates/omega-cli/src/main.rs:1987-2000@HEAD: `if app.tab != tab_before && app.status_message == status_before { app.status_message = Some(match app.tab {...}) }`"
+    },
+    {
+     "claim": "(d) CA-4 shipped: F5 sets the generic 'Refreshed' ack BEFORE refresh(), so a vanish notice produced inside refresh() overwrites the ack rather than being clobbered by it; KillSession uses the same ack-then-refresh order",
+     "citation": "crates/omega-cli/src/main.rs:1404-1411@HEAD (`app.status_message = Some(\"Refreshed\"); let _ = app.refresh().await;` with the CA-4 comment) and main.rs:1229-1240@HEAD (Killed-message set at 1229/1238, refresh at 1240)"
+    },
+    {
+     "claim": "(d) The vanish notice itself is set in the sync, testable reanchor_selection helper and is covered by a regression test asserting the notice text survives the vanished-session drop",
+     "citation": "crates/omega-tui/src/app.rs:1755-1782@HEAD (status_message = \"{name} ended \u2014 back to list\" at app.rs:1774) + test app.rs:2130-2147 asserting status_message contains \"gone ended\""
+    },
+    {
+     "claim": "status_message has exactly one clearing site in the entire loop (the pre-dispatch keypress clear), so a notice persists indefinitely at idle and is visible until the user acts \u2014 no timer race",
+     "citation": "grep -n 'status_message = None' crates/omega-cli/src/main.rs \u2192 single hit at main.rs:1108@HEAD"
+    },
+    {
+     "claim": "Fix commit self-reports runtime evidence: 19 omega-tui tests passing (11 baseline + 8 new), clippy warning counts identical to pre-fix HEAD, release build exit 0",
+     "citation": "git show 4ff5b94 commit message, 'Runtime evidence (CA-6)' section"
+    }
+   ],
+   "reasoning": "All four prescribed elements of the F-7/DESIGN-002 fix are present and correctly ordered at HEAD f6d8f37. (a) The suppression arm `None if on_sessions => \"\"` is gone; the rebuilt match at ui.rs:3216 puts `(Some(msg), _)` first so status_message unconditionally beats the Sessions git text. (b) The clear-on-next-keypress TTL clears BEFORE dispatch (main.rs:1105-1111), gated to Key events with kind != Release \u2014 the causing keypress never eats its own message, and mouse/paste/resize/release events leave the notice alone; only a subsequent key press or repeat consumes it, which is the intended TTL semantics. (c) Forwarder errors flow StatusSink \u2192 top-of-tick drain (main.rs:931-935) \u2192 terminal.draw (main.rs:944), guaranteeing at least one rendered frame before any key can clear, and the tab-switch hint seeding is guarded by status_before so it cannot clobber. (d) CA-4 shipped exactly as prescribed: F5 sets 'Refreshed' before refresh() (main.rs:1409-1410) so the reanchor vanish notice (app.rs:1774) wins; KillSession already followed the same order. I hunted clobber paths: the only writer that can overwrite a notice outside a keypress is the async forwarder-error drain itself (error replacing error \u2014 acceptable) \u2014 no path lets a low-value writer overwrite a vanish notice after the fix. One narrow residual: inside a single 8ms multi-event drain batch, a message set by key A is wiped by an already-queued key B before any draw; this is deterministic from the code (inherent to clear-on-keypress, not a missing fix element) and only bites during burst typing/paste, so it does not demote the verdict. Caveat per L1: I did not re-run cargo test (mandate was code inspection only); I rely on the code at HEAD plus the commit's recorded 19-test pass.",
+   "needs_live_tui": false,
+   "residual_risk": "During a multi-key drain batch (8ms budget, main.rs:1076-1088): if key A's handler sets a notice and key B is already queued, B's pre-dispatch clear (main.rs:1108) wipes the notice before the next terminal.draw \u2014 the message never renders. Only occurs with two action keys inside ~one tick (burst typing / paste while a notice lands); single interactive keypresses always get at least one frame. Likewise, a forwarder error arriving during sustained fast typing in chat focus may display for as little as one frame (~16ms) before the next keystroke consumes it. Both are inherent to the clear-on-keypress TTL design, not missing fix elements; a debounce (ignore clears for ~500ms after set) would close it if it ever bites in practice. Also note: the async forwarder-error drain can overwrite a same-tick vanish notice (error-over-error, low impact).",
+   "sev": "HIGH",
+   "refute": {
+    "upheld": true,
+    "reasoning": "I spot-checked every citation against HEAD f6d8f37 and actively hunted for surviving code paths; the FIXED verdict for DESIGN-002/F-7 survives all refutation attempts.\n\nCITATION SPOT-CHECKS (all pass):\n(1) Baseline suppression arm confirmed: `git show f432154:crates/omega-tui/src/ui.rs` shows `None if on_sessions => (String::new(), Style::default())` matched before the status_message fallback \u2014 every status_message structurally hidden on Sessions, exactly as the finding stated.\n(2) HEAD rewrite confirmed at crates/omega-tui/src/ui.rs:3216-3220@HEAD: `match (app.status_message.as_deref(), git_text) { (Some(msg), _) => ..., (None, Some(g)) => ..., (None, None) => ... }` \u2014 a live notice unconditionally beats Sessions git text. The suppression arm is gone (grep for `None if on_sessions` in ui.rs at HEAD: no hits in the status-bar block).\n(3) Clear-on-next-keypress confirmed at crates/omega-cli/src/main.rs:1106-1110@HEAD, gated `if matches!(&evt, Event::Key(k) if k.kind != KeyEventKind::Release)`, running BEFORE `handle_event` with `status_before` cloned after the clear (main.rs:1110) \u2014 the causing keypress cannot eat its own message; mouse/paste/resize/release don't clear.\n(4) Drain-then-draw ordering confirmed: async_status drained into app.status_message at main.rs:931-935@HEAD, reauth at 938-942, terminal.draw at main.rs:944@HEAD \u2014 a sink-delivered error gets >=1 rendered frame before any key can clear it (the clear happens only in the event-dispatch section after the draw).\n(5) Forwarder errors reach the sink: crates/omega-cli/src/forwarder.rs:34-38@HEAD (set_err), 44-45 (`Forward failed: {e}`), plus Key path 115-116 and Paste path 146 \u2014 all three failure paths covered, not just Text.\n(6) Tab-hint guard confirmed at main.rs:1991-2000@HEAD: `if app.tab != tab_before && app.status_message == status_before` \u2014 a handler-set message blocks the hint.\n(7) CA-4 confirmed: Action::Refresh at main.rs:1404-1410@HEAD sets `Some(\"Refreshed\")` at 1409 BEFORE `app.refresh().await` at 1410 (with the CA-4 comment); KillSession sets Killed messages at main.rs:1229-1238 before refresh at 1240.\n(8) Vanish notice confirmed at crates/omega-tui/src/app.rs:1774@HEAD inside the sync `reanchor_selection` (app.rs:1755-1782); regression test `chat_on_vanished_session_drops_to_list_and_clears_chord` at app.rs:2130-2147 asserts `status_message ... contains(\"gone ended\")`.\n(9) Single clearing site confirmed: `grep -rn 'status_message = None' crates/` \u2192 exactly one hit, main.rs:1108@HEAD (app.rs:1117 is field init `status_message: None`, not a clear). No `.take()` clearing sites in omega-tui.\n(10) Commit 4ff5b94 message contains the 'Runtime evidence (CA-6)' section: 19 tests passed (11+8), identical clippy counts, release build exit 0.\n\nREFUTATION HUNTS (all came up empty):\n- Alternate renderers: draw_status_bar (ui.rs:3046) has exactly one caller, ui.rs:100, inside the unconditional `draw()` layout \u2014 rendered on every frame, every tab, including ChatFullscreen (fullscreen branching lives inside draw_sessions for chunks[1] only; no early return before line 100).\n- Surface drift: `git diff 4ff5b94..HEAD --stat` touches only CHANGELOG.md and install.sh \u2014 the TUI/CLI code at HEAD is byte-identical to the fix commit.\n- Background clobber: the periodic 2s housekeeping refresh (main.rs:2033-2036@HEAD) calls app.refresh(), whose only status_message writer is the reanchor vanish notice itself \u2014 no low-value writer can overwrite a notice outside a keypress.\n- Race forwarder-error vs keypress: within one drain batch a queued key clears app.status_message, but sink errors are not yet in app.status_message during the drain \u2014 they land at the top of the NEXT iteration and are drawn immediately at 944 before the next poll. No frame-zero loss for async errors.\n\nRESIDUAL (acknowledged by the verifier, does not demote): within a single 8ms multi-event drain batch (main.rs:1076-1087@HEAD), a message set by key A is cleared by already-queued key B before the next draw. This is inherent to the prescribed clear-on-next-keypress TTL, bites only during burst typing/paste, and is not one of the four prescribed fix elements. Per L1 I note neither the verifier nor I re-ran cargo test (read-only mandate); the 19-pass claim rests on the commit's recorded CA-6 evidence, which is consistent with the test code present at HEAD.",
+    "counter_evidence": [
+     {
+      "claim": "Minor citation imprecision (non-substantive): the StatusSink type alias is at forwarder.rs:22@HEAD, not 19-21 as cited (19-20 are its doc comment). All other cited line ranges land exactly.",
+      "citation": "crates/omega-cli/src/forwarder.rs:19-22@HEAD: doc comment lines 19-20, `pub type StatusSink = std::sync::Arc<std::sync::Mutex<Option<String>>>;` at 22"
+     },
+     {
+      "claim": "Residual (does not re-open the finding): two key events drained in the same <=8ms batch render zero frames for the first key's message \u2014 key B's pre-dispatch clear at main.rs:1108 runs before the next terminal.draw at main.rs:944. Inherent to the prescribed clear-on-keypress TTL, only manifests under burst input.",
+      "citation": "crates/omega-cli/src/main.rs:1076-1087@HEAD (8ms drain budget, `while crossterm::event::poll(...)` multi-event batch) + main.rs:1106-1108@HEAD (per-event clear inside the batch) + main.rs:944@HEAD (draw only at top of loop iteration)"
+     }
+    ]
+   }
+  },
+  {
+   "id": "DESIGN-003",
+   "status": "FIXED",
+   "evidence": [
+    {
+     "claim": "(a) Both Chat AND ChatFullscreen focus are short-circuited into handle_key_chat before any forwarding logic can run",
+     "citation": "crates/omega-tui/src/input.rs:855-862@HEAD \u2014 `if app.tab == Tab::Sessions && matches!(app.session_focus, SessionFocus::Chat | SessionFocus::ChatFullscreen) { return handle_key_chat(app, key); }`"
+    },
+    {
+     "claim": "(a) The chat-focus plain-Esc arm is fully local: sets focus to List, resets the Tab chord, returns Action::None \u2014 never ForwardKeyToSession",
+     "citation": "crates/omega-tui/src/input.rs:1859-1870@HEAD \u2014 `KeyCode::Esc => { app.session_focus = SessionFocus::List; app.reset_tab_chord(); app.status_message = Some(\"Focus: session list\"...); Action::None }`"
+    },
+    {
+     "claim": "(b) The title hint 'CHAT (Esc \u2192 list to manage)' now matches behavior \u2014 Esc really does return to the list",
+     "citation": "crates/omega-tui/src/ui.rs:776@HEAD \u2014 `_ => \"CHAT (Esc \u2192 list to manage)\"` paired with the local Esc arm at input.rs:1859-1870; the arm's own comment says 'matches the title hint, the Help tab, and the layered-Esc pattern' (input.rs:1860-1861)"
+    },
+    {
+     "claim": "(c) Alt+Esc forwards a literal ESC to the agent PTY for vim/less",
+     "citation": "crates/omega-tui/src/input.rs:1858@HEAD \u2014 `KeyCode::Esc if alt => Action::ForwardKeyToSession { session, key: \"Escape\" }`; documented in Help at ui.rs:2969 \u2014 `key(\"Alt+Esc\", \"Send a literal ESC to the agent (vim/less)\")`"
+    },
+    {
+     "claim": "(c) Agent interrupt remains available via Ctrl+C, forwarded as rmux C-c",
+     "citation": "crates/omega-tui/src/input.rs:1903-1916@HEAD \u2014 Ctrl+<letter> map including `'c' => \"C-c\"` \u2192 ForwardKeyToSession"
+    },
+    {
+     "claim": "(d) No path lets Esc reach the forwarder while chat-focused: the only key entry is handle_event\u2192handle_key\u2192handle_key_normal, whose first statement is the chat router; inside handle_key_chat every Esc arm is local (cmd_capture cancel at 1701-1704, dead-session swallow at 1666-1669, plain Esc at 1859) except the intentional Alt+Esc at 1858",
+     "citation": "crates/omega-tui/src/input.rs:144-152 (handle_event), 317-325 (handle_key Normal\u2192handle_key_normal), 855-862 (router precedes all other arms), 1701-1704, 1666-1669, 1858-1870@HEAD"
+    },
+    {
+     "claim": "(d) The Sessions-tab quit arm is unreachable from chat focus \u2014 guarded by the router and the AF-5 swallow, as the in-code comment states",
+     "citation": "crates/omega-tui/src/input.rs:1550-1556@HEAD \u2014 comment: 'Chat/ChatFullscreen Esc never reaches here \u2014 the router short-circuits into handle_key_chat, which owns chat Esc: it swallows the dead-session Esc too (AF-5)'"
+    },
+    {
+     "claim": "(e) The AF-5 swallow never eats a legitimate list-focus Esc: it only fires when session_focus is Chat/ChatFullscreen AND selected_session() is None; a user on the LIST never enters handle_key_chat (router requires Chat focus at 855-862), so double-Esc-on-list behaves normally (2nd Esc hits the layered quit arm at 1550). The swallowed Esc's intent ('back to list') is already fulfilled by the focus reset at 1661 before the swallow",
+     "citation": "crates/omega-tui/src/input.rs:1651-1671@HEAD (dead-session recovery: `app.session_focus = SessionFocus::List;` at 1661, then `if key.code == KeyCode::Esc { ... return Action::None; }` at 1666-1669)"
+    },
+    {
+     "claim": "Regression tests cover every element and pass at HEAD: chat Esc\u2192list+chord-clear, Alt+Esc literal forward (focus stays Chat), AF-5 dead-session Esc no-quit, soft-lock recovery",
+     "citation": "crates/omega-tui/src/input.rs:2273-2292 (chat_esc_returns_to_list_and_clears_tab_chord), 2329-2342 (chat_alt_esc_forwards_literal_escape), 2346-2357 (dead_session_esc_does_not_quit_in_one_press), 2236-2252 (chat_focus_with_empty_list_does_not_soft_lock); runtime: `cargo test -p omega-tui` \u2192 '19 passed; 0 failed', incl. 'test input::tests::chat_alt_esc_forwards_literal_escape ... ok', 'test input::tests::chat_esc_returns_to_list_and_clears_tab_chord ... ok', 'test input::tests::dead_session_esc_does_not_quit_in_one_press ... ok'"
+    },
+    {
+     "claim": "TUI surface at HEAD f6d8f37 is byte-identical to fix commit 4ff5b94",
+     "citation": "`git diff 4ff5b94..HEAD --stat -- crates/omega-tui/` \u2192 empty output (only commit f6d8f37 on top, which touches install.sh/macOS only per `git log --oneline`)"
+    },
+    {
+     "claim": "Help tab documents the layered Esc and the Tab-out-of-chat path",
+     "citation": "crates/omega-tui/src/ui.rs:2891 \u2014 `key(\"Esc\", \"Back (detail \u2192 list \u2192 Sessions \u2192 quit)\")`; ui.rs:2901-2902 \u2014 'Esc = back'; ui.rs:2966-2969 \u2014 Chat section: Tab 'Return to session list', Shift+Tab 'Forward to Claude (cycle modes)', Alt+Esc literal ESC"
+    }
+   ],
+   "reasoning": "The baseline HIGH finding was a hint/behavior mismatch: the title promised 'Esc \u2192 list' while Esc was actually forwarded to the agent, interrupting live Claude turns. At HEAD all prescribed elements are present and verified. (a) The key router short-circuits BOTH Chat and ChatFullscreen focus into handle_key_chat (input.rs:855-862) before any other arm, and the plain-Esc arm there is purely local \u2014 focus\u2192List, Tab-chord reset, Action::None (input.rs:1859-1870). (b) The title hint at ui.rs:776 is now truthful. (c) Alt+Esc deliberately forwards a literal 'Escape' for vim/less (input.rs:1858) and is documented in Help (ui.rs:2969); Ctrl+C interrupt is preserved via the C-c map (input.rs:1903-1916). (d) Exhaustive trace of every Esc arm reachable in chat focus (cmd_capture cancel, dead-session swallow, Alt+Esc, plain Esc) shows no path to the forwarder except the intentional Alt+Esc; the Sessions quit arm is structurally unreachable from chat focus. (e) The AF-5 swallow is correctly scoped: it requires chat focus + a vanished session, so a list-focused Esc (including a fast double-Esc on the list) can never be swallowed \u2014 and the swallowed keypress's intent (back to list) is already delivered by the preceding focus reset. All four relevant regression tests exercise the full handle_key path and pass at HEAD (19/19, cargo test -p omega-tui), and git diff confirms the TUI surface at HEAD equals fix commit 4ff5b94. No ambiguity remains that requires a live TUI run for this finding: the unit tests drive the real router entry point, and the only live-terminal variable (whether a given emulator delivers Alt+Esc at all) is an environment concern outside the finding's scope.",
+   "needs_live_tui": false,
+   "residual_risk": "Low. (1) Some terminal emulators/window managers intercept Alt+Esc before it reaches the TUI, which would leave vim/less users without a literal-ESC path on those terminals \u2014 an environment limitation, not a code defect; Ctrl+C and Ctrl+[ alternatives are not all wired (Ctrl+[ arrives as Esc in legacy keyboard protocols and would then act as back-to-list). (2) The Help 'Chat' section (ui.rs:2966-2974) does not explicitly restate 'Esc = back to session list' \u2014 it is covered by the global Esc line (ui.rs:2891) and the title hint, but a user reading only the Chat section might miss it. (3) Muscle-memory: users accustomed to Esc-interrupting Claude must now use Ctrl+C; the status message and hints mitigate this.",
+   "sev": "HIGH",
+   "refute": {
+    "upheld": true,
+    "reasoning": "I attempted to refute every citation and hunt for surviving paths; the FIXED verdict survives all attacks. (1) Citation spot-checks all land exactly where claimed at HEAD: the chat router at input.rs:855-861 (inside handle_key_normal, fn at 852) short-circuits both SessionFocus::Chat and SessionFocus::ChatFullscreen into handle_key_chat before any other arm; the plain-Esc arm at input.rs:1859-1870 is fully local (session_focus=List, reset_tab_chord(), status message, Action::None \u2014 no ForwardKeyToSession); Alt+Esc at input.rs:1858 is the only Esc that forwards (\"Escape\", deliberate AF-1 vim/less path); the Ctrl map with 'c'=>\"C-c\" is at input.rs:~1905-1916 preserving agent interrupt; the title hint at ui.rs:776 (\"CHAT (Esc \u2192 list to manage)\") now states true behavior; Help entries at ui.rs:2891 (layered Esc) and ui.rs:2966-2969 (Chat section incl. Alt+Esc) exist as quoted. (2) Exhaustive Esc-arm enumeration: grep finds exactly four Esc arms reachable in chat focus \u2014 cmd_capture cancel (1701, local), dead-session AF-5 swallow (1666-1669, local, after the focus reset at 1661), Alt+Esc (1858, intentional forward), plain Esc (1859, local). The Sessions-tab quit arm (1523/1551-1556) is structurally unreachable from chat focus because the router fires first. (3) Alternate-entry hunt came up empty: handle_event (input.rs:144) \u2192 handle_key (317, Normal arm \u2192 handle_key_normal) is the single key path; the only dispatch site is omega-cli/src/main.rs:1111 and the only ForwardKeyToSession executor is main.rs:1756; grep for ForwardKeyToSession/ForwardCharToSession/send-keys emitters outside input.rs returns nothing. The one theoretical re-opener I constructed \u2014 a kitty-protocol Esc Release event double-firing (Press\u2192List, Release\u2192quit arm) \u2014 is dead: no PushKeyboardEnhancementFlags anywhere, so crossterm on this Unix legacy protocol never delivers Release events, and the loop at main.rs:1106 already shows Release awareness. (4) Independent runtime confirmation (not trusting the verifier's run): I ran `cargo test -p omega-tui` myself in an isolated target dir \u2192 \"19 passed; 0 failed\", with chat_esc_returns_to_list_and_clears_tab_chord, chat_alt_esc_forwards_literal_escape, dead_session_esc_does_not_quit_in_one_press, chat_focus_with_empty_list_does_not_soft_lock all ok; the tests at input.rs:2236-2357 drive the real handle_key entry point. (5) `git diff 4ff5b94..HEAD --stat -- crates/omega-tui/` is empty and the only commit on top (f6d8f37) touches install.sh/macOS only, so the audited surface is the fix commit. One adjacent nit checked for fairness: Help's \"Tab: Return to session list\" (ui.rs:2967) is accurate \u2014 app.rs:1267-1270 shows single-tap Tab from Chat goes to List (only the input.rs doc comment at ~1647 saying \"cycle List\u2192Chat\u2192Fullscreen\" is slightly stale prose; behavior and Help agree, no user-facing falsehood, not a DESIGN-003 element).",
+    "counter_evidence": []
+   }
+  },
+  {
+   "id": "DESIGN-004",
+   "status": "PARTIAL",
+   "evidence": [
+    {
+     "claim": "Chat-focus Ctrl+X now runs the same is_protected guard as list-focus 'x' and no longer kills instantly; unprotected kill drops focus to List first",
+     "citation": "crates/omega-tui/src/input.rs:1744-1752@HEAD \u2014 `if key.code == KeyCode::Char('x') && key.modifiers.contains(KeyModifiers::CONTROL) { if app.selected_session().is_some_and(|e| e.is_protected) { app.status_message = Some(\"Session is protected (press . to unlock)\"...); return Action::None; } app.session_focus = SessionFocus::List; app.reset_tab_chord(); return Action::KillSession(session); }`"
+    },
+    {
+     "claim": "The Ctrl+X guard is locked by two regression tests (protected never dies; unprotected kills + drops to list + clears Tab chord)",
+     "citation": "crates/omega-tui/src/input.rs:2296-2326@HEAD \u2014 tests `chat_ctrl_x_never_kills_a_protected_session` and `chat_ctrl_x_kills_unprotected_and_drops_to_list`"
+    },
+    {
+     "claim": "Esc in chat focus is TUI-local 'back to list' (5cf827b shipped and survives at HEAD), with Alt+Esc forwarding a literal ESC",
+     "citation": "crates/omega-tui/src/input.rs:1858-1870@HEAD \u2014 `KeyCode::Esc if alt => Action::ForwardKeyToSession { session, key: \"Escape\" }` then `KeyCode::Esc => { app.session_focus = SessionFocus::List; app.reset_tab_chord(); app.status_message = Some(\"Focus: session list\"); Action::None }`"
+    },
+    {
+     "claim": "'?' is STILL forwarded to the agent from chat focus \u2014 there is no TUI-local '?' handler anywhere in input.rs, so any printable char including '?' goes to the session; F1 is also forwarded ('F1' to rmux), so Help remains unreachable without first exiting chat",
+     "citation": "`grep -n \"Char('?')\" crates/omega-tui/src/input.rs` \u2192 no matches; crates/omega-tui/src/input.rs:1878-1886@HEAD forwards F1-F12 (`1 => \"F1\"` \u2192 ForwardKeyToSession); input.rs:1917-1927 forwards every printable char (`Action::ForwardCharToSession { session, ch: c }`)"
+    },
+    {
+     "claim": "The prescribed persistent '[Tab \u2192 list]' exit affordance on the chat-focused preview title did NOT ship: the title suffix exists only for fullscreen, and the meta override still wins on the chat-focused title",
+     "citation": "crates/omega-tui/src/ui.rs:806@HEAD \u2014 `let suffix = if fullscreen { \"  [FULLSCREEN \u2014 Tab-Tab to exit]\" } else { \"\" };` and ui.rs:1124-1128@HEAD \u2014 `let title = match meta_suffix { Some(meta) => format!(\"{}{}{}\", preview_title, scroll_indicator, meta), None if chat_focused => format!(\"{}{}  [keys \u2192 session]\", ...), None => ... }` \u2014 no exit hint in either chat-focused arm; `git diff f432154..HEAD -- crates/omega-tui/src/ui.rs | grep 'preview_title\\|meta_suffix\\|narrow'` returns nothing (region untouched since baseline)"
+    },
+    {
+     "claim": "Narrow (<100 cols) chat mode still renders preview-only with no list panel (the sole baseline hint carrier stays hidden)",
+     "citation": "crates/omega-tui/src/ui.rs:681-691@HEAD \u2014 `const NARROW_COLS: u16 = 100; let narrow = area.width < NARROW_COLS; ... } else if narrow { if chat_focused { (None, Some(area)) }` \u2014 list_area = None when chat-focused narrow"
+    },
+    {
+     "claim": "Mitigation that DID ship: the status bar is always rendered (1-row chunk, every tab/focus/width) and a Some(status_message) now wins over the Sessions-tab git text (F-7), so the exit hints set on focus entry are structurally visible",
+     "citation": "crates/omega-tui/src/ui.rs:81-100@HEAD (chunks `[Length(3), Min(0), Length(1)]`, `draw_status_bar(frame, app, chunks[2])` unconditional) and ui.rs:3216-3217@HEAD \u2014 `(Some(msg), _) => (msg.to_string(), ...)` takes the first match arm"
+    },
+    {
+     "claim": "Entering chat focus seeds an exit hint into that status bar: Tab entry sets 'In session \u2014 Tab: back to list \u00b7 Ctrl+X: close session \u00b7 Tab-Tab: hide/show menu'; Enter entry sets 'Focus: chat \u2014 keys forward to agent (Tab \u2192 agent, Tab-Tab \u2192 close to list, / = OmegaOS commands)'",
+     "citation": "crates/omega-tui/src/input.rs:902-905@HEAD and input.rs:1099-1105@HEAD"
+    },
+    {
+     "claim": "But the hint is TRANSIENT by design \u2014 cleared on the very next keypress \u2014 so after the first character typed into the agent, narrow chat mode again shows no exit affordance anywhere",
+     "citation": "crates/omega-cli/src/main.rs:1100-1109@HEAD \u2014 'F-7: a status notice lives until the NEXT keypress' + `app.status_message = None;` before dispatch"
+    },
+    {
+     "claim": "Additional narrow-mode weakness: the status bar's left segment (the only carrier of the hint) is squeezed to `width \u2212 70` cols because the right stats segment is a fixed Length(70) \u2014 at 80 cols the hint gets ~10 cols (after the '\u03a9' badge + session name, effectively zero), at \u226472 cols it gets none",
+     "citation": "crates/omega-tui/src/ui.rs:3181-3184@HEAD \u2014 `.constraints([Constraint::Min(0), Constraint::Length(70)])` with the status message rendered in `split[0]` (ui.rs:3187-3224)"
+    },
+    {
+     "claim": "One chat-entry path sets NO hint at all: `enter_chat_focus()` flips focus without touching status_message",
+     "citation": "crates/omega-tui/src/app.rs:1197-1202@HEAD"
+    }
+   ],
+   "reasoning": "Of the elements DESIGN-004 prescribed: (1) the unguarded Ctrl+X kill is FIXED \u2014 chat Ctrl+X now mirrors the list-focus is_protected guard exactly and drops focus to List on a real kill, with two regression tests (input.rs:1744-1752, 2296-2326). (2) Esc-local exit (5cf827b) is intact at HEAD (input.rs:1859-1870), so the narrow chat mode is no longer a hard trap \u2014 Esc always gets you out. (3) The prescribed persistent '[Tab \u2192 list]' exit affordance on the chat-focused preview title did NOT ship: the title-suffix pattern exists only for fullscreen (ui.rs:806) and the meta override still claims the chat-focused title (ui.rs:1124-1128); git diff f432154..HEAD shows that region untouched. (4) '?' and F1 are still forwarded from chat focus, so Help remains unreachable without first exiting \u2014 unchanged from baseline. (5) The shipped mitigation is the F-7 status bar: it always renders, status_message now wins, and both Tab-entry and Enter-entry into chat seed an exit hint \u2014 but the hint is cleared on the next keypress (main.rs:1105-1109) and, in exactly the narrow mode this finding targets, the left status segment is crushed by the fixed 70-col right stats segment (ui.rs:3183), so at phone widths the hint is likely truncated to invisibility even on entry. Net: kill-bypass closed (the HIGH-severity damage vector), discoverability trap only partially closed \u2014 exit works but is not advertised persistently, and the one advertisement that exists is transient and width-starved in narrow mode. PARTIAL.",
+   "needs_live_tui": true,
+   "residual_risk": "A narrow-terminal user inside chat focus still sees no persistent exit affordance after their first keypress: the title shows only session name + model/token meta, '?'/F1 are swallowed by the agent, and the entry hint in the status bar is both one-keypress-transient and probably truncated below ~85 cols (left segment = width \u2212 70 fixed stats cols). Esc does exit, but nothing on screen says so. needs_live_tui because only a live run at e.g. 80\u00d724 can confirm whether the entry hint is visible at all before truncation, which decides whether the residual is LOW (hint readable on entry) or MEDIUM (zero visible affordance ever in narrow mode).",
+   "sev": "HIGH",
+   "refute": {
+    "upheld": true,
+    "reasoning": "Every citation spot-checked against HEAD f6d8f37 and confirmed accurate. (1) Chat Ctrl+X guard: input.rs:1744-1752@HEAD matches the quoted code exactly (is_protected check \u2192 'Session is protected (press . to unlock)' \u2192 Action::None; else drop to List + reset_tab_chord + KillSession); both regression tests exist verbatim at input.rs:2296-2326. Refutation attempts failed: the guard and the kill target both derive from app.selected_session() (binding at input.rs:1652, guard at 1745) in one synchronous handler \u2014 no mismatch race; and handle_key_chat covers BOTH SessionFocus::Chat and ChatFullscreen (input.rs:855-862), so no fullscreen bypass survives. (2) Esc-local exit intact at input.rs:1858-1870 (Alt+Esc forwards 'Escape', plain Esc \u2192 List + chord reset), with the AF-5 empty-list arm (input.rs:1666-1669) keeping Esc safe even when the session died. (3) '?' still forwarded: grep \"Char('?')\" input.rs \u2192 no matches (exit=1); F1-F12 forwarded at input.rs:1878-1885; printables at 1917-1927 \u2014 Help unreachable from chat, as claimed. (4) Persistent exit affordance did NOT ship: ui.rs:806 suffix is fullscreen-only ('[FULLSCREEN \u2014 Tab-Tab to exit]'); ui.rs:1124-1128 meta arm wins and the chat-focused fallback shows only '[keys \u2192 session]' (no exit hint); git diff f432154..HEAD -- ui.rs | grep 'preview_title|meta_suffix|narrow' is empty \u2014 region untouched since baseline. (5) Narrow layout unchanged: ui.rs:681-691 (NARROW_COLS=100; chat-focused narrow \u2192 list_area=None). (6) F-7 mitigation real but transient/width-starved exactly as claimed: ui.rs:81-100 unconditional draw_status_bar(chunks[2]); ui.rs:3216-3217 Some(msg) wins; entry hints at input.rs:903-907 (cited 902-905, ~2-line drift, substance identical) and input.rs:1099-1105; cleared before dispatch of every non-Release keypress at omega-cli/src/main.rs:1100-1109; left segment squeezed by Constraint::Length(70) right segment at ui.rs:3181-3184 with the message in split[0]. (7) enter_chat_focus (app.rs:1197-1202) sets no status_message \u2014 and has two live callers the verifier could have cited (mouse click input.rs:201; post-spawn auto_focus_chat main.rs:844), strengthening the hint-free-entry claim. Status calculus is sound: kill bypass (the HIGH damage vector) fully closed with tests; discoverability trap only partially closed (Esc works but is not persistently advertised; the one advertisement is transient, width-starved in narrow mode, and absent on two entry paths; '?'/F1 still forwarded). PARTIAL is the correct status \u2014 not FIXED (prescribed persistent affordance missing, Help still unreachable), not OPEN (guarded kill + Esc escape hatch shipped).",
+    "counter_evidence": [
+     {
+      "claim": "Minor citation drift only: the Tab-entry hint cited as input.rs:902-905 actually sits at input.rs:903-907@HEAD ('In session \u2014 Tab: back to list \u00b7 Ctrl+X: close session \u00b7 Tab-Tab: hide/show menu'); content is exactly as quoted, so this does not change the verdict.",
+      "citation": "crates/omega-tui/src/input.rs:903-907@HEAD"
+     },
+     {
+      "claim": "Evidence the verifier understated (pro-PARTIAL, not contra): enter_chat_focus() is reachable from two live hint-free paths \u2014 a mouse click on the preview pane and the automatic post-spawn focus \u2014 so hint-free chat entry is a routine occurrence, not an edge case.",
+      "citation": "crates/omega-tui/src/input.rs:201@HEAD (mouse column >= 30 \u2192 app.enter_chat_focus()) and crates/omega-cli/src/main.rs:844@HEAD (auto_focus_chat \u2192 app.enter_chat_focus())"
+     },
+     {
+      "claim": "Refuted bypass hypothesis: the Ctrl+X guard cannot kill a different session than it checks \u2014 both the kill target and the guard read app.selected_session() within the same synchronous handler, and ChatFullscreen routes through the same handler so fullscreen Ctrl+X is equally guarded.",
+      "citation": "crates/omega-tui/src/input.rs:1652@HEAD (session binding), :1745 (guard), :855-862 (Chat | ChatFullscreen \u2192 handle_key_chat)"
+     }
+    ]
+   }
+  },
+  {
+   "id": "DESIGN-005",
+   "status": "STILL_OPEN",
+   "evidence": [
+    {
+     "claim": "scroll_preview_up at HEAD still unconditionally clamps non-first presses against preview_max_scroll, which is stale 0 until the next draw \u2014 the prescribed 'accumulate unclamped while preview_needs_history pending / skip clamp until history lands' is absent (else branch never checks preview_needs_history).",
+     "citation": "crates/omega-tui/src/app.rs:1350-1353@HEAD(f6d8f37): `self.preview_scroll = self.preview_scroll.saturating_add(lines).min(self.preview_max_scroll);`"
+    },
+    {
+     "claim": "First press out of tail sets preview_scroll=lines, preview_follow_tail=false, preview_needs_history=true \u2014 so presses 2+ of a burst take the clamping else branch.",
+     "citation": "crates/omega-tui/src/app.rs:1341-1348@HEAD"
+    },
+    {
+     "claim": "The function is byte-identical to the baseline commit; no fix landed.",
+     "citation": "Quoted output of `git show f432154:crates/omega-tui/src/app.rs` (old lines 1304-1323) matches app.rs:1336-1355@HEAD verbatim, including the comment 'Skip the clamp on this first transition'."
+    },
+    {
+     "claim": "preview_max_scroll is only published at draw time, after input events are processed, so a multi-event burst within one drain tick clamps against 0.",
+     "citation": "crates/omega-tui/src/ui.rs:826-829@HEAD: `let max_scroll = total_lines.saturating_sub(viewport_height); ... app.preview_max_scroll = max_scroll;`"
+    },
+    {
+     "claim": "The preview_needs_history history load runs only AFTER the bounded input-drain loop; the mid-drain refresh (main.rs:2002-2004) fires only on selected/tab change, never on scroll \u2014 so all scroll events drained in one tick see the stale max.",
+     "citation": "crates/omega-cli/src/main.rs:2027-2031@HEAD (`if app.preview_needs_history { ... refresh_preview() }`), drain-loop exit at main.rs:2006-2010 ('Bounded drain \u2014 don't let a flood starve the redraw loop')."
+    },
+    {
+     "claim": "Multi-event scroll bursts are real inputs: mouse wheel emits repeated ScrollUp events routed to scroll_preview_up, and PageUp/Up autorepeat in chat focus does the same.",
+     "citation": "crates/omega-tui/src/input.rs:166-168 (MouseEventKind::ScrollUp), input.rs:216-219 (scroll_active_panel_at \u2192 app.scroll_preview_up), input.rs:1759-1760 and 1797 (PageUp / Up)@HEAD"
+    },
+    {
+     "claim": "Fix commit 4ff5b94 did not touch this logic and does not claim F-3: its diff has zero occurrences of preview_max_scroll/scroll_preview, and its message enumerates F-7, F-12, AF-7/3/1/2/5, CA-2/3/4/5 only; none of the 8 new regression tests cover preview scroll.",
+     "citation": "Quoted `git show 4ff5b94 | grep -n 'preview_max_scroll\\|scroll_preview'` \u2192 only output is the pre-existing main.rs comment context line 'tail\u2192history transition (flag is set once in scroll_preview_up)'; full commit message quoted in transcript."
+    },
+    {
+     "claim": "No other commit since baseline touched the scroll logic in app.rs \u2014 the only app.rs changes are Theme settings and Tab-chord/reanchor code.",
+     "citation": "Quoted `git diff f432154..HEAD -- crates/omega-tui/src/app.rs`: hunks at SettingsSection::Theme and reset_tab_chord/reanchor_selection only; `grep preview` over the diff yields only theme-preview comment lines."
+    }
+   ],
+   "reasoning": "The finding's mechanism is fully intact at HEAD f6d8f37. Press 1 while following tail takes the special branch (app.rs:1343-1348): scroll=lines, follow_tail=false, needs_history=true. Any further press arriving before the post-drain history refresh (main.rs:2027) and the draw that publishes a real preview_max_scroll (ui.rs:829) takes the else branch (app.rs:1350-1353) and clamps saturating_add(lines).min(0) \u2192 preview_scroll snaps back to 0, i.e. stuck at tail \u2014 exactly the baseline F-3 'burst of 3 presses' failure. The event loop drains multiple input events per tick before either remedy point runs (mid-drain refresh at main.rs:2002 fires only on selected/tab change), so intra-tick bursts from wheel scroll or key autorepeat reproduce the bug. Neither fix-plan option (accumulate unclamped while preview_needs_history pending, or skip clamp until the history capture lands) exists in the code; the function is byte-identical to baseline f432154, commit 4ff5b94's diff and message never mention F-3/DESIGN-005, and none of its 8 regression tests touch preview scroll. Verdict: STILL_OPEN (not PARTIAL \u2014 zero prescribed elements shipped; not REGRESSED \u2014 behavior unchanged from baseline). needs_live_tui=false: the static evidence (unchanged code + event-loop ordering) settles the status; a live run could only quantify how often real terminals batch \u22652 scroll events per drain tick, which doesn't change the open/fixed determination.",
+   "needs_live_tui": false,
+   "residual_risk": "Severity in practice depends on input timing: the bug only bites when \u22652 scroll-up events land in the same drain tick (mouse wheel flicks and key autorepeat plausibly do; the drain loop's own 'flood' comment at main.rs:2006 acknowledges event batching). Single deliberate presses separated by a frame work correctly, which may have masked this in casual testing. A fix should also add a regression test (none exists for preview scroll) \u2014 e.g. simulate press, press, press with preview_max_scroll still 0 and assert preview_scroll accumulates.",
+   "sev": "MEDIUM",
+   "refute": null
+  },
+  {
+   "id": "DESIGN-006",
+   "status": "STILL_OPEN",
+   "evidence": [
+    {
+     "claim": "claude_meta.rs is byte-identical to the baseline \u2014 no fix commit touched it",
+     "citation": "`git diff f432154..HEAD -- crates/omega-core/src/claude_meta.rs | wc -l` \u2192 0 lines"
+    },
+    {
+     "claim": "Meta resolution at HEAD is still cwd-derived, not session-derived: session name \u2192 rmux pane_current_path \u2192 munged transcript dir \u2192 newest *.jsonl by mtime",
+     "citation": "crates/omega-core/src/claude_meta.rs:88-107@HEAD (pane_cwd via `rmux list-panes -F #{pane_current_path}`), :25-33 (transcript_dir munges the cwd), :36-50 (newest_jsonl picks newest-mtime file in that dir \u2014 no session-id binding anywhere)"
+    },
+    {
+     "claim": "Both entry points chain through the same cwd path",
+     "citation": "crates/omega-core/src/claude_meta.rs:111-114@HEAD (read_meta_for_session: `let cwd = pane_cwd(session_name)?; read_meta(&cwd)`) and :120-131 (read_meta_for_session_if_changed: same `pane_cwd` \u2192 `transcript_mtime(&cwd)` \u2192 `read_meta(&cwd)`)"
+    },
+    {
+     "claim": "The TUI call site still feeds the cwd-derived result into the per-session meta map unchanged",
+     "citation": "crates/omega-cli/src/main.rs:1002-1010@HEAD (`read_meta_for_session_if_changed(&n, prev)` \u2192 `app.session_meta.insert(name.clone(), (m.model, m.tokens))`); `git diff f432154..HEAD -- crates/omega-cli/src/main.rs | grep read_meta` \u2192 empty"
+    },
+    {
+     "claim": "The preview title renders that meta for ANY selected session that has an entry \u2014 including a plain bash shell co-located with a Claude project dir",
+     "citation": "crates/omega-tui/src/ui.rs:1118-1125@HEAD (meta_suffix from `app.session_meta.get(&e.session.name)` \u2192 `\u27e8 {model} \u00b7 {tok} tok \u27e9` appended to the preview title); `git diff f432154..HEAD -- crates/omega-tui/src/ui.rs | grep session_meta` \u2192 empty"
+    },
+    {
+     "claim": "None of the three fix commits touched the meta pipeline",
+     "citation": "`git show --stat 8ea3a4a` \u2192 only crates/omega-tui/src/app.rs; `git show --stat 5cf827b` \u2192 only crates/omega-tui/src/input.rs; `git show --stat 4ff5b94` \u2192 main.rs/app.rs/input.rs/ui.rs, and its commit message scopes the changes to F-7 status bar, F-12 Ctrl+X, Tab-chord, Alt+Esc, AF-5, CA-4 \u2014 no mention of claude_meta/F-4"
+    }
+   ],
+   "reasoning": "The F-4 mechanism is fully intact at HEAD f6d8f37. Meta is resolved by session NAME only as far as asking rmux for the pane's current working directory (claude_meta.rs:88-107); from there everything is directory-keyed: transcript_dir() munges the cwd into ~/.claude/projects/<munged-cwd> (:25-33) and newest_jsonl() (:36-50) returns whichever transcript in that dir has the newest mtime. There is no binding to the actual Claude session running in the previewed pane (no session UUID, no PID, no per-pane transcript association). Consequence at HEAD, exactly as in the baseline: (a) a non-Claude session (plain bash) whose cwd matches any directory containing Claude transcripts shows another session's \"opus-4.8 \u00b7 9.1M tok\" in its preview title; (b) two Claude sessions sharing one cwd cross-attribute \u2014 both show the meta of whichever transcript was modified most recently. The doc comment at ui.rs:1116 still assumes \"non-Claude session\" implies no meta, which is false when cwds collide. git diff f432154..HEAD on claude_meta.rs is empty, and none of the diff hunks in main.rs/ui.rs since baseline touch the meta refresh or render path; the three fix commits address F-1/F-2/F-7/F-12/AF-*/CA-* only. Status: STILL_OPEN. needs_live_tui=false \u2014 the cwd-derived data flow is fully determined by the code; no runtime ambiguity remains (the baseline already carried the live repro of the bash-shell case).",
+   "needs_live_tui": false,
+   "residual_risk": "Operator-facing misinformation: the preview title can attribute a model and a multi-million-token spend to a session that consumed nothing (plain shell), or to the wrong one of several co-cwd Claude sessions (newest-mtime wins). MEDIUM severity stands \u2014 it can mislead budget/kill decisions (R-BUDGET) but corrupts no state. A real fix needs session-derived transcript binding (e.g. resolving the pane's claude process \u2192 its session UUID \u2192 <uuid>.jsonl) instead of newest_jsonl(cwd).",
+   "sev": "MEDIUM",
+   "refute": null
+  },
+  {
+   "id": "DESIGN-007",
+   "status": "PARTIAL",
+   "needs_live_tui": false,
+   "evidence": [
+    {
+     "claim": "The onboarding copy string is byte-identical to baseline \u2014 never corrected. HEAD string: \"Focus: chat \u2014 keys forward to agent (Tab \u2192 agent, Tab-Tab \u2192 close to list, / = OmegaOS commands)\"",
+     "citation": "crates/omega-tui/src/input.rs:1104@HEAD; `git show f432154:crates/omega-tui/src/input.rs | grep -n 'Focus: chat'` \u2192 line 1077 identical; `git diff f432154..HEAD -- crates/omega-tui/src/input.rs | grep -c 'Focus: chat \u2014 keys forward'` \u2192 0 (untouched by any diff hunk)"
+    },
+    {
+     "claim": "Claim 1 ('Tab \u2192 agent') still inverted: single Tab in chat returns to the session LIST, not the agent; forwarding to the agent is Shift+Tab (BTab)",
+     "citation": "crates/omega-tui/src/app.rs:1267-1270@HEAD (`SessionFocus::List => Chat, _ => List` \u2014 from Chat, Tab \u2192 List); crates/omega-tui/src/input.rs:1773@HEAD ('Tab \u2192 return to the session list'); input.rs:1776-1780@HEAD (Shift+Tab/BackTab \u2192 ForwardKeyToSession \"BTab\")"
+    },
+    {
+     "claim": "Claim 2 ('Tab-Tab \u2192 close to list') still wrong: Tab-Tab toggles the left menu (Chat \u2192 ChatFullscreen = hide menu), it does not close to the list",
+     "citation": "crates/omega-tui/src/app.rs:1255-1262@HEAD (double tap: `ChatFullscreen => List // show the menu, _ => ChatFullscreen // hide the menu`); input.rs:1788@HEAD ('In session \u2014 Tab: back to list \u00b7 Tab-Tab: hide/show menu')"
+    },
+    {
+     "claim": "Claim 3 ('/ = OmegaOS commands') still wrong \u2014 the feature was deliberately removed: '/' is forwarded verbatim to the agent and the cmd_capture state machine can never start (its only Some(..) writes are inside the already-active capture loop, i.e. dead code)",
+     "citation": "crates/omega-tui/src/input.rs:1918-1926@HEAD ('We must NOT intercept \"/\" for OmegaOS command capture \u2026 Claude's \"/\" now works natively; reach OmegaOS tabs via the menu (Tab out of chat) instead'); `grep -rn 'cmd_capture = Some' crates/omega-tui/src/` \u2192 only input.rs:1688,1697,1723, all inside the `if let Some(mut buf) = app.cmd_capture.take()` block at input.rs:1680"
+    },
+    {
+     "claim": "The display channel (F-7 blocker) IS fixed at HEAD: a Some(status_message) now always wins in the status bar, and the message survives until the next keypress \u2014 so the (still-wrong) onboarding copy now actually displays after Enter",
+     "citation": "crates/omega-tui/src/ui.rs:3216-3217@HEAD (`(Some(msg), _) => (msg.to_string(), \u2026)` \u2014 notice always wins); crates/omega-cli/src/main.rs:1100-1108@HEAD (F-7 clear-on-NEXT-keypress TTL: cleared before dispatch, so a freshly set message survives until the user types again); git show 4ff5b94 commit message ('F-7/DESIGN-002 \u2026 a Some(status_message) now takes priority over the Sessions-tab git text')"
+    }
+   ],
+   "reasoning": "DESIGN-007 had two components: (b) the message was never displayed (blocked by F-7) and (a) the copy was wrong on all 3 claims. At HEAD, (b) is fixed \u2014 4ff5b94 made Some(status_message) take priority in the status bar (ui.rs:3216-3217) with a clear-on-next-keypress TTL (omega-cli/src/main.rs:1100-1108), so the Enter-to-chat notice now renders. But (a) was NOT fixed: the string at input.rs:1104 is byte-identical to baseline (old input.rs:1077, confirmed via git diff showing zero hunks touching it), and all three of its claims remain wrong against HEAD bindings: Tab actually returns chat\u2192list (app.rs:1267-1270) not 'Tab \u2192 agent' (agent forwarding is Shift+Tab/BTab, input.rs:1776-1780); Tab-Tab toggles the menu / fullscreen (app.rs:1255-1262) not 'close to list'; and '/' is deliberately forwarded verbatim to the agent with the OmegaOS capture removed as dead code (input.rs:1918-1926), so '/ = OmegaOS commands' describes a feature that no longer exists. Net: PARTIAL \u2014 the display element shipped, the copy correction did not. Note the practical effect is worse than baseline for the copy half: the F-7 fix unblocked the channel, so the misinformation is now actually visible to users on every Enter-to-chat. No live TUI needed: the string is a static literal and the render priority is structural.",
+   "residual_risk": "Users entering chat focus now see actively misleading guidance on every Enter: pressing Tab expecting it to 'go to the agent' instead drops them back to the list; typing '/' expecting OmegaOS commands sends it to Claude's own slash menu; 'Tab-Tab \u2192 close to list' actually hides the menu (fullscreen). One-line fix: replace the literal at crates/omega-tui/src/input.rs:1104 with copy matching the canonical hint already used at input.rs:1788 (e.g. 'Focus: chat \u2014 keys forward to agent (Tab: back to list \u00b7 Tab-Tab: hide/show menu \u00b7 Shift+Tab: agent mode-cycle)').",
+   "sev": "MEDIUM",
+   "refute": {
+    "upheld": true,
+    "reasoning": "Adversarial spot-check upheld the PARTIAL verdict on every point. (1) The onboarding copy is genuinely uncorrected: crates/omega-tui/src/input.rs:1104@HEAD is byte-identical to f432154:input.rs:1077 (\"Focus: chat \u2014 keys forward to agent (Tab \u2192 agent, Tab-Tab \u2192 close to list, / = OmegaOS commands)\"); `git diff f432154..HEAD -- crates/omega-tui/src/input.rs | grep -c 'Focus: chat'` \u2192 0 and none of the 4 input.rs commits since baseline (5cf827b, 5ed5921, 115de39, 4ff5b94) touch it. (2) All three copy claims are wrong against HEAD bindings exactly as the verifier said: single Tab from Chat goes to List (app.rs:1267-1270 `List => Chat, _ => List`; hint at input.rs:1773 and 1788 confirms), agent forwarding is Shift+Tab/BackTab \u2192 \"BTab\" (input.rs:1776-1780); Tab-Tab from Chat (the state the notice is shown in, set at input.rs:1099-1105) goes to ChatFullscreen i.e. hides the menu (app.rs:1255-1262 `_ => ChatFullscreen`), not \"close to list\"; and \"/\" is forwarded verbatim with capture deliberately removed (input.rs:1918-1926 comment) \u2014 the cmd_capture state machine is dead code since its only Some(..) writes (input.rs:1688,1697,1723) sit inside the `app.cmd_capture.take()` block at input.rs:1680, it initializes None (app.rs:1139) and every other write is `= None`. (3) The display channel IS fixed: ui.rs:3216-3217 makes Some(status_message) always win, draw_status_bar is rendered unconditionally for every tab and focus mode (ui.rs:100, chunks[2] of the top-level layout), and the clear-on-NEXT-keypress runs before dispatch (omega-cli/src/main.rs:1105-1109) so the Enter-set message survives until the next key. I hunted for re-opening paths: the only bypass of the notice is the master-without-Telegram wizard branch (input.rs:1093-1098), an edge case that returns before setting the message and does not change the verdict; no fullscreen/narrow variant skips the status bar. Net: display fixed, copy not corrected \u2014 PARTIAL is exactly right, including the observation that the now-working channel makes the stale copy visible.",
+    "counter_evidence": []
+   }
+  },
+  {
+   "id": "DESIGN-008",
+   "status": "STILL_OPEN",
+   "evidence": [
+    {
+     "claim": "preview_inner_width/height are still written only inside draw_sessions_right, the sole writer in the codebase",
+     "citation": "crates/omega-tui/src/ui.rs:821-822 @HEAD f6d8f37 \u2014 `app.preview_inner_width = area.width.saturating_sub(2); app.preview_inner_height = area.height.saturating_sub(2);` (grep over crates/ shows no other write site)"
+    },
+    {
+     "claim": "The narrow+list-focused branch produces preview_area=None, so draw_sessions_right is never invoked and the dims stay stale that frame",
+     "citation": "crates/omega-tui/src/ui.rs:686-691 @HEAD \u2014 `} else if narrow { if chat_focused { (None, Some(area)) } else { (Some(area), None) } }`; the only preview render path in that flow is ui.rs:794-796 `if let Some(pa) = preview_area { draw_sessions_right(...) }`"
+    },
+    {
+     "claim": "The main.rs resize loop still consumes the possibly-stale dims unconditionally on every Sessions-tab tick and fires resize_pane on any (name,cols,rows) change \u2014 e.g. changing selection in narrow list mode resizes the live pane to stale geometry",
+     "citation": "crates/omega-cli/src/main.rs:957-988 @HEAD \u2014 `if app.tab == Tab::Sessions { ... let cols = app.preview_inner_width; (960) ... let rows = app.preview_inner_height.max(10); (977) if cols >= 20 { ... m.resize_pane(&name, cols, rows).await; (982) }`; no validity/drawn-this-frame flag exists (grep for preview_dims_valid|dims_valid|geometry_valid returned nothing)"
+    },
+    {
+     "claim": "No fix commit since baseline f432154 touched this logic \u2014 only comments changed in the resize block and the F-7/CA-4 hunks elsewhere",
+     "citation": "`git diff f432154..HEAD -- crates/omega-cli/src/main.rs` resize hunk @956-977 changes only comment text (CHAT_INPUT_HEADROOM/paste wording); `git diff f432154..HEAD -- crates/omega-tui/src/ui.rs | grep preview_inner|narrow|valid` \u2192 empty; fix commits 8ea3a4a/5cf827b/4ff5b94 do not modify draw_sessions layout branching or the resize loop"
+    },
+    {
+     "claim": "The cols>=20 guard only blocks the initial-zero state, not stale wide-frame values",
+     "citation": "crates/omega-tui/src/app.rs:1126-1127 @HEAD \u2014 dims initialized to 0; crates/omega-cli/src/main.rs:978 \u2014 `if cols >= 20` passes for any stale value written by a previous wide/chat frame"
+    }
+   ],
+   "reasoning": "F-11 is byte-for-byte intact at HEAD. The prescribed remediations (a dims-validity flag, or per-branch dim writes in the narrow+list path) were never implemented: draw_sessions' narrow+list branch (ui.rs:686-691) still returns preview_area=None, draw_sessions_right (the only writer of preview_inner_*, ui.rs:821-822) is skipped, and the run_tui_loop resize block (main.rs:957-988) still reads the stale fields every tick and issues resize_pane whenever the (session-name, cols, rows) tuple changes \u2014 so on a narrow terminal, browsing the session list resizes each newly selected live pane to the geometry of the last frame that actually drew a preview (e.g. a prior wide layout or chat-focused full-width frame). None of the three fix commits since baseline (8ea3a4a, 5cf827b, 4ff5b94) touch this code; the only diff in the resize hunk is comment rewording. Code reading is unambiguous \u2014 the stale-value data flow is fully deterministic \u2014 so no live TUI run is needed to settle the verdict.",
+   "needs_live_tui": false,
+   "residual_risk": "On narrow terminals (<100 cols) every selection change in list mode sends a resize RPC with stale geometry to the live agent pane (SIGWINCH \u2192 agent re-layout at wrong width), and the stale dims persist until the user focuses chat or widens the terminal. Severity unchanged from baseline (MEDIUM): wrong-width reflow of live Claude sessions on mobile/SSH-narrow usage, no data loss.",
+   "sev": "MEDIUM",
+   "refute": null
+  },
+  {
+   "id": "DESIGN-009",
+   "status": "STILL_OPEN",
+   "evidence": [
+    {
+     "claim": "The preview scroll indicator at HEAD still renders the raw internal offset pair, not the prescribed '[\u2191 N lines \u00b7 live]' style",
+     "citation": "crates/omega-tui/src/ui.rs:1107-1111@HEAD \u2014 `let scroll_indicator = if max_scroll > 0 { format!(\" [{}/{}] \", scroll, max_scroll) } else { String::new() };`"
+    },
+    {
+     "claim": "The rendered values are still raw Paragraph offsets: max_scroll = total_lines - viewport_height and scroll = from-top offset derived from it; widget consumes it directly",
+     "citation": "crates/omega-tui/src/ui.rs:826,832-833@HEAD (`let max_scroll = total_lines.saturating_sub(viewport_height); \u2026 let scroll = max_scroll.saturating_sub(from_tail);`) and ui.rs:1129-1130 (`Paragraph::new(preview_lines).scroll((scroll, 0))`)"
+    },
+    {
+     "claim": "App state DOES track live-follow (preview_follow_tail), but the renderer never surfaces it as a 'live' badge \u2014 live-follow is only inferable as scroll == max_scroll, same as baseline",
+     "citation": "crates/omega-tui/src/app.rs:1017@HEAD (`pub preview_follow_tail: bool`); no use of `preview_follow_tail` or any 'live' marker in the title construction at ui.rs:1107-1128"
+    },
+    {
+     "claim": "No fix commit since baseline addresses F-9/DESIGN-009",
+     "citation": "Command output: `git log --all --oneline --grep=\"F-9\"` and `--grep=\"DESIGN-009\"` both returned empty; 4ff5b94 commit message lists F-7, F-12, Tab-chord, Alt+Esc, AF-5, CA-4 only; `git diff f432154..HEAD -- crates/omega-tui/src/ui.rs | grep scroll_indicator` returned no hunks touching the indicator format"
+    }
+   ],
+   "reasoning": "The fix-plan for DESIGN-009 prescribed replacing the bare '[n/n]' raw Paragraph offset with a human-readable live-follow cue such as '[\u2191 N lines \u00b7 live]'. At HEAD (f6d8f37, TUI identical to 4ff5b94), the indicator code has moved from old ui.rs:1025-1029 to ui.rs:1107-1111 but is byte-for-byte the same idea: `format!(\" [{}/{}] \", scroll, max_scroll)` where both numbers are internal Paragraph scroll offsets (ui.rs:826,832-833). Although the underlying scroll model was reworked to tail-anchored (`preview_scroll` counted from tail, `preview_follow_tail` flag at app.rs:1017) \u2014 which fixes scroll-jump mechanics \u2014 the rendered cue is unchanged: a user in live-follow still sees '[N/N]' with no 'live' word, no '\u2191 N lines' phrasing, and the flag is never read by the title renderer. None of the three fix commits (8ea3a4a, 5cf827b, 4ff5b94) mention F-9/DESIGN-009, and the diff f432154..HEAD contains no hunk altering the indicator format. Not PARTIAL: zero prescribed presentation elements shipped \u2014 the tail-anchoring was a separate finding's mechanics fix, not the F-9 cue. No live-TUI run needed: this is a pure string-format question fully decidable from source.",
+   "needs_live_tui": false,
+   "residual_risk": "Users still cannot tell from the title whether the preview is glued to the live tail or parked in scrollback; '[37/37]' vs '[12/37]' is the only cue and requires mental arithmetic. Severity remains MEDIUM as baselined \u2014 cosmetic/affordance only, no data-loss or input-routing risk.",
+   "sev": "MEDIUM",
+   "refute": null
+  },
+  {
+   "id": "DESIGN-010",
+   "status": "STILL_OPEN",
+   "evidence": [
+    {
+     "claim": "Help tab at HEAD still documents j/k as session navigation: the Sessions section lists the binding '\u2191 / \u2193  or  j / k' with description 'Navigate sessions'.",
+     "citation": "crates/omega-tui/src/ui.rs:2908@HEAD(f6d8f37): key(\"\u2191 / \u2193  or  j / k\", \"Navigate sessions\")"
+    },
+    {
+     "claim": "input.rs at HEAD still deliberately swallows bare j/k on the Sessions tab (arrows-only, operator preference), so the documented binding does nothing there.",
+     "citation": "crates/omega-tui/src/input.rs:985-988@HEAD: '// Sessions tab: navigate with ARROWS ONLY \u2014 j/k must NOT move the cursor' ... 'KeyCode::Char('j') | KeyCode::Char('k') if app.tab == Tab::Sessions => Action::None,'"
+    },
+    {
+     "claim": "The Help line is byte-identical to the baseline \u2014 no fix commit touched it; only the line number shifted (2769 \u2192 2908).",
+     "citation": "git show f432154:crates/omega-tui/src/ui.rs | grep -n 'Navigate sessions' \u2192 '2769:        key(\"\u2191 / \u2193  or  j / k\", \"Navigate sessions\"),' and git diff f432154..HEAD -- crates/omega-tui/src/ui.rs | grep 'j / k' \u2192 (empty)"
+    },
+    {
+     "claim": "4ff5b94 did modify the Help tab, but only to add the Alt+Esc binding line \u2014 it did not touch the j/k documentation.",
+     "citation": "git show 4ff5b94 -- crates/omega-tui/src/ui.rs \u2192 only Help hunk: '+        key(\"Alt+Esc\", \"Send a literal ESC to the agent (vim/less)\"),'"
+    },
+    {
+     "claim": "The arrows-only intent is also restated in core config, confirming the j/k swallow is the deliberate behavior and the Help text is the stale side.",
+     "citation": "crates/omega-core/src/config.rs:31@HEAD: '/// (Arrow-only navigation is always enforced there; j/k never move the cursor.)'"
+    }
+   ],
+   "reasoning": "The F-10 contradiction survives intact at HEAD. The Help tab Sessions section (ui.rs:2908) still advertises 'j / k \u2014 Navigate sessions' while the input handler (input.rs:988) has an explicit guard arm that consumes bare j/k on Tab::Sessions and returns Action::None, with a comment stating arrows-only is an operator preference. The Help line is unchanged since the f432154 baseline (git diff over ui.rs shows zero hits for 'j / k'). Commit 4ff5b94 did edit the Help tab \u2014 proving the file was in scope during the fix pass \u2014 but only added the Alt+Esc documentation line and left the stale j/k claim in place. No prescribed element of the finding (correcting or removing the j/k mention for Sessions) shipped, so this is STILL_OPEN rather than PARTIAL. Behavior is unambiguous from static code (a literal match arm vs a literal doc string), so no live TUI run is needed. The fix is trivial: change ui.rs:2908 to drop 'or j / k' (e.g. key(\\\"\u2191 / \u2193\\\", \\\"Navigate sessions\\\")), or alternatively remove the input.rs:988 swallow arm if the operator preference has changed \u2014 the former matches da3ed8c intent and config.rs:31.",
+   "residual_risk": "Severity remains LOW (documentation/behavior mismatch only), but it misleads new users into thinking j/k is broken. One-line Help-text edit at ui.rs:2908 closes it. Note the Help text 'j / k still navigate via the arms below' IS accurate for other tabs (Settings/Agentic per input.rs:990+), so the fix must scope the removal to the Sessions section line only.",
+   "needs_live_tui": false,
+   "sev": "LOW",
+   "refute": null
+  },
+  {
+   "id": "DESIGN-011",
+   "status": "STILL_OPEN",
+   "evidence": [
+    {
+     "claim": "The tall typed-input clip tradeoff is documented ONLY in a developer code comment, not in any user-facing doc",
+     "citation": "crates/omega-cli/src/main.rs:969-975@HEAD \u2014 '// tradeoff: a TYPED input taller than the panel clips its top / inside Claude while composing (content intact; typed lines / stay recoverable via Alt+Up history browse ...)'"
+    },
+    {
+     "claim": "The only commit touching the F-6 clip wording since baseline modified the code comment, not user docs",
+     "citation": "git show 80cfc74 --stat: 'docs(tui): precise the 1:1 mirror comment (>=10-row floor, Alt+Up recovery)' \u2014 files changed: .gitignore, crates/omega-cli/src/main.rs only (no README/docs/help)"
+    },
+    {
+     "claim": "No user-facing doc mentions the clip: grep across README.md, docs/GETTING-STARTED.md, docs/THEMES.md, CHANGELOG.md, MAP.md for clip/tall/taller/typed-input returns zero relevant hits",
+     "citation": "grep -rniE 'taller|clips' README.md docs/*.md CHANGELOG.md MAP.md \u2192 only unrelated installer/architecture lines; grep -rniE 'clip|tall|typed.?input' on README/GETTING-STARTED/THEMES/CHANGELOG \u2192 no F-6 mention"
+    },
+    {
+     "claim": "The in-TUI Help tab (the 'help' user-facing surface) has a Chat section listing keybindings but no mention of the >pane-height typed-input clip",
+     "citation": "crates/omega-tui/src/ui.rs:2860-3043@HEAD (fn draw_help) \u2014 'Chat (Sessions, when chat-focused)' section lists Tab/Shift+Tab/Alt+Esc/Alt+Up-Down/word-delete/mouse only; no clip note"
+    },
+    {
+     "claim": "README's only mirror-related sentence does not mention the clip tradeoff",
+     "citation": "README.md:156@HEAD \u2014 'the menu's preview *mirrors* the pane, while a direct attach is the lowest-latency path' (no clip caveat)"
+    },
+    {
+     "claim": "Docs commits since baseline (86a8bd6, c174435, 45724d9, 5f209be, 80cfc74) cover THEMES.md, default.toml, and the mirror code comment \u2014 none add a user-facing F-6 note",
+     "citation": "git log --oneline f432154..HEAD + git diff --stat f432154..HEAD -- README.md docs/ '*.md' (changed: CHANGELOG.md, MAP.md, docs/GETTING-STARTED.md, docs/THEMES.md, skills/*.md \u2014 none mention the clip)"
+    }
+   ],
+   "reasoning": "The fix-plan for F-6 (accepted tradeoff) prescribed exactly one deliverable: user-facing documentation of the typed-input-taller-than-pane clip. At HEAD (f6d8f37) that deliverable does not exist. Commit 80cfc74 did refine the description of the tradeoff (Alt+Up recovery, paste-immunity being Claude-Code-specific), but only inside the code comment at crates/omega-cli/src/main.rs:963-977 \u2014 a developer-facing artifact invisible to users. Exhaustive grep over every user-facing surface (README.md, docs/GETTING-STARTED.md, docs/THEMES.md, CHANGELOG.md, MAP.md) and a full read of the compiled-in TUI Help tab (omega-tui/src/ui.rs draw_help) found zero mention of the clip. Since the single prescribed element shipped nowhere user-facing, this is STILL_OPEN rather than PARTIAL. No live TUI run is needed: the Help tab text is static compiled-in content, fully verifiable by reading the source.",
+   "needs_live_tui": false,
+   "residual_risk": "A user composing a multi-line typed message taller than the preview pane will see its top clipped with no documented explanation or recovery hint (Alt+Up history browse), and may misread it as data loss. Risk remains LOW (content intact, recoverable); a one-line note in README.md near line 156 or in the Help tab's Chat section would close it.",
+   "sev": "LOW",
+   "refute": null
+  },
+  {
+   "id": "DESIGN-012",
+   "status": "STILL_OPEN",
+   "evidence": [
+    {
+     "claim": "The .max(10) rows floor is still present at HEAD (expected per fix-plan: keep the floor)",
+     "citation": "crates/omega-cli/src/main.rs:977@HEAD \u2014 `let rows = app.preview_inner_height.max(10);`"
+    },
+    {
+     "claim": "The floor is now explicitly documented as a known tiny-terminal break, but only as a code comment (commit 80cfc74), not a user-facing notice",
+     "citation": "crates/omega-cli/src/main.rs:961-963@HEAD \u2014 `// .max(10) floor below: inner height <10 still gets rows=10 / (top 10\u2212inner rows hidden on tiny terminals)`"
+    },
+    {
+     "claim": "No 'terminal too short' notice was added anywhere in the TUI",
+     "citation": "`grep -rn \"too short|too small|terminal too\" --include=*.rs .` \u2192 only omega-core/src/amplify.rs:26 and oracle_lifecycle.rs:202 (unrelated); grep for notice strings matching short/height/tiny/small/row in omega-tui returned empty"
+    },
+    {
+     "claim": "The F-7 status-notice infrastructure shipped in 4ff5b94 exists and could carry such a notice, but nothing tiny-terminal-related is wired into it",
+     "citation": "crates/omega-tui/src/ui.rs:3202@HEAD \u2014 `// A live status notice ALWAYS wins (F-7): kill/create/vanish/focus` (kill/create/vanish/focus only)"
+    },
+    {
+     "claim": "The d6343f9 global margin is explicitly skipped on small terminals, so it does NOT interact badly with the mirror's tiny-terminal handling",
+     "citation": "crates/omega-tui/src/ui.rs:57-59@HEAD \u2014 `fn padded(area: Rect) -> Rect { if area.width < 70 || area.height < 20 { return area; }`"
+    },
+    {
+     "claim": "Chrome math confirming the guard is protective: padded area loses 2 rows only at h>=20; tabs(3)+status(1) then preview borders(2) leave inner = h-8 >= 12 for h>=20 (floor never engaged), and inner = h-6 for h<20 so the break threshold stays at h<16 exactly as baseline; without the guard it would have widened to h<18",
+     "citation": "crates/omega-tui/src/ui.rs:81-88@HEAD (Length(3)/Min(0)/Length(1) split over padded(frame.area())) + ui.rs:822@HEAD (`app.preview_inner_height = area.height.saturating_sub(2);`) + ui.rs:62-64@HEAD (Margin{horizontal:2, vertical:1})"
+    },
+    {
+     "claim": "No chat-input row is subtracted from the preview area before preview_inner_height is recorded, so the math above is the complete vertical chrome",
+     "citation": "crates/omega-tui/src/ui.rs:801-822@HEAD \u2014 draw_sessions_right sets preview_inner_height directly from the full right-column `area`"
+    }
+   ],
+   "reasoning": "The fix-plan for DESIGN-012 had two elements: (1) keep the .max(10) floor \u2014 kept, as prescribed (main.rs:977); (2) an OPTIONAL 'terminal too short' notice \u2014 not shipped. Since keeping the floor is the status quo rather than a change, the only actionable element of the fix-plan did not land, so the finding's user-visible behavior at HEAD is byte-identical to baseline: on terminals under 16 rows the inner mirror height drops below 10, the floor forces rows=10, and the top (10 \u2212 inner) rows of the agent pane are silently hidden with no on-screen indication. The closest thing to a fix is commit 80cfc74, which only upgraded the code comment documenting the tradeoff. On the requested interaction check: the d6343f9 global margin (ui.rs padded()) is guarded by `width < 70 || height < 20 \u2192 return area`, which is deliberately protective \u2014 at h>=20 the margin costs 2 rows but inner stays >=12 (floor never triggers), and below 20 rows the margin is skipped entirely, so the break threshold remains h<16 exactly as at baseline. Without that guard the margin would have widened the broken zone to h<18, so the guard is a correct non-regression, not a fix. Verdict: STILL_OPEN (not PARTIAL \u2014 no prescribed fix element that constitutes a change was shipped; not REGRESSED \u2014 the margin guard prevents any worsening). Severity remains LOW and the notice was explicitly optional, so this is an accepted-debt finding rather than a defect in the fix wave.",
+   "needs_live_tui": false,
+   "residual_risk": "On terminals shorter than 16 rows the embedded agent mirror silently hides its top rows (rows forced to 10 while the panel shows fewer), with no user-facing indication. Impact is limited to sub-16-row terminals (rare; mostly tiny SSH/mobile windows). The F-7 status-notice mechanism now exists and would make adding the optional notice a small, low-risk change if ever prioritized.",
+   "sev": "LOW",
+   "refute": null
+  }
+ ],
+ "new_regressions": [
+  {
+   "title": "F-2 Esc-local opens a no-confirm kill/quit fallthrough for the Esc-then-type gesture",
+   "severity": "HIGH",
+   "citation": "crates/omega-tui/src/input.rs:1859-1870@HEAD (plain chat Esc -> List, not forwarded; baseline f432154 forwarded 'Escape' to the agent); crates/omega-tui/src/input.rs:1446-1457@HEAD ('x'/'X' in List focus = Action::KillSession with NO confirmation); crates/omega-tui/src/input.rs:877-880@HEAD ('q' = instant Action::Quit); crates/omega-core/src/config.rs:62-64 (session_shortcuts defaults true); commit 5cf827b",
+   "description": "At baseline, chat Esc was forwarded to the agent PTY and focus stayed in Chat, so the Claude-Code-trained gesture 'Esc to interrupt, then keep typing' stayed entirely inside the agent. After 5cf827b, plain Esc silently drops focus to the session List (only feedback is a status-bar line a fast typist won't read), and every subsequent keystroke hits the Normal-mode single-key hotkey map. Because F-1 re-anchoring keeps the selection on the session the user was just chatting with, typing any sentence containing 'x' or 'X' instantly kills THAT session with no confirmation prompt, and 'q' exits the whole TUI mid-thought; 'c'/'C'/'g' spawn stray agent sessions and 'd'/'r'/'/' enter capture modes. The protected-flag guard only saves explicitly protected sessions - ephemeral workers (the default) die instantly. This is a new kill-path hazard introduced by the fix series: the user can now destroy the exact session they meant to drive via muscle memory that was safe at f432154."
+  },
+  {
+   "title": "Chat Ctrl+X protected-guard hint 'press . to unlock' types a literal '.' into the live agent",
+   "severity": "MEDIUM",
+   "citation": "crates/omega-tui/src/input.rs:1744-1748@HEAD (new F-12 guard, message 'Session is protected (press . to unlock)', returns with focus still Chat); crates/omega-tui/src/input.rs:1887,1917-1919@HEAD (plain '.' in chat focus is a printable char forwarded to the agent PTY); crates/omega-tui/src/input.rs:2304-2313@HEAD (regression test asserts session_focus stays Chat after the block); crates/omega-tui/src/input.rs:1491@HEAD ('.' unlock only exists in Normal/List mode, gated on app.tab == Sessions); commit 4ff5b94",
+   "description": "The new chat-focus Ctrl+X guard (absent at f432154) reuses the list-focus wording verbatim, but after the block the user remains in Chat focus where '.' is NOT the unlock key - it is forwarded as a printable character into the live agent's input line. A user who follows the on-screen instruction literally injects a stray '.' keystroke into the agent (the exact stray-keystroke-into-live-agent class the F-1 fix was closing) and the session stays locked. The actual unlock path (Esc or Tab to List first, THEN '.') is never mentioned. To kill a protected session from chat the real sequence is Esc -> '.' -> 'x', a 3-step dance with a misleading signpost. Fix is one line of copy: e.g. 'Session is protected (Esc, then . to unlock)' or context-sensitive wording for the chat path."
+  },
+  {
+   "title": "New chat Ctrl+X guard feedback is invisible on narrow terminals - blocked kill looks like a silent no-op",
+   "severity": "LOW",
+   "citation": "crates/omega-tui/src/ui.rs:3181-3184@HEAD (status bar splits [Min(0), Length(70)] - right side reserves 70 cols, left/notice segment gets the remainder); crates/omega-tui/src/ui.rs:3186-3201@HEAD (left segment renders ' \u03a9 ' + session name BEFORE the notice span); crates/omega-tui/src/ui.rs:57-64@HEAD (new 2-col/1-row global margin from d6343f9 shrinks the bar 4 more cols); crates/omega-tui/src/ui.rs:681-682@HEAD (NARROW_COLS=100 - phone-width SSH is an explicitly supported regime); crates/omega-tui/src/input.rs:1745-1747@HEAD (the guard's ONLY feedback channel is this status_message); commit 4ff5b94",
+   "description": "The status bar reserves a fixed 70 columns for the right-hand stats, so the notice segment gets roughly (terminal_width - 70 - 4 margin) columns, of which ' \u03a9 ' plus the bold session name (e.g. 'oracle-Project-1', ~16-25 chars) is consumed first. In the codebase's own supported narrow regime (<100 cols, the documented phone-width-SSH case), the 41-char 'Session is protected (press . to unlock)' message truncates to nothing - full visibility needs roughly a 135+ column terminal with typical session names. The 70-col reservation pre-dates the fix series, but the guard path that depends on it for its ONLY feedback is new in 4ff5b94: at f432154 chat Ctrl+X on a protected session killed it (the F-12 bug, but with visible effect); at HEAD on a narrow terminal it appears to do nothing at all - a silent no-op the user cannot distinguish from a dead keybinding. Combined with finding 2 (the hint is wrong even when visible), the narrow-mode protected-kill experience is a feedback dead-end."
+  },
+  {
+   "title": "Async forwarder errors now visible for ~1 frame during typing \u2014 the exact context where they occur",
+   "severity": "MEDIUM",
+   "citation": "crates/omega-cli/src/main.rs:931-934, 1105-1108, 944@HEAD f6d8f37; crates/omega-cli/src/forwarder.rs:34-47@HEAD",
+   "description": "F-7's clear-on-next-keypress TTL (new in 4ff5b94, main.rs:1105-1108 \u2014 no exemption for chat focus or async-origin messages) is applied to a channel that is NOT keypress-synchronized. Forwarder failures ('Forward failed: \u2026', forwarder.rs:45) are written to the async sink and drained into app.status_message once per tick (main.rs:931-934). The tick order is: drain sink \u2192 draw (main.rs:944) \u2192 process buffered key events (clear at 1105-1108). A user whose keystrokes are failing to forward is by definition actively typing in chat, so the error is rendered for exactly one frame (~16ms at the active cadence, PREVIEW_ACTIVE_MS=16, main.rs:877) before their next in-flight keystroke wipes it. The same mechanism means any handler-set notice ('Killed X', 'Created X', 'Pasted N chars') that is set and followed by another buffered key inside the same 8ms drain batch (main.rs:1076-1087) is cleared before EVER being drawn \u2014 draw happens once per tick, before the batch. At baseline f432154 status_message had no expiry: on non-Sessions tabs these notices persisted until replaced (e.g. error lands, user switches to Settings \u2192 baseline showed the error there; HEAD shows the per-tab hint instead). The fix commit claims forwarder errors are now surfaced; for the typing user the surfacing is ~16ms, i.e. still effectively invisible."
+  },
+  {
+   "title": "F-1 vanish notice 'X ended \u2014 back to list' is wiped by the user's own in-flight keystroke \u2014 unreadable exactly when it matters",
+   "severity": "MEDIUM",
+   "citation": "crates/omega-tui/src/app.rs:1765-1776 (notice at 1774)@HEAD f6d8f37; crates/omega-cli/src/main.rs:1105-1108, 2033-2036@HEAD",
+   "description": "Both halves are fix-series additions: the notice was introduced by 8ea3a4a (F-1) and the clear-on-keypress TTL by 4ff5b94 (F-7). When the chat-focused session vanishes, the 2s housekeeping refresh (main.rs:2033-2036) drops focus to List and sets '{name} ended \u2014 back to list' (app.rs:1774). The target audience of this notice is a user mid-typing into the dead session \u2014 their very next keystroke (already in flight) hits the TTL clear at main.rs:1105-1108, erasing the only explanation of why the focus jumped, AND dispatches into list mode where letters are commands ('x' kill, 'c' new session\u2026). A keypress-heavy user gets a silent focus jump plus a stray list command, with the explanatory notice on screen for one keystroke interval at most. The F-1 focus-drop itself is correct; the notice that makes it comprehensible has a TTL of zero for the user it was written for. (Per L1 this is code-inspection reasoning, not a runtime repro \u2014 the timing window is structural: clear fires on every non-Release key event unconditionally.)"
+  },
+  {
+   "title": "Vanish notice can render on the WRONG tab: chat slash-command tab switch leaves session_focus=Chat, so 'back to list' appears on Menu/Help/etc.",
+   "severity": "LOW",
+   "citation": "crates/omega-tui/src/input.rs:1706-1712 (focus reset only 'if tab == Tab::Sessions' at 1708)@HEAD f6d8f37; crates/omega-tui/src/app.rs:1765-1775@HEAD; crates/omega-tui/src/ui.rs:3216-3217@HEAD",
+   "description": "The chat-focus OmegaOS command capture (e.g. typing '/menu' in chat) switches app.tab but only resets session_focus when the destination is Sessions (input.rs:1708-1710) \u2014 leaving session_focus=Chat dormant while the user browses Menu/Settings/Help. If the chatted session vanishes, the 2s housekeeping refresh runs reanchor_selection(), which gates the notice on session_focus alone (app.rs:1765-1768) with no tab check, sets 'X ended \u2014 back to list' (app.rs:1774), and the new F-7 always-wins rule (ui.rs:3217 \u2014 '(Some(msg), _)' matches on EVERY tab) renders it in the status bar of the Menu/Help tab, where 'back to list' references a list that is not on screen. Both ingredients are new since f432154: the notice (8ea3a4a) and the unconditional any-tab display priority (4ff5b94); at baseline this message did not exist at all."
+  },
+  {
+   "title": "Sessions-tab git status (`\u21914h \u2022 main`) now hidden behind the per-tab hint / 'Refreshed' ack on every tab arrival and F5",
+   "severity": "LOW",
+   "citation": "crates/omega-cli/src/main.rs:1987-2000 (hint seeding), 1409 ('Refreshed' ack)@HEAD f6d8f37; crates/omega-tui/src/ui.rs:3216-3219@HEAD",
+   "description": "At baseline f432154 the Sessions-tab status bar gave git text absolute priority ('Some(g) => git'), so the compact git status was visible the instant the user landed on the tab. At HEAD the F-7 priority swap (ui.rs:3216-3219, Some(status_message) always wins) interacts with the pre-existing per-tab hint seeding that fires on EVERY tab switch (main.rs:1991-1999) and the F5 'Refreshed' ack (main.rs:1409): each arrival on Sessions now shows the long keyboard hint ('\u2191/\u2193 select \u00b7 Enter/Tab chat \u00b7 c/C/g new agent\u2026') or 'Refreshed' instead of the git status, until the user presses one more key to consume the notice. A glance-at-git-status-after-switching workflow that worked at baseline now requires an extra keypress. The fix commit explicitly acknowledges the hint seeding and chose the TTL over de-seeding the hint, so this is a designed tradeoff \u2014 but it is a real behavior regression vs f432154, and de-seeding navigation hints (or letting git text outrank pure-hint messages) would have avoided it."
+  },
+  {
+   "title": "Alt+Esc escape hatch is unreachable at runtime \u2014 no way left to send a literal ESC to the agent (AF-1 dead on arrival)",
+   "severity": "HIGH",
+   "citation": "crates/omega-tui/src/input.rs:1858 (KeyCode::Esc if alt arm), crates/omega-cli/src/main.rs:717-722 (raw mode + alt screen + mouse only; no PushKeyboardEnhancementFlags anywhere in crates/ \u2014 grep returns zero hits), crossterm-0.29.0/src/event/sys/unix/parse.rs:77 (ESC ESC parsed as plain KeyCode::Esc with KeyModifiers::NONE), Cargo.lock (omega-tui -> crossterm 0.29.0), input.rs:2330-2342 (test passes only via synthetic ALT KeyEvent)",
+   "description": "F-2 (5cf827b) removed the baseline behavior where plain Esc in chat focus forwarded \"Escape\" to the agent PTY, and 4ff5b94 added Alt+Esc as the replacement (input.rs:1858). But the TUI never enables the kitty/CSI-u keyboard-enhancement protocol (terminal init at main.rs:717-722 is raw-mode-only), so every legacy-mode terminal \u2014 including Termius/SSH, the project's stated client \u2014 emits Alt+Esc as the byte pair ESC ESC, which crossterm 0.29.0 explicitly parses as a PLAIN Esc with no ALT modifier (parse.rs:77). The result: Alt+Esc falls into the plain-Esc arm and exits chat to the session list; the `KeyCode::Esc if alt` forward arm is unreachable from real keyboard input. Net effect introduced by the fix series: there is NO path at HEAD to deliver a literal ESC to the agent from chat focus \u2014 vim insert-mode exit, less, Claude Code's own Esc-to-interrupt, and every modal CLI inside a session are silently broken (baseline f432154 forwarded Esc, so they all worked). The Help tab actively mis-advertises the dead binding (ui.rs:2969 \"Alt+Esc \u2014 Send a literal ESC to the agent (vim/less)\"). Worse fragmentation case: if the two ESC bytes arrive in separate reads over SSH, the first parses as Esc (chat\u2192list) and the second hits the Sessions-tab quit arm (input.rs:1556) \u2014 Alt+Esc can quit the whole TUI. The 4ff5b94 regression test chat_alt_esc_forwards_literal_escape (input.rs:2330-2342) gives false confidence: it constructs KeyEvent::new(KeyCode::Esc, KeyModifiers::ALT) synthetically, a value the shipped parser never produces (L1: runtime is the only truth). Fix options: push crossterm's KeyboardEnhancementFlags at init (with graceful fallback), or pick a chord the legacy parser can actually deliver (e.g. a Ctrl-based prefix)."
+  },
+  {
+   "title": "Alt+Esc / Ctrl+C recovery path is Help-tab-only \u2014 zero in-context discoverability at the moment a vim/less user's Esc muscle memory breaks",
+   "severity": "MEDIUM",
+   "citation": "crates/omega-tui/src/ui.rs:2969 (only surface mentioning Alt+Esc), ui.rs:776 (chat title hint: \"CHAT (Esc \u2192 list to manage)\" \u2014 no Alt+Esc/Ctrl+C), crates/omega-tui/src/input.rs:1868 (Esc status message: only \"Focus: session list\"), input.rs:1104 and input.rs:1786-1790 (enter-chat / Tab status hints \u2014 no Alt+Esc)",
+   "description": "Even assuming the Alt+Esc binding worked, the fix series changed a silent always-worked behavior (baseline: Esc forwarded to the agent) into a focus jump, and surfaced the replacement only in the Help tab key list (ui.rs:2969). Every in-context surface a user actually sees while chat-focused omits it: the list-panel title hint (ui.rs:776), the focus-change status message emitted by the new Esc handler (\"Focus: session list\", input.rs:1868), the enter-chat hint (input.rs:1104), and the Tab-transition hints (input.rs:1786-1790). A vim user pressing Esc is yanked to the session list with a message that explains what happened but not how to get an ESC into the agent (Alt+Esc) or interrupt it (Ctrl+C) \u2014 they must leave their task and read the Help tab to recover a keystroke that worked unprompted at f432154. The handler's own doc comment names the recovery keys (input.rs:1644-1645) but that text is invisible to users. Minimal fix: extend the Esc status message at input.rs:1868 to e.g. \"Focus: session list (Alt+Esc = ESC to agent, Ctrl+C = interrupt)\" and/or add Alt+Esc to the chat-side title hint at ui.rs:776."
+  }
+ ]
+}

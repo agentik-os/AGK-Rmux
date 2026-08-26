@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+#
+# browser-use — OmegaOS wrapper for the official Browser Use cloud SDK.
+#
+# Dispatches a single natural-language task to the Browser Use cloud
+# (api.browser-use.com) via run.py. RUNTIME OPT-IN: the venv + pip install
+# happen lazily on first run; install.sh ships only this wrapper + run.py.
+#
+# Key source: BROWSER_USE_API_KEY from the environment, else
+# ~/.omega/secrets/integrations.env (mode 600, outside any git repo).
+# The key is NEVER echoed, logged, or written to the repo.
+#
+set -euo pipefail
+
+# --- 1. Resolve the API key (env first, then ~/.omega secrets) ---------------
+if [ -z "${BROWSER_USE_API_KEY:-}" ]; then
+  SECRETS="$HOME/.omega/secrets/integrations.env"
+  if [ -r "$SECRETS" ]; then
+    # Least privilege: source the env file in a SUBSHELL and lift out ONLY the
+    # one key this skill needs, so the other secrets in integrations.env never
+    # enter this process — or the SDK subprocess — environment.
+    # shellcheck disable=SC1090
+    BROWSER_USE_API_KEY="$(set -a; . "$SECRETS" >/dev/null 2>&1; printf '%s' "${BROWSER_USE_API_KEY:-}")"
+    export BROWSER_USE_API_KEY
+  fi
+fi
+
+if [ -z "${BROWSER_USE_API_KEY:-}" ]; then
+  {
+    echo "browser-use: BROWSER_USE_API_KEY is not set."
+    echo "  1. Get a key at cloud.browser-use.com/settings"
+    echo "  2. Add this line to ~/.omega/secrets/integrations.env :"
+    echo "       BROWSER_USE_API_KEY=bu_..."
+    echo "  (~/.omega/secrets/integrations.env lives outside the repo, mode 600.)"
+  } >&2
+  exit 1
+fi
+
+# --- 2. Ensure the venv (lazy, first-run only) -------------------------------
+VENV="$HOME/.omega/skills/browser-use/.venv"
+if [ ! -x "$VENV/bin/python" ]; then
+  echo "browser-use: bootstrapping venv (first run)…" >&2
+  mkdir -p "$(dirname "$VENV")"
+  python3 -m venv "$VENV"
+  # Base package only — NEVER the x402 (EVM micro-payment) extra.
+  "$VENV/bin/pip" install --quiet --upgrade pip browser-use-sdk
+fi
+
+# --- 3. Locate run.py next to this wrapper -----------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# --- 4. Resolve the task (--smoke = trivial deterministic check) -------------
+if [ "${1:-}" = "--smoke" ]; then
+  TASK="Go to https://example.com and return the exact text of the main H1 heading."
+else
+  TASK="$*"
+fi
+
+# --- 5. Run the task on the cloud --------------------------------------------
+# Pass the task as ONE quoted argv element; never eval user input.
+# The SDK reads BROWSER_USE_API_KEY from the environment automatically.
+exec "$VENV/bin/python" "$SCRIPT_DIR/run.py" "$TASK"

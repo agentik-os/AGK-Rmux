@@ -1,0 +1,192 @@
+<title>OmegaOS · Rapport : la 3e surface de rapport (Artifacts live)</title>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --surface: #fdfdfc;
+    --ink: #1f2a2e;
+    --ink-soft: #52646b;
+    --line: #d8dfdd;
+    --accent: #176d8c;
+    --accent-ink: #0f5570;
+    --good: #2e7d4f;
+    --warn: #a3612a;
+    --code-bg: #eceeec;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10181c;
+      --surface: #162126;
+      --ink: #dbe5e8;
+      --ink-soft: #8fa3ab;
+      --line: #263741;
+      --accent: #5fb6d9;
+      --accent-ink: #8ccfe8;
+      --good: #6fbf8f;
+      --warn: #d9a05f;
+      --code-bg: #0c1418;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10181c;
+    --surface: #162126;
+    --ink: #dbe5e8;
+    --ink-soft: #8fa3ab;
+    --line: #263741;
+    --accent: #5fb6d9;
+    --accent-ink: #8ccfe8;
+    --good: #6fbf8f;
+    --warn: #d9a05f;
+    --code-bg: #0c1418;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f5;
+    --surface: #fdfdfc;
+    --ink: #1f2a2e;
+    --ink-soft: #52646b;
+    --line: #d8dfdd;
+    --accent: #176d8c;
+    --accent-ink: #0f5570;
+    --good: #2e7d4f;
+    --warn: #a3612a;
+    --code-bg: #eceeec;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; margin: 0; }
+  .wrap { max-width: 70ch; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  header.doc { border-bottom: 1px solid var(--line); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  .eyebrow { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 0.75rem; }
+  h1 { font-size: 1.85rem; line-height: 1.2; margin: 0 0 0.5rem; text-wrap: balance; font-weight: 650; }
+  .sub { color: var(--ink-soft); margin: 0; font-size: 0.95rem; }
+  h2 { font-size: 1.25rem; margin: 2.5rem 0 0.75rem; padding-top: 1.25rem; border-top: 1px solid var(--line); text-wrap: balance; }
+  h2 .k { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); margin-right: 0.5em; }
+  p { margin: 0.6rem 0; }
+  a { color: var(--accent-ink); }
+  nav.toc { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0.9rem 1.1rem; margin: 1.5rem 0; }
+  nav.toc ol { margin: 0.25rem 0 0; padding-left: 1.3rem; }
+  nav.toc li { margin: 0.2rem 0; }
+  nav.toc .t { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+  .tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; background: var(--surface); }
+  th, td { text-align: left; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+  tr:last-child td { border-bottom: none; }
+  td.num, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  code { font-family: var(--mono); font-size: 0.85em; background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 4px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 0.9rem 1.1rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; padding: 0.15em 0.6em; border-radius: 999px; border: 1px solid var(--line); }
+  .pill.ok { color: var(--good); border-color: var(--good); }
+  .evidence { color: var(--ink-soft); font-size: 0.82rem; font-family: var(--mono); }
+  ul { padding-left: 1.3rem; }
+  li { margin: 0.3rem 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"] {
+      --bg: #ffffff; --surface: #ffffff; --ink: #111111; --ink-soft: #444444;
+      --line: #bbbbbb; --accent: #0f5570; --accent-ink: #0f5570;
+      --good: #205c3b; --code-bg: #f2f2f2;
+    }
+    body { background: #fff; color: #111; }
+    nav.toc { display: none; }
+    .tablebox, pre { border-color: #bbb; }
+  }
+  .footnote { margin-top: 2.5rem; }
+</style>
+
+<div class="wrap" lang="fr">
+<header class="doc">
+  <p class="eyebrow">OmegaOS · Rapport de mission · oracle-OmegaOS · 2026-07-03</p>
+  <h1>La 3e surface de rapport : Artifacts live sur claude.ai</h1>
+  <p class="sub">Mécanisme vérifié au runtime, routeur R-ARTIFACT compilé dans le registre, skill artifact-design livré aux deux SSOT. Cette page est elle-même la preuve : c'est un artifact live publié par le protocole qu'elle documente.</p>
+</header>
+
+<nav class="toc" aria-label="Sommaire">
+  <span class="t">Sommaire</span>
+  <ol>
+    <li><a href="#tldr">L'essentiel</a></li>
+    <li><a href="#mecanisme">Le mécanisme runtime (preuves)</a></li>
+    <li><a href="#routeur">Le routeur 3 surfaces (R-ARTIFACT)</a></li>
+    <li><a href="#changements">Ce qui a changé dans OmegaOS</a></li>
+    <li><a href="#preuves">Vérifications runtime</a></li>
+    <li><a href="#shas">Commits et liens</a></li>
+    <li><a href="#limites">Limites et périmètre</a></li>
+  </ol>
+</nav>
+
+<h2 id="tldr"><span class="k">01</span>L'essentiel</h2>
+<p>OmegaOS a désormais trois surfaces de rapport, routées par la nouvelle règle <code>R-ARTIFACT</code> :</p>
+<ul>
+  <li><strong>Surface 1 (défaut)</strong> : un rapport demandé sans format devient un <strong>artifact live</strong> publié sur claude.ai (privé par défaut, partageable à l'org, URL stable versionnée), avec son jumeau HTML commité sous <code>agentic/reports/</code>.</li>
+  <li><strong>Surface 2</strong> : le fichier HTML autonome (R-HTML, désormais compilé dans le registre), quand un fichier est voulu ou quand la session n'a pas l'outil Artifact.</li>
+  <li><strong>Surface 3</strong> : le PDF, uniquement sur demande explicite, via <code>omega pdf</code> (R-PDF).</li>
+</ul>
+<p>Le skill <code>artifact-design</code> (155 lignes) exécute le protocole : contrat de design autonome, passe anti-tirets (R-NODASH), repli HTML explicite, publication et re-publication à URL stable.</p>
+
+<h2 id="mecanisme"><span class="k">02</span>Le mécanisme runtime (preuves)</h2>
+<p>Rien n'a été supposé : chaque capacité a été observée en direct le 2026-07-03 sur Claude Code 2.1.199.</p>
+<div class="tablebox"><table>
+  <thead><tr><th scope="col">Fait</th><th scope="col">Preuve runtime</th><th scope="col">Statut</th></tr></thead>
+  <tr><td>Les sessions interactives éligibles exposent un outil natif <code>Artifact</code> (rend un fichier HTML/MD en page claude.ai privée)</td><td class="evidence">schéma d'outil présent dans la session oracle (rmux) ; cette page publiée avec</td><td><span class="pill ok">VÉRIFIÉ</span></td></tr>
+  <tr><td>Un skill natif <code>artifact-design</code> (fondamentaux de design) est embarqué dans le harnais, pas sur disque</td><td class="evidence">absent de ~/.claude/skills (185 dirs) ; chargé live via le Skill tool en session</td><td><span class="pill ok">VÉRIFIÉ</span></td></tr>
+  <tr><td>Les sessions headless (<code>claude -p</code>, cron) n'ont NI l'outil NI le skill natif</td><td class="evidence">sonde A : liste d'outils complète capturée, Artifact absent ; sonde B2A : "Unknown skill"</td><td><span class="pill ok">VÉRIFIÉ</span></td></tr>
+  <tr><td>Un skill utilisateur nommé <code>artifact-design</code> se résout proprement là où le natif est absent</td><td class="evidence">sonde B2B : marqueur du skill utilisateur chargé, nettoyage vérifié</td><td><span class="pill ok">VÉRIFIÉ</span></td></tr>
+  <tr><td>Artifacts : privé par défaut, partage org, re-publication versionnée à URL stable, bêta Team/Enterprise</td><td class="evidence">claude.com/blog/artifacts-in-claude-code (2026-06-18)</td><td><span class="pill ok">SOURCE</span></td></tr>
+</table></div>
+
+<h2 id="routeur"><span class="k">03</span>Le routeur 3 surfaces (R-ARTIFACT)</h2>
+<div class="tablebox"><table>
+  <thead><tr><th scope="col">Demande</th><th scope="col">Surface</th></tr></thead>
+  <tr><td>Un rapport, aucun format nommé</td><td><strong>1 : artifact live</strong> + jumeau HTML sous <code>agentic/reports/</code></td></tr>
+  <tr><td>Un FICHIER voulu (pièce jointe, email, doc de repo, lecture hors-ligne)</td><td><strong>2 : HTML autonome</strong> (R-HTML)</td></tr>
+  <tr><td>Demande explicite de PDF</td><td><strong>3 : <code>omega pdf</code></strong> (R-PDF), jamais un générateur artisanal</td></tr>
+  <tr><td>Artifact applicatif complexe (état, routing, shadcn/ui)</td><td>web-artifacts-builder, puis publication du bundle.html</td></tr>
+</table></div>
+<p>Garde-fous compilés dans la règle : contrat d'artifact (HTML sans enveloppe, CSP stricte tout-inline, deux thèmes par tokens avec bascule <code>data-theme</code>), zéro tiret long dans la copie visible (R-NODASH), et L1 : jamais d'URL annoncée sans publication réelle ; session sans outil Artifact = repli surface 2, dit explicitement.</p>
+
+<h2 id="changements"><span class="k">04</span>Ce qui a changé dans OmegaOS</h2>
+<div class="tablebox"><table>
+  <thead><tr><th scope="col">Fichier</th><th scope="col">Changement</th></tr></thead>
+  <tr><td class="mono">crates/omega-core/src/rules.rs:514, :525</td><td>R-ARTIFACT (nouvelle) et R-HTML (existait seulement en md manuscrit, faisait échouer le test de parité) ajoutées au registre, catégorie Reporting, scope ALL</td></tr>
+  <tr><td class="mono">crates/omega-core/src/doctor.rs:147</td><td>EXPECTED_OPS 32 vers 35 (33 réels + 2 nouvelles ; absorbe l'oubli du bump R-NODASH)</td></tr>
+  <tr><td class="mono">skills/artifact-design/SKILL.md</td><td>155 lignes : routeur, préconditions, protocole de publication, contrat de design autonome, passe anti-tirets, références (web-artifacts-builder, high-end-visual-design, dataviz)</td></tr>
+  <tr><td class="mono">install.sh:1189-1215</td><td>bloc dédié (modèle du bloc watch) : copie vers ~/.omega/skills + stubs /artifact-design et /omg-artifact-design ; rien d'externe installé</td></tr>
+  <tr><td class="mono">scripts/verify-install.sh:168</td><td>assertion de câblage (SKILL.md présent + ARTD_SRC + omg-artifact-design dans install.sh)</td></tr>
+  <tr><td class="mono">Telegram</td><td>zéro câblage nécessaire : le menu Skills liste ~/.omega/skills dynamiquement (telegram-bot/omega-tg-bot.ts:1944)</td></tr>
+</table></div>
+<p>Parité d'installation (L0) : une installation fraîche régénère les md de règles depuis le binaire compilé (<code>install.sh:1603</code>, <code>omega rules export</code>) ; le skill est copié par son bloc install.sh ; aucun secret dans le repo.</p>
+
+<h2 id="preuves"><span class="k">05</span>Vérifications runtime</h2>
+<ul>
+  <li><span class="pill ok">11/11</span> <code>cargo test -p omega-core --lib rules</code> : vert, relancé par l'oracle lui-même contre un export isolé du NOUVEAU registre (le test de parité registre/markdown passait de rouge à vert).</li>
+  <li><span class="pill ok">VERBATIM</span> diff des entrées appliquées contre la charge utile de l'oracle : identiques octet pour octet.</li>
+  <li><span class="pill ok">CLEAN</span> <code>grep -P '[\x{2013}\x{2014}]'</code> sur SKILL.md : aucun tiret long ni demi-cadratin.</li>
+  <li><span class="pill ok">SYNTAX</span> <code>bash -n</code> vert sur install.sh et verify-install.sh.</li>
+  <li><span class="pill ok">DOCTOR</span> avant : <code>[!] 6 Laws + 33 Rules (expected 6 + 32)</code> + dérive R-HTML ; après swap du binaire : doctrine verte 6 + 35 (section 06 pour l'état final).</li>
+  <li><span class="pill ok">LIVE</span> cette page : publiée par l'outil Artifact depuis la session oracle, en suivant le protocole du skill livré (preuve de bout en bout de la surface 1 ; son fichier commité est la surface 2).</li>
+  <li><span class="pill ok">83/100</span> /codeaudit (grade A, confiance haute) sur le diff complet : zéro régression de blocs adjacents ; ses 2 findings MEDIUM de doctrine (route web-artifacts-builder non conditionnelle, phrase non définie) corrigés en <code>d9df411</code> avant le push.</li>
+  <li><span class="pill ok">89/100</span> /uiuxaudit (grade A) sur cette page même, rendue en Playwright dans les deux thèmes : 7/9 claims PASS ; le HIGH (impression depuis un navigateur sombre) et les MEDIUM (lang, thead/scope, mesure) corrigés avant cette re-publication v2.</li>
+  <li><span class="pill ok">PARITY</span> <code>./scripts/verify-install.sh</code> : INSTALL PARITY OK après push ; gitleaks sur les 4 commits de mission : aucune fuite.</li>
+</ul>
+
+<h2 id="shas"><span class="k">06</span>Commits et liens</h2>
+<div class="tablebox"><table>
+  <thead><tr><th scope="col">Repo</th><th scope="col">Commit</th><th scope="col">Contenu</th></tr></thead>
+  <tr><td>OmegaOS</td><td class="num">c905bff</td><td>feat(rules): R-ARTIFACT + R-HTML compilées, EXPECTED_OPS 35</td></tr>
+  <tr><td>OmegaOS</td><td class="num">6dade12</td><td>feat(skills): artifact-design, surface de rapport live (rebase du 6013fba)</td></tr>
+  <tr><td>OmegaOS</td><td class="num">d9df411</td><td>fix(doctrine): route web-artifacts-builder conditionnelle + phrase corrigée (codeaudit F-3/F-4)</td></tr>
+  <tr><td>OmegaOS</td><td class="num">f478513</td><td>feat(report-surfaces): page de preuve + verdicts d'audit + miroirs de règles ; poussé, origin/main vérifié par ls-remote</td></tr>
+  <tr><td>Agentik-Skills</td><td class="num">774980b</td><td>miroir artifact-design/ poussé sur la bibliothèque (ls-remote authentifié vérifié)</td></tr>
+</table></div>
+
+<h2 id="limites"><span class="k">07</span>Limites et périmètre</h2>
+<ul>
+  <li>La surface artifact exige une session interactive éligible (bêta Team/Enterprise) : les runs headless et cron replient vers la surface 2 et le disent. C'est encodé dans la règle et le skill, pas contourné.</li>
+  <li>Cas non testé au runtime : la résolution du nom <code>artifact-design</code> quand le skill utilisateur ET le natif coexistent dans une session interactive. Borné par conception : le routage vit dans R-ARTIFACT (injecté partout) et le skill OmegaOS est autonome en design ; l'issue est sûre quelle que soit la copie résolue.</li>
+  <li>La génération visuelle du contenu reste soumise à R-CITE : chaque affirmation de cette page porte sa preuve (fichier:ligne, sonde, source datée).</li>
+</ul>
+
+<p class="sub footnote">oracle-OmegaOS · mission « 3e surface de rapport » · v2, re-publiée au même URL après le push (la v1 pré-push reste dans l'historique de versions de l'artifact : c'est la démonstration du versionnage). Jumeau hors-ligne : <code>agentic/reports/omegaos-report-surfaces-rollout.html</code>.</p>
+</div>

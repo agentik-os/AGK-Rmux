@@ -1,0 +1,10 @@
+{
+  "audit": "codeaudit", "mode": "delta", "ticket": "delta-fix4",
+  "target": "898f6e4", "score": 79, "grade": "B", "confidence": "high",
+  "model": "claude-opus-4-8[1m]", "preamble_version": "1.0",
+  "workflow": "wf_d69393ec-69a", "agents": 77, "subagent_tokens": 3800612,
+  "budget_cap_tokens": 200000, "budget_overrun": true,
+  "phases_run": ["P0-runtime", "P1", "P3", "P4", "P5", "P6", "P7", "P10", "P11", "P12", "P12.5", "P14", "P15", "P16", "P17", "H1-synthesis", "P20-verdict", "P21-fixplan(NEEDS_REVIEW)"],
+  "findings": {"high": 2, "medium": 9, "low": 7, "killed": 2},
+  "date": "2026-06-06"
+}

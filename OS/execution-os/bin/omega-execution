@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# omega-execution — the OmegaOS command for Execution OS (AgentikOS suite,
+# personal group). Thin launcher for the pack's deterministic execution engine
+# (stdlib Python, no venv): init / capture / add-outcome / add-commitment /
+# start / complete / block / unblock / defer / boot / focus / focus-end /
+# halt / reset / audit / add-promise / migrate / … over the execution state.
+# The COACHING half (Capture->Clarify->Select->Commit->Focus->Prove->Review->
+# Adapt) is the /execution-os skill (Claude) or the Codex prompt; this CLI owns
+# the deterministic execution state + evidence.
+#
+# Default state: ~/.omega/os/execution-os/ledger/execution-state.json (--state
+# to override).
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+
+find_engine() {
+    local candidates=(
+        "${EXECUTION_ENGINE:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/execution-os/pack/scripts/execution_engine.py"
+        "$HOME/OmegaOS/OS/execution-os/pack/scripts/execution_engine.py"
+        "$OMEGA_DIR/os/execution-os/pack/scripts/execution_engine.py"
+        "$OMEGA_DIR/skills/execution-os/scripts/execution_engine.py"
+    )
+    for f in "${candidates[@]}"; do
+        [[ -n "$f" && -f "$f" ]] && { echo "$f"; return 0; }
+    done
+    return 1
+}
+
+ENGINE="$(find_engine)" || {
+    echo "omega-execution: execution_engine.py not found (run OmegaOS install.sh, or set EXECUTION_ENGINE)" >&2
+    exit 1
+}
+
+mkdir -p "$OMEGA_DIR/os/execution-os/ledger"
+default_state="$OMEGA_DIR/os/execution-os/ledger/execution-state.json"
+
+# The engine requires a global --state; default it to the OS ledger unless the
+# caller passes one, so `omega-execution init --owner you` just works.
+case " $* " in
+    *" --state "*) exec python3 "$ENGINE" "$@" ;;
+    *)             exec python3 "$ENGINE" --state "$default_state" "$@" ;;
+esac

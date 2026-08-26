@@ -1,0 +1,782 @@
+diff --git a/RULES.md b/RULES.md
+index 5295f8c..2db48b5 100644
+--- a/RULES.md
++++ b/RULES.md
+@@ -5,7 +5,7 @@
+ > Reste synchronisée avec `~/.omega/state/oracle-OmegaOS*`. **Ne pas supprimer.** Mettre à jour quand une règle change.
+ 
+ ## Identité
+-- **Projet** : OmegaOS, *agentic terminal operating system*. Plan de contrôle terminal pour piloter une flotte d'agents de code IA en parallèle, où chaque agent obéit au même rulebook typé (7 Lois + 50 Règles compilées dans le binaire ; `omega rules list` affiche l'ensemble courant).
++- **Projet** : OmegaOS, *agentic terminal operating system*. Plan de contrôle terminal pour piloter une flotte d'agents de code IA en parallèle, où chaque agent obéit au même rulebook typé (7 Lois + 51 Règles compilées dans le binaire ; `omega rules list` affiche l'ensemble courant).
+ - **Owner** : agentik-os (org GitHub). Mainteneur humain : à préciser.
+ - **Repo** : `github.com/agentik-os/OmegaOS` · branche `main`
+ - **Forme** : produit installable (pas une lib). `npx omega-os` ou `git clone … && ./install.sh` → commande `omega`, TUI `ratatui` (7 onglets), bridge Telegram. Version workspace `0.1.6` (npm `omega-os@1.5.4`).
+@@ -27,7 +27,7 @@
+ - **Release profile** : `lto = "fat"`, `codegen-units = 1`, `strip = "symbols"`, panic `unwind` conservé (une task qui panique ne doit pas tuer l'orchestrateur).
+ 
+ ## Intouchable (source de vérité)
+-- `crates/omega-core/src/rules.rs` = SSOT de la doctrine (7 Lois L0 à L6 + 50 Règles nommées typées `RuleKind::{Law, Rule}`). Artefact compilé, pas un YAML oublié. **Ne pas contourner.**
++- `crates/omega-core/src/rules.rs` = SSOT de la doctrine (7 Lois L0 à L6 + 51 Règles nommées typées `RuleKind::{Law, Rule}`). Artefact compilé, pas un YAML oublié. **Ne pas contourner.**
+ - `OMEGA.md` = instructions universelles chargées par TOUS les agents LLM. **Ne pas éditer ici sans intention.**
+ - `~/.omega/` = état runtime + credentials + rules éditables. **Hors repo, jamais commité** (gitignored).
+ 
+@@ -39,6 +39,7 @@
+ - **Build propre** : commits passent build + lint + typecheck. CI build le workspace avec `-D warnings` + suite de tests comme gates durs (clippy/rustfmt advisory).
+ - **Pas de `--force`, pas de `--no-verify`.** Vérification par runtime live avant merge.
+ - **R-ORACLE-LEDGER (contrat de cycle de vie d'un oracle)** : un oracle énumère chaque demande avant d'agir, persiste cette énumération en plan durable (`omega progress <session> --plan "a|b|c"` écrit `oracle-<clé>.progress.json`), garde exactement UNE tâche `doing`, et ne ferme que sur une preuve qu'il a vérifiée lui-même. `omega done <session> done_clean` est REFUSÉ tant qu'un de ses workers tourne encore ; une fermeture propre ne cascade que les workers FINIS, relâche chaque `scope-<session>.json` et ne détruit jamais de travail non commité. Un plan incomplet annoncé `done_clean` est exactement le défaut que cette règle interdit. Contrat complet : `docs/ORACLE-LIFECYCLE-CONTRACT.md`. Règle compilée dans `rules.rs`, exportée vers `~/.omega/rules/`.
++- **R-GRAPH-EXEC (couche graphe persistée)** : une mission dont la forme réelle est un GRAPHE (branchement sur une classification, boucle jusqu'à épuisement, étape qui ne doit pas tourner sans personne devant) se DÉCLARE comme un `Graph` d'`omega-core` et se pilote par `graph_executor::advance` ; elle ne se re-dérive pas à la main à chaque run. `graph.rs` = vocabulaire persisté + `validate()`, `graph_executor.rs` = noyau de décision pur (ensemble prêt, retries bornés, propagation d'échec), `graph_risk.rs` = gate human-in-the-loop. Trois défauts porteurs, à ne pas inverser : un nœud NON classifié vaut `Elevated` (jamais `Safe`), la tentative est comptée AVANT le test du plafond (`max_attempts: 3` = exactement trois exécutions), et un re-seed de boucle ne rembourse pas les tentatives (le plafond R-LOOP tient d'une itération à l'autre). En `Unattended`, un nœud irréversible produit un `EscalationRecord` durable, jamais un prompt que personne ne lira ; une approbation non signée est refusée. Aucun des trois modules ne lance de process, n'ouvre de socket, n'écrit sur disque ni ne lit d'horloge : c'est ce qui rend un run rejouable. Contrat complet : `docs/GRAPH-EXECUTION-LAYER.md`. Complète R-GRAPH (la FORME d'un fan-out Workflow), R-LOOP (le plafond) et R-DESTRUCT (le gate). Règle compilée dans `rules.rs`, exportée vers `~/.omega/rules/`.
+ 
+ ## Pointeurs (à lire, ne pas recopier ici)
+ - `OMEGA.md` — instructions universelles agents (les 7 Lois L0–L6, orchestration, behavior, tools).
+diff --git a/agents/oracle.md b/agents/oracle.md
+index 0455a55..5f8bee4 100644
+--- a/agents/oracle.md
++++ b/agents/oracle.md
+@@ -411,6 +411,29 @@ A loop is a recurring process with a VERIFIABLE goal, MEMORY, and a hard CEILING
+ - **Read the whole loop in one place:** `omega timeline <oracle>` prints the dispatch → contest
+   → gate → escalation trail. Use it to diagnose a stuck mission instead of opening five JSONs.
+ 
++### THE PERSISTED GRAPH LAYER — don't hand-roll a shape omega-core already types (R-GRAPH-EXEC)
++Everything above shapes an **in-process** Claude Code fan-out. OmegaOS also carries a typed,
++persisted, replayable graph in `omega-core`, and a mission that needs a shape a plain DAG
++cannot express should DECLARE it there instead of re-deriving it by hand:
++- `crates/omega-core/src/graph.rs` — the vocabulary: `Graph`, `Node`/`NodeKind`, `Edge`,
++  `Router` (a deterministic table lookup, never a model call), `LoopBound`, `GraphState`,
++  and `validate()`, which **refuses any cycle that is not bounded**.
++- `graph_executor.rs` — the pure decision core: `ready_nodes` (the whole fan-out set, not one
++  node at a time), `advance` (apply results → retry / fall back / strand), and the four
++  outcomes `Progressing | Blocked | Complete | Failed`. Retries are per node and never
++  refunded, not even across a loop iteration.
++- `graph_risk.rs` — the gate in front of dispatch: `evaluate_gate` classifies a ready node
++  `Safe | Elevated | Irreversible`, an **unclassified node defaults to `Elevated`** (so it
++  runs attended and is withheld unattended), and an irreversible node in `Unattended` mode
++  yields a durable `EscalationRecord` instead of a prompt nobody is there to answer.
++
++**When to reach for it:** a deterministic BRANCH, a bounded CYCLE, a FALLBACK when a step
++exhausts its retries, or a RISK GATE in front of an irreversible step. Plain "what runs
++before what" stays on `mission::PlanContract`. Full contract: `docs/GRAPH-EXECUTION-LAYER.md`.
++Never dispatch a ready node without asking the gate (R-DESTRUCT), and never treat a graph you
++invented ad hoc as equivalent: the hand-rolled one is always the one missing the ceiling and
++the gate.
++
+ ### NATIVE `/loop` — pace by the cache window (R-LOOP)
+ Two loop layers compose: the OmegaOS *mission* loop above and the *native Claude Code `/loop`*
+ that can drive your whole session on a schedule — **FIXED-INTERVAL** (`/loop 5m /cmd`, cron-backed)
+diff --git a/agents/worker.md b/agents/worker.md
+index 4de3ba9..84ceaab 100644
+--- a/agents/worker.md
++++ b/agents/worker.md
+@@ -63,6 +63,24 @@ on completion. In dynamic mode pick the wakeup delay by the 5-minute prompt-cach
+ for active external polling, 1200s+ for an idle tick or a long fallback), never 300s. The
+ same-failure-3× ceiling still applies inside the loop — report `pending` with evidence, don't spin.
+ 
++## The persisted graph layer (R-GRAPH-EXEC)
++
++OmegaOS carries a typed, persisted mission graph in `omega-core`, and it exists so nobody
++hand-rolls a worse one: `graph.rs` (the vocabulary plus `validate()`, which refuses any cycle
++that is not bounded), `graph_executor.rs` (the pure decision core: `ready_nodes`, `advance`,
++and the four outcomes `Progressing | Blocked | Complete | Failed`), `graph_risk.rs` (the gate
++in front of dispatch). Reach for it when the work needs a deterministic BRANCH, a bounded
++CYCLE, a FALLBACK when a step exhausts its retries, or a RISK GATE before an irreversible
++step; plain "what runs before what" stays on `mission::PlanContract`.
++
++Three defaults are load-bearing and easy to get backwards, so know them before you touch it:
++an **unclassified node is `Elevated`, never `Safe`**, so it will not be dispatched unattended;
++an attempt is counted **before** the ceiling is tested, so `max_attempts: 3` runs a node
++exactly three times; and re-seeding a loop body does **not** refund attempts, so the R-LOOP
++ceiling holds across iterations. The three modules spawn no process, open no socket, touch no
++file and read no clock — keep it that way, it is what makes a run replayable. Full contract:
++`docs/GRAPH-EXECUTION-LAYER.md`.
++
+ ## Verification Checklist
+ 
+ Before calling done:
+diff --git a/crates/omega-core/src/rules.rs b/crates/omega-core/src/rules.rs
+index 9f8cfb4..59f2baa 100644
+--- a/crates/omega-core/src/rules.rs
++++ b/crates/omega-core/src/rules.rs
+@@ -340,6 +340,18 @@ pub fn all_rules() -> Vec<Rule> {
+             added_at: "2026-08-01",
+             reason: "The operator handed OmegaOS the 'Graph Engineering with Claude' 14-step course (X Article, @0xCodez, 2026-07-20) and asked for it to be applied. The gap analysis was unambiguous: R-ORCH already owned the WHEN of orchestration (the 3-file-disjoint fan-out trigger) and R-VERIFY, R-MODEL, R-LOOP and R-SCOPE each owned one facet, but NOTHING in the registry owned the SHAPE of the graph — so every workflow re-derived its topology from scratch and defaulted to the most expensive form of it: a `parallel()` barrier between every stage (every item waiting on the slowest), a subagent burned on a flatten or a dedupe that is three lines of JavaScript, free-text node outputs hand-parsed downstream because no `schema:` was attached, a loop-until-dry deduping against CONFIRMED findings and therefore never running dry, and a good topology thrown away at the end of the run instead of saved. R-GRAPH makes the shape itself doctrine: pipeline by default with three named legal barriers, the 'and then' test for whether an edge is real, edges as free code, schema contracts on every consumed node, per-node failure containment, code-level routing, convergent cycles that dedupe against everything seen, verifiers on the edge, per-node model tiering, and a saved graph as a committed asset.",
+         },
++        Rule {
++            id: "R-GRAPH-EXEC",
++            title: "The persisted graph layer: declare the shape, bound every cycle, classify every node's risk",
++            kind: RuleKind::Rule,
++            category: RuleCategory::Orchestration,
++            description: "A mission whose real shape is a GRAPH (a branch taken on a classification, a stage that loops until it runs dry, a step that must not run with nobody watching) is DECLARED as an `omega-core` `Graph` and driven through `graph_executor::advance`, never re-derived by hand each run: `crates/omega-core/src/graph.rs` is the persisted vocabulary, `graph_executor.rs` is the pure decision core, `graph_risk.rs` is the human-in-the-loop gate, and the full contract is `docs/GRAPH-EXECUTION-LAYER.md`. R-GRAPH owns the SHAPE you choose when you fan out inside a Claude Code Workflow; R-GRAPH-EXEC owns the typed, persisted, replayable machinery underneath it, and the two are complements, not alternatives. WHEN TO REACH FOR IT: `mission::PlanContract` already models tasks plus `depends_on`, which is a DAG and nothing more, so it is the right tool for plain 'what runs before what'. Reach for the graph layer the moment the mission needs something a DAG cannot express: a deterministic BRANCH, a bounded CYCLE, a FALLBACK when a step exhausts its retries, or a RISK GATE in front of dispatch. (1) THE BRANCH IS DATA, NOT A MODEL CALL: a `Router` resolves a classification string through an exact `BTreeMap` lookup and then a `default`, so the same classification always lands on the same node on every machine and in every replay. A model may PRODUCE the classification; it never decides the branch. A `default: None` is legal and means the caller must handle the miss instead of drifting into a branch nobody chose. (2) A CYCLE IS LEGAL ONLY IF IT IS BOUNDED: every back edge carries a `LoopBound` with a finite `max_iterations` (>= 1), and `Graph::validate()` cuts the bounded edges and REFUSES anything still cyclic with `UnboundedCycle`. That is the structural half of convergence; the runtime half is three monotone counters that are never refunded (per-node attempts, per-edge traversals, forward-only lifecycle moves), so no sequence of `advance` calls can spin forever. `stop_after_dry_rounds` is advisory and NEVER a substitute for the ceiling. (3) BOUNDED RETRIES ARE CARRIED BY THE NODE (R-LOOP): each node holds its own `mission::RetryPolicy`, the attempt is counted BEFORE the ceiling is tested (so `max_attempts: 3` runs it exactly three times, never four), and attempts live in `GraphState` so a run resumed from disk cannot hand a thrashing node a fresh budget. Re-seeding a loop body does NOT clear attempts: the ceiling holds ACROSS iterations rather than resetting with them. (4) FAILURE PROPAGATES, IT NEVER HANGS: a terminally failed node with no live fallback strands every dependent reachable only through it, and those are `Cancelled` and reported as unreachable rather than left queued forever. `ExecutionOutcome::Blocked` is the answer to 'nothing will ever be ready', and it is not the same fact as `Progressing` with an empty set; a caller that cannot tell them apart can only poll a dead graph. (5) NEVER DISPATCH A READY NODE WITHOUT ASKING THE GATE (R-DESTRUCT): the executor answers 'what may run now' from edges and budgets alone, so a node that drops a production schema is runnable by exactly the same test as a node that prints a file. `evaluate_gate(graph, state, node, mode)` is the check that stands in front, and an UNCLASSIFIED node defaults to `Elevated`, never `Safe`, so it runs attended and is withheld unattended: absence of a classification is not evidence of safety. Classify what you author with `with_risk_detail`, declaring both WHY and WHAT IS LOST. (6) UNATTENDED IRREVERSIBLE WORK PRODUCES A DURABLE RECORD, NEVER A PROMPT: in `ExecutionMode::Unattended` nobody can answer, so the only legal output is an `EscalationRecord` naming the step, the reason and what would be lost, persisted and pushed through the alert funnel, exactly the block-file R-DESTRUCT describes but as a type. A prompt in a dispatched run is not a safety mechanism, it is a mission that stalls silently. (7) AN APPROVAL IS SIGNED OR IT IS NOTHING: `approve` and `deny` REFUSE an empty approver, the record travels with the verdict so the audit trail keeps what was actually shown, and a resolution is honoured only when the parsed record names the same node. An agent never writes its own permission slip. (8) THE CORE STAYS PURE: no process spawn, no network, no filesystem, no clock anywhere in the three modules, which is the only reason a mission replays off a persisted `GraphState` and reaches the same decisions on another machine. Keep it that way: a timestamp is a PARAMETER, execution belongs to the caller, and every graph document round-trips through the forward-compatible `extra` bags without a destructive migration.",
++            applies_to: &[],
++            scopes: EXEC,
++            domains: &[],
++            added_at: "2026-08-04",
++            reason: "Three modules landed in omega-core (graph.rs, graph_executor.rs, graph_risk.rs, 36 tests) giving OmegaOS a typed and persisted mission graph: deterministic routers, bounded cycles, per-node retry ceilings, fallbacks, unreachable-dependent reporting, and a risk gate that fails closed. The CODE existed and the DOCTRINE said nothing, which is the same gap R-ORACLE-LEDGER was written to close one layer up: an agent that never learns a primitive exists re-derives a worse one by hand, and the worse one is always the one without the ceiling and without the gate. Three defaults in that code are deliberate, load-bearing, and exactly the kind of thing a hand-rolled re-derivation gets backwards, so they are written here rather than left to whoever reads the source: an unclassified node defaults to Elevated (absence of a classification is not evidence of safety, and Irreversible would have halted every pre-risk graph and trained operators to disable the gate), an attempt is counted before the ceiling is tested (so max_attempts means exactly that), and a loop re-seed does not refund attempts (so the R-LOOP ceiling holds across iterations instead of resetting with them). R-GRAPH already owned the SHAPE of an in-process Claude Code fan-out; R-GRAPH-EXEC owns the persisted machinery underneath it, so the two compose instead of competing. R-LOOP supplies the bounded-retry ceiling this layer enforces in types, R-DESTRUCT supplies the ask-before-you-wipe gate this layer turns into an EscalationRecord a dispatched session can actually leave behind, and R-ORCH still decides when to dispatch at all.",
++        },
+         Rule {
+             id: "R-GOAL",
+             title: "Goal-sizing",
+diff --git a/docs/GRAPH-EXECUTION-LAYER.md b/docs/GRAPH-EXECUTION-LAYER.md
+new file mode 100644
+index 0000000..dba89d5
+--- /dev/null
++++ b/docs/GRAPH-EXECUTION-LAYER.md
+@@ -0,0 +1,660 @@
++# The graph execution layer (R-GRAPH-EXEC)
++
++`crates/omega-core/src/mission.rs` already models a mission as a list of tasks plus
++`depends_on`. That is a DAG and nothing more: it answers "what must run before what" and
++stops there. It cannot say that a branch is taken on a classification string, it cannot say
++that a stage loops until it runs dry (a `depends_on` cycle is rejected outright), and it has
++no opinion at all on whether a runnable step is safe to run with nobody watching.
++
++Three modules in `omega-core` fill exactly those gaps, and the split between them is the
++point:
++
++| Module | Owns | Refuses to own |
++|---|---|---|
++| `graph.rs` | the persisted vocabulary and `validate()` | which node may run now |
++| `graph_executor.rs` | the pure decision core: ready set, retries, failure propagation | what a node *does* |
++| `graph_risk.rs` | the human-in-the-loop gate in front of dispatch | running anything |
++
++None of the three spawns a process, opens a socket, touches the filesystem or reads a clock.
++Every entry point is a pure function of its arguments, which is what makes a whole run
++replayable off a persisted state file and identical on any machine. A caller (the CLI, a
++daemon, a test harness) does the running.
++
++The rule is `R-GRAPH-EXEC`, compiled into `crates/omega-core/src/rules.rs` and exported to
++`~/.omega/rules/` by the installer. This page is the long form. It duplicates no other rule:
++`R-GRAPH` owns the SHAPE you choose when you fan out in a Claude Code Workflow, `R-ORCH`
++owns when to dispatch at all, `R-LOOP` owns bounded retries and escalation, `R-DESTRUCT`
++owns the destructive-operation gate, `R-ORACLE-LEDGER` owns the oracle's durable plan.
++`R-GRAPH-EXEC` is the typed, persisted machinery those doctrines get to stand on.
++
++A user-facing CLI surface over this layer is being built separately and is not documented
++here; until it lands, the layer is reached through the library API below.
++
++---
++
++## 1. The type model
++
++### Graph, the immutable shape
++
++```rust
++pub struct Graph {
++    pub schema_version: u32,          // GRAPH_SCHEMA_VERSION, currently 1
++    pub nodes: Vec<Node>,
++    pub edges: Vec<Edge>,
++    pub routers: BTreeMap<NodeId, Router>,
++    pub loop_bounds: Vec<LoopBound>,
++    pub extra: Map<String, Value>,    // #[serde(flatten)]
++}
++```
++
++Builders are chainable. `with_node` and `with_loop_bound` take the built value; `with_edge`
++and `with_router`'s host take anything that converts into a `NodeId`:
++
++```rust
++let graph = Graph::new()
++    .with_node(Node::new("fan_a", NodeKind::Agent))
++    .with_node(Node::new("reduce", NodeKind::Reduce))
++    .with_edge("fan_a", "reduce");
++```
++
++`Graph`, `GraphState` and `NodeRunState` carry `#[serde(default)]` on every field, and every
++struct in the module carries a flattened `extra` bag. On `Node`, `Edge` and `LoopBound` the
++identity and structural fields (`id`, `kind`, `from`, `to`, `max_iterations`) stay REQUIRED,
++and only the fields ADDED after the first version default. Two consequences, and they are the
++reason the layer can grow without a migration: an old document loads because the fields added
++since it was written default, and a new document round-trips through this version with the
++keys it has never heard of intact. Nothing in `graph.rs` rewrites, drops or renames a key it
++does not own.
++
++The `extra` bags carry that guarantee down to the `Node` boundary and no further. A node's
++`retry` and `checks` are `mission` types with no bag of their own, so an unknown key written
++INSIDE a `RetryPolicy` or a `VerifierCheck` is dropped on a round trip, and `RetryPolicy`
++requires both of its fields to be present.
++
++### Node
++
++```rust
++pub struct Node {
++    pub id: NodeId,
++    pub kind: NodeKind,
++    pub retry: RetryPolicy,           // mission::RetryPolicy, default 3 attempts / 5s backoff
++    pub checks: Vec<VerifierCheck>,   // mission::VerifierCheck, empty is legal
++    pub state: TaskAttemptState,      // mission::TaskAttemptState, defaults to Queued
++    pub task_id: Option<TaskId>,      // the contract that authorized it, when there is one
++    pub extra: Map<String, Value>,
++}
++```
++
++The reuse is deliberate. A node does **not** get its own `Pending | Done | Error` enum: it
++moves through the same `mission::TaskAttemptState` machine an attempt does, so a node's
++state and the ledger's state are the same word and an illegal move raises the same
++`mission::InvalidTransition` in both places. `Node::transition` simply delegates to it.
++`RetryPolicy` and `VerifierCheck` ride along per node so `R-LOOP`'s ceiling and `R-VERIFY`'s
++checks are carried by the graph itself rather than re-derived by whoever runs it. `task_id`
++is optional because a reduce node is plain code and never had a contract.
++
++`NodeKind` is `Agent`, `Reduce`, `Router`, `Verifier`, `Synthesis` (serialized snake_case).
++The split that earns its keep is `Reduce` versus everything else: a flatten, a dedupe, a
++filter or a rank between a fan-out and a synthesis is plain code and costs zero model
++tokens. Naming it as its own kind is what stops the next author burning an agent on an edge.
++
++### Edge
++
++```rust
++pub struct Edge { pub from: NodeId, pub to: NodeId, pub extra: Map<String, Value> }
++```
++
++An edge exists ONLY where data actually moves. That is the "and then" test made structural:
++if the next node does not READ the previous node's output there is no edge, and the wait it
++implies is pure latency. Encoding sequencing-that-is-not-dataflow as an edge is the single
++most common way a graph becomes needlessly serial.
++
++### Router, the branch as data
++
++```rust
++pub struct Router {
++    pub on: String,                        // what is classified, for humans only
++    pub routes: BTreeMap<String, NodeId>,  // exact classification -> destination
++    pub default: Option<NodeId>,
++    pub extra: Map<String, Value>,
++}
++```
++
++`Router::resolve(classification)` is an exact lookup in `routes`, then `default`. No model
++call, no fuzzy match, no ordering sensitivity. A model may PRODUCE the classification string
++somewhere else, but the branch it takes is a table lookup, so the same string always lands
++on the same node on every machine and in every replay: there is no emergent "it decided to
++skip the audit" surprise. `Graph::route(host, classification)` is the same lookup addressed
++through the hosting node.
++
++`default: None` is a legal graph. It means an unmatched classification has nowhere to go and
++the caller is required to handle the miss, rather than silently drifting into a branch
++nobody chose.
++
++Routers are keyed by their host node in `Graph::routers` rather than carried inline on
++`Node`, which keeps the branch table addressable on its own and keeps `Node` the same shape
++whether or not it branches.
++
++### LoopBound, what makes a cycle legal
++
++```rust
++pub struct LoopBound {
++    pub from: NodeId,
++    pub to: NodeId,
++    pub max_iterations: u32,                  // must be >= 1
++    pub stop_after_dry_rounds: Option<u32>,
++    pub extra: Map<String, Value>,
++}
++```
++
++A cycle is not forbidden: loop-until-dry is a real and useful shape. An UNBOUNDED cycle is
++forbidden, because a cycle with no ceiling is a machine that pays to rediscover the same
++dead ends until the budget dies. `stop_after_dry_rounds` is advisory and never a substitute
++for `max_iterations`: a dry-round counter only converges if the thing being deduplicated is
++deduplicated against everything SEEN, which this layer cannot enforce from the outside.
++
++### GraphState, the mutable half
++
++```rust
++pub struct GraphState { pub schema_version: u32, pub nodes: BTreeMap<NodeId, NodeRunState>, pub extra: Map<String, Value> }
++pub struct NodeRunState { pub state: TaskAttemptState, pub attempts: u32, pub extra: Map<String, Value> }
++```
++
++The graph is the immutable shape, the state is what moves, and they are persisted side by
++side rather than fused. `GraphState::for_graph(&graph)` seeds one entry per node with zero
++attempts. `record_attempt` uses `saturating_add`, because a wrapped counter would silently
++hand a thrashing node a fresh budget. `graph.rs` only RECORDS attempts; comparing them
++against `RetryPolicy::max_attempts` is the executor's job, so there is exactly one authority
++on the `R-LOOP` ceiling.
++
++---
++
++## 2. Validation, and the ten ways a graph is wrong
++
++`Graph::validate()` returns `Result<(), GraphError>` and its order is deliberate, most
++upstream cause first, so the first error reported is the cause rather than a symptom:
++
++1. `UnsupportedSchema { version }` when `schema_version` is not `GRAPH_SCHEMA_VERSION`.
++2. `EmptyNodeId` and `DuplicateNodeId(id)`, both in one pass over the nodes, so whichever
++   defect appears first in declaration order is the one reported. Identity comes before
++   everything else, because a duplicate id makes every later lookup ambiguous. An id is
++   empty when it trims to nothing, while duplicate detection compares the untrimmed string.
++3. `DanglingEdge { from, to, missing }` for any edge endpoint that is not a node here.
++4. `UnknownRouterHost`, `UnknownRouterRoute { router, case, target }` and
++   `UnknownRouterDefault { router, target }` for a router or a route pointing at nothing.
++5. `UnknownLoopBoundEdge { from, to }` for a bound declared on an edge the graph lacks, and
++   `NonConvergentLoopBound { from, to }` for `max_iterations == 0`, which does not describe
++   a convergent loop but an edge that can never be taken (almost always a defaulted field
++   rather than an intent).
++6. `UnboundedCycle { nodes }`.
++
++`NodeId` derives `Ord` and the routers and state maps are `BTreeMap`s on purpose: iteration
++order, serialized key order and therefore error messages are stable across runs, so two
++validations of the same broken graph name the same node first.
++
++Nothing here panics. This validates data that arrives from disk and from other machines, and
++a panic there takes down a daemon over one bad file.
++
++### How convergence is guaranteed
++
++The cycle check is the load-bearing half. It cuts every edge that carries a declared
++`LoopBound`, then requires what remains to be acyclic, using Kahn's algorithm (no stack
++depth proportional to the graph, and the nodes it fails to emit ARE the cycle plus whatever
++hangs off it, which is the evidence `UnboundedCycle` carries).
++
++Read the other way round: **every possible loop in a valid graph has to pass through an edge
++that carries a finite counter.** That is the proof of convergence at the structural level.
++The executor then supplies the runtime half, three monotone counters that are never
++refunded:
++
++1. A node's failures are counted in `GraphState` and never refunded, so a node can FAIL at
++   most `RetryPolicy::max_attempts` times before it is terminally failed.
++2. A back edge's traversals are counted per edge and never refunded, so once
++   `max_iterations` is spent that edge is dead and what remains is the acyclic graph
++   `validate()` already proved acyclic.
++3. Every other node moves only forward through the `mission` attempt machine towards a
++   terminal state.
++
++So every `advance` call that carries at least one report either applies it, spends a budget,
++or reaches a terminal outcome, and no budget is ever handed back. A run driven by reporting
++what it dispatched therefore cannot cycle forever. A call carrying NO reports is a pure
++re-read: it mutates nothing and re-states the same decision, which is why it is safe to
++repeat and why it is not what the counters bound.
++
++---
++
++## 3. The executor
++
++### The diamond, and why the ready set is a set
++
++The workhorse topology is the diamond: fan out, reduce in code, synthesize.
++
++```
++            ┌─> find_bugs ─┐
++  scope ────┼─> find_perf ─┼──> dedupe (Reduce) ──> verify ──> report (Synthesis)
++            └─> find_sec ──┘
++```
++
++```rust
++let ready = ready_nodes(&graph, &state);   // -> Vec<NodeId>
++```
++
++`ready_nodes` returns EVERY node whose incoming edges are satisfied, so the caller
++dispatches them concurrently. A node with no incoming edges is ready from the first call.
++Returning one node at a time would silently serialize the fan-out, which is the exact wasted
++wall clock the whole layer exists to stop.
++
++A node is ready when it is waiting to run (`Queued`, or `CorrectionRequired` after a
++retryable failure) and every one of its incoming edges is satisfied. Joins are AND: a node
++waits on ALL of its incoming edges. Two things are deliberately not counted, one per edge and
++one per node:
++
++- **A declared back edge is ignored.** Otherwise nothing inside a legal bounded cycle could
++  ever start, because every node in the cycle would be waiting on the next one round.
++- **A fallback node stays gated until its principal has terminally failed.** This one is a
++  gate on the NODE, tested before any edge is inspected, which is what stops a standalone
++  fallback with no incoming edges firing eagerly beside the node it exists to replace.
++
++The returned order follows the graph's own node declaration order, so two runs over the same
++graph dispatch in the same order and a log diff means something. `ready_nodes` returns a
++plain `Vec` rather than a `Result`: it is a lookup over data `validate()` has already had its
++chance to reject, and it treats an unknown node as `Queued`.
++
++Routing is the caller's, and the boundary is sharp enough to be worth stating plainly. A
++`Router` is resolved by whoever produced the classification, and the executor never guesses a
++branch: encoding OR-joins here would mean inventing a second branch mechanism beside the
++deterministic table `graph.rs` already ships. But `NodeResult` has exactly two variants,
++`Succeeded` and `Failed`, so there is no "branch not taken" report to hand `advance`. A
++caller that takes a branch settles the untaken side in `GraphState` itself, for instance by
++transitioning those nodes to `Cancelled`, which is the mission machine's word for "this will
++not run". A `Cancelled` source does not satisfy its out-edges, so the untaken subtree has to
++be settled with it rather than left queued.
++
++### advance, the step function
++
++```rust
++let step: StepOutcome = advance(&graph, &mut state, &[
++    NodeReport::succeeded("find_bugs"),
++    NodeReport::failed("find_perf", "timeout after 300s"),
++])?;
++```
++
++`advance` re-validates the graph on every step rather than trusting it once, because the
++caller may have mutated it between calls and a dangling edge silently strands every node
++behind it. It then rejects a report naming a node the graph does not contain
++(`ExecutorError::UnknownNode`) and the same node reported twice in one step
++(`ExecutorError::DuplicateReport`). Duplicates are rejected rather than resolved
++last-one-wins: two results for one attempt means the caller lost track of a dispatch, and
++silently picking one hides that.
++
++`StepOutcome` reports what the step actually did, so a caller can log a run without diffing
++two state snapshots:
++
++| Field | Holds |
++|---|---|
++| `outcome` | the `ExecutionOutcome` (below) |
++| `applied` | reports applied to the state this step |
++| `retrying` | nodes that failed but still had budget |
++| `exhausted` | nodes that failed with the budget spent, terminal |
++| `fallbacks` | fallbacks declared by a principal that exhausted its budget this step, and that exist in the graph |
++| `loops_taken` | back edges traversed this step, as `(from, to)` |
++| `newly_unreachable` | nodes newly proven unreachable this step |
++
++`step.ready()` returns the ready set or an empty slice, and `step.is_terminal()` is true for
++anything other than `Progressing`.
++
++Calling `advance` repeatedly with no results is safe and idempotent: it re-reports the same
++decision instead of mutating.
++
++### Bounded retries, exactly at the ceiling
++
++On a `NodeResult::Failed { reason }` the executor counts the attempt BEFORE it tests the
++ceiling, so the budget is spent by the failure that just happened rather than by the one
++after it. **A policy of `max_attempts: 3` therefore lets the node fail exactly three times,
++never four.** While budget remains the node is walked to `CorrectionRequired` and appears in
++`retrying`, so the next `ready_nodes` offers it again. When the budget is spent it is walked
++to `Failed` and appears in `exhausted`.
++
++The counter is spent by FAILURES, not by dispatches: only the `Failed` arm calls
++`record_attempt`. A node that succeeds and is then sent round again by a back edge is
++re-dispatched without spending any of its retry budget, and that is correct, because what
++bounds a loop is the per-edge traversal budget rather than the per-node retry budget.
++
++Attempts live in `GraphState`, so the ceiling survives a restart: a run resumed from disk
++cannot hand a thrashing node a fresh budget. Crossing a loop iteration does not refund it
++either, and that is deliberate. Re-seeding a loop body sets each node back to `Queued`
++without clearing `attempts`, so a node that burned failures in round one cannot buy a full
++new budget by going round again. `Accepted` is terminal in the mission machine and stays
++terminal: a second pass through a loop body is a fresh attempt series at those nodes, modeled
++as a re-seed rather than as an undone acceptance.
++
++The failure reason is recorded in the state and stays retrievable with
++`failure_reason(&state, &id)`, so a later terminal outcome can name the cause instead of
++telling the operator only that something, somewhere, went wrong.
++
++### Fallbacks
++
++A fallback is declared through the same forward-compatible bag, under
++`graph_executor::FALLBACK_KEY` (`"fallback"`):
++
++```rust
++let node = with_fallback(Node::new("deploy_blue", NodeKind::Agent), "deploy_green");
++let declared = fallback_of(&node);   // Some(NodeId("deploy_green"))
++```
++
++It is a free function rather than a `Node` method, and it writes into `Node::extra` rather
++than adding a field, for the same reason throughout this layer: `graph.rs` owns the
++vocabulary, and a second writer on it is how two halves of one system drift apart. Because
++`extra` is `#[serde(flatten)]`, a declared fallback persists in the graph document exactly
++like a first-class field. A non-string value reads as no declaration rather than as an error,
++because this parses data another version may have written and one malformed optional key
++must not take a mission down.
++
++The mechanism is one case inside `edge_satisfied`: an edge from a failed principal to ITS
++fallback fires precisely BECAUSE the principal failed. That is what lets a fallback be wired
++downstream of the node it replaces without deadlocking on it. For every other successor of a
++failed principal, the edge is satisfied only once the fallback itself is `Accepted`.
++
++A failure is not treated as final while a declared fallback has not yet had its turn.
++Treating it as final the instant it happens would strand the very dependents the fallback
++exists to serve, one step before the fallback is even dispatched. A fallback naming a node
++the graph does not contain covers nothing, and a fallback that is itself `Failed` or
++`Cancelled` covers nothing either.
++
++### What happens to dependents when a node fails terminally
++
++Failure propagates, it never hangs. This is the contract that stops a caller polling a graph
++that is already over.
++
++When a node is terminally failed with nothing left to cover for it, the executor walks
++forward over its ordinary (non back) out-edges, skipping the edge to its own fallback, and
++marks everything it reaches. Under an AND join a node with even one dead incoming edge can
++never become ready, so leaving it `Queued` would be a lie. Each stranded node is transitioned
++to `Cancelled`, which is the mission machine's word for "this will not run", and recorded in
++the state where `unreachable_nodes(&state)` reads it back. A transition the machine refuses
++is swallowed rather than raised: the node is unreachable either way, and failing the whole
++step over the bookkeeping would hide the far more important fact.
++
++The walk stops at any node that is already `Accepted`, `Failed` or `Cancelled`. An accepted
++node's output exists, so nothing behind it is stranded through that path.
++
++### The four outcomes
++
++```rust
++pub enum ExecutionOutcome {
++    Progressing { ready: Vec<NodeId> },
++    Blocked { unreachable: Vec<NodeId> },
++    Complete,
++    Failed { node: NodeId, reason: String },
++}
++```
++
++The variants exist to make ONE distinction impossible to miss. `Progressing` means work is
++available now. `Blocked` means no work is available and none ever will be for the listed
++nodes. A caller that cannot tell those apart can only poll forever.
++
++Precedence is deliberate: `Progressing` first (work beats analysis), then `Blocked`
++(stranded nodes are the most actionable terminal fact and they name what died), then
++`Failed`, then `Complete`. `Blocked` carries both the recorded unreachable set and anything
++still unsettled with nothing ready, which is the safety net: an unsettled node that cannot be
++dispatched is blocked by definition, and reporting it as `Complete` would be a false green.
++
++### Where the executor's own bookkeeping lives
++
++Loop traversal counts, failure reasons and the unreachable set are the executor's state, not
++the vocabulary's, so they are written into `GraphState::extra` under one namespaced key,
++`"graph_executor"`, with sub-maps `loop_traversals`, `failures` and `unreachable`. One
++namespaced key rather than three top-level ones, so this module cannot collide with another
++writer's entries. Three public readers expose it without exposing the encoding:
++
++```rust
++loop_traversals(&state, &from, &to) -> u32
++failure_reason(&state, &id)         -> Option<String>
++unreachable_nodes(&state)           -> Vec<NodeId>
++```
++
++A back edge is only spent when its source was reported succeeded IN THIS STEP. Testing
++"source is `Accepted`" instead would re-take the same back edge on every later call until the
++budget drained, which turns an idempotent no-op call into silent budget burn. When a
++traversal is spent, the loop body is re-seeded: everything forward-reachable from `to` that
++is also backward-reachable from `from`, over ordinary edges. That intersection is exactly the
++body the back edge sends round again. Re-seeding the whole graph would throw away work
++outside the loop; re-seeding only `to` would leave the rest of the body stuck `Accepted` and
++the loop would run once and stop.
++
++---
++
++## 4. The risk gate
++
++The executor answers "what may run now" structurally, from edges and retry budgets, and it
++has no opinion on what a node DOES. A node whose incoming edges are all satisfied is
++runnable, and a node that drops a production schema is also runnable by exactly the same
++test. Wiring the executor straight to a dispatcher therefore runs the irreversible step the
++moment its dependencies land, unattended, with no record that anyone ever chose it.
++
++`graph_risk.rs` sits in front of dispatch and closes that gap.
++
++### Three levels, and an unclassified node is not a safe node
++
++```rust
++pub enum RiskLevel { Safe, Elevated, Irreversible }   // serialized lowercase
++```
++
++- `Safe` is reversible and cheap to be wrong about, and runs unattended.
++- `Elevated` is recoverable but expensive or noisy to undo. It runs with a human watching,
++  and never with nobody watching.
++- `Irreversible` destroys something no later step can restore. It never runs unattended, and
++  never runs attended without an attributable human decision either.
++
++**`RiskLevel::default()` is `Elevated`, and that is the most consequential line in the
++module.** Every graph authored before risk existed carries no classification at all, and some
++of those graphs certainly contain a destructive step.
++
++`Safe` was rejected because absence of a classification is not evidence of safety: defaulting
++would let exactly the node this gate exists to stop run unattended, and it would fail
++silently, which is the one failure mode an approval gate cannot afford. `Irreversible` was
++rejected because it overclaims twice over: it would halt every pre-risk graph on its first
++node in BOTH modes, a behavioural break dressed as a default that pushes people to switch the
++gate off wholesale, and it would force the approval request to state a `what_is_lost` nobody
++declared, so the gate would be inventing damage in order to warn about it, which trains the
++operator to ignore the warnings. `Elevated` is the only level whose meaning is literally
++"unknown risk": it preserves the pre-risk behaviour exactly where a human is watching, and
++withholds only the case that was never safe to begin with. Fail closed, with no destructive
++migration.
++
++Classification is declared through `Node::extra`, like the fallback, under `RISK_KEY`
++(`"risk"`), `RISK_REASON_KEY` (`"risk_reason"`) and `RISK_WHAT_IS_LOST_KEY`
++(`"risk_what_is_lost"`):
++
++```rust
++let node = with_risk_detail(
++    Node::new("drop_stale_index", NodeKind::Agent),
++    RiskLevel::Irreversible,
++    "drops a production index that took 40 minutes to build",
++    "every query on the hot path falls back to a table scan until it is rebuilt",
++);
++```
++
++`with_risk` is the same call with both prose fields empty, and empty prose is never written:
++an empty string on disk would read as a declared answer and defeat the synthesized fallback
++below.
++
++`risk_of(&node)` treats an ABSENT key and a MALFORMED one asymmetrically, on purpose.
++Absent defaults, because that is a document predating the field. Present but unparseable is
++`RiskError::MalformedRisk`, because a value somebody deliberately wrote and got wrong is the
++case where a silent default is most dangerous: the author believed the node was classified.
++`RiskLevel::parse` tolerates surrounding whitespace (a hand-edited graph document is a real
++authoring path) but not case, because the lowercase spelling is the contract and quietly
++accepting `"Irreversible"` would put two spellings in the corpus.
++
++### Attended versus unattended
++
++```rust
++pub enum ExecutionMode { Attended, Unattended }
++```
++
++This is the whole point of the module. In `Attended` an approval can be granted inline,
++because somebody is looking at the terminal. In `Unattended` it can NEVER be, because the
++prompt would be asked of an empty room. `ExecutionMode::requires_durable_record()` is true
++exactly for `Unattended`.
++
++`R-DESTRUCT` says this in two halves and the type keeps them together. An interactive session
++asks a human and waits. A DISPATCHED session cannot wait: it performs every non-destructive
++part of the mission, writes a durable record naming the destructive step, what would be lost
++and the safer alternative, signals blocked, and escalates through the alert funnel. The ask
++still happens, asynchronously, through an artifact a human can act on later, instead of
++against a prompt nobody will answer.
++
++### The gate decision
++
++```rust
++let decision = evaluate_gate(&graph, &state, &node_id, ExecutionMode::Unattended);
++```
++
++Pure, and the order of checks is the order of certainty:
++
++1. **A node the graph does not contain is refused.** Treating it as safe would let a typo in
++   a dispatch loop bypass the gate entirely.
++2. **A malformed classification is refused**, because somebody tried to classify this node
++   and the result is unreadable.
++3. **A recorded human decision wins over the level, in BOTH modes.** That is the asynchronous
++   half of `R-DESTRUCT` closing: a dispatched run escalated, a human approved or denied out
++   of band, and the resumed run honours it. An approval reaches the state only through
++   `approve`, which refuses to build an unattributed one.
++4. **Otherwise the level and the mode decide.** `Safe` proceeds. `Elevated` proceeds only
++   attended. `Irreversible` never proceeds on its own in either mode.
++
++```rust
++pub enum GateDecision {
++    Proceed,
++    RequireApproval { node: NodeId, risk: RiskLevel, reason: String, what_is_lost: String },
++    Refuse { node: NodeId, reason: String },
++}
++```
++
++`Refuse` is not a softer `RequireApproval`. It means the gate could not establish what it is
++being asked to approve, so there is nothing a human could meaningfully consent to yet. Every
++branch fails closed, which is the only safe direction for a check standing in front of
++destruction.
++
++**`what_is_lost` is never empty.** An approval request that does not say what is lost is not
++informed consent: a human asked to approve "step 7" with no statement of the damage is being
++asked to rubber-stamp, not to decide. When the node declared nothing, the gate synthesizes
++what it actually knows rather than inventing damage. For an irreversible node: assume every
++effect of this step is permanent and that no later step can restore it, which is the honest
++reading of the classification and exactly the assumption a human should make. For an elevated
++node: the step is recoverable but the cost of undoing it is unstated, which is the true fact
++rather than a loss the author never claimed. `reason` falls back the same way, to a statement
++true of every node at that level rather than to silence.
++
++### Why an unattended irreversible node produces a record instead of a prompt
++
++```rust
++let record = decision.into_escalation(recorded_at);   // Option<EscalationRecord>
++```
++
++`into_escalation` converts a `RequireApproval` into the durable artifact and returns `None`
++for the other two variants: there is nothing for a human to act on in a proceed, and a
++refusal names a broken graph rather than a pending decision.
++
++```rust
++pub struct EscalationRecord {
++    pub node: NodeId,
++    pub risk: RiskLevel,
++    pub reason: String,
++    pub what_is_lost: String,
++    pub recorded_at: DateTime<Utc>,
++    pub extra: Map<String, Value>,
++}
++```
++
++**This IS the block-file `R-DESTRUCT` describes, as a type.** It names the step, why it is
++held and what would be lost, so an operator reading it hours later has everything the inline
++prompt would have shown, and nothing was lost to a terminal nobody was looking at. A prompt
++in an unattended run is not a safety mechanism, it is a mission that stalls silently and then
++either times out or gets answered by the agent itself. `EscalationRecord::headline()` gives
++the alert funnel one line; the funnel carries the pointer and the record carries the detail.
++
++The timestamp is a PARAMETER rather than a clock read, which is what keeps the whole module
++a pure function of its inputs and lets a test assert on an exact record. The caller that has
++a clock stamps it. Serde defaults are chosen against optimism: a record missing `recorded_at`
++reads as the Unix epoch, an obviously wrong instant, rather than as `now`, because an undated
++escalation is not a fresh one and would otherwise look fresh every time it is loaded; a
++record missing `node` reads as the empty id, which matches no node in any graph, so a record
++that lost its subject can never resolve onto a real one.
++
++### Resolution, and why an approval must be signed
++
++```rust
++let resolution = approve(record, "operator@agentik-os")?;   // or deny(record, who)
++record_resolution(&mut state, &resolution);
++let found = resolution_of(&state, &node_id);
++```
++
++`approve` and `deny` both reject an empty or whitespace approver with
++`RiskError::UnattributedApproval`. This is the check that stops an agent writing its own
++permission slip: an approval nobody signed is indistinguishable from one the process invented
++for itself, and it is worthless as evidence. A denial is held to the same standard, because
++an operator reading the run later needs to know who blocked it.
++
++The `EscalationRecord` travels WITH the verdict rather than being replaced by it, so the audit
++trail keeps what was actually shown at approval time. An approval read back next to a record
++that has since been reworded would be an approval of something else.
++
++Resolutions live in `GraphState::extra` under the namespaced key `"graph_risk"`, in a
++`resolutions` map, in memory only: persisting the state is the caller's job, and a decision
++core that wrote a file could not be replayed. Two defences guard the read. A malformed entry
++reads as NO decision rather than as a partial one, so the gate simply asks again, which is
++always safe, whereas half-parsing could turn a corrupted key into a proceed. And the map key
++alone is not trusted to identify the subject: the parsed record must name the same node,
++because a state document is editable text and an approval filed under the wrong key would
++otherwise let consent given for a cheap node unlock an expensive one, which is the exact
++substitution an approval gate has to make impossible. A `GateResolution` whose verdict field
++is missing deserializes to `Denied`, never `Approved`: a truncated document must not decay
++into consent.
++
++---
++
++## 5. Driving a run
++
++The loop a caller writes, with the gate in front of every dispatch:
++
++```rust
++let mut state = GraphState::for_graph(&graph);
++loop {
++    let step = advance(&graph, &mut state, &reports)?;
++    match &step.outcome {
++        ExecutionOutcome::Progressing { ready } => {
++            for id in ready {
++                match evaluate_gate(&graph, &state, id, mode) {
++                    GateDecision::Proceed => { /* dispatch it, collect a NodeReport */ }
++                    decision => {
++                        // Unattended: persist decision.into_escalation(now), alert, stop.
++                        // Attended: ask, then approve(record, who)? + record_resolution.
++                    }
++                }
++            }
++        }
++        ExecutionOutcome::Blocked { unreachable } => { /* name them and stop */ }
++        ExecutionOutcome::Failed { node, reason } => { /* report it */ }
++        ExecutionOutcome::Complete => break,
++    }
++}
++```
++
++`reports` is what the caller collected from the previous round. The core never runs anything
++itself, which is exactly why a whole mission can be replayed from a persisted `GraphState`
++and reach the same decisions.
++
++---
++
++## Reading it back
++
++```bash
++cargo test -p omega-core graph          # 36 tests across the three modules
++omega rules list | grep R-GRAPH-EXEC    # the compiled doctrine
++```
++
++Source of truth, in order: `crates/omega-core/src/graph.rs` (vocabulary and validation),
++`graph_executor.rs` (the decision core), `graph_risk.rs` (the gate). Each carries its
++reasoning in module docs, and the tests are the executable half of this page.

@@ -1,0 +1,17 @@
+# Decision Journal
+- Decision:
+- Raw intuition:
+- Confidence:
+- Options:
+- Relevant base rates:
+- Evidence:
+- Counter-evidence:
+- Incentives:
+- Bias check:
+- Reversibility:
+- Second-order effects:
+- Best/base/worst case:
+- Premortem:
+- Final probability estimates:
+- Decision:
+- Review date:

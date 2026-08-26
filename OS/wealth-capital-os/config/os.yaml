@@ -1,0 +1,14 @@
+name: Wealth & Capital OS
+slug: wealth-capital
+version: 1.0.0
+category: Personal Stack / Personal Finance
+position: Personal Stack: personal cash-flow, resilience, investment policy and capital allocation
+default_mode: dashboard
+primary_boundary: "Wealth & Capital OS owns personal finance; business revenue, invoices, sales pipeline and company accounting belong to Revenue OS. It does not replace a regulated financial, tax or legal professional."
+requires_human_approval_for:
+  - moving or investing money
+  - opening/closing accounts
+  - sending tax/legal filings
+  - confirming extracted transactions
+  - sharing financial documents
+  - changing investment policy

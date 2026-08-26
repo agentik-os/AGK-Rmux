@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Process",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Process"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Customer/business purpose"
+    },
+    "trigger": {
+      "type": "string",
+      "description": "Trigger"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner"
+    },
+    "criticality": {
+      "type": "string",
+      "description": "Criticality"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "name",
+    "purpose",
+    "trigger",
+    "owner",
+    "criticality"
+  ],
+  "additionalProperties": false
+}

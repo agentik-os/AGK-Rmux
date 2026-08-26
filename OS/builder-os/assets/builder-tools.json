@@ -1,0 +1,244 @@
+{
+  "version": "1.0.0",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_initialize",
+        "description": "Initialize or resume a Builder project after verifying frozen Blueprint, Stepper, repository, release target, and authorization identities.",
+        "strict": true,
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id", "project_name", "blueprint_handoff", "stepper_handoff", "repository", "release_target", "existing_state_ref", "idempotency_key"],
+          "properties": {
+            "project_id": {"type": "string", "minLength": 1},
+            "project_name": {"type": "string", "minLength": 1},
+            "blueprint_handoff": {"type": "object", "additionalProperties": false, "required": ["handoff_id", "version", "revision", "checksum", "status", "artifact_refs"], "properties": {"handoff_id": {"type": "string"}, "version": {"type": "string"}, "revision": {"type": "integer", "minimum": 0}, "checksum": {"type": "string"}, "status": {"const": "BLUEPRINT COMPLETE — STEPPER READY"}, "artifact_refs": {"type": "array", "items": {"type": "string"}}}},
+            "stepper_handoff": {"type": "object", "additionalProperties": false, "required": ["version", "checksum", "status", "manifest_ref", "tracker_ref"], "properties": {"version": {"type": "string"}, "checksum": {"type": "string"}, "status": {"type": "string"}, "manifest_ref": {"type": "string"}, "tracker_ref": {"type": ["string", "null"]}}},
+            "repository": {"type": "object", "additionalProperties": false, "required": ["root", "base_branch", "base_revision"], "properties": {"root": {"type": "string"}, "base_branch": {"type": ["string", "null"]}, "base_revision": {"type": ["string", "null"]}}},
+            "release_target": {"type": "string", "minLength": 1},
+            "existing_state_ref": {"type": ["string", "null"]},
+            "idempotency_key": {"type": "string", "minLength": 8}
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_preflight",
+        "description": "Validate input fingerprints, graph readiness, repository topology, environment capabilities, baseline checks, user work, and initial blockers.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "run_id", "expected_revision", "checks", "repository_snapshot", "capabilities", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "run_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "checks": {"type": "array", "items": {"type": "string"}}, "repository_snapshot": {"type": "object"}, "capabilities": {"type": "object"}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_state_read",
+        "description": "Read a filtered canonical Builder state slice without mutating Stepper or repository state.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "revision", "sections", "step_ids", "attempt_ids", "include_events", "include_artifacts"], "properties": {"project_id": {"type": "string"}, "revision": {"type": ["integer", "null"], "minimum": 0}, "sections": {"type": "array", "items": {"type": "string"}}, "step_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 500}, "attempt_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 500}, "include_events": {"type": "boolean"}, "include_artifacts": {"type": "boolean"}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_plan_wave",
+        "description": "Request and validate the next Stepper Planner/Scheduler wave; Builder may filter unsafe candidates but may not invent steps.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "stepper_tracker_revision", "repository_revision", "active_locks", "execution_budget"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "stepper_tracker_revision": {"type": "integer", "minimum": 0}, "repository_revision": {"type": "string"}, "active_locks": {"type": "array", "items": {"type": "object"}}, "execution_budget": {"type": "object"}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_step_claim",
+        "description": "Atomically claim one Stepper READY step with a spec hash, base revision, worktree, lease, and declared resource locks.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "step_spec_hash", "stepper_tracker_revision", "base_revision", "worker_id", "worktree", "locks", "lease_seconds", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "step_spec_hash": {"type": "string"}, "stepper_tracker_revision": {"type": "integer", "minimum": 0}, "base_revision": {"type": "string"}, "worker_id": {"type": "string"}, "worktree": {"type": ["string", "null"]}, "locks": {"type": "array", "items": {"type": "object"}}, "lease_seconds": {"type": "integer", "minimum": 30}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_context_compile",
+        "description": "Create a minimal source-located attempt context bundle from step contract, exact Blueprint refs, dependencies, code, ADRs, and prior failure evidence.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "source_refs", "repository_paths", "include_prior_failures", "max_context_bytes", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "source_refs": {"type": "array", "items": {"type": "string"}}, "repository_paths": {"type": "array", "items": {"type": "string"}}, "include_prior_failures": {"type": "boolean"}, "max_context_bytes": {"type": "integer", "minimum": 1024}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_attempt_record_implementation",
+        "description": "Record an implementation candidate, diff identity, files, tests, commands, docs, issues, and decision needs; this does not certify completion.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "context_hash", "base_revision", "head_revision", "diff_digest", "summary", "files_changed", "tests_changed", "commands_run", "docs_changed", "artifact_refs", "known_issues", "needs_decision", "decision_request_id", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "context_hash": {"type": "string"}, "base_revision": {"type": "string"}, "head_revision": {"type": ["string", "null"]}, "diff_digest": {"type": "string"}, "summary": {"type": "string"}, "files_changed": {"type": "array", "items": {"type": "string"}}, "tests_changed": {"type": "array", "items": {"type": "string"}}, "commands_run": {"type": "array", "items": {"type": "object"}}, "docs_changed": {"type": "array", "items": {"type": "string"}}, "artifact_refs": {"type": "array", "items": {"type": "string"}}, "known_issues": {"type": "array", "items": {"type": "string"}}, "needs_decision": {"type": "boolean"}, "decision_request_id": {"type": ["string", "null"]}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_check_record",
+        "description": "Record one deterministic command, predicate, visual, eval, or artifact check bound to an attempt and input revision.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "check_id", "kind", "input_hash", "environment", "result", "exit_code", "summary", "artifact_refs", "started_at", "finished_at", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "check_id": {"type": "string"}, "kind": {"enum": ["command", "predicate", "visual", "eval", "artifact"]}, "input_hash": {"type": "string"}, "environment": {"type": "string"}, "result": {"enum": ["PASS", "FAIL", "BLOCKED", "N/A"]}, "exit_code": {"type": ["integer", "null"]}, "summary": {"type": "string"}, "artifact_refs": {"type": "array", "items": {"type": "string"}}, "started_at": {"type": "string", "format": "date-time"}, "finished_at": {"type": "string", "format": "date-time"}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_review_record",
+        "description": "Record an independent specialist review and findings against an immutable diff/revision.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "review_id", "role", "input_hash", "result", "findings", "artifact_refs", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "review_id": {"type": "string"}, "role": {"type": "string"}, "input_hash": {"type": "string"}, "result": {"enum": ["PASS", "FAIL", "BLOCKED", "N/A"]}, "findings": {"type": "array", "items": {"type": "object"}}, "artifact_refs": {"type": "array", "items": {"type": "string"}}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_repair_start",
+        "description": "Start a bounded repair from original step contract and registered failure evidence without widening scope.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "failure_class", "failure_refs", "repair_number", "repair_limit", "worker_id", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "failure_class": {"enum": ["IMPLEMENTATION", "TEST", "ENVIRONMENT", "DEPENDENCY", "SPECIFICATION", "SECURITY", "DATA", "INTEGRATION", "INFRASTRUCTURE", "EXTERNAL"]}, "failure_refs": {"type": "array", "items": {"type": "string"}, "minItems": 1}, "repair_number": {"type": "integer", "minimum": 1}, "repair_limit": {"type": "integer", "minimum": 1}, "worker_id": {"type": "string"}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_step_block",
+        "description": "Block an affected step with reproducible diagnostics, impact, owner/decision needed, independent work, and resume condition.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "failure_class", "severity", "statement", "evidence_refs", "owner", "resume_condition", "independent_work", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": ["string", "null"]}, "failure_class": {"type": "string"}, "severity": {"enum": ["low", "medium", "high", "critical"]}, "statement": {"type": "string"}, "evidence_refs": {"type": "array", "items": {"type": "string"}}, "owner": {"type": ["string", "null"]}, "resume_condition": {"type": "string"}, "independent_work": {"type": "array", "items": {"type": "string"}}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_integration_start",
+        "description": "Acquire integration authority and revalidate successful attempt, target revision, locks, and integration policy.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "verified_head_revision", "target_branch", "target_revision", "strategy", "locks", "worker_id", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "verified_head_revision": {"type": "string"}, "target_branch": {"type": "string"}, "target_revision": {"type": "string"}, "strategy": {"enum": ["merge", "rebase-merge", "cherry-pick", "squash", "direct"]}, "locks": {"type": "array", "items": {"type": "object"}}, "worker_id": {"type": "string"}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_integration_record",
+        "description": "Record integrated revision, conflict handling, post-integration checks, rollback status, and resulting evidence.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "integration_id", "result", "integrated_revision", "conflicts", "post_merge_check_refs", "rollback_status", "artifact_refs", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "integration_id": {"type": "string"}, "result": {"enum": ["PASS", "FAIL", "BLOCKED", "ROLLED_BACK"]}, "integrated_revision": {"type": ["string", "null"]}, "conflicts": {"type": "array", "items": {"type": "object"}}, "post_merge_check_refs": {"type": "array", "items": {"type": "string"}}, "rollback_status": {"type": ["string", "null"]}, "artifact_refs": {"type": "array", "items": {"type": "string"}}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_step_submit_evidence",
+        "description": "Submit complete attempt, verification, review, integration, docs, and trace evidence to the Stepper Verifier for the only allowed DONE decision.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "stepper_tracker_revision", "implementation_ref", "check_refs", "review_refs", "integration_ref", "documentation_refs", "trace_refs", "known_issue_refs", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "stepper_tracker_revision": {"type": "integer", "minimum": 0}, "implementation_ref": {"type": "string"}, "check_refs": {"type": "array", "items": {"type": "string"}}, "review_refs": {"type": "array", "items": {"type": "string"}}, "integration_ref": {"type": "string"}, "documentation_refs": {"type": "array", "items": {"type": "string"}}, "trace_refs": {"type": "array", "items": {"type": "string"}}, "known_issue_refs": {"type": "array", "items": {"type": "string"}}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_checkpoint",
+        "description": "Create a checksummed recovery checkpoint with exact next action, active attempts, locks, revisions, blockers, and event offset.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "reason", "current_wave", "active_attempts", "active_locks", "repository_revisions", "blocker_ids", "next_exact_action", "event_offset", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "reason": {"type": "string"}, "current_wave": {"type": ["string", "null"]}, "active_attempts": {"type": "array", "items": {"type": "string"}}, "active_locks": {"type": "array", "items": {"type": "string"}}, "repository_revisions": {"type": "object"}, "blocker_ids": {"type": "array", "items": {"type": "string"}}, "next_exact_action": {"type": ["string", "null"]}, "event_offset": {"type": "integer", "minimum": 0}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_resume",
+        "description": "Reconcile a checkpoint with Stepper, repository, workers, leases, worktrees, commands, migrations, integrations, and external receipts before continuing.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "checkpoint_id", "stepper_tracker_revision", "repository_snapshot", "worker_snapshot", "external_receipt_refs", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "checkpoint_id": {"type": "string"}, "stepper_tracker_revision": {"type": "integer", "minimum": 0}, "repository_snapshot": {"type": "object"}, "worker_snapshot": {"type": "object"}, "external_receipt_refs": {"type": "array", "items": {"type": "string"}}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_decision_request_create",
+        "description": "Create a structured upstream decision request when repository evidence conflicts with Blueprint or Stepper contracts.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "problem", "evidence_refs", "blueprint_refs", "options", "recommendation", "blocked_steps", "independent_work", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": ["string", "null"]}, "problem": {"type": "string"}, "evidence_refs": {"type": "array", "items": {"type": "string"}}, "blueprint_refs": {"type": "array", "items": {"type": "string"}}, "options": {"type": "array", "items": {"type": "object"}, "minItems": 1}, "recommendation": {"type": ["string", "null"]}, "blocked_steps": {"type": "array", "items": {"type": "string"}}, "independent_work": {"type": "array", "items": {"type": "string"}}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_changeset_apply",
+        "description": "Apply a verified Blueprint/Stepper change set, preserve history, and register stale/review/new/superseded step impact.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "changeset_id", "blueprint_from", "blueprint_to", "stepper_from", "stepper_to", "changed_refs", "stale_steps", "review_steps", "new_steps", "superseded_steps", "artifact_ref", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "changeset_id": {"type": "string"}, "blueprint_from": {"type": "string"}, "blueprint_to": {"type": "string"}, "stepper_from": {"type": "string"}, "stepper_to": {"type": "string"}, "changed_refs": {"type": "array", "items": {"type": "string"}}, "stale_steps": {"type": "array", "items": {"type": "string"}}, "review_steps": {"type": "array", "items": {"type": "string"}}, "new_steps": {"type": "array", "items": {"type": "string"}}, "superseded_steps": {"type": "array", "items": {"type": "string"}}, "artifact_ref": {"type": "string"}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_followup_register",
+        "description": "Register a traceable bug, debt, risk, enhancement, operations, security, or experiment follow-up without widening the current step.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "followup_id", "kind", "severity", "statement", "evidence_refs", "blueprint_refs", "step_refs", "owner", "target", "blocking", "acceptance", "status", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "followup_id": {"type": "string"}, "kind": {"enum": ["bug", "debt", "risk", "enhancement", "ops", "security", "experiment"]}, "severity": {"enum": ["low", "medium", "high", "critical"]}, "statement": {"type": "string"}, "evidence_refs": {"type": "array", "items": {"type": "string"}}, "blueprint_refs": {"type": "array", "items": {"type": "string"}}, "step_refs": {"type": "array", "items": {"type": "string"}}, "owner": {"type": ["string", "null"]}, "target": {"type": "string"}, "blocking": {"type": "boolean"}, "acceptance": {"type": "string"}, "status": {"enum": ["open", "accepted", "scheduled", "resolved", "rejected"]}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_documentation_record",
+        "description": "Record required and changed setup, contract, migration, runbook, risk, or operations documentation plus its verification.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "step_id", "attempt_id", "docs_required", "docs_changed", "verification_refs", "not_applicable_reason", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "step_id": {"type": "string"}, "attempt_id": {"type": "string"}, "docs_required": {"type": "array", "items": {"type": "string"}}, "docs_changed": {"type": "array", "items": {"type": "object"}}, "verification_refs": {"type": "array", "items": {"type": "string"}}, "not_applicable_reason": {"type": ["string", "null"]}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_gate_evaluate",
+        "description": "Evaluate one Builder gate BG01-BG20 against a specific candidate/input revision and record evidence, blockers, and conditions.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "expected_revision", "gate_id", "result", "critical", "candidate_revision", "input_hash", "evidence_refs", "blocker_ids", "condition", "owner", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "expected_revision": {"type": "integer", "minimum": 0}, "gate_id": {"type": "string", "pattern": "^BG(0[1-9]|1[0-9]|20)$"}, "result": {"enum": ["PASS", "CONDITIONAL", "FAIL", "N/A"]}, "critical": {"type": "boolean"}, "candidate_revision": {"type": ["string", "null"]}, "input_hash": {"type": "string"}, "evidence_refs": {"type": "array", "items": {"type": "string"}}, "blocker_ids": {"type": "array", "items": {"type": "string"}}, "condition": {"type": ["string", "null"]}, "owner": {"type": ["string", "null"]}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_release_check",
+        "description": "Evaluate Stepper release truth and all required Builder gates on one frozen candidate revision without mutating production.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "revision", "candidate_revision", "stepper_release_ref", "required_gate_ids", "include_handoff_preview"], "properties": {"project_id": {"type": "string"}, "revision": {"type": ["integer", "null"], "minimum": 0}, "candidate_revision": {"type": "string"}, "stepper_release_ref": {"type": "string"}, "required_gate_ids": {"type": "array", "items": {"type": "string"}}, "include_handoff_preview": {"type": "boolean"}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_status",
+        "description": "Return evidence-backed project status, Stepper weighted progress, current wave, attempts, blockers, revisions, and BG01-BG20 snapshot.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "revision", "include_recent_events", "include_gate_details", "include_next_wave"], "properties": {"project_id": {"type": "string"}, "revision": {"type": ["integer", "null"], "minimum": 0}, "include_recent_events": {"type": "boolean"}, "include_gate_details": {"type": "boolean"}, "include_next_wave": {"type": "boolean"}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_audit",
+        "description": "Audit input drift, graph alignment, repository state, attempts, evidence, traceability, security, documentation, blockers, and release readiness.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "revision", "scopes", "severity_threshold", "candidate_revision", "include_recommendations"], "properties": {"project_id": {"type": "string"}, "revision": {"type": ["integer", "null"], "minimum": 0}, "scopes": {"type": "array", "items": {"type": "string"}}, "severity_threshold": {"enum": ["info", "low", "medium", "high", "critical"]}, "candidate_revision": {"type": ["string", "null"]}, "include_recommendations": {"type": "boolean"}}}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "builder_export",
+        "description": "Export current status, audit, step evidence bundle, final build report, or operations handoff with immutable checksums.",
+        "strict": true,
+        "parameters": {"type": "object", "additionalProperties": false, "required": ["project_id", "revision", "view", "formats", "destination", "candidate_revision", "idempotency_key"], "properties": {"project_id": {"type": "string"}, "revision": {"type": ["integer", "null"], "minimum": 0}, "view": {"enum": ["status", "audit", "step-evidence", "final-build-report", "operations-handoff"]}, "formats": {"type": "array", "items": {"enum": ["json", "markdown"]}, "minItems": 1}, "destination": {"type": ["string", "null"]}, "candidate_revision": {"type": ["string", "null"]}, "idempotency_key": {"type": "string", "minLength": 8}}}
+      }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "score": 42,
+  "grade": "F",
+  "confidence": "high",
+  "skill_used": "uiuxaudit",
+  "preamble_version": "1.0",
+  "ticket": "uiux-wfview-f432154",
+  "mode": "audit-only-read-only",
+  "commit_under_audit": "f432154",
+  "commit_verdict": "VERIFIED WORKING — all 4 briefed criteria pass at runtime; tall-input tradeoff honestly LOW",
+  "v2_inputs_note": "--user-need and --hinge were not passed as flags; user-need taken verbatim from the dispatch brief, hinge computed (hinge-analyzer.sh returned 0 hinges on the deletion-shaped diff; semantic hinge declared manually: main.rs:953-975 resize contract + ui.rs:742-751 scroll clamp + ui.rs:1025-1029 indicator). Decision logged per L3 instead of request_redispatch.",
+  "user_need_match": {
+    "quote": "UI/UX audit of the FIXED dynamic-workflow viewing experience in the omega TUI ... tail view completeness (no [n/n] indicator), chat-focus interactivity, visual integrity of the mirrored full-screen agent UI at panel size, regressions for tall typed input (documented tradeoff — assess UX severity honestly)",
+    "addressed": true,
+    "evidence": "All four criteria runtime-verified on the installed binary at HEAD f432154: 1:1 rows (stty 49==panel inner, both focus modes, main.rs:953-975), tail completeness with no [n/n] on a full-screen UI (ui.rs:1025-1029, capture uiux-mirror-top.txt), interactivity (q/echo probes executed, mirror live), 1:1 mechanical diff (48/49 lines byte-identical), tall-input tradeoff assessed LOW with 2-of-3 lens consensus.",
+    "edge_cases_covered": ["full-screen alternate-screen UI fitting panel exactly", "scroll-up into history and re-glue to tail", "session-list mutation while chat-focused (3 live reproductions)", "narrow <100col and <16-row layouts (code-deterministic, no live capture)"]
+  },
+  "falsifiable_tests": [
+    {
+      "name": "T1 row contract (list+chat focus)",
+      "hypothesis": "If 1:1 is broken, stty rows != panel inner rows (old binary: 99 vs 49) when chat-focused",
+      "command": "rmux send-keys -t a-uiux-target 'stty size' Enter; rmux capture-pane -t a-uiux-target -p",
+      "expected": "49 163 in both focus modes",
+      "actual": "49 163 (list) / 49 163 (chat)",
+      "passed": true
+    },
+    {
+      "name": "T2 full-screen UI tail completeness",
+      "hypothesis": "If phantom rows persist, top's header is invisible and title shows [n/n]",
+      "command": "rmux send-keys -t a-uiux-target 'top' Enter; rmux capture-pane -t uiux-tui -p",
+      "expected": "header at first inner row; no [n/n] in title",
+      "actual": "'top - 13:35:17 up...' at first inner mirror row; title ' a-uiux-target ⟨ opus-4.8 · 9.1M tok ⟩' with no indicator",
+      "passed": true
+    },
+    {
+      "name": "T3 chat-focus interactivity",
+      "hypothesis": "If chat focus is frozen/non-interactive, typed keys do not reach the session",
+      "command": "rmux send-keys -t uiux-tui 'q' ... 'echo INTERACTIVE_OK' Enter; rmux capture-pane -t a-uiux-target -p",
+      "expected": "top quits; echo executes",
+      "actual": "shell prompt restored; 'echo INTERACTIVE_OK' + 'INTERACTIVE_OK' visible in target and mirrored live with caret",
+      "passed": true
+    },
+    {
+      "name": "T4 scroll burst vs slow",
+      "hypothesis": "If scroll is fully fixed, a 3-press burst should land at [186/195], not [195/195]",
+      "command": "rmux send-keys -t uiux-tui M-Up M-Up M-Up; capture; then single M-Up x2 with 2s gaps; capture",
+      "expected": "[186/195] burst / decreasing offsets slow",
+      "actual": "[195/195] after burst (position lost — finding F-3); [192/195] then [189/195] slow",
+      "passed": false
+    },
+    {
+      "name": "T4b mirror 1:1 mechanical diff",
+      "hypothesis": "If the mirror is not 1:1, target capture and mirror inner rows diverge",
+      "command": "diff <(rmux capture-pane -t a-uiux-target -p) <(mirror inner rows extracted from rmux capture-pane -t uiux-tui -p)",
+      "expected": "byte-identical modulo extraction artifacts",
+      "actual": "48/49 lines identical; 1 trailing-space artifact",
+      "passed": true
+    }
+  ],
+  "hinge_findings": [
+    { "location": "crates/omega-cli/src/main.rs:953-975", "concern": "1:1 resize contract regressing or over-applying", "verified_safe_by": "T1, T2; F-13 records the .max(10) floor residue (LOW, <16-row terminals)" },
+    { "location": "crates/omega-tui/src/ui.rs:742-751", "concern": "scroll clamp vs tail invariant", "verified_safe_by": "T2 (max_scroll==0 at tail), T4 (burst defect filed as F-3, not a regression of the fix)" },
+    { "location": "crates/omega-tui/src/ui.rs:1025-1029", "concern": "[n/n] indicator correctness", "verified_safe_by": "T2 absent at fit; F-9 files its opacity as MEDIUM UX finding" }
+  ],
+  "issues_found_and_fixed": [],
+  "findings_confirmed": 12,
+  "findings_killed": 2,
+  "findings": [
+    {"id": "F-1", "severity": "CRITICAL", "lenses": "3/3", "title": "chat-focus keystroke misrouting on session-list mutation (index-based selection)", "citations": ["crates/omega-tui/src/app.rs:1659", "crates/omega-tui/src/app.rs:1702-1704", "crates/omega-tui/src/input.rs:1625-1626", "crates/omega-cli/src/main.rs:1994-1998"]},
+    {"id": "F-2", "severity": "HIGH", "lenses": "3/3", "title": "false exit hint: Esc is forwarded (and interrupts Claude); Tab is the exit", "citations": ["crates/omega-tui/src/ui.rs:694", "crates/omega-tui/src/input.rs:1814", "crates/omega-tui/src/input.rs:1740-1751"]},
+    {"id": "F-7", "severity": "HIGH", "lenses": "9/9 across 3 independent tracks", "title": "Sessions-tab status bar structurally suppresses status_message (forwarder errors, hints, confirmations)", "citations": ["crates/omega-tui/src/ui.rs:3061-3077", "crates/omega-cli/src/main.rs:929-932", "crates/omega-cli/src/forwarder.rs:44-46"]},
+    {"id": "F-12", "severity": "HIGH", "lenses": "3/3", "title": "narrow chat mode hint-free trap; Ctrl+X kills without confirmation bypassing protection", "citations": ["crates/omega-tui/src/ui.rs:599-625", "crates/omega-tui/src/input.rs:1708-1711", "crates/omega-cli/src/main.rs:1194-1228"]},
+    {"id": "F-3", "severity": "MEDIUM", "lenses": "3/3", "title": "rapid scroll-up clamps against stale max and loses position", "citations": ["crates/omega-tui/src/app.rs:1304-1322"]},
+    {"id": "F-4", "severity": "MEDIUM", "lenses": "3/3", "title": "preview-title meta cwd-derived, shows foreign session meta", "citations": ["crates/omega-core/src/claude_meta.rs (read_meta_for_session_if_changed, read_meta)", "crates/omega-cli/src/main.rs:983-1006"]},
+    {"id": "F-8", "severity": "MEDIUM", "lenses": "3/3", "title": "Enter-to-chat onboarding message wrong on all 3 claims", "citations": ["crates/omega-tui/src/input.rs:1077", "crates/omega-tui/src/input.rs:1740-1744"]},
+    {"id": "F-9", "severity": "MEDIUM", "lenses": "3/3", "title": "[n/n] is a raw internal offset; sole live-follow-ended cue", "citations": ["crates/omega-tui/src/ui.rs:1025-1029"]},
+    {"id": "F-11", "severity": "MEDIUM", "lenses": "3/3", "title": "narrow list mode resizes live panes to stale geometry", "citations": ["crates/omega-tui/src/ui.rs:604-608", "crates/omega-tui/src/ui.rs:739-740", "crates/omega-cli/src/main.rs:953-975"]},
+    {"id": "F-6", "severity": "LOW", "lenses": "2/3", "title": "tall typed input clips top while composing — documented tradeoff, acceptable", "citations": ["crates/omega-cli/src/main.rs:956-971", "git f432154 message"]},
+    {"id": "F-10", "severity": "LOW", "lenses": "3/3", "title": "Help tab documents j/k that Sessions deliberately swallows", "citations": ["crates/omega-tui/src/ui.rs:2769", "crates/omega-tui/src/input.rs:958-961"]},
+    {"id": "F-13", "severity": "LOW", "lenses": "2/3", "title": "rows .max(10) floor re-breaks 1:1 below 16-row terminals", "citations": ["crates/omega-cli/src/main.rs:970", "git d4e47f5"]}
+  ],
+  "phase_scores": {"P4_components": 6, "P5_coherence": 7, "P6_interaction": 6, "P7_responsive": 3, "P10_hierarchy": 2, "P11_microcopy": 3, "P15_navigation": 4, "P18_error_recovery": 2},
+  "applicable_raw_max": 205,
+  "raw_score": 85.5,
+  "confidence_basis": "Every load-bearing claim carries either a live rmux capture from this run (T1-T4b, three F-1 reproductions) or a file:line citation independently confirmed by 3 adversarial lenses (51 verification agents, ≥2-of-3 consensus; 2 candidate findings were killed by that gate). Not covered: live captures of sub-100-col/sub-16-row layouts and a real in-harness Claude session for the tall-input clip — those rest on deterministic code branches plus the commit's own runtime note, stated as such in the findings.",
+  "not_done": [
+    "Fix execution (phases 21-23) — brief is read-only; fix plan delivered instead",
+    "Runtime captures for narrow (<100 col) and tiny (<16 row) layouts — code-deterministic only",
+    "Tall-input clip not re-reproduced with a live Claude session (mechanism + commit runtime note cited)",
+    "R-BUDGET: ~2.23M subagent tokens spent vs 500K default cap without prior escalation — process breach, flagged"
+  ],
+  "cross_audit_confirmations": [".audit/verdict.md (sibling /codeaudit, same commit): commit SOUND 75/100 — concordant with this audit's commit verdict"],
+  "finished_at": "2026-06-05T14:05:00+02:00"
+}

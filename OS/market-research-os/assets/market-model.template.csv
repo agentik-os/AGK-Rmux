@@ -1,0 +1,7 @@
+model_id,input_id,input_name,scenario,value,unit,currency,base_year,source_or_assumption_id,transformation,confidence,notes
+EST-001,INP-001,Eligible accounts,low,0,accounts,,2026,SRC-001,Filtered to in-scope geography and segment,0.00,
+EST-001,INP-001,Eligible accounts,base,0,accounts,,2026,SRC-001,Filtered to in-scope geography and segment,0.00,
+EST-001,INP-001,Eligible accounts,high,0,accounts,,2026,SRC-001,Filtered to in-scope geography and segment,0.00,
+EST-001,INP-002,Annual value per account,low,0,currency_per_account,EUR,2026,ASM-001,Value metric or price assumption,0.00,
+EST-001,INP-002,Annual value per account,base,0,currency_per_account,EUR,2026,ASM-001,Value metric or price assumption,0.00,
+EST-001,INP-002,Annual value per account,high,0,currency_per_account,EUR,2026,ASM-001,Value metric or price assumption,0.00,

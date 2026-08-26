@@ -1,0 +1,490 @@
+{
+  "name": "Wealth & Capital OS",
+  "slug": "wealth-capital",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Give the user one conversational financial brain for personal cash flow, savings, emergency resilience, debt, goals, investment policy, risk and life-aligned capital allocation.",
+  "category": "Personal Stack / Personal Finance",
+  "position": "Personal Stack: personal cash-flow, resilience, investment policy and capital allocation",
+  "counts": {
+    "agents": 12,
+    "skills": 20,
+    "protocols": 7,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 79
+  },
+  "files": [
+    {
+      "path": "agents/behavioral_finance_coach.md",
+      "sha256": "e73296c0b72c5c2b4bce91970dbdf1732f007e140b8a3807125c69ef7f9a845c",
+      "bytes": 986
+    },
+    {
+      "path": "agents/cash_flow_analyst.md",
+      "sha256": "b01a40ad035133014a15d841256f403c1461d666fd3088e6241ca5f7510c641b",
+      "bytes": 972
+    },
+    {
+      "path": "agents/debt_strategist.md",
+      "sha256": "baa9cd0fc70111403815286647632d77cf2ea8905765377408be5fc01f67c117",
+      "bytes": 981
+    },
+    {
+      "path": "agents/document_vision_clerk.md",
+      "sha256": "41a3e025918f5eecb3a1e4710e6c7915da7b099f60700926621f881b399a9d44",
+      "bytes": 988
+    },
+    {
+      "path": "agents/fraud_scam_guard.md",
+      "sha256": "14976bb413ab1f0a213908926ae77b265f54b1088d491a5fc76b43acac2d6c9a",
+      "bytes": 987
+    },
+    {
+      "path": "agents/investment_policy_steward.md",
+      "sha256": "36ea355ed60696c28683ed5fef62d8a5b36fc682c6ceffe2abefc1ba5516983d",
+      "bytes": 993
+    },
+    {
+      "path": "agents/life_alignment_integrator.md",
+      "sha256": "fdfae231e1b0dbea45d8ed8a1c77aca18cf20d437fa9ab3049e5877da24aff61",
+      "bytes": 994
+    },
+    {
+      "path": "agents/personal_cfo.md",
+      "sha256": "30652896c4d06c073482d9db0f36156d5e21ffce4a26d1617aaeb19f8c8f9469",
+      "bytes": 966
+    },
+    {
+      "path": "agents/risk_insurance_analyst.md",
+      "sha256": "9405a20b634cf0fd4f2b0d5a710a40f3b50301031d4563122025f56764ca6173",
+      "bytes": 979
+    },
+    {
+      "path": "agents/savings_resilience_coach.md",
+      "sha256": "381f98f5f8e0b53ecd6998df6ac0a02277693a4bde5702b8a175d89c39a8df6c",
+      "bytes": 990
+    },
+    {
+      "path": "agents/scenario_modeler.md",
+      "sha256": "8b3a6957ef5011ea2cb498f33d4dc351a3859087889ebc130660a4d9a20c610a",
+      "bytes": 962
+    },
+    {
+      "path": "agents/tax_legal_gate.md",
+      "sha256": "5bbfcccdd6894ee8bda8ec5d8aac03f9abfea30c636f53aa6aae583af978cf65",
+      "bytes": 994
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "f6536e60bd9e0d3f89f2d3bf6bfaabcddae33e6c0aa3af4db88b970cbf93cf8a",
+      "bytes": 853
+    },
+    {
+      "path": "architecture/DATA_MODEL.txt",
+      "sha256": "7cbc10d3c1ebe8888f62f07e4ba76d9420806076a512a64ef506b44d8488d11b",
+      "bytes": 809
+    },
+    {
+      "path": "architecture/SECURITY.md",
+      "sha256": "42c2e2194638c17278b7c9230f7fa48f89b1dbf5b91c65ff3f8684297b1791bf",
+      "bytes": 947
+    },
+    {
+      "path": "architecture/STATE_MACHINE.md",
+      "sha256": "043639047bb237ba50e51ca85afa194ed435f4a08f04479b86085b6d3999b376",
+      "bytes": 774
+    },
+    {
+      "path": "config/os.yaml",
+      "sha256": "cee08b2cbd1797c1ba13d7b53fc7f943b90217baf21b850fae0472ebbb0177d9",
+      "bytes": 669
+    },
+    {
+      "path": "config/router.json",
+      "sha256": "e4d9c58e5eb55b0add2799a2596187c4fbe30d21ef28ac161055f64115d01212",
+      "bytes": 1419
+    },
+    {
+      "path": "evals/EVALS.md",
+      "sha256": "de52572b2deb62271d021499a6d6fe3eb046eba58218cb061dfcd38599eb9b8f",
+      "bytes": 1655
+    },
+    {
+      "path": "examples/EXAMPLES.md",
+      "sha256": "6fce8a33b338419b3d9cb65a0913d3aa79de1de3bfe2446f004f290604384cd7",
+      "bytes": 779
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "07eebd0ef52a07ed91400dabd60afcd14fc59ecb28d5c2b125bd0769cfb4eddc",
+      "bytes": 380
+    },
+    {
+      "path": "knowledge/BOOK_CANON.md",
+      "sha256": "24dcf7a9893031ccd992cd3b3bd4f6a60c960e376ff28be1ea6f7c7719f1ce88",
+      "bytes": 1454
+    },
+    {
+      "path": "knowledge/FRAMEWORKS.md",
+      "sha256": "6da9a45d118762c31e40f26c3909a7a20b20a5c00d9ec8a851445021333473ef",
+      "bytes": 621
+    },
+    {
+      "path": "knowledge/RESEARCH_NOTES.md",
+      "sha256": "6cb7c181dd50e59795339dec8922148c5d2b31983c0c4740e1fd473407b24f6b",
+      "bytes": 882
+    },
+    {
+      "path": "knowledge/SOURCES.md",
+      "sha256": "35fde6c04b8bc7111f64d74d017e37a87bc6c68d87f6781c0cf11a8a2ac2287c",
+      "bytes": 1280
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "ef1b9342fb2f4e935ddb9e5ab9de026fa03eef2f16eef4f8e6feab51a3c65b8a",
+      "bytes": 7334
+    },
+    {
+      "path": "memory/MEMORY_MODEL.md",
+      "sha256": "b279750381ed5c1373b7997785ce669c4d9f52dcd55c02b4835383f7cbcd254a",
+      "bytes": 736
+    },
+    {
+      "path": "memory/PRIVACY.md",
+      "sha256": "7380888ef321f1d2e50aa13d9d5d64f0c515a129e41d7c82da0475c5c8548172",
+      "bytes": 571
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "9808ac2046a5afff7a431bcd36ef0815c39d46ce6e0f84bd80afd6aebb8277a5",
+      "bytes": 3186
+    },
+    {
+      "path": "protocols/debt_review.md",
+      "sha256": "83ce55ad0760040b8b7835988123014bb76608514640a08b4ef708bb792ea237",
+      "bytes": 314
+    },
+    {
+      "path": "protocols/document_intake.md",
+      "sha256": "169d28f1cfc9504aec7987bc7cfdaa1fa0d206794be242f335d7e389be42f2c9",
+      "bytes": 326
+    },
+    {
+      "path": "protocols/emergency_reserve.md",
+      "sha256": "4178318825a03cdb01a0b6b10d28b81bb2fa71269f91a1c95e0ade6c1647fbd5",
+      "bytes": 349
+    },
+    {
+      "path": "protocols/investment_policy.md",
+      "sha256": "b9f0201a50ef4b0a366062e86c42c585645785e4cc422218c9e81df71a82ec06",
+      "bytes": 366
+    },
+    {
+      "path": "protocols/major_purchase.md",
+      "sha256": "a1ea9d174594d69d4b93048dd0d43ad498bb295f942112cb9f2dd4b61cd6746e",
+      "bytes": 381
+    },
+    {
+      "path": "protocols/monthly_money_close.md",
+      "sha256": "43f12bae0590b011eacea04c6b33135269e184855e13a510bdd77b2442c6e814",
+      "bytes": 446
+    },
+    {
+      "path": "protocols/quarterly_capital_council.md",
+      "sha256": "a839e8ad2eef721c71e26edef8b6fda554a5ac868954f92640900231ffb9e7f1",
+      "bytes": 319
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "680efa80ec6c743d67883cbc1a79f279b253bc06999ce092a88018ca78e4bb68",
+      "bytes": 2036
+    },
+    {
+      "path": "README.md",
+      "sha256": "dc332b82f8d941b89a8b9274979e2b931bfed63f266ef9e379f9d6339f982acc",
+      "bytes": 2360
+    },
+    {
+      "path": "runtime/os_runtime.py",
+      "sha256": "926e255e98a7d8a8c9d0dcb51bbf2e22b30a4edfea47fbd4dc0a65bc46d9eef7",
+      "bytes": 2506
+    },
+    {
+      "path": "runtime/README.md",
+      "sha256": "0c7b29dc869e73db95b0132af43c472a06325a0696ef6f0346c4ae4acd4be320",
+      "bytes": 375
+    },
+    {
+      "path": "runtime/requirements.txt",
+      "sha256": "0d5b8d9408d93e3953b2a0117a8a9657d829f2e95f79d904093bab5eec894183",
+      "bytes": 24
+    },
+    {
+      "path": "schemas/financial_account.json",
+      "sha256": "e5ac6a31a3f3e78ac0b9ef843083454f2a1e20cd4c00f8256650dcb6a8f35ec5",
+      "bytes": 972
+    },
+    {
+      "path": "schemas/financial_decision.json",
+      "sha256": "f979128d548f70a8cc70f9a99f1905fa9996fab0aa90122c301d9b1f122058d6",
+      "bytes": 1019
+    },
+    {
+      "path": "schemas/financial_document.json",
+      "sha256": "3f0d5302830c9c6149ed74ced27570d0be00e1acdf024ae12918ebf01452e1d6",
+      "bytes": 921
+    },
+    {
+      "path": "schemas/financial_goal.json",
+      "sha256": "097e3f8146eceed3aed15255644ea5c53e9d57efbad2964f7ebac1f75522236c",
+      "bytes": 912
+    },
+    {
+      "path": "schemas/financial_scenario.json",
+      "sha256": "9d81a68fe8982bc4146c1f89b5cf3c5a4c3ff5a64fcaa85aaf0aa08ec7091db6",
+      "bytes": 939
+    },
+    {
+      "path": "schemas/investment_policy.json",
+      "sha256": "86a75adaa123e158c9ba32b3b5c7ac5aceefcbb103f15f5a08b8d568cc9b6966",
+      "bytes": 1129
+    },
+    {
+      "path": "schemas/transaction.json",
+      "sha256": "3d079d34b66dad0907f26137736d487bcaebae8b089ff5570076887631b21351",
+      "bytes": 1150
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "47749c4c55484247c9d92ba7a8ff822ad1913f7b97b3294d67fabb7050d5e905",
+      "bytes": 2567
+    },
+    {
+      "path": "skills/account_inventory.md",
+      "sha256": "2b97c7726d451b9826cdba6a12e41bbc7e5c4dab0c97f449016d272d1284cdc8",
+      "bytes": 1015
+    },
+    {
+      "path": "skills/business_to_personal_handoff.md",
+      "sha256": "45788112227ee33b7b00ac835b493ed04f01616461fc806ec0a25ec5d396d049",
+      "bytes": 1018
+    },
+    {
+      "path": "skills/cash_flow_map.md",
+      "sha256": "be99c64fc03b98789ba41c8973da128ae1c921531ba630fc60020988f699bc67",
+      "bytes": 998
+    },
+    {
+      "path": "skills/debt_payoff_strategy.md",
+      "sha256": "401cf422e41bd964410ddb7425275ee749b035fb77976cc209d78fe28346f492",
+      "bytes": 1009
+    },
+    {
+      "path": "skills/document_intake.md",
+      "sha256": "d8166c509083b3dc691a60d1f389fd0a7c8fc250ece51e75ec3f0dacfd7f2c67",
+      "bytes": 994
+    },
+    {
+      "path": "skills/emergency_fund_plan.md",
+      "sha256": "106c9c7566882887530b56ff26f25505d08fd48fd2584b9293f23f70aa633bd0",
+      "bytes": 999
+    },
+    {
+      "path": "skills/financial_decision_journal.md",
+      "sha256": "8eb61f3d4e129b9704f080ad0cef56c2e09dc2090f8a631c90f166e0a372ac59",
+      "bytes": 993
+    },
+    {
+      "path": "skills/fraud_check.md",
+      "sha256": "8483c531ad64d0a6490487a63689dd3ba893e32caf9c130b4f2a5cd216686e24",
+      "bytes": 999
+    },
+    {
+      "path": "skills/goal_funding_plan.md",
+      "sha256": "f31d9d3b799b5693c0d3ca6c0ce6ce4fcc5bbf14126400590c3df36d80a9d073",
+      "bytes": 996
+    },
+    {
+      "path": "skills/investment_policy_statement.md",
+      "sha256": "44ac5847011ef97fb779c982b150e56a1f392491be857a5a1df979aeb170bc63",
+      "bytes": 1030
+    },
+    {
+      "path": "skills/major_purchase_decision.md",
+      "sha256": "ca3afe7f9f815a3934de2ab20526e32d1979b6f1ba8987e4311ef6bec856e69e",
+      "bytes": 1007
+    },
+    {
+      "path": "skills/monthly_close.md",
+      "sha256": "1c1e6984dc54d7338f72042a5e119d6a138657cd313f17456d0fa98cacc74dcb",
+      "bytes": 990
+    },
+    {
+      "path": "skills/net_worth_statement.md",
+      "sha256": "b84cc6c78233fee595339315cdbcb835a2634d12fe269b88774bf58fc3c9efcb",
+      "bytes": 1001
+    },
+    {
+      "path": "skills/quarterly_capital_review.md",
+      "sha256": "86d1963aa3d3ce35d73ed8c0d476e82605cefb57a8eadbbebb97fbe3ebadfbdc",
+      "bytes": 995
+    },
+    {
+      "path": "skills/runway_calculator.md",
+      "sha256": "b98f6dd15062d7005d27b92c5a881fb91d9cf82ca66c51f4b1bb9d258ae664a0",
+      "bytes": 979
+    },
+    {
+      "path": "skills/saving_reminder.md",
+      "sha256": "f34506bc8cc28d2265bde29c044942bb8deb925171d4be3c214b42da774103aa",
+      "bytes": 988
+    },
+    {
+      "path": "skills/savings_rate.md",
+      "sha256": "a3b1b53cf3c04c43dcab8b3e596d3f32cc0b0374ac4cb552db0020d031f5082d",
+      "bytes": 990
+    },
+    {
+      "path": "skills/scenario_modeling.md",
+      "sha256": "20b6733daf903236b77bca1353ac13c113d453ac831075e8d53927e19036eca1",
+      "bytes": 984
+    },
+    {
+      "path": "skills/tax_pack_preparation.md",
+      "sha256": "38b2e2bbacbf693645ca5898b1c00a9abd2665520abd4339cda037071a0b3a62",
+      "bytes": 1001
+    },
+    {
+      "path": "skills/transaction_import_classification.md",
+      "sha256": "c622a6b406886517d89855cb18eb7610c7eea07773b5a731427dc5c4aae49599",
+      "bytes": 1007
+    },
+    {
+      "path": "system/BOUNDARIES.md",
+      "sha256": "42eb7254c8e186bc6fb1f0d8de13d33faf87f05a8a906ced2ea9bafb9bdfe800",
+      "bytes": 910
+    },
+    {
+      "path": "system/OUTPUT_CONTRACT.md",
+      "sha256": "3cf9c721bc6292e9aa561b65e5def13b30339ac67665db7f13b7ca72cb4c250d",
+      "bytes": 609
+    },
+    {
+      "path": "system/PRINCIPLES.md",
+      "sha256": "f836033e52fb63db3aa30249f5782e03d33a2195a856925bcd835a8bcb07b56b",
+      "bytes": 832
+    },
+    {
+      "path": "system/ROUTER.md",
+      "sha256": "28e2f9800b82efed2f3585fd551cebd20c04ee092955fbba2c699378e8e9eddb",
+      "bytes": 850
+    },
+    {
+      "path": "system/SYSTEM_PROMPT.md",
+      "sha256": "007414fe1fe072b3d5ee94fbbf2bdebf7a94c682483b01095742e347641de9a6",
+      "bytes": 5890
+    },
+    {
+      "path": "templates/EMERGENCY_FUND.md",
+      "sha256": "c1e2f11645a1cd32fb1d8fc4cfa383224d27fb741212fc3fc7b27a653eafdc56",
+      "bytes": 235
+    },
+    {
+      "path": "templates/INVESTMENT_POLICY_STATEMENT.md",
+      "sha256": "ef8c371921512d2442136f410726b340c2181a418505d2486f291db56b05fc42",
+      "bytes": 357
+    },
+    {
+      "path": "templates/MAJOR_PURCHASE.md",
+      "sha256": "77125dc7ada2ca897a3dee507bb012348f2ddc103b50ae880f0b0ab1f7bdef80",
+      "bytes": 281
+    },
+    {
+      "path": "templates/MONTHLY_PERSONAL_CLOSE.md",
+      "sha256": "b2da1c6ed4ede9c994019db9feb6bb3da0cf31f2fbd1efdad3aa6f1d27733e0e",
+      "bytes": 331
+    },
+    {
+      "path": "tests/test_package.py",
+      "sha256": "71885ea7b8fc36f20c4e4dd252af304ec93d6e20dadb4f33036fcc5c058c18ff",
+      "bytes": 573
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "capital.reallocation.proposed",
+        "consumed_by": [
+          "strategy-portfolio",
+          "review-governance"
+        ],
+        "payload": {
+          "id": "string (record id)",
+          "reallocation": "object (the reallocation payload)",
+          "status": "string (proposed)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "wealth.change.requested",
+        "consumed_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "change": "object (the change payload)",
+          "status": "string (requested)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "wealth.execution_task.created",
+        "consumed_by": [
+          "execution"
+        ],
+        "payload": {
+          "id": "string",
+          "task": "object",
+          "privacy_class": "string",
+          "due_at": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "revenue.owner_distribution.verified",
+        "produced_by": "revenue",
+        "payload": {
+          "id": "string (record id)",
+          "owner_distribution": "object (the owner distribution payload)",
+          "status": "string (verified)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "operations.capacity_margin.verified",
+        "produced_by": "operations-automation",
+        "payload": {
+          "id": "string (record id)",
+          "capacity_margin": "object (the capacity margin payload)",
+          "status": "string (verified)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "change.approved",
+        "produced_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "change": "object (the change payload)",
+          "status": "string (approved)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

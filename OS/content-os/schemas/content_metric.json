@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Content Metric",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "asset_id": {
+      "type": "string",
+      "description": "Asset"
+    },
+    "metric_name": {
+      "type": "string",
+      "description": "Metric"
+    },
+    "value": {
+      "type": "number",
+      "description": "Value"
+    },
+    "observation_window": {
+      "type": "string",
+      "description": "Window"
+    },
+    "hypothesis_link": {
+      "type": "string",
+      "description": "Experiment hypothesis"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "asset_id",
+    "metric_name",
+    "value",
+    "observation_window"
+  ],
+  "additionalProperties": false
+}

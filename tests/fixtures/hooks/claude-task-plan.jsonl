@@ -1,0 +1,4 @@
+{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool_task_1","name":"TaskCreate","input":{"subject":"Inspect state"}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool_task_1","content":"Task #1 created"}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool_task_2","name":"TaskUpdate","input":{"taskId":"1","status":"completed"}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool_task_2","content":"Task updated"}]}}

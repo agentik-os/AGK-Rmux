@@ -1,0 +1,140 @@
+            - the invocation forms: \`/monitor @<session>\`, \`/monitor <host>:<session>\`, \`/monitor list\`
+            - THE FOUR STATES and why each needs a DIFFERENT answer: QUESTION needs judgement so it goes
+              to a human, STALLED is mechanical so it gets a mechanical nudge, BLOCKED must NEVER be
+              nudged because that is manufactured thrash not persistence, WORKING means say nothing.
+            - the two layers: the cheap 60s watcher, and the deep audit team on a slower cadence.
+            - that the audit dimensions come from the WATCHED PROJECT's own rules, never a generic
+              checklist, because a generic audit finds generic nothing.
+            - that an audit returning "all clean" every time is an audit nobody reads, so auditors are
+              adversarial and state plainly in one line when a rule genuinely holds.
+            - the nudge bound: it bounds the ABSENCE OF PROGRESS, not the work, and resets on every
+              advance of the build's own progress metric.
+            - the seven defects as a "why the matching is so specific" section, briefly.
+            - host coordinates come from ~/.ssh/config, never hardcoded.
+
+          The frontmatter description is what makes the skill fire, so make its triggers precise and
+          include both English and French phrasings, matching how sibling skills write theirs.`,
+            },
+            {
+              key: 'rule',
+              label: 'R-MONITOR rule',
+              prompt: `${COMMON}
+
+          YOUR SCOPE (only this file):
+            - ${REPO}/crates/omega-core/src/rules.rs
+
+          Add ONE new rule, R-MONITOR, so this doctrine is never re-derived. Read the R-STREAM rule in
+          that file FIRST (around line 499) and match its structure, its density and its voice EXACTLY:
+          R-STREAM states the canonical command, then enumerates the numbered constraints, each one
+          naming the failure that taught it. R-MONITOR is its sibling: R-STREAM is "mirror a session so
+          a human can watch it", R-MONITOR is "audit a session in depth, continuously, without a human".
+
+          R-MONITOR must encode, in that same voice:
+            1. The canonical command \`omega monitor <session> | <host>:<session> | list\`, and that
+               watching a build NEVER gets a hand-rolled watcher.
+            2. TWO LAYERS: the cheap watcher polling and classifying, and the deep audit team of parallel
+               read-only sub-agents on a slower cadence.
+            3. FOUR STATES, NOT TWO, and why each needs a different answer (QUESTION to a human, STALLED
+               nudged mechanically, BLOCKED never nudged because that is manufactured thrash, WORKING
+               silent). The question UI is detected by ONE line carrying BOTH "Enter to select" AND
+               "to navigate": either alone fires on ordinary prose.
+            4. THE SEVEN DEFECTS, each stated as the invariant plus the false positive that taught it:
+               self-echo excluded by content in short slices; one variable per signal; the failure latch
+               never cleared on resume; failure STRINGS with punctuation not WORDS ("is RED." not "is
+               RED", which matched "is REDundant"; "MISSING ROW:" not "MISSING", which matched the prose
+               "missing redirect"); the input box cut structurally not by a tail drop; completed task
+               lines dropped before diffing so in-progress transitions are not drowned; and awaiting a
+               sign-off IS work, so counting only runnable steps falsely reports BLOCKED.
+            5. THE NUDGE BOUND bounds the ABSENCE OF PROGRESS, not the work: reset the counter on every
+               advance of the build's own progress metric, stop after N nudges that produced nothing.
+               A flat cap stops a healthy long run for no reason. That is what R-LOOP actually wants.
+            6. The audit dimensions come from the WATCHED PROJECT's own rules, never a generic checklist,
+               because a generic audit finds generic nothing; and auditors are adversarial and state in
+               one line when a rule genuinely holds, because an audit that always returns "all clean" is
+               an audit nobody reads.
+            7. It inherits the whole R-STREAM substrate (rmux not tmux, the absolute rmux path, RMUX not
+               \$TMUX, send-keys Enter separate, remote quoting, ~/.ssh/config coordinates, bounded
+               probes, the ssh-255 discriminator, injective viewer names, one viewer per target).
+
+          Set kind/category/scopes consistently with R-STREAM (it is an Orchestration rule). Write a
+          \`reason\` field in the same register as R-STREAM's: it must say these lessons were each paid
+          for by a real false positive, and that false positives train the operator to ignore alerts,
+          which is the only thing an alerting system has to lose.
+
+          CRITICAL CO-UPDATES, or the doctor and the test suite go yellow. Find them and update them all:
+            - the expected-rule-count / expected-ops constant used by \`crates/omega-core/src/doctor.rs\`
+            - any test in rules.rs asserting a count
+            - the repo-side markdown export parity if rules.rs has one (grep for how R-STREAM appears
+              outside rules.rs and reproduce it)
+          Verify with: \`cd ${REPO} && cargo test -p omega-core 2>&1 | tail -20\`. Report actual output.`,
+            },
+          ]
+
+          phase('Build')
+          const results = await pipeline(
+            BUILDS,
+            b => agent(b.prompt, { label: b.label, phase: 'Build' }),
+            (built, b) => agent(
+              `You are an ADVERSARIAL verifier. Another agent just built part of the /monitor feature for
+          OmegaOS at ${REPO}. Your job is to FALSIFY its claim of success, not to confirm it.
+
+          Read the contract at ${CONTRACT} first, then inspect the ACTUAL FILES ON DISK in this scope:
+          ${b.prompt.split('YOUR SCOPE')[1].split('\n\n')[0]}
+
+          The builder reported:
+          ${String(built).slice(0, 3000)}
+
+          CHECK, with evidence, and do not take the builder's word for anything:
+          1. Do the files actually exist on disk with real content? Read them.
+          2. Does it actually build/parse? RUN the real command yourself
+             (\`cd ${REPO} && cargo build 2>&1 | tail -20\` for Rust, \`bash -n <file>\` for shell) and
+             paste the true output.
+          3. Is any contract requirement MISSING or faked? Especially: are all four states really
+             distinguished; is the question check really requiring BOTH markers on ONE line; are the
+             seven defect fixes really present and not just mentioned in a comment; does the nudge bound
+             really reset on progress rather than being a flat cap?
+          4. Any placeholder, TODO, stub, or elision left behind?
+          5. Any em-dash or en-dash in prose (forbidden, R-NODASH)? Check with
+             \`grep -n $'\\u2014\\|\\u2013' <files>\`.
+
+          Report ONLY concrete defects with file:line evidence, most severe first, and a one-line
+          verdict of PASS or FAIL. If a requirement genuinely holds, say so in one line: a verifier that
+          always says "all clean" is one nobody reads.`,
+              { label: `verify:${b.key}`, phase: 'Verify' }
+            )
+          )
+
+          return { builds: BUILDS.map(b => b.key), verdicts: results }
+          )
+  ⎿  Running in background · /workflows to monitor and save · medium size (/config)
+
+● Workflow running in background. While it builds, I'll prepare the L1 verification corpus — real pane captures from live sessions, which is the honest way to prove the classifier (real captures, not
+  synthetic ones). This touches no repo file:
+
+● Bash(cd /tmp/claude-1000/-home-vibe-Station-SideBusiness-OmegaOS/18c62fa7-dc03-4710-90c8-e68b0d553700/scratchpad
+      mkdir -p panes
+      for s in AltReality-claude BluePrint-OS WHYOS-claude camelia-claude oracle-OmegaOS; do
+        ~/.local/bin/rmux capture-pane -p -t "$s" -S -90 > "panes/$s.txt" 2>/dev/null
+        n=$(wc -l < "panes/$s.txt")
+        q=$(grep -cE 'Enter to select.*to navigate' "panes/$s.txt")
+        w=$(grep -cE 'esc to interrupt|·.*tokens' "panes/$s.txt")
+        echo "$s: lines=$n question_line=$q working_marker=$w"
+      done)
+  ⎿  Running…
+
+✻ Designing /monitor on the stream substrate… (4m 30s · ↓ 19.4k tokens)
+  ⎿  ◼ Design /monitor architecture on the R-STREAM substrate
+     ◻ Build the cheap watcher script (4 states + 7 defect fixes + progress-bound nudge)
+     ◻ Build omega monitor Rust command (omega-core/src/monitor.rs + CLI wiring)
+     ◻ Build the deep audit team (project-derived dimensions, parallel, adversarial)
+     ◻ Ship the /monitor skill to both SSOTs (R-SKILLPUB)
+      … +4 pending
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── oracle-OmegaOS ──
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ bypass permissions on (shift+tab to cycle) · esc to interrupt · ctrl+t to hide tasks · ← 2 agents                                                                                   152506 tokens
+
+  ◯ build-omega-monitor  Build /monitor                                                                                                                          0/4 agents done · 12s · ↓ 288.6k tokens
+
+

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Content Campaign",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "objective": {
+      "type": "string",
+      "description": "Campaign objective"
+    },
+    "audience_stage": {
+      "type": "string",
+      "description": "Cold/warm/hot/customer/advocate"
+    },
+    "pillar_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Pillars"
+    },
+    "start_date": {
+      "type": "string",
+      "description": "Start"
+    },
+    "end_date": {
+      "type": "string",
+      "description": "End"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "objective",
+    "audience_stage",
+    "pillar_ids",
+    "start_date",
+    "end_date"
+  ],
+  "additionalProperties": false
+}

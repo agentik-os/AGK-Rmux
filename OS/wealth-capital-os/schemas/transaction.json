@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Transaction",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "account_id": {
+      "type": "string",
+      "description": "Related account"
+    },
+    "date": {
+      "type": "string",
+      "description": "Transaction date"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Signed amount"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency"
+    },
+    "category": {
+      "type": "string",
+      "description": "Verified category"
+    },
+    "status": {
+      "type": "string",
+      "description": "staged/verified/reconciled"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "account_id",
+    "date",
+    "amount",
+    "currency",
+    "status"
+  ],
+  "additionalProperties": false
+}

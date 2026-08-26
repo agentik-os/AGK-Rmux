@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Introduction",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "person_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "People introduced"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Mutual relevance"
+    },
+    "consent_status": {
+      "type": "string",
+      "description": "Permission state"
+    },
+    "status": {
+      "type": "string",
+      "description": "draft/sent/closed"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "person_ids",
+    "reason",
+    "consent_status",
+    "status"
+  ],
+  "additionalProperties": false
+}

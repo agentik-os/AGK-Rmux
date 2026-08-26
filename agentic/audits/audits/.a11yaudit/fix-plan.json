@@ -1,0 +1,46 @@
+{
+ "generated_at": "2026-06-05T22:30:00+02:00",
+ "source": "verdict.json",
+ "fixes": [
+  {
+   "id": "FIX-001",
+   "finding": "T1-F6",
+   "priority": 1,
+   "status": "DONE",
+   "file": "crates/omega-tui/src/theme.rs",
+   "change": "sel_fg-on-accent2 assertion + doc row"
+  },
+  {
+   "id": "FIX-002",
+   "finding": "T1-F5(F1)",
+   "priority": 2,
+   "status": "NEEDS_REVIEW",
+   "file": "crates/omega-tui/src/theme.rs:181",
+   "change": "Omega warn: replace fixed Rgb(255,165,0) with a named ANSI (e.g. Color::Yellow) or document accepted light-scheme risk - DESIGN DECISION (default theme appearance), operator sign-off required"
+  },
+  {
+   "id": "FIX-003",
+   "finding": "T1-F2(F2)",
+   "priority": 3,
+   "status": "NEEDS_REVIEW",
+   "file": "crates/omega-tui/src/theme.rs:662-667",
+   "change": "raise contract floor to 4.5 for text-bearing roles (accent2/success/special) or split roles into text/graphical variants - constrains future palettes, design decision; live margin today is 4.75 min"
+  },
+  {
+   "id": "FIX-004",
+   "finding": "T2-F4(F5)",
+   "priority": 4,
+   "status": "NEEDS_REVIEW",
+   "file": "crates/omega-tui/src/ui.rs:593",
+   "change": "add Modifier::UNDERLINED or a marker glyph to the tab highlight_style"
+  },
+  {
+   "id": "FIX-005",
+   "finding": "T4-F3(F7)",
+   "priority": 5,
+   "status": "NEEDS_REVIEW",
+   "file": "crates/omega-tui/src/theme.rs:243-245",
+   "change": "give Paper chromatic tier-2/3 meter colors (warn-family) to restore at-a-glance escalation"
+  }
+ ]
+}

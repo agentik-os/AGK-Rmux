@@ -1,0 +1,14 @@
+interface:
+  display_name: Seductive {OS}
+  short_description: Presence, conversation, consent-first magnetism
+  default_prompt: Use $seductive-os to audit my personal magnetism, name the one bottleneck,
+    and build this week of presence, conversation and exposure practice.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

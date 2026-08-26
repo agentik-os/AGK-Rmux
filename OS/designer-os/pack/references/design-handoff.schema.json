@@ -1,0 +1,338 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.com/schemas/design-os/design-handoff.schema.json",
+  "title": "Design OS Stepper Handoff",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "designOsVersion",
+    "project",
+    "readiness",
+    "sources",
+    "principles",
+    "decisions",
+    "flows",
+    "ia",
+    "surfaces",
+    "stateMachines",
+    "interactions",
+    "tokens",
+    "components",
+    "accessibility",
+    "evals",
+    "traceability",
+    "risks",
+    "unknowns",
+    "stepperSeeds"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "designOsVersion": { "type": "string", "minLength": 1 },
+    "project": {
+      "type": "object",
+      "required": ["name", "blueprintVersion", "designRevision", "targetSurfaces"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "blueprintVersion": { "type": "string", "minLength": 1 },
+        "designRevision": { "type": "string", "minLength": 1 },
+        "targetSurfaces": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "readiness": {
+      "type": "object",
+      "required": ["status", "gates"],
+      "properties": {
+        "status": { "enum": ["INCOMPLETE", "CHALLENGED", "DESIGN_DEFINED", "CONDITIONAL", "STEPPER_READY", "BLOCKED"] },
+        "gates": {
+          "type": "array",
+          "minItems": 12,
+          "items": { "$ref": "#/$defs/gate" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } },
+    "principles": { "type": "array", "items": { "$ref": "#/$defs/principle" } },
+    "decisions": { "type": "array", "items": { "$ref": "#/$defs/decision" } },
+    "flows": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/flow" } },
+    "ia": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ia" } },
+    "surfaces": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/surface" } },
+    "stateMachines": { "type": "array", "items": { "$ref": "#/$defs/stateMachine" } },
+    "interactions": { "type": "array", "items": { "$ref": "#/$defs/interaction" } },
+    "tokens": { "type": "array", "items": { "$ref": "#/$defs/token" } },
+    "components": { "type": "array", "items": { "$ref": "#/$defs/component" } },
+    "accessibility": { "type": "array", "items": { "$ref": "#/$defs/accessibility" } },
+    "evals": { "type": "array", "items": { "$ref": "#/$defs/eval" } },
+    "traceability": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/trace" } },
+    "risks": { "type": "array", "items": { "$ref": "#/$defs/risk" } },
+    "unknowns": { "type": "array", "items": { "$ref": "#/$defs/unknown" } },
+    "stepperSeeds": { "type": "array", "items": { "$ref": "#/$defs/seed" } }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "refs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "source": {
+      "type": "object",
+      "required": ["id", "kind", "location"],
+      "properties": {
+        "id": { "pattern": "^SRC-[0-9]{3,}$" },
+        "kind": { "type": "string" },
+        "location": { "type": "string" },
+        "version": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "gate": {
+      "type": "object",
+      "required": ["id", "status", "evidenceRefs"],
+      "properties": {
+        "id": { "enum": ["G-BP", "G-FLOW", "G-IA", "G-STATE", "G-ACTION", "G-AI", "G-DS", "G-RWD", "G-A11Y", "G-TRACE", "G-EVAL", "G-HANDOFF"] },
+        "status": { "enum": ["pass", "conditional", "fail", "not_applicable"] },
+        "evidenceRefs": { "$ref": "#/$defs/refs" },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "principle": {
+      "type": "object",
+      "required": ["id", "title", "rule", "evalRefs"],
+      "properties": {
+        "id": { "pattern": "^EXP-[0-9]{3,}$" },
+        "title": { "type": "string", "minLength": 1 },
+        "rule": { "type": "string", "minLength": 1 },
+        "evalRefs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": true
+    },
+    "decision": {
+      "type": "object",
+      "required": ["id", "title", "status", "decision", "consequenceRefs"],
+      "properties": {
+        "id": { "pattern": "^DDEC-[0-9]{3,}$" },
+        "title": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["proposed", "approved", "superseded", "rejected"] },
+        "decision": { "type": "string", "minLength": 1 },
+        "consequenceRefs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": true
+    },
+    "flowNode": {
+      "type": "object",
+      "required": ["id", "kind", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["entry", "user_action", "system_state", "decision", "external", "success", "failure", "exit"] },
+        "label": { "type": "string", "minLength": 1 },
+        "surfaceRef": { "type": "string" },
+        "stateRef": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "flowEdge": {
+      "type": "object",
+      "required": ["from", "to", "event"],
+      "properties": {
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "event": { "type": "string", "minLength": 1 },
+        "condition": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "flow": {
+      "type": "object",
+      "required": ["id", "title", "priority", "outcome", "requirementRefs", "surfaceRefs", "stateRefs", "interactionRefs", "componentRefs", "evalRefs", "nodes", "edges"],
+      "properties": {
+        "id": { "pattern": "^FLOW-[0-9]{3,}$" },
+        "title": { "type": "string", "minLength": 1 },
+        "priority": { "enum": ["P0", "P1", "P2"] },
+        "outcome": { "type": "string", "minLength": 1 },
+        "requirementRefs": { "$ref": "#/$defs/refs" },
+        "surfaceRefs": { "$ref": "#/$defs/refs" },
+        "stateRefs": { "$ref": "#/$defs/refs" },
+        "interactionRefs": { "$ref": "#/$defs/refs" },
+        "componentRefs": { "$ref": "#/$defs/refs" },
+        "evalRefs": { "$ref": "#/$defs/refs" },
+        "nodes": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/flowNode" } },
+        "edges": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/flowEdge" } }
+      },
+      "additionalProperties": true
+    },
+    "ia": {
+      "type": "object",
+      "required": ["id", "title", "model", "surfaceRefs"],
+      "properties": {
+        "id": { "pattern": "^IA-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "model": { "enum": ["route", "hub_drill", "stax", "split", "canvas", "chat", "editor", "hybrid"] },
+        "surfaceRefs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": true
+    },
+    "surface": {
+      "type": "object",
+      "required": ["id", "title", "kind", "purpose", "states", "flowRefs", "stateRefs", "interactionRefs", "componentRefs", "a11yRefs", "evalRefs"],
+      "properties": {
+        "id": { "pattern": "^SURF-[0-9]{3,}$" },
+        "title": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["route", "page", "panel", "drawer", "dialog", "popover", "canvas", "artifact", "chat", "other"] },
+        "purpose": { "type": "string", "minLength": 1 },
+        "states": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+        "flowRefs": { "$ref": "#/$defs/refs" },
+        "stateRefs": { "$ref": "#/$defs/refs" },
+        "interactionRefs": { "$ref": "#/$defs/refs" },
+        "componentRefs": { "$ref": "#/$defs/refs" },
+        "a11yRefs": { "$ref": "#/$defs/refs" },
+        "evalRefs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": true
+    },
+    "stateMachine": {
+      "type": "object",
+      "required": ["id", "title", "initial", "states", "transitions", "evalRefs"],
+      "properties": {
+        "id": { "pattern": "^STATE-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "initial": { "type": "string", "minLength": 1 },
+        "states": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "type": "string" } },
+        "transitions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["from", "event", "to"],
+            "properties": {
+              "from": { "type": "string" },
+              "event": { "type": "string" },
+              "to": { "type": "string" },
+              "guard": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "evalRefs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": true
+    },
+    "interaction": {
+      "type": "object",
+      "required": ["id", "title", "rule", "evalRefs"],
+      "properties": {
+        "id": { "pattern": "^INT-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "rule": { "type": "string", "minLength": 1 },
+        "evalRefs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": true
+    },
+    "token": {
+      "type": "object",
+      "required": ["id", "title", "roles"],
+      "properties": {
+        "id": { "pattern": "^TOK-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "roles": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "component": {
+      "type": "object",
+      "required": ["id", "title", "kind", "source", "states", "flowRefs", "surfaceRefs", "tokenRefs", "a11yRefs", "evalRefs"],
+      "properties": {
+        "id": { "pattern": "^COMP-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "kind": { "enum": ["primitive", "composition", "navigation", "data_shape"] },
+        "source": { "enum": ["shadcn_base_ui", "shadcn_radix", "stax", "custom"] },
+        "states": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "flowRefs": { "$ref": "#/$defs/refs" },
+        "surfaceRefs": { "$ref": "#/$defs/refs" },
+        "tokenRefs": { "$ref": "#/$defs/refs" },
+        "a11yRefs": { "$ref": "#/$defs/refs" },
+        "evalRefs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": true
+    },
+    "accessibility": {
+      "type": "object",
+      "required": ["id", "title", "rule", "evalRefs"],
+      "properties": {
+        "id": { "pattern": "^A11Y-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "rule": { "type": "string", "minLength": 1 },
+        "evalRefs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": true
+    },
+    "eval": {
+      "type": "object",
+      "required": ["id", "title", "category", "priority", "refs", "expected", "oracle"],
+      "properties": {
+        "id": { "pattern": "^EVAL-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "category": { "enum": ["flow", "state", "navigation", "component", "visual", "a11y", "ai", "trust", "performance"] },
+        "priority": { "enum": ["blocking", "non_blocking"] },
+        "refs": { "$ref": "#/$defs/refs" },
+        "expected": { "type": "string", "minLength": 1 },
+        "oracle": { "enum": ["deterministic", "automated_a11y", "visual_diff", "human_rubric", "mixed"] }
+      },
+      "additionalProperties": true
+    },
+    "trace": {
+      "type": "object",
+      "required": ["requirementRef", "criticality", "flowRefs", "surfaceRefs", "stateRefs", "interactionRefs", "componentRefs", "a11yRefs", "evalRefs", "coverage"],
+      "properties": {
+        "requirementRef": { "type": "string", "minLength": 1 },
+        "criticality": { "enum": ["critical", "important", "supporting"] },
+        "flowRefs": { "$ref": "#/$defs/refs" },
+        "surfaceRefs": { "$ref": "#/$defs/refs" },
+        "stateRefs": { "$ref": "#/$defs/refs" },
+        "interactionRefs": { "$ref": "#/$defs/refs" },
+        "componentRefs": { "$ref": "#/$defs/refs" },
+        "a11yRefs": { "$ref": "#/$defs/refs" },
+        "evalRefs": { "$ref": "#/$defs/refs" },
+        "coverage": { "enum": ["complete", "partial", "blocked", "not_applicable"] },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "risk": {
+      "type": "object",
+      "required": ["id", "title", "severity", "status"],
+      "properties": {
+        "id": { "pattern": "^RISK-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "severity": { "enum": ["critical", "high", "medium", "low"] },
+        "status": { "enum": ["open", "mitigated", "accepted", "closed"] }
+      },
+      "additionalProperties": true
+    },
+    "unknown": {
+      "type": "object",
+      "required": ["id", "title", "severity", "status"],
+      "properties": {
+        "id": { "pattern": "^UNK-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "severity": { "enum": ["critical", "high", "medium", "low"] },
+        "status": { "enum": ["open", "assumed", "resolved", "rejected"] },
+        "owner": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "seed": {
+      "type": "object",
+      "required": ["id", "title", "slice", "outcome", "designRefs", "dependsOn", "risk", "verification"],
+      "properties": {
+        "id": { "pattern": "^SEED-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "slice": { "enum": ["foundation", "vertical_flow", "hardening", "migration"] },
+        "outcome": { "type": "string", "minLength": 1 },
+        "designRefs": { "$ref": "#/$defs/refs" },
+        "dependsOn": { "$ref": "#/$defs/refs" },
+        "risk": { "enum": ["low", "medium", "high", "critical"] },
+        "verification": { "type": "array", "minItems": 1, "items": { "enum": ["deterministic", "integration", "e2e", "visual", "manual"] } }
+      },
+      "additionalProperties": true
+    }
+  }
+}

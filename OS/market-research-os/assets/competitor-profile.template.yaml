@@ -1,0 +1,38 @@
+id: CMP-001
+name: <competitor-or-alternative>
+alternative_type: direct
+observed_at: <timestamp>
+segments: []
+category: <customer-facing category>
+promise: <exact short synthesis>
+jobs_and_outcomes: []
+workflow: <description>
+pricing_and_packaging:
+  - plan: <name>
+    price: <amount>
+    billing: <frequency>
+    value_metric: <metric>
+    limits: []
+    source_id: SRC-001
+capabilities:
+  - outcome: <customer outcome>
+    capability: <observed or claimed>
+    evidence_state: observed|claimed|inferred|unknown
+    source_id: SRC-001
+proof_and_traction_proxies: []
+channels_and_sales_motion: []
+onboarding_and_time_to_value: <description>
+integrations_and_ecosystem: []
+security_compliance_data: []
+strengths: []
+customer_failures: []
+review_evidence: []
+switching_costs: []
+business_model_clues: []
+cost_structure_clues: []
+moat_hypotheses: []
+likely_response: []
+win_loss_hypotheses: []
+source_ids: [SRC-001]
+limitations: []
+confidence: 0.0

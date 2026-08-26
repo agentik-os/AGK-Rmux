@@ -1,0 +1,37 @@
+id: DAT-001
+target: <domain-api-dataset-platform>
+purpose: <decision-linked purpose>
+decision_question_ids: [RQ-001]
+data_fields: []
+data_subjects: none
+access_class: official-api
+planned_method: api
+authorization_owner: <owner>
+terms_reviewed_at: <timestamp>
+terms_locator: <url-or-contract-ref>
+robots_reviewed_at: <timestamp-or-na>
+license_or_contract: <ref>
+privacy_jurisdictions: []
+lawful_basis_or_internal_basis: <basis>
+purpose_compatibility: <description>
+personal_data: []
+sensitive_data: []
+minors_possible: false
+copyright_database_rights: <description>
+rate_limits: <limits>
+technical_controls:
+  - domain allowlist
+  - GET/HEAD only
+  - concurrency cap
+  - retry and circuit breaker
+credentials: none
+retention: <duration>
+deletion_obligations: []
+attribution: []
+downstream_use_limits: []
+cross_border: <description>
+risk_level: low
+decision: ALLOW
+rationale: <why>
+reviewer: <role>
+expires_at: <date-or-trigger>

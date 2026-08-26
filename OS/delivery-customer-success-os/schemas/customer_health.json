@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Customer Health",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "engagement_id": {
+      "type": "string",
+      "description": "Engagement"
+    },
+    "outcome_score": {
+      "type": "number",
+      "description": "Outcome signal"
+    },
+    "adoption_score": {
+      "type": "number",
+      "description": "Adoption signal"
+    },
+    "relationship_score": {
+      "type": "number",
+      "description": "Relationship signal"
+    },
+    "risk_status": {
+      "type": "string",
+      "description": "Health"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "engagement_id",
+    "risk_status"
+  ],
+  "additionalProperties": false
+}

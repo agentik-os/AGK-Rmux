@@ -1,0 +1,1717 @@
+schema = "marketing-machine/capabilities@2026-07"
+# ============================================================================
+# OmegaOS Marketing Machine — CAPABILITIES REGISTRY (the anti-forgetting SSOT)
+# ----------------------------------------------------------------------------
+# One [[capability]] block per row of tools/marketing-machine/AUDIT.md §1
+# (the ~78-row inventory across 11 groups), plus the growth-doc capabilities
+# (carousel system, hook engine, comment-to-DM funnel, series, packaging,
+# /watch). This is the machine-readable "everything the machine can do".
+#
+# Read it with:  omega marketing capabilities [--group <g>] [--json]
+# Adding a capability = one [[capability]] block (the anti-forgetting contract).
+#
+# Field contract (every capability carries):
+#   id      — stable id (matches AUDIT §1 where applicable)
+#   group   — one of the [[group]] ids below
+#   name    — human name
+#   does    — one line, what it produces / does
+#   run     — the EXACT command / skill / engine invocation
+#   kind    — cli | skill | engine | doc | file
+#   inputs  — files/artifacts it reads
+#   layer   — 00-context | 01-strategy | 02-copy | 03-visual-identity |
+#             04-publishing | 05-calendar | 06-branding | cross | n/a
+#   status  — built | partial | missing
+#   deps    — tools/keys it needs (checked by `omega marketing doctor`)
+#   paid    — true if it hits a paid external API
+#   skill   — the /omg-* or / skill name, if any
+#   notes   — free text
+# Legend: built = exists + used live · partial = exists, not wired end-to-end /
+#         single-project only · missing = named in spec/plan, not built.
+# ============================================================================
+
+# ---------------------------------------------------------------------------
+# Groups (the inventory's spine — matches AUDIT §1)
+# ---------------------------------------------------------------------------
+[[group]]
+id = "research-strategy"
+name = "Research & Strategy"
+order = 1
+
+[[group]]
+id = "copy"
+name = "Copy"
+order = 2
+
+[[group]]
+id = "visual-image"
+name = "Visual — Image"
+order = 3
+
+[[group]]
+id = "visual-video"
+name = "Visual — Video"
+order = 4
+
+[[group]]
+id = "voice-audio"
+name = "Voice / Audio"
+order = 5
+
+[[group]]
+id = "ugc-avatar"
+name = "UGC / Avatar"
+order = 6
+
+[[group]]
+id = "branding"
+name = "Branding (06-branding SSOT)"
+order = 7
+
+[[group]]
+id = "calendar"
+name = "Calendar / Planning"
+order = 8
+
+[[group]]
+id = "publishing"
+name = "Publishing"
+order = 9
+
+[[group]]
+id = "growth"
+name = "Growth / Playbooks / Outreach"
+order = 10
+
+[[group]]
+id = "orchestration"
+name = "Orchestration / Meta"
+order = 11
+
+# ===========================================================================
+# 1.1 Research & Strategy
+# ===========================================================================
+[[capability]]
+id = "R1"
+group = "research-strategy"
+name = "market-research"
+does = "Market size, trends, competitors, buyers"
+run = "/omg-market-research"
+kind = "skill"
+inputs = ["product idea", "URL"]
+layer = "00-context"
+status = "built"
+deps = ["gooseworks-api", "~/.gooseworks"]
+paid = true
+skill = "market-research"
+notes = "Opt-in gooseworks API."
+
+[[capability]]
+id = "R2"
+group = "research-strategy"
+name = "market-audit"
+does = "Multi-angle site audit -> MARKETING-AUDIT.md /100"
+run = "/market-audit --url <url>"
+kind = "skill"
+inputs = ["live URL"]
+layer = "00-context"
+status = "built"
+deps = []
+paid = false
+skill = "market-audit"
+notes = ""
+
+[[capability]]
+id = "R3"
+group = "research-strategy"
+name = "market-competitors"
+does = "Competitor messaging/pricing/SEO/social -> report + positioning map"
+run = "/market-competitors"
+kind = "skill"
+inputs = ["competitor URLs"]
+layer = "00-context"
+status = "built"
+deps = []
+paid = false
+skill = "market-competitors"
+notes = ""
+
+[[capability]]
+id = "R4"
+group = "research-strategy"
+name = "ads-competitors"
+does = "Reverse-engineer competitor ads"
+run = "/ads-competitors"
+kind = "skill"
+inputs = ["competitor names"]
+layer = "00-context"
+status = "built"
+deps = []
+paid = false
+skill = "ads-competitors"
+notes = ""
+
+[[capability]]
+id = "R5"
+group = "research-strategy"
+name = "ads-audience"
+does = "5-7 forensic personas w/ platform targeting"
+run = "/ads-audience"
+kind = "skill"
+inputs = [".agents/product-marketing.md"]
+layer = "00-context"
+status = "built"
+deps = []
+paid = false
+skill = "ads-audience"
+notes = ""
+
+[[capability]]
+id = "R6"
+group = "research-strategy"
+name = "product-marketing-context"
+does = "Writes .agents/product-marketing.md (ICP/positioning — read by ALL)"
+run = "/omg-product-marketing-context"
+kind = "skill"
+inputs = ["VISION.md", "PRD*.md", "README.md"]
+layer = "00-context"
+status = "built"
+deps = []
+paid = false
+skill = "product-marketing-context"
+notes = "Run FIRST among marketing skills."
+
+[[capability]]
+id = "R7"
+group = "research-strategy"
+name = "marketing-strategist"
+does = "B2B GTM / demand-gen / category strategy"
+run = "/omg-marketing-strategist"
+kind = "skill"
+inputs = [".agents/product-marketing.md"]
+layer = "01-strategy"
+status = "built"
+deps = []
+paid = false
+skill = "marketing-strategist"
+notes = ""
+
+[[capability]]
+id = "R8"
+group = "research-strategy"
+name = "content-strategy"
+does = "Pillars, topic clusters, editorial calendar"
+run = "/omg-content-strategy"
+kind = "skill"
+inputs = [".agents/product-marketing.md"]
+layer = "01-strategy"
+status = "built"
+deps = []
+paid = false
+skill = "content-strategy"
+notes = "Upstream of the 90-day calendar."
+
+[[capability]]
+id = "R9"
+group = "research-strategy"
+name = "launch-strategy"
+does = "Launch-moment GTM (PH/waitlist/email)"
+run = "/omg-launch-strategy"
+kind = "skill"
+inputs = [".agents/product-marketing.md"]
+layer = "01-strategy"
+status = "built"
+deps = []
+paid = false
+skill = "launch-strategy"
+notes = ""
+
+[[capability]]
+id = "R10"
+group = "research-strategy"
+name = "ads-strategy"
+does = "5-parallel orchestrator -> Ad Readiness Score /100"
+run = "/ads-strategy"
+kind = "skill"
+inputs = ["00-context"]
+layer = "01-strategy"
+status = "built"
+deps = []
+paid = false
+skill = "ads-strategy"
+notes = ""
+
+[[capability]]
+id = "R11"
+group = "research-strategy"
+name = "ads-funnel / ads-keywords"
+does = "TOFU/MOFU/BOFU funnel; Google keyword plan"
+run = "/ads-funnel · /ads-keywords"
+kind = "skill"
+inputs = ["personas"]
+layer = "01-strategy"
+status = "built"
+deps = []
+paid = false
+skill = "ads-funnel"
+notes = ""
+
+[[capability]]
+id = "R12"
+group = "research-strategy"
+name = "marketing-master + mm-01..12"
+does = "13-part marketing doctrine (foundations->expert)"
+run = "/marketing-master · /mm-0X"
+kind = "skill"
+inputs = ["any"]
+layer = "cross"
+status = "built"
+deps = []
+paid = false
+skill = "marketing-master"
+notes = "13 skills, ~/.omega/skills/marketing-mastery/."
+
+[[capability]]
+id = "R13"
+group = "research-strategy"
+name = "audience-growth-engine"
+does = "Channel pick + awareness->customer funnel + CAC/LTV + loops"
+run = "/audience-growth-engine"
+kind = "skill"
+inputs = [".agents/product-marketing.md"]
+layer = "01-strategy"
+status = "built"
+deps = []
+paid = false
+skill = "audience-growth-engine"
+notes = ""
+
+# ===========================================================================
+# 1.2 Copy
+# ===========================================================================
+[[capability]]
+id = "C1"
+group = "copy"
+name = "mk-copywriting"
+does = "Page copy (home/landing/pricing/feature)"
+run = "/mk-copywriting"
+kind = "skill"
+inputs = [".agents/product-marketing.md"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "mk-copywriting"
+notes = ""
+
+[[capability]]
+id = "C2"
+group = "copy"
+name = "market-copy"
+does = "Copy audit + rewrite + swipe file"
+run = "/market-copy"
+kind = "skill"
+inputs = ["URL/copy"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "market-copy"
+notes = ""
+
+[[capability]]
+id = "C3"
+group = "copy"
+name = "ad-creative"
+does = "Paid-ad creative at scale (headlines, RSA)"
+run = "/omg-ad-creative"
+kind = "skill"
+inputs = ["00-context", "03-visual-identity/DA.md"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "ad-creative"
+notes = "Pairs with the video/image layer for the visual half."
+
+[[capability]]
+id = "C4"
+group = "copy"
+name = "ads-copy"
+does = "10+ platform ad copy w/ A/B pairs"
+run = "/ads-copy"
+kind = "skill"
+inputs = ["personas"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "ads-copy"
+notes = ""
+
+[[capability]]
+id = "C5"
+group = "copy"
+name = "ads-hooks"
+does = "20+ scroll-stopping hooks by psych angle"
+run = "/ads-hooks"
+kind = "skill"
+inputs = ["angle"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "ads-hooks"
+notes = "The hook engine (see also G6 hook-engine growth mechanic)."
+
+[[capability]]
+id = "C6"
+group = "copy"
+name = "social-content"
+does = "Posts/threads/carousels/calendars/short-form scripts"
+run = "/omg-social-content"
+kind = "skill"
+inputs = ["01-strategy/content-strategy.md"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "social-content"
+notes = ""
+
+[[capability]]
+id = "C7"
+group = "copy"
+name = "mk-social-content"
+does = "Social create/repurpose/schedule"
+run = "/mk-social-content"
+kind = "skill"
+inputs = ["01-strategy/content-strategy.md"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "mk-social-content"
+notes = "Overlaps C6 (social-content) — prefer C6 as the default."
+
+[[capability]]
+id = "C8"
+group = "copy"
+name = "cold-email"
+does = "Outbound emails + 3-5 touch sequences"
+run = "/omg-cold-email"
+kind = "skill"
+inputs = ["ICP"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "cold-email"
+notes = "Also served by the legacy outreach engine (see G3)."
+
+[[capability]]
+id = "C9"
+group = "copy"
+name = "market-emails"
+does = "Lifecycle email sequences (welcome/nurture/launch...)"
+run = "/market-emails"
+kind = "skill"
+inputs = ["ICP"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "market-emails"
+notes = ""
+
+[[capability]]
+id = "C10"
+group = "copy"
+name = "scriptwriter"
+does = "Production video ad scripts (scene/dialogue/B-roll/timing)"
+run = "/scriptwriter"
+kind = "skill"
+inputs = ["brief", "DA"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "scriptwriter"
+notes = ""
+
+[[capability]]
+id = "C11"
+group = "copy"
+name = "ads-video"
+does = "15/30/60s video ad scripts (Hook-Demo-CTA)"
+run = "/ads-video"
+kind = "skill"
+inputs = ["brief"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "ads-video"
+notes = ""
+
+[[capability]]
+id = "C12"
+group = "copy"
+name = "mk-* pack (26)"
+does = "Corey-Haines CRO/lifecycle/pricing pack"
+run = "skill-discovery (mk-*)"
+kind = "skill"
+inputs = ["varies"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "mk-page-cro"
+notes = "26 mirrored skills, no /omg-* stubs — reachable by auto-discovery."
+
+# ===========================================================================
+# 1.3 Visual — Image
+# ===========================================================================
+[[capability]]
+id = "V1"
+group = "visual-image"
+name = "brand-identity"
+does = "Full brand system v2.1 (prism, type, colors, tokens, brand book)"
+run = "/omg-brand-identity"
+kind = "skill"
+inputs = ["VISION"]
+layer = "03-visual-identity"
+status = "built"
+deps = []
+paid = false
+skill = "brand-identity"
+notes = ""
+
+[[capability]]
+id = "V2"
+group = "visual-image"
+name = "brandkit"
+does = "Premium brand-kit board as one art-directed image"
+run = "/brandkit"
+kind = "skill"
+inputs = ["brand"]
+layer = "03-visual-identity"
+status = "built"
+deps = []
+paid = false
+skill = "brandkit"
+notes = ""
+
+[[capability]]
+id = "V3"
+group = "visual-image"
+name = "art-director-content-engine"
+does = "100-content-type catalog + gen specs + model map"
+run = "/art-director-content-engine"
+kind = "skill"
+inputs = ["brief"]
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = "art-director-content-engine"
+notes = "Layer 03/06."
+
+[[capability]]
+id = "V4"
+group = "visual-image"
+name = "art-director-soul"
+does = "Brand-direction philosophy (Gestalt, beauty, archetypes)"
+run = "/art-director-soul"
+kind = "skill"
+inputs = ["concept"]
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = "art-director-soul"
+notes = "Layer 03/06."
+
+[[capability]]
+id = "V5"
+group = "visual-image"
+name = "creative_director"
+does = "Orchestrate ad assets under one brand voice"
+run = "/creative_director"
+kind = "skill"
+inputs = ["brief"]
+layer = "03-visual-identity"
+status = "built"
+deps = []
+paid = false
+skill = "creative_director"
+notes = ""
+
+[[capability]]
+id = "V6"
+group = "visual-image"
+name = "higgsfield-generate (image)"
+does = "Generate on-brand images (Nano Banana 2, Soul 2.0, Flux 2, Kling O1)"
+run = "higgsfield generate create {model} --prompt {prompt} [--soul-id {id}]"
+kind = "cli"
+inputs = ["06-branding/tokens.json", "06-branding/prompt-library/image-higgsfield.md"]
+layer = "03-visual-identity"
+status = "built"
+deps = ["higgsfield-cli", "HIGGSFIELD_API_KEY_ID", "HIGGSFIELD_API_KEY_SECRET"]
+paid = true
+skill = "higgsfield-generate"
+notes = "Live in Verba/Site engines."
+
+[[capability]]
+id = "V6a"
+group = "visual-image"
+name = "higgsfield image models"
+does = "Nano Banana 2, GPT Image 2, Soul 2.0/Cinema/Cast/Location, Flux 2, Kling O1"
+run = "higgsfield generate create nano_banana_2 --prompt {prompt}"
+kind = "cli"
+inputs = ["prompt"]
+layer = "03-visual-identity"
+status = "built"
+deps = ["higgsfield-cli"]
+paid = true
+skill = "higgsfield-generate"
+notes = ""
+
+[[capability]]
+id = "V6b"
+group = "visual-image"
+name = "higgsfield product-photoshoot / marketplace-cards"
+does = "Brand-quality product images / product cards"
+run = "higgsfield product-photoshoot · higgsfield marketplace-cards"
+kind = "cli"
+inputs = ["product img"]
+layer = "03-visual-identity"
+status = "partial"
+deps = ["higgsfield-cli"]
+paid = true
+skill = "higgsfield-generate"
+notes = "Under-used — keyed and available, rarely invoked."
+
+[[capability]]
+id = "V7"
+group = "visual-image"
+name = "ad_designer"
+does = "Meta/IG image ad creatives (Nano Banana 2) obeying brand"
+run = "/ad_designer"
+kind = "skill"
+inputs = ["06-branding/tokens.json"]
+layer = "06-branding"
+status = "built"
+deps = ["higgsfield-cli"]
+paid = true
+skill = "ad_designer"
+notes = ""
+
+[[capability]]
+id = "V8"
+group = "visual-image"
+name = "high-end-visual-design"
+does = "Awwwards-tier UI -> React/Tailwind/HTML"
+run = "/omg-high-end-visual-design"
+kind = "skill"
+inputs = ["brief"]
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = "high-end-visual-design"
+notes = "Site layer (not a marketing/ folder layer)."
+
+[[capability]]
+id = "V9"
+group = "visual-image"
+name = "image-to-code"
+does = "Design image -> frontend landing implementation"
+run = "/image-to-code"
+kind = "skill"
+inputs = ["image"]
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = "image-to-code"
+notes = "Site layer."
+
+[[capability]]
+id = "V10"
+group = "visual-image"
+name = "diagram"
+does = "Deterministic Mermaid/D2 -> SVG/PNG (correct technical figures)"
+run = "/diagram"
+kind = "skill"
+inputs = ["spec"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "diagram"
+notes = "Added 2026-06-11."
+
+# ===========================================================================
+# 1.4 Visual — Video
+# ===========================================================================
+[[capability]]
+id = "VD1"
+group = "visual-video"
+name = "higgsfield-generate (video)"
+does = "Seedance 2.0 / Kling 3.0 / Veo 3.1 / Sora / Marketing Studio clips"
+run = "higgsfield generate create seedance_2_0 --prompt {prompt}"
+kind = "cli"
+inputs = ["prompt", "keyframe"]
+layer = "04-publishing"
+status = "built"
+deps = ["higgsfield-cli", "HIGGSFIELD_API_KEY_ID", "HIGGSFIELD_API_KEY_SECRET"]
+paid = true
+skill = "higgsfield-generate"
+notes = "Layer 03/04."
+
+[[capability]]
+id = "VD2"
+group = "visual-video"
+name = "higgsfield marketing-studio"
+does = "UGC/unboxing/TV-spot/product-showcase ad video"
+run = "higgsfield marketing-studio"
+kind = "cli"
+inputs = ["avatar/product"]
+layer = "04-publishing"
+status = "partial"
+deps = ["higgsfield-cli"]
+paid = true
+skill = "higgsfield-generate"
+notes = "Under-used — the UGC/ad-video engine, rarely invoked."
+
+[[capability]]
+id = "VD3"
+group = "visual-video"
+name = "hyperframes"
+does = "HTML-native compositions (montage, title cards, captions, transitions)"
+run = "/hyperframes · hyperframes-cli render"
+kind = "skill"
+inputs = ["clips", "tokens"]
+layer = "04-publishing"
+status = "built"
+deps = ["bun"]
+paid = false
+skill = "hyperframes"
+notes = "Used inline in verba-daily."
+
+[[capability]]
+id = "VD4"
+group = "visual-video"
+name = "hyperframes-cli"
+does = "init/lint/preview/render/transcribe/tts driver"
+run = "hyperframes-cli <cmd>"
+kind = "cli"
+inputs = ["composition"]
+layer = "04-publishing"
+status = "built"
+deps = ["bun"]
+paid = false
+skill = "hyperframes-cli"
+notes = ""
+
+[[capability]]
+id = "VD5"
+group = "visual-video"
+name = "hyperframes-media"
+does = "Asset prep: Kokoro TTS, Whisper transcription, bg-removal"
+run = "/hyperframes-media"
+kind = "skill"
+inputs = ["audio/video"]
+layer = "04-publishing"
+status = "built"
+deps = ["bun", "ffmpeg"]
+paid = false
+skill = "hyperframes-media"
+notes = ""
+
+[[capability]]
+id = "VD6"
+group = "visual-video"
+name = "hyperframes-registry"
+does = "Install/wire registry blocks into comps"
+run = "/hyperframes-registry"
+kind = "skill"
+inputs = []
+layer = "04-publishing"
+status = "built"
+deps = ["bun"]
+paid = false
+skill = "hyperframes-registry"
+notes = ""
+
+[[capability]]
+id = "VD7"
+group = "visual-video"
+name = "remotion-to-hyperframes"
+does = "Port Remotion (React) comps -> HyperFrames HTML"
+run = "/remotion-to-hyperframes"
+kind = "skill"
+inputs = ["Remotion project"]
+layer = "04-publishing"
+status = "built"
+deps = ["bun"]
+paid = false
+skill = "remotion-to-hyperframes"
+notes = ""
+
+[[capability]]
+id = "VD8"
+group = "visual-video"
+name = "website-to-hyperframes"
+does = "Live site -> product-tour / promo / social video"
+run = "/website-to-hyperframes"
+kind = "skill"
+inputs = ["live URL"]
+layer = "04-publishing"
+status = "built"
+deps = ["bun"]
+paid = false
+skill = "website-to-hyperframes"
+notes = ""
+
+[[capability]]
+id = "VD9"
+group = "visual-video"
+name = "Remotion (Nova)"
+does = "React data-driven compositions at scale"
+run = "~/Station/Nova/video/produce-*.sh"
+kind = "engine"
+inputs = ["props"]
+layer = "04-publishing"
+status = "partial"
+deps = ["bun"]
+paid = false
+skill = ""
+notes = "Nova-local, not per-project."
+
+[[capability]]
+id = "VD10"
+group = "visual-video"
+name = "motion"
+does = "Meaningful web animation / WebGL / P5.js"
+run = "/motion"
+kind = "skill"
+inputs = ["brief"]
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = "motion"
+notes = "Site layer."
+
+[[capability]]
+id = "VD11"
+group = "visual-video"
+name = "YoutubeContent"
+does = "AI content factory: shorts + flagship long-form (PDF plan)"
+run = "/YoutubeContent"
+kind = "skill"
+inputs = ["topic"]
+layer = "04-publishing"
+status = "built"
+deps = []
+paid = false
+skill = "YoutubeContent"
+notes = ""
+
+[[capability]]
+id = "VD12"
+group = "visual-video"
+name = "verba-daily engine"
+does = "Per-day image+video+VO batch (Higgsfield+Playwright+ffmpeg+ElevenLabs)"
+run = "bun verba-daily.ts [--publish]"
+kind = "engine"
+inputs = ["05-calendar/calendar-90d.json"]
+layer = "04-publishing"
+status = "partial"
+deps = ["bun", "ffmpeg", "higgsfield-cli", "ELEVENLABS_API_KEY"]
+paid = true
+skill = ""
+notes = "Built but Verba-only (not reusable). P0-4 target: portable engine."
+
+[[capability]]
+id = "VD13"
+group = "visual-video"
+name = "caio-daily engine"
+does = "Queue post w/ Higgsfield image + zernio publish"
+run = "bun caio-daily.ts [--dry-run]"
+kind = "engine"
+inputs = ["04-publishing/daily-engine/queue.json"]
+layer = "04-publishing"
+status = "partial"
+deps = ["bun", "higgsfield-cli", "zernio"]
+paid = true
+skill = ""
+notes = "Built but Site-only (different schema, incompatible w/ calendar-90d.json)."
+
+# ===========================================================================
+# 1.5 Voice / Audio
+# ===========================================================================
+[[capability]]
+id = "A1"
+group = "voice-audio"
+name = "ElevenLabs TTS"
+does = "Branded VO (e.g. Verba 'Eric')"
+run = "curl ElevenLabs TTS (ttsEleven in verba-daily.ts)"
+kind = "engine"
+inputs = ["text"]
+layer = "04-publishing"
+status = "partial"
+deps = ["ELEVENLABS_API_KEY"]
+paid = true
+skill = ""
+notes = "Inline in verba-daily.ts, no portable skill (P2-1)."
+
+[[capability]]
+id = "A2"
+group = "voice-audio"
+name = "ElevenLabs music"
+does = "Music beds (ducked under VO via ffmpeg sidechain)"
+run = "asset file + ffmpeg sidechain (verba-daily.ts)"
+kind = "engine"
+inputs = []
+layer = "04-publishing"
+status = "partial"
+deps = ["ELEVENLABS_API_KEY", "ffmpeg"]
+paid = true
+skill = ""
+notes = "Assets hand-placed."
+
+[[capability]]
+id = "A3"
+group = "voice-audio"
+name = "higgsfield audio"
+does = "TTS / voice-clone / dub"
+run = "higgsfield generate (audio)"
+kind = "cli"
+inputs = ["text/voice"]
+layer = "04-publishing"
+status = "partial"
+deps = ["higgsfield-cli"]
+paid = true
+skill = "higgsfield-generate"
+notes = "Under-used."
+
+[[capability]]
+id = "A4"
+group = "voice-audio"
+name = "hyperframes-media TTS"
+does = "Kokoro local TTS + Whisper captions"
+run = "hyperframes-cli tts / transcribe"
+kind = "cli"
+inputs = ["text/audio"]
+layer = "04-publishing"
+status = "built"
+deps = ["bun"]
+paid = false
+skill = "hyperframes-media"
+notes = "Local, free."
+
+[[capability]]
+id = "A5"
+group = "voice-audio"
+name = "ARTLIST / Tella"
+does = "Licensed music; screen-record"
+run = "env keys ARTLIST_API_KEY / TELLA_API_KEY"
+kind = "engine"
+inputs = []
+layer = "04-publishing"
+status = "missing"
+deps = ["ARTLIST_API_KEY", "TELLA_API_KEY"]
+paid = true
+skill = ""
+notes = "Keys present, no code path."
+
+# ===========================================================================
+# 1.6 UGC / Avatar
+# ===========================================================================
+[[capability]]
+id = "U1"
+group = "ugc-avatar"
+name = "higgsfield-soul-id"
+does = "Train face-faithful Soul ONCE -> --soul-id ref"
+run = "higgsfield soul-id"
+kind = "cli"
+inputs = [">=20 photos"]
+layer = "06-branding"
+status = "built"
+deps = ["higgsfield-cli", "HIGGSFIELD_API_KEY_ID"]
+paid = true
+skill = "higgsfield-soul-id"
+notes = "NOVA_SOUL_ID exists. Layer 03/06."
+
+[[capability]]
+id = "U2"
+group = "ugc-avatar"
+name = "HeyGen Avatar V (UGC)"
+does = "Talking-head avatar clips w/ word-timings"
+run = "HeyGen API (HEYGEN_API_KEY)"
+kind = "engine"
+inputs = ["script", "avatar id"]
+layer = "04-publishing"
+status = "missing"
+deps = ["HEYGEN_API_KEY"]
+paid = true
+skill = ""
+notes = "Key present, only spec'd in 06-branding/prompt-library/avatar-heygen.md, NO runner (P2-2)."
+
+[[capability]]
+id = "U3"
+group = "ugc-avatar"
+name = "creator-media-engine"
+does = "Operator media OS (pillars, series, hook/story banks, cadence)"
+run = "/creator-media-engine"
+kind = "skill"
+inputs = [".agents/product-marketing.md"]
+layer = "01-strategy"
+status = "built"
+deps = []
+paid = false
+skill = "creator-media-engine"
+notes = "Layer 01/02."
+
+[[capability]]
+id = "U4"
+group = "ugc-avatar"
+name = "avatar-persona.md"
+does = "Per-brand Soul-ID + HeyGen id + persona sheet"
+run = "06-branding/avatar-persona.md"
+kind = "file"
+inputs = ["soul/heygen ids"]
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Verba = scene-led, ids null by decision."
+
+# ===========================================================================
+# 1.7 Branding (the 06-branding SSOT)
+# ===========================================================================
+[[capability]]
+id = "B1"
+group = "branding"
+name = "SOCIAL-BRAND-BOOK.md"
+does = "10-section master brand doc (canvas, safe zones, type, color roles, motion, templates, logo, avatar, governance)"
+run = "06-branding/SOCIAL-BRAND-BOOK.md"
+kind = "file"
+inputs = ["DA.md"]
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Verba (11 KB, 10 sections)."
+
+[[capability]]
+id = "B2"
+group = "branding"
+name = "tokens.json"
+does = "Machine-readable tokens (color/type/motion/canvas/photo/logo/avatar) — read before ANY generation"
+run = "06-branding/tokens.json"
+kind = "file"
+inputs = ["DA.md"]
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Schema branding-tokens@2026-07."
+
+[[capability]]
+id = "B3"
+group = "branding"
+name = "design-guidelines.md"
+does = "Grid, safe zones, type scale, logo spec, do/don't"
+run = "06-branding/design-guidelines.md"
+kind = "file"
+inputs = []
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = ""
+
+[[capability]]
+id = "B4"
+group = "branding"
+name = "avatar-persona.md"
+does = "Soul/HeyGen ref + persona sheet"
+run = "06-branding/avatar-persona.md"
+kind = "file"
+inputs = []
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = ""
+
+[[capability]]
+id = "B5"
+group = "branding"
+name = "prompt-library/"
+does = "Pre-filled per-brand image/video/avatar/flux prompts + kill-list"
+run = "06-branding/prompt-library/{image-higgsfield,video-higgsfield,avatar-heygen}.md, flux-brand.json, kill-list.md"
+kind = "file"
+inputs = []
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Verba (5 files). kill-list.md carries R-NODASH."
+
+[[capability]]
+id = "B6"
+group = "branding"
+name = "templates/"
+does = "hyperframes design.md+frame.md + stills/ archetypes (Cover/Big-Stat/Step/Quote/Chart/CTA)"
+run = "06-branding/templates/"
+kind = "file"
+inputs = []
+layer = "06-branding"
+status = "partial"
+deps = []
+paid = false
+skill = ""
+notes = "Verba has design/frame + stills README; actual template code NOT present (P1-2)."
+
+[[capability]]
+id = "B7"
+group = "branding"
+name = "pattern-ledger.md"
+does = "Win/lose metrics log; promote winners / retire 2x-losers"
+run = "06-branding/pattern-ledger.md"
+kind = "file"
+inputs = ["platform analytics"]
+layer = "06-branding"
+status = "partial"
+deps = []
+paid = false
+skill = ""
+notes = "Schema ready, no data yet (P2-4 metrics loop)."
+
+[[capability]]
+id = "B8"
+group = "branding"
+name = "VALIDATED-STYLE.md"
+does = "Operator-locked style choices"
+run = "06-branding/VALIDATED-STYLE.md"
+kind = "file"
+inputs = []
+layer = "06-branding"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Verba operator-signed 2026-07-02."
+
+# ===========================================================================
+# 1.8 Calendar / Planning
+# ===========================================================================
+[[capability]]
+id = "CAL1"
+group = "calendar"
+name = "calendar-90d.json"
+does = "90-day plan {days:[{dayOffset,posts:[{slot,platform,pillar,mode,text,visualPrompt,cta}]}]}"
+run = "05-calendar/calendar-90d.json"
+kind = "file"
+inputs = ["content-strategy.md"]
+layer = "05-calendar"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Canonical calendar (Verba, Site)."
+
+[[capability]]
+id = "CAL2"
+group = "calendar"
+name = "calendar-14d.md / calendar-90d.md"
+does = "Human-readable operating plan (AUTO / MANUEL tags)"
+run = "05-calendar/*.md"
+kind = "file"
+inputs = []
+layer = "05-calendar"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = ""
+
+[[capability]]
+id = "CAL3"
+group = "calendar"
+name = "daily-human-tasks.md"
+does = "Recurring human rituals (engagement, DMs)"
+run = "05-calendar/daily-human-tasks.md"
+kind = "file"
+inputs = []
+layer = "05-calendar"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = ""
+
+[[capability]]
+id = "CAL4"
+group = "calendar"
+name = "calendar.json (scaffold)"
+does = "Empty {posts:[]} queue stub"
+run = "04-publishing/calendar.json"
+kind = "file"
+inputs = []
+layer = "04-publishing"
+status = "partial"
+deps = []
+paid = false
+skill = ""
+notes = "Scaffold-only, superseded by CAL1."
+
+[[capability]]
+id = "CAL5"
+group = "calendar"
+name = "queue.json (Site)"
+does = "Flat {posts:[{id,pillar,platform,finalCopy,hashtags,visualPrompt,status,sentAt}]}"
+run = "04-publishing/daily-engine/queue.json"
+kind = "file"
+inputs = []
+layer = "04-publishing"
+status = "partial"
+deps = []
+paid = false
+skill = ""
+notes = "Site-only, incompatible w/ CAL1 (P0-2 unification target)."
+
+# ===========================================================================
+# 1.9 Publishing
+# ===========================================================================
+[[capability]]
+id = "P1"
+group = "publishing"
+name = "omega-zernio"
+does = "One profile/project -> 15+ networks (post/schedule/connect/accounts)"
+run = "omega-zernio post {slug} --text ... --platforms ... [--media] [--dry-run] [--schedule]"
+kind = "cli"
+inputs = ["05-calendar/calendar-90d.json"]
+layer = "04-publishing"
+status = "built"
+deps = ["zernio", "ZERNIO_API_KEY"]
+paid = true
+skill = ""
+notes = "Installed by install.sh."
+
+[[capability]]
+id = "P2"
+group = "publishing"
+name = "zernio connect"
+does = "OAuth account attach (operator step)"
+run = "omega-zernio connect {slug} {platform}"
+kind = "cli"
+inputs = []
+layer = "04-publishing"
+status = "built"
+deps = ["zernio", "ZERNIO_API_KEY"]
+paid = true
+skill = ""
+notes = ""
+
+[[capability]]
+id = "P3"
+group = "publishing"
+name = "profile registry"
+does = "~/.omega/zernio-profiles.json"
+run = "~/.omega/zernio-profiles.json"
+kind = "file"
+inputs = []
+layer = "04-publishing"
+status = "partial"
+deps = ["zernio"]
+paid = false
+skill = ""
+notes = "Only 3 profiles mapped (verba, agentik-os, gta6)."
+
+[[capability]]
+id = "P4"
+group = "publishing"
+name = "verba-daily --publish"
+does = "Per-network format adaptation (9:16/16:9/4:5/2:3) + multi-post"
+run = "bun verba-daily.ts --publish"
+kind = "engine"
+inputs = ["calendar-90d.json"]
+layer = "04-publishing"
+status = "partial"
+deps = ["bun", "zernio"]
+paid = true
+skill = ""
+notes = "Verba-only fork."
+
+[[capability]]
+id = "P5"
+group = "publishing"
+name = "caio-daily cron"
+does = "09:00 daily auto-publish from queue"
+run = "crontab OMEGA-CRON-CAIO-DAILY-v1"
+kind = "engine"
+inputs = ["queue.json"]
+layer = "04-publishing"
+status = "built"
+deps = ["bun", "zernio"]
+paid = true
+skill = ""
+notes = "Site, live on cron."
+
+[[capability]]
+id = "P6"
+group = "publishing"
+name = "published-log.md / sent-log.json"
+does = "Publish history"
+run = "04-publishing/{published-log.md,sent-log.json}"
+kind = "file"
+inputs = []
+layer = "04-publishing"
+status = "partial"
+deps = []
+paid = false
+skill = ""
+notes = "Two schemas (md vs json)."
+
+[[capability]]
+id = "P7"
+group = "publishing"
+name = "superx-analytics"
+does = "X/Twitter post analytics totals (impressions, engagements, follower change) from SuperX"
+run = "tools/marketing-machine/bin/superx posts:analytics | jq '.data.totals'"
+kind = "cli"
+inputs = []
+layer = "04-publishing"
+status = "partial"
+deps = ["SUPERX_API_KEY (~/.omega/secrets/superx.env)", "jq"]
+paid = true
+skill = ""
+notes = "curl wrapper on api.superx.so/v1 — vendor npm pkg superx-cli is UNPUBLISHED (404, 2026-07-08). Needs sxk_ key from SuperX app -> Account -> Developers. Not yet runtime-verified (awaiting key). Docs: superx.so/developers."
+
+# ===========================================================================
+# 1.10 Growth / Playbooks / Outreach
+# ===========================================================================
+[[capability]]
+id = "G1"
+group = "growth"
+name = "x-growth-playbook"
+does = "14 X growth mechanics, per-project adaptation"
+run = "~/Station/SideBusiness/x-growth-playbook.md"
+kind = "doc"
+inputs = []
+layer = "cross"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Doc, not wired to a runner."
+
+[[capability]]
+id = "G2"
+group = "growth"
+name = "Reddit module"
+does = "Specificity titles, comment templates, 90/10 tracker"
+run = "(spec — upgrade doc §5.3)"
+kind = "doc"
+inputs = []
+layer = "02-copy"
+status = "missing"
+deps = []
+paid = false
+skill = "social-content"
+notes = "Spec only (P3-1)."
+
+[[capability]]
+id = "G3"
+group = "growth"
+name = "legacy outreach engine"
+does = "Cold-email/prospect daemon (Bun+Convex) on cron"
+run = "~/Station/Marketing/engine/ (run-outreach-daemon.sh)"
+kind = "engine"
+inputs = []
+layer = "04-publishing"
+status = "partial"
+deps = ["bun", "convex"]
+paid = false
+skill = ""
+notes = "Orphaned — not referenced by the machine (P2-3: fold or document)."
+
+[[capability]]
+id = "G4"
+group = "growth"
+name = "fundraising kit"
+does = "Investor CSV, sequences, deck (Verba)"
+run = "Verba/marketing/fundraising/"
+kind = "file"
+inputs = []
+layer = "cross"
+status = "partial"
+deps = []
+paid = false
+skill = ""
+notes = "Verba-specific, off-machine."
+
+[[capability]]
+id = "G5"
+group = "growth"
+name = "carousel system (4:5 design system)"
+does = "Numbered/seamless-bleed 4:5 carousels: incomplete cover, open loop slide 1 -> payoff, one idea/slide, save+send CTA"
+run = "/omg-social-content (carousel) + art-director-content-engine + 06-branding/templates"
+kind = "skill"
+inputs = ["01-strategy/content-strategy.md", "06-branding/tokens.json"]
+layer = "02-copy"
+status = "partial"
+deps = ["higgsfield-cli"]
+paid = true
+skill = "social-content"
+notes = "Highest-engagement format (IG ~1.92%, LinkedIn PDF ~6.60%). Template system NOT coded yet (marketing-analysis-multiplatform.md IG-1/LI-2)."
+
+[[capability]]
+id = "G6"
+group = "growth"
+name = "hook engine"
+does = "Scroll-stopping hooks by psych angle + 0-5-15-30 video hook + hook-in-frame-1"
+run = "/ads-hooks (copy) + /watch (competitor reverse-engineer)"
+kind = "skill"
+inputs = ["angle", "competitor outliers"]
+layer = "02-copy"
+status = "built"
+deps = []
+paid = false
+skill = "ads-hooks"
+notes = "Pairs with /watch to reverse-engineer what the algorithm rewards now."
+
+[[capability]]
+id = "G7"
+group = "growth"
+name = "comment-to-DM funnel"
+does = "Comment -> auto-DM lead-magnet funnel; every commenter gets the promised resource and becomes a follower"
+run = "bash tools/zernflow/install-zernflow.sh, then build the flow in the ZernFlow app"
+kind = "engine"
+inputs = ["02-copy/social-content.md", "~/.omega/secrets/zernflow.env"]
+layer = "04-publishing"
+status = "partial"
+deps = ["zernflow", "zernio account"]
+paid = true
+skill = ""
+notes = "R-ZERNFLOW: the rail is ZernFlow (self-hosted open-source ManyChat alternative, vendored at tools/zernflow, dedicated Supabase mbsncijxqvawawpgjbkp), NEVER a hand-rolled DM bot. Credential present in ~/.omega/secrets/zernflow.env; the app itself is an opt-in install + deploy, so this is not live yet. Brick 4 of the IG reel loop (growth/IG-REEL-LOOP.md). The script CTA must stay keyword-free: /reel-lint scores an imposed keyword down because it depresses comment rate."
+
+[[capability]]
+id = "G8"
+group = "growth"
+name = "series / episodic formats"
+does = "Named recurring series (Part 1/2/3), 5-episode arc, appointment/binge viewing"
+run = "/omg-content-strategy (pillars -> named FORMATS) + /omg-social-content"
+kind = "skill"
+inputs = ["01-strategy/content-strategy.md"]
+layer = "01-strategy"
+status = "partial"
+deps = []
+paid = false
+skill = "content-strategy"
+notes = "~60% of top branded short-form runs as a series; 5-ep arc optimal (marketing-analysis TT-4/YT-4)."
+
+[[capability]]
+id = "G9"
+group = "growth"
+name = "packaging (title+thumbnail as one unit)"
+does = "Design title+thumbnail (or headline+hero) TOGETHER before content; 3-5 variants; One Face/Object/Question, <12 chars, 10% readability"
+run = "/omg-ad-creative + art-director-content-engine + 02-copy/packaging.md"
+kind = "skill"
+inputs = ["brief", "06-branding/tokens.json"]
+layer = "02-copy"
+status = "partial"
+deps = ["higgsfield-cli"]
+paid = true
+skill = "ad-creative"
+notes = "The #1 lever; packaging-content ALIGNMENT is the hard rule (marketing-analysis YT-1/YT-2). No 02-copy/packaging.md scaffold yet."
+
+[[capability]]
+id = "G10"
+group = "growth"
+name = "/watch — competitor video analysis"
+does = "Download any video -> scene frames + 0-10s hook microscope + transcript -> report.md"
+run = "/watch <url>"
+kind = "skill"
+inputs = ["video URL / file"]
+layer = "00-context"
+status = "built"
+deps = ["bun", "yt-dlp"]
+paid = false
+skill = "watch"
+notes = "Canonical video-analysis primitive; feeds ads-hooks, ads-video, ad-creative, scriptwriter, social-content."
+
+[[capability]]
+id = "G11"
+group = "growth"
+name = "outlier-engine (research engine)"
+does = "Swipe feed of tracked channels -> outlier score (views / channel median) -> what format to copy this week"
+run = "tools/marketing-machine/bin/outlier {scan|score|discover|report|doctor}"
+kind = "cli"
+inputs = ["00-context/swipe/channels.txt"]
+layer = "00-context"
+status = "built"
+deps = ["bun", "yt-dlp"]
+paid = false
+notes = "Free + keyless: yt-dlp --flat-playlist on the /shorts tab (~0.7s/channel, verified live 2026-07-09). YouTube Shorts ONLY: the videos tab no longer returns view counts and per-video extraction is bot-blocked from this VPS. TikTok/IG need a paid source (Apify live; SCRAPECREATORS_API_KEY present but OUT OF CREDITS, HTTP 402) and are NOT wired. Method: growth/OUTLIER-ENGINE.md."
+
+[[capability]]
+id = "G12"
+group = "growth"
+name = "format library"
+does = "The 7 recurring short-form shapes (POV, what-if, invisible-force, satisfying-process, 1-vs-escalation, creature-reveal, day-in-the-life) as reskinnable templates"
+run = "read growth/OUTLIER-ENGINE.md §3"
+kind = "doc"
+inputs = ["outlier score output"]
+layer = "01-strategy"
+status = "built"
+deps = []
+paid = false
+notes = "Topic dies in a week, format repeats for months. Grows by one row every time `outlier score` surfaces a shape not yet listed. The durable half of the engine."
+
+[[capability]]
+id = "G13"
+group = "growth"
+name = "publish-and-learn loop"
+does = "Publish -> re-scan your OWN channel at 48h -> score against your own median -> promote/retire in the pattern ledger"
+run = "omega-zernio post … ; bin/outlier scan --out swipe/self.json ; bin/outlier report --alert"
+kind = "engine"
+inputs = ["04-publishing", "06-branding/pattern-ledger.md"]
+layer = "04-publishing"
+status = "partial"
+deps = ["omega-zernio", "yt-dlp", "omega-alert-send.sh"]
+paid = false
+notes = "Replaces the article's Make scenario. Wires the outlier score into B7's existing promote/retire rule (>=10x own median = promote + follow-up in 48h; fails twice = retire). partial: the commands run, the cron + ledger write-back are not yet automated per project."
+
+# ===========================================================================
+# 1.11 Orchestration / Meta
+# ===========================================================================
+[[capability]]
+id = "O1"
+group = "orchestration"
+name = "scaffold.sh"
+does = "Create per-project marketing/ tree (00-06 + calendar-90d + daily-engine stub)"
+run = "tools/marketing-machine/scaffold.sh [<dir> <name> <slug>]"
+kind = "cli"
+inputs = ["projects.tsv"]
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Fixed P0-1: now also creates 06-branding, calendar-90d.json, daily-engine stub."
+
+[[capability]]
+id = "O2"
+group = "orchestration"
+name = "omega marketing list"
+does = "FS status of all marketing projects (glyph, posts, engine, layer flags)"
+run = "omega marketing list [--json] [--accounts]"
+kind = "cli"
+inputs = []
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Read-only."
+
+[[capability]]
+id = "O3"
+group = "orchestration"
+name = "marketing.rs status"
+does = "has_context/strategy/copy/visual/branding, calendar_posts, engine_on, accounts"
+run = "omega-core/src/marketing.rs"
+kind = "file"
+inputs = []
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = ""
+
+[[capability]]
+id = "O4"
+group = "orchestration"
+name = "TUI Marketing tab"
+does = "List + open marketing session + publish"
+run = "omega tui -> Tab::Marketing"
+kind = "cli"
+inputs = []
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = ""
+
+[[capability]]
+id = "O5"
+group = "orchestration"
+name = "capabilities registry"
+does = "Machine-readable manifest of all the above (this file)"
+run = "omega marketing capabilities [--group G] [--json]"
+kind = "file"
+inputs = ["capabilities.toml"]
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "THE anti-forgetting registry. v1 shipped 2026-07-03."
+
+[[capability]]
+id = "O6"
+group = "orchestration"
+name = "next-best-action"
+does = "Guided per-project 'do this next' from deterministic rules"
+run = "omega marketing next {project}"
+kind = "cli"
+inputs = ["marketing.rs status"]
+layer = "n/a"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "v1 shipped 2026-07-03."
+
+[[capability]]
+id = "O7"
+group = "orchestration"
+name = "portable daily engine"
+does = "Render + publish a project's day from calendar-90d.json for ANY project"
+run = "omega marketing run {project} [--publish|--dry-run]"
+kind = "engine"
+inputs = ["05-calendar/calendar-90d.json", "06-branding/tokens.json"]
+layer = "n/a"
+status = "missing"
+deps = ["zernio", "higgsfield-cli", "ELEVENLABS_API_KEY"]
+paid = true
+skill = ""
+notes = "Today two per-project forks (VD12/VD13). P0-2/P0-4 unification — NOT built in v1 (see BACKLOG)."
+
+[[capability]]
+id = "O8"
+group = "orchestration"
+name = "marketing doctor"
+does = "Check integration keys/tools are PRESENT (key presence, not rail health)"
+run = "omega marketing doctor"
+kind = "cli"
+inputs = ["~/.omega/secrets/integrations.env"]
+layer = "n/a"
+status = "partial"
+deps = []
+paid = false
+skill = ""
+notes = "v1 shipped 2026-07-03. KNOWN LIMIT, verified 2026-07-26: it checks key PRESENCE, not rail HEALTH, so it printed a green ZERNIO_API_KEY while the Zernio API answered HTTP 402 (account paused) and a green `higgsfield account` on a balance of 0.03 credits. A valid key proves nothing. For live rail status use `reels doctor` (probes each source and reads Apify's effectivePlatformFeatures.ACTORS.disabledReason, which is the only free signal that a valid token still 403s every run) plus `higgsfield account status`. Ask-list: NEEDS-OPERATOR.md (O9)."
+
+# ---------------------------------------------------------------------------
+# IG Reel Loop (G14-G18) — the Instagram half of the research loop, added
+# 2026-07-26. G11 (outlier) answers "what shape wins on YouTube Shorts"; this
+# group answers the same on Instagram AND closes the loop back onto your own
+# account. The binding idea is the SHARED P1-P11 hook taxonomy: the eyes score
+# hooks in the exact vocabulary /reel-script writes in and /reel-lint grades.
+# Method: growth/IG-REEL-LOOP.md.
+# ---------------------------------------------------------------------------
+
+[[capability]]
+id = "G14"
+group = "growth"
+name = "reels-engine (IG research)"
+does = "Scan IG accounts of a niche -> outlier score (metric / account median) -> ranked reels worth reskinning"
+run = "tools/marketing-machine/bin/reels {doctor|scan|score|report}"
+kind = "cli"
+inputs = ["00-context/swipe/accounts.txt"]
+layer = "00-context"
+status = "partial"
+deps = ["bun", "IG_ACCESS_TOKEN | APIFY_TOKEN | SCRAPECREATORS_API_KEY"]
+paid = false
+skill = ""
+notes = "Three pluggable sources, preference order graph > apify > scrapecreators. `reels doctor` reports each rail live and never fakes one. Verified 2026-07-26: scoring/ranking/report logic runs green on fixtures; NO source live that day (no IG token yet; Apify HTTP 403 too-many-outstanding-invoices; ScrapeCreators HTTP 402 out of credits). The free Graph rail is the cheapest way back to a live scan. business_discovery gives competitors' like/comment counts but NOT play counts, so competitor scoring falls back to the engagement metric (surfaced in the output)."
+
+[[capability]]
+id = "G15"
+group = "growth"
+name = "IG own-account insights"
+does = "Your reels + real insights (views, reach, saved, shares, avg watch time) via the Instagram Graph API"
+run = "tools/marketing-machine/bin/reels mine [--limit N]"
+kind = "cli"
+inputs = ["~/.omega/secrets/instagram.env"]
+layer = "00-context"
+status = "partial"
+deps = ["bun", "IG_USER_ID", "IG_ACCESS_TOKEN"]
+paid = false
+skill = ""
+notes = "R-CLI: plain REST against graph.facebook.com, NO MCP server. Free and official. The only rail that gives RETENTION, which is the metric distribution actually keys on. Coded and gated: no IG Business token exists in ~/.omega/secrets yet, so this is not runtime-verified end to end. `reels doctor` prints the exact token procedure (Business account linked to a Page, instagram_basic + instagram_manage_insights, long-lived token)."
+
+[[capability]]
+id = "G16"
+group = "growth"
+name = "hook library (P1-P11)"
+does = "Outlier hooks classified into the 11 measured hook patterns + the niche pattern leaderboard by average lift"
+run = "tools/marketing-machine/bin/reels hooks [--top N]"
+kind = "cli"
+inputs = ["00-context/swipe/reels.json"]
+layer = "00-context"
+status = "built"
+deps = ["bun"]
+paid = false
+skill = "reel-lint"
+notes = "The taxonomy is MIRRORED from reel-lint's lint_script.py (single source of truth) and `reels doctor` diffs the two, so drift is loud instead of silent. Classification is re-derived from the caption at read time, so editing PATTERNS re-scores every feed already on disk. Verified live 2026-07-26 on fixtures: leaderboard + library written, 11 patterns in sync."
+
+[[capability]]
+id = "G17"
+group = "growth"
+name = "pattern ledger (the measurement loop)"
+does = "Your measured lift per hook pattern vs the niche's, with a verdict per pattern (double down / execution problem / stop)"
+run = "tools/marketing-machine/bin/reels ledger"
+kind = "cli"
+inputs = ["00-context/swipe/mine.json", "00-context/swipe/hooks.json"]
+layer = "00-context"
+status = "built"
+deps = ["bun"]
+paid = false
+skill = ""
+notes = "Closes BACKLOG P2-4 (pattern-ledger metrics loop). The two-column comparison is the point: a pattern that wins in the niche but not for you is an EXECUTION problem, not a format problem, which stops the classic mistake of dropping a working format after two bad takes. Verified live 2026-07-26 on fixtures."
+
+[[capability]]
+id = "G18"
+group = "growth"
+name = "reel script + pre-shoot lint"
+does = "Writes a face-cam reel script on a measured hook pattern, then scores it /100 BEFORE filming (ship only at green >= 85)"
+run = "/reel-script un reel sur <sujet>  then  /reel-lint le-script.md"
+kind = "skill"
+inputs = ["00-context/swipe/hooks.json"]
+layer = "02-copy"
+status = "built"
+deps = ["python3"]
+paid = false
+skill = "reel-script, reel-lint"
+notes = "Vendored from github.com/smaroc/sophiene-claude-skills @aa11daa (reviewed: no network, no credentials, no exec). Brick 2 of the IG reel loop. Local edit: absolute linter path in SKILL.md (upstream ships a relative path that never resolves from a project cwd). Verified live 2026-07-26: linter scored a test script 86/100, exit 0. Shipped by install.sh + vendored under skills/."
+
+[[capability]]
+id = "O9"
+group = "orchestration"
+name = "NEEDS-OPERATOR (standing ask-list)"
+does = "The blocked-rail / operator-ask list that survives between sessions, each line carrying the command that re-verifies it"
+run = "read tools/marketing-machine/NEEDS-OPERATOR.md, then `reels doctor` + `higgsfield account status`"
+kind = "doc"
+inputs = []
+layer = "cross"
+status = "built"
+deps = []
+paid = false
+skill = ""
+notes = "Written 2026-07-26 after four paid rails were found blocked at once (Apify 403 unpaid invoices, ScrapeCreators 402, Zernio 402 paused, Higgsfield 0.03 credits). TRAP it documents: `omega marketing doctor` checks key PRESENCE, not rail HEALTH, so it prints a green ZERNIO_API_KEY while the API answers 402. Same shape on Apify, whose token stays valid while every run 403s. Surfaced from the README header and the footer of `reels doctor` so it is read before a promise, not after."

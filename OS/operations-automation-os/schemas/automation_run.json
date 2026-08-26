@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Automation Run",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "blueprint_id": {
+      "type": "string",
+      "description": "Automation"
+    },
+    "started_at": {
+      "type": "string",
+      "description": "Start"
+    },
+    "status": {
+      "type": "string",
+      "description": "running/success/failed/manual-review"
+    },
+    "input_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Input records"
+    },
+    "output_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Outputs"
+    },
+    "reconciliation_status": {
+      "type": "string",
+      "description": "Business reconciliation"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "blueprint_id",
+    "started_at",
+    "status",
+    "input_refs",
+    "reconciliation_status"
+  ],
+  "additionalProperties": false
+}

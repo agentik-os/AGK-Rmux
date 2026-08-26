@@ -1,0 +1,14 @@
+interface:
+  display_name: Storyteller {OS}
+  short_description: Transforme des vécus vrais en histoires fortes
+  default_prompt: Use $storyteller-os to coach me from a real moment into a truthful,
+    memorable story without replacing my voice.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

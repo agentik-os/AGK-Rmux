@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rights Record",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "asset_id": {
+      "type": "string",
+      "description": "Asset"
+    },
+    "right_type": {
+      "type": "string",
+      "description": "music/image/likeness/etc."
+    },
+    "status": {
+      "type": "string",
+      "description": "owned/licensed/consented/blocked"
+    },
+    "evidence_uri": {
+      "type": "string",
+      "description": "License/consent evidence"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "asset_id",
+    "right_type",
+    "status"
+  ],
+  "additionalProperties": false
+}

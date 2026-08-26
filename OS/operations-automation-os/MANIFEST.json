@@ -1,0 +1,727 @@
+{
+  "name": "Operations & Automation OS",
+  "slug": "operations-automation",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Interview and observe how a product or business currently works, reveal waste and control gaps, decide what should be removed, simplified, standardized, delegated or automated, and create production-ready automation blueprints with monitoring and recovery.",
+  "category": "Business Stack / Process Excellence and Automation",
+  "position": "Business Stack: diagnoses operating systems, simplifies work and designs governed automation",
+  "counts": {
+    "agents": 24,
+    "skills": 39,
+    "protocols": 9,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 118
+  },
+  "files": [
+    {
+      "path": "agents/ai_agent_architect.md",
+      "sha256": "68822fc93855e378b49bd0cce207acfbec6e61ad51eb9abd52e9c13ccea5d9d6",
+      "bytes": 1026
+    },
+    {
+      "path": "agents/api_integration_engineer.md",
+      "sha256": "7aa4ecbedb5ae0c8a7eeb370df7806c52e390dac10805358a1b175ac4a3bd320",
+      "bytes": 1016
+    },
+    {
+      "path": "agents/automation_architect.md",
+      "sha256": "d41f0637b5a56d707526d90937d491b55340e33b2dc3abe01fa8f4f42c9127d3",
+      "bytes": 1001
+    },
+    {
+      "path": "agents/automation_candidate_analyst.md",
+      "sha256": "67edf9a00fdd609d1afd0f671d1cc9ebd2b9af4dbdb24a33d0077a77f290e0fc",
+      "bytes": 1011
+    },
+    {
+      "path": "agents/automation_test_engineer.md",
+      "sha256": "5846a7f4935ea23f15e30ef16b516cd0d3f9b6c985684489bd5004e96ba2bd7e",
+      "bytes": 1017
+    },
+    {
+      "path": "agents/bpmn_process_mapper.md",
+      "sha256": "9db12c538202cfbcd045bb4ed1713d4b86d3ddb7f1c38c479be2af85e3f08656",
+      "bytes": 1000
+    },
+    {
+      "path": "agents/change_adoption_lead.md",
+      "sha256": "435d6440735b8fbbc51015b04b00b704712af92a078cd5bbc925e416be04e81d",
+      "bytes": 1006
+    },
+    {
+      "path": "agents/constraint_analyst.md",
+      "sha256": "2423f86debc49e43f98d9335e9a1987fe2ba928f6a0b82345bc9e86e907e1d6b",
+      "bytes": 1003
+    },
+    {
+      "path": "agents/continuous_improvement_lead.md",
+      "sha256": "43b2bc160a22506ef1b4c9b7bb76be08538981e658351866550194edf9087951",
+      "bytes": 1019
+    },
+    {
+      "path": "agents/data_contract_engineer.md",
+      "sha256": "ed53e4a14c0da1d42086073feb5f74ec9eb89b13fcfdc6be94fea908f8bd8760",
+      "bytes": 1022
+    },
+    {
+      "path": "agents/diagnostic_interviewer.md",
+      "sha256": "c227198a1a78cb26b577f97437c79c98495c096d95f4948a25217896fbea560a",
+      "bytes": 1006
+    },
+    {
+      "path": "agents/exception_human_in_loop_designer.md",
+      "sha256": "508ddc030ef467e737b058b51161dfd48a696f6e82f49380ee2c316634624787",
+      "bytes": 1018
+    },
+    {
+      "path": "agents/lean_value_stream_analyst.md",
+      "sha256": "25dc1a5d55afbb45c582920bffc4bdc0289bf90850324f48a4232c437baef170",
+      "bytes": 1018
+    },
+    {
+      "path": "agents/no_code_ipaas_architect.md",
+      "sha256": "fd49d7cf9e2957b123fb2ba8b091a08a509091112d5456da6a25ea17fad23a85",
+      "bytes": 1023
+    },
+    {
+      "path": "agents/observability_engineer.md",
+      "sha256": "1da4a89bce24486b6f2af9fe7611f7ace6a5d8785ccc82dbafe12ed3ea3da12c",
+      "bytes": 1023
+    },
+    {
+      "path": "agents/operations_integrator.md",
+      "sha256": "614ae470c272d6cadb05bc94490e7bd7843fed928ede6ec2390a6c5abf611d53",
+      "bytes": 1008
+    },
+    {
+      "path": "agents/process_observer.md",
+      "sha256": "58e206e4b622e3dbe68fe2bd828b9d333b42ab6bd454249ed6d465ca9aa8777c",
+      "bytes": 1001
+    },
+    {
+      "path": "agents/roi_capacity_analyst.md",
+      "sha256": "e874ec71bc45f74e0b0bc8d26226fc9a22287ad14f59b84d8224da10300598b3",
+      "bytes": 1016
+    },
+    {
+      "path": "agents/root_cause_analyst.md",
+      "sha256": "cae41f164f0c60f8e82f3df70e7874ed9be9f43b80d8a38db138487759eae6e1",
+      "bytes": 987
+    },
+    {
+      "path": "agents/rpa_specialist.md",
+      "sha256": "af03d52774fb24c396d46b23488815bf33ec94c6b2b9b7e505c92eaffa1c920b",
+      "bytes": 1023
+    },
+    {
+      "path": "agents/runbook_incident_lead.md",
+      "sha256": "d558eefe2a52bfc07e3e4473c27bf0421cbb0087f6fe1b028af0cb2f52445a82",
+      "bytes": 1006
+    },
+    {
+      "path": "agents/security_privacy_engineer.md",
+      "sha256": "1e4da8eab596d9c4ffa19c36b172d61d6ff1d372f6f5e2b136adc9c32fb587d4",
+      "bytes": 1024
+    },
+    {
+      "path": "agents/sop_checklist_architect.md",
+      "sha256": "4c7361daa268089d560ceb8374767f0018119e102ca317a2529ea0112627c928",
+      "bytes": 1013
+    },
+    {
+      "path": "agents/tooling_challenger.md",
+      "sha256": "aac10b38aa8a8692d6e42d48d9e9fcef902d1789fcfee17d84e5bc0788da3dcf",
+      "bytes": 1001
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "7686f8d1bc4210c05af982f446eb084652d32bf52c2d0a666b3654d802266f4c",
+      "bytes": 860
+    },
+    {
+      "path": "architecture/DATA_MODEL.txt",
+      "sha256": "f1352044ccc60bc0d20996d66e44afac16c14012365cca2f3b9da86ddbde8a00",
+      "bytes": 1005
+    },
+    {
+      "path": "architecture/SECURITY.md",
+      "sha256": "e7a461e9184684c019b855fac67a1054c8d7c6bd0d94274bce1d57897e675009",
+      "bytes": 1029
+    },
+    {
+      "path": "architecture/STATE_MACHINE.md",
+      "sha256": "de53ecc0ef9d0a2fbb946cdf6e44a103c5decabca609af77fc1fd88afb95ca8d",
+      "bytes": 931
+    },
+    {
+      "path": "config/os.yaml",
+      "sha256": "2255f9db31f2ff79353751c4692e99ff3d766544db46157c5816c3e476ac25f3",
+      "bytes": 777
+    },
+    {
+      "path": "config/router.json",
+      "sha256": "422cef497d876530a1e4d1f90f30e2d5a0c4035872f854371b20027bb1c9277a",
+      "bytes": 1695
+    },
+    {
+      "path": "evals/EVALS.md",
+      "sha256": "34fe90a5cb8b45b455e44dc70129c76beab0dc109e6b32be620e60617b7ea1a3",
+      "bytes": 2049
+    },
+    {
+      "path": "examples/EXAMPLES.md",
+      "sha256": "a115263d34702461e8d8ac000da28bcb516bf5d582b7628632358ee2a62a1767",
+      "bytes": 796
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "c7fa78abf893afe7b8fece19bee5ab5463378056badadf34d905719ea32268a4",
+      "bytes": 387
+    },
+    {
+      "path": "knowledge/BOOK_CANON.md",
+      "sha256": "742b3923cf0eed26844227486ad316a02075f050926d6b20ee94aca87bdee4e0",
+      "bytes": 1660
+    },
+    {
+      "path": "knowledge/FRAMEWORKS.md",
+      "sha256": "b3ca4d8163c164cae47688c4767de77b4ae0662ee4f9d81a787994fb1ae29022",
+      "bytes": 1161
+    },
+    {
+      "path": "knowledge/RESEARCH_NOTES.md",
+      "sha256": "eba99dee1b4e01bc8937e3d708fe3880344e735974d61edad6eb879fa726e2f3",
+      "bytes": 991
+    },
+    {
+      "path": "knowledge/SOURCES.md",
+      "sha256": "ee15eab021d61141464978be7e6709a7fd98446c03bebf1f6a8ca56e56a72a18",
+      "bytes": 1099
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "57cab2254f5b472ff931beeca1a8f8488e0c35761a61fce62feadad207df556f",
+      "bytes": 7753
+    },
+    {
+      "path": "memory/MEMORY_MODEL.md",
+      "sha256": "fc5716ccc7d61d816665a7035205d164aee62dfcbfabe51be1527386b97ceca9",
+      "bytes": 853
+    },
+    {
+      "path": "memory/PRIVACY.md",
+      "sha256": "47bd3fc0124ae4e87d2f75d27cd518b58aec97868ef1d8594abc36e2208f8798",
+      "bytes": 608
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "b1b07ef120d3eca15dd7b1a6c827058fcc71853b64c15114a780690471026e17",
+      "bytes": 3479
+    },
+    {
+      "path": "protocols/ai_agent_suitability.md",
+      "sha256": "05c9b2760c38e5da663077ea9d9ccf5fa5359d80a89d6615abbaec081e4154be",
+      "bytes": 442
+    },
+    {
+      "path": "protocols/automation_blueprint.md",
+      "sha256": "782e866fef4d6605fe8ea306246bae1d702b597c838635d0785067164b75f3dc",
+      "bytes": 428
+    },
+    {
+      "path": "protocols/automation_candidate_scoring.md",
+      "sha256": "96a6800aa6a4a88ed027ceab4599c42546e131810a0a560621d3d407bdaf6212",
+      "bytes": 462
+    },
+    {
+      "path": "protocols/automation_incident.md",
+      "sha256": "3d8b6382e5032d461e9109b54ccc805aa0dfddcb064c0c552ca966337fd6eee1",
+      "bytes": 371
+    },
+    {
+      "path": "protocols/operations_diagnostic.md",
+      "sha256": "734d816b34df2688cad48e1e9a28039ce57e350dd9ec1a25e76f5069f0b47dc3",
+      "bytes": 443
+    },
+    {
+      "path": "protocols/production_rollout.md",
+      "sha256": "a3f3f4074b074e3011fa32d2a68a5937f778fe350fbaec73babd31945e5ee135",
+      "bytes": 369
+    },
+    {
+      "path": "protocols/quarterly_automation_audit.md",
+      "sha256": "522fef50f08e15b2d8749b7f4e96ec28e406f3a0d4a147e1830b72ef9359597f",
+      "bytes": 361
+    },
+    {
+      "path": "protocols/remove_simplify_standardize_automate.md",
+      "sha256": "f430882d8fab3bed613474b005b4426f685a5714e80055e4e1e01143417d0a00",
+      "bytes": 388
+    },
+    {
+      "path": "protocols/tool_selection.md",
+      "sha256": "251e6887d7b8bd01872057164fdafff73e079427dd21cd8064d1f1b21e8733ac",
+      "bytes": 424
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "7e0938af202021c8e586dc5ec5978df755e3cacc42e5a9ae0a94451c5aebe559",
+      "bytes": 2468
+    },
+    {
+      "path": "README.md",
+      "sha256": "2ed4367159517232bdef9bb8b76a9e0ec7020f2826efa901c3f228d3ddfed9d3",
+      "bytes": 2785
+    },
+    {
+      "path": "runtime/os_runtime.py",
+      "sha256": "926e255e98a7d8a8c9d0dcb51bbf2e22b30a4edfea47fbd4dc0a65bc46d9eef7",
+      "bytes": 2506
+    },
+    {
+      "path": "runtime/README.md",
+      "sha256": "86b4a7123315481ec4f65c3e3832bd27b563927fdc66260cec987c499c4f67d2",
+      "bytes": 379
+    },
+    {
+      "path": "runtime/requirements.txt",
+      "sha256": "0d5b8d9408d93e3953b2a0117a8a9657d829f2e95f79d904093bab5eec894183",
+      "bytes": 24
+    },
+    {
+      "path": "runtime/score_candidate.py",
+      "sha256": "a21c93ac9fd3612787a70ee64063037bab036c38cb0641d8449d2c68d6206fb6",
+      "bytes": 731
+    },
+    {
+      "path": "schemas/automation_blueprint.json",
+      "sha256": "8dacf7b843d6435bf8d26d26288d1085e12ccff88b5222f8aa16e6921e7067f0",
+      "bytes": 1639
+    },
+    {
+      "path": "schemas/automation_candidate.json",
+      "sha256": "b898403de8c309e52fd55e92d67472ba5916e534000f7e71b038d668b486e34a",
+      "bytes": 1133
+    },
+    {
+      "path": "schemas/automation_incident.json",
+      "sha256": "18ec132e392cc1924d410678f6c3c1449f7669bd98c08fe75807846ca16fe8c0",
+      "bytes": 1192
+    },
+    {
+      "path": "schemas/automation_run.json",
+      "sha256": "8986e304a232343118616a1d67dd6e3a6ced24305687038bc85cbdfbb85e6f23",
+      "bytes": 1305
+    },
+    {
+      "path": "schemas/exception_case.json",
+      "sha256": "fd3518245268361b6d16982dfb9f203c15467ebdfff903468e9e8f6e7e455cf5",
+      "bytes": 1035
+    },
+    {
+      "path": "schemas/integration_contract.json",
+      "sha256": "bd21bf95fca57018d9cc1b04bac789db24b61f871165c99cad433e02fd0adb7c",
+      "bytes": 1257
+    },
+    {
+      "path": "schemas/process_metric.json",
+      "sha256": "ffceb23d0c9e1c9df29957a8523d1ed7353915c2b68d186298a347b0b2fe6fe6",
+      "bytes": 1003
+    },
+    {
+      "path": "schemas/process_step.json",
+      "sha256": "7cd6b64722dcfbd8d9503e9c14b15537ba1a902b010e1fc0be29d63f7c2c7788",
+      "bytes": 1284
+    },
+    {
+      "path": "schemas/process.json",
+      "sha256": "e180f9ba20e1490159478c2859ddda9c9e4874a5f5843592ab167b6a877bdd27",
+      "bytes": 1033
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "8cd66ae95cba99cff6c8f237f0540b1e10847398639a6309b6f1fcef5c33b311",
+      "bytes": 2750
+    },
+    {
+      "path": "skills/agent_contract.md",
+      "sha256": "2d5aefa5ff64c2315caf10b191b9a54c2fe38175b6fe8442b552e124eec65fb3",
+      "bytes": 1030
+    },
+    {
+      "path": "skills/ai_agent_suitability.md",
+      "sha256": "c7bc78a5dd872f4c01b7adb920a79b86fdab4b0be228bb634ebab2e068f78646",
+      "bytes": 1021
+    },
+    {
+      "path": "skills/approval_matrix.md",
+      "sha256": "60f458ced3e79cb4188c931198b4dc1bcf67a61d3fd781e681711a253ac97d73",
+      "bytes": 989
+    },
+    {
+      "path": "skills/automation_audit.md",
+      "sha256": "77a29a6baa325766a1032e04f0ede1da2eecf62078f17005d91b6559c0eaaa7a",
+      "bytes": 1012
+    },
+    {
+      "path": "skills/automation_blueprint.md",
+      "sha256": "f57fd8e72ac9975eb2ccd5eba7028bd15731eeb24435752316fe139cea645b21",
+      "bytes": 1035
+    },
+    {
+      "path": "skills/automation_candidate_score.md",
+      "sha256": "ea2f440346e026665a83e19b3d4aabfcd5d8ead56699a6523de70ad47b06975a",
+      "bytes": 1042
+    },
+    {
+      "path": "skills/automation_test_plan.md",
+      "sha256": "2c6319d101dabd65a353a8ec635c5e8fe5e783f8654f8ac5385fd919c706fe1e",
+      "bytes": 1031
+    },
+    {
+      "path": "skills/bpmn_current_state_map.md",
+      "sha256": "112ed34cfc2d625d542d668c026ff61c62d9fb76dc564e7c1a37c958bfbc6456",
+      "bytes": 997
+    },
+    {
+      "path": "skills/builder_handoff.md",
+      "sha256": "04138d9c8fb4146e5c0e986c8d5a973636ff2c3f19da21fedbc74b893daed293",
+      "bytes": 1005
+    },
+    {
+      "path": "skills/business_automation_audit.md",
+      "sha256": "b953adc2a05cd53d433964b11fd428c17f4103cefcb8d940f76205e670790b38",
+      "bytes": 1017
+    },
+    {
+      "path": "skills/checklist_builder.md",
+      "sha256": "5d023e9499b7b14617a5b07d576b23ce484e532a50cef4ce2c800f6e93f0a2d5",
+      "bytes": 1000
+    },
+    {
+      "path": "skills/constraint_analysis.md",
+      "sha256": "4d8644794d17b8e8ec2641a71cd8b6404ededac94f0d077077bf48f2c16b6fca",
+      "bytes": 1000
+    },
+    {
+      "path": "skills/continuous_improvement_backlog.md",
+      "sha256": "3c0c582c3aa0e203ccbc32c33df4e8047fdd0f50b5bc6fcd2c224875c038f1f6",
+      "bytes": 999
+    },
+    {
+      "path": "skills/data_contract.md",
+      "sha256": "b40f9e1e9bcd59dcc47842dcfe736f0aa3625c3405a84b201b3432bda2c4c241",
+      "bytes": 997
+    },
+    {
+      "path": "skills/deployment_plan.md",
+      "sha256": "ec7ae0e89da6f92cb63dc6acb556cd2251e1139ada4217917057d2bae956eab9",
+      "bytes": 991
+    },
+    {
+      "path": "skills/exception_matrix.md",
+      "sha256": "6500e459617d14a95ceaec2da9b5fe6e649362b75d43077231193ae66d0844f0",
+      "bytes": 984
+    },
+    {
+      "path": "skills/future_state_design.md",
+      "sha256": "f2ac674cf8d2232b87cf56eaae8b3147721e1b02fb7697ce883c1b6e921b9f7d",
+      "bytes": 1000
+    },
+    {
+      "path": "skills/human_judgment_test.md",
+      "sha256": "4925361e1886a48648010f3aa88ff22874269a4b1cac962b02cc434e5ae4de3e",
+      "bytes": 983
+    },
+    {
+      "path": "skills/incident_recovery.md",
+      "sha256": "2df9f3cd70a78293f8dbb0746c6dac7176de808be3376db3b05c0c6d1dbe93b2",
+      "bytes": 988
+    },
+    {
+      "path": "skills/integration_contract.md",
+      "sha256": "affda35bf151b26608dbc0c36558541cabd401d2e933dce934259c75e77fad59",
+      "bytes": 1013
+    },
+    {
+      "path": "skills/observability_plan.md",
+      "sha256": "86a2e4c882b5a39d6df6de955b4cdf302393d28b445f8b560123f91c012b0fb3",
+      "bytes": 984
+    },
+    {
+      "path": "skills/operations_dashboard.md",
+      "sha256": "f22cd4d5fc5b91c6c30e706c24f7bae83345c4921e61f762632511d4af7dc75c",
+      "bytes": 1024
+    },
+    {
+      "path": "skills/process_interview.md",
+      "sha256": "be272bbcb612b19f926c47362e24fb1b4b5210ced17fe194f51e0ea085be1b6e",
+      "bytes": 1021
+    },
+    {
+      "path": "skills/process_inventory.md",
+      "sha256": "dbd2b5985e09d531cee169db328963e188ff58063335443c28e20de0e02c4c3f",
+      "bytes": 1003
+    },
+    {
+      "path": "skills/product_automation_audit.md",
+      "sha256": "b9b807d1ba2bb81125f78ef1db910ccd9ff1d98dc63f561843750ff3346b228e",
+      "bytes": 1011
+    },
+    {
+      "path": "skills/reconciliation.md",
+      "sha256": "35c58ccda16ea90d989d870f2917b1d08a460653f67d5b62d7ef83531f455335",
+      "bytes": 996
+    },
+    {
+      "path": "skills/remove_simplify_challenge.md",
+      "sha256": "edc662ab21e3297a0c63198f53ec57fdf5b5b3aa9c769dcdfb6a496ec7b028dd",
+      "bytes": 1014
+    },
+    {
+      "path": "skills/retirement_plan.md",
+      "sha256": "f2618174247bc4bed38cf5d7e6ed28dcdbcc5c67847509189849aa904bec246b",
+      "bytes": 990
+    },
+    {
+      "path": "skills/roi_model.md",
+      "sha256": "9d566c557e15857e0a955f3368eb829fe99fcbc1b76589f682fb3f14af9200f7",
+      "bytes": 1017
+    },
+    {
+      "path": "skills/root_cause.md",
+      "sha256": "d839ff33f450267747c382ed07c237c1be0465813ebec1e7f4e1e1ba7e9d7ea7",
+      "bytes": 983
+    },
+    {
+      "path": "skills/runbook.md",
+      "sha256": "ea46c832d4bb4c320ec69c45cf895c87cb5bf03c04ec6248689d9b79ae7291a8",
+      "bytes": 998
+    },
+    {
+      "path": "skills/sop_builder.md",
+      "sha256": "c58c1488a27df6c34ace86a3309d84ab2c61b0613c672969d919f01e89b76c0f",
+      "bytes": 1007
+    },
+    {
+      "path": "skills/synthetic_test_data.md",
+      "sha256": "f1af3b553f1bd6dc0aa46599543f4e4c81a3dce5da65ea2165b15b5705b417eb",
+      "bytes": 977
+    },
+    {
+      "path": "skills/system_scope.md",
+      "sha256": "b0f965b9e25b36beb1ac5b778d8a201459da96e9b9e67ae2a4db92a912af6bdc",
+      "bytes": 1005
+    },
+    {
+      "path": "skills/tool_pattern_selection.md",
+      "sha256": "bab68338e0be3542b3e02b2fc35910f9fd70aab2781f1374fa381f54eaa61ba5",
+      "bytes": 1024
+    },
+    {
+      "path": "skills/value_stream_map.md",
+      "sha256": "8d659afac27456df404eb8b03f390ce1e99441c5274fee28fb594bc4d34a5a71",
+      "bytes": 1006
+    },
+    {
+      "path": "skills/vendor_tool_evaluation.md",
+      "sha256": "5eda19e7f2a378396a79d59fc4910cea772483227ec57e414e252075f95fb533",
+      "bytes": 1003
+    },
+    {
+      "path": "skills/waste_analysis.md",
+      "sha256": "8d11d636cdb33ef84a10f9dc9cb2f4dec6ea366e310514837169b75d8965306b",
+      "bytes": 1046
+    },
+    {
+      "path": "skills/work_observation.md",
+      "sha256": "5df2338e3115158bf2ec9db0d6cfb66f85c37af294c7dc2fbb9abcd664c738bc",
+      "bytes": 999
+    },
+    {
+      "path": "system/BOUNDARIES.md",
+      "sha256": "7c70396c32ae1aa8466b667cb4bec99330c841a532c504e3dc9fdabea81282cd",
+      "bytes": 935
+    },
+    {
+      "path": "system/OUTPUT_CONTRACT.md",
+      "sha256": "ec8307401138d261e566b3113fe16e55e1bcc1cb534a9d253c6119915cf9b426",
+      "bytes": 664
+    },
+    {
+      "path": "system/PRINCIPLES.md",
+      "sha256": "a5dded8a0fd0db98679233a3dc3e3e23cdeb4a62793d00e1ac5e321a6f8d6075",
+      "bytes": 1180
+    },
+    {
+      "path": "system/ROUTER.md",
+      "sha256": "fba1bc3280cbbf29fb1c2b7927397f9ef7151ebc41e142bd31651a10a074e4dd",
+      "bytes": 979
+    },
+    {
+      "path": "system/SYSTEM_PROMPT.md",
+      "sha256": "ad87c08fcdf293c7b4313f3b08267ba09ef94b9346b884336076727680da617f",
+      "bytes": 7452
+    },
+    {
+      "path": "templates/AI_AGENT_CONTRACT.md",
+      "sha256": "b8f727051f3e416fb663376a7120335c725ee9c53f5ca9ffec7d856d1d9904dc",
+      "bytes": 448
+    },
+    {
+      "path": "templates/AUTOMATION_BLUEPRINT.md",
+      "sha256": "1225e26a6d4064dc18fede3ced2c3298deaeed9607c0aec1dcf1a6ff2fdee7f2",
+      "bytes": 517
+    },
+    {
+      "path": "templates/AUTOMATION_SCORECARD.md",
+      "sha256": "f5d6a695902b861c0c1d79d481cf81d7ed78983702a28ee62dbf806e1fce255e",
+      "bytes": 545
+    },
+    {
+      "path": "templates/BPMN_MODELING_GUIDE.md",
+      "sha256": "82b62518c63559a9e0d570a618d4af23e401ce90afa2abea5c6d344ac8be7407",
+      "bytes": 325
+    },
+    {
+      "path": "templates/EXCEPTION_MATRIX.csv",
+      "sha256": "c295eead5bd9baa402da243ec0785d77785b414054dafbd7aa03d426fdcae554",
+      "bytes": 114
+    },
+    {
+      "path": "templates/INTERVIEW_QUESTIONNAIRE.md",
+      "sha256": "189074ea6ffecc5e2ec483757b1638282ea71023b0a4815e2d0c8803765dd4ae",
+      "bytes": 826
+    },
+    {
+      "path": "templates/RUNBOOK.md",
+      "sha256": "184a042b8ff08b7d1a611c050ad08050747a4e60a292bceffbd83ec1431effb0",
+      "bytes": 341
+    },
+    {
+      "path": "tests/test_package.py",
+      "sha256": "71885ea7b8fc36f20c4e4dd252af304ec93d6e20dadb4f33036fcc5c058c18ff",
+      "bytes": 573
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "operations.production_observed",
+        "consumed_by": "quality-evaluation-release",
+        "payload": {
+          "id": "string (record id)",
+          "operations": "object (the operations payload)",
+          "status": "string (production_observed)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "automation.candidate.scored",
+        "consumed_by": [
+          "delivery-customer-success",
+          "ai-logic"
+        ],
+        "payload": {
+          "id": "string (record id)",
+          "candidate": "object (the candidate payload)",
+          "status": "string (scored)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "operations.capacity_margin.verified",
+        "consumed_by": [
+          "wealth-capital",
+          "strategy-portfolio"
+        ],
+        "payload": {
+          "id": "string (record id)",
+          "capacity_margin": "object (the capacity margin payload)",
+          "status": "string (verified)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "automation.change.requested",
+        "consumed_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "change": "object (the change payload)",
+          "status": "string (requested)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "automation.review.requested",
+        "consumed_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "review": "object (the review payload)",
+          "status": "string (requested)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "quality.operations_handoff.ready",
+        "produced_by": "quality-evaluation-release",
+        "payload": {
+          "id": "string (record id)",
+          "operations_handoff": "object (the operations handoff payload)",
+          "status": "string (ready)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "delivery.workflow.stable",
+        "produced_by": "delivery-customer-success",
+        "payload": {
+          "id": "string (record id)",
+          "workflow": "object (the workflow payload)",
+          "status": "string (stable)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "change.approved",
+        "produced_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "change": "object (the change payload)",
+          "status": "string (approved)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "ailogic.arbitration.decided",
+        "produced_by": "ai-logic",
+        "payload": {
+          "id": "string (record id)",
+          "arbitration": "object (the arbitration payload)",
+          "status": "string (decided)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "content.automation_candidate.created",
+        "produced_by": [
+          "content"
+        ],
+        "payload": {
+          "id": "string",
+          "workflow": "object",
+          "stability_evidence": "array<object>",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

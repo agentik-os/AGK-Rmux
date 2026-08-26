@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Intervention",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "objective": {
+      "type": "string",
+      "description": "What the intervention targets"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Planned actions"
+    },
+    "risk_level": {
+      "type": "string",
+      "description": "Risk classification"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "objective",
+    "actions",
+    "risk_level"
+  ],
+  "additionalProperties": false
+}

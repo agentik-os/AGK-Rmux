@@ -1,0 +1,302 @@
+[
+ {
+  "n": 1,
+  "engine": "pocket",
+  "voice": "estelle",
+  "label": "Estelle — la française Kyutai"
+ },
+ {
+  "n": 2,
+  "engine": "pocket",
+  "voice": "alba",
+  "label": "Alba — douce, accent écossais"
+ },
+ {
+  "n": 3,
+  "engine": "pocket",
+  "voice": "anna",
+  "label": "Anna"
+ },
+ {
+  "n": 4,
+  "engine": "pocket",
+  "voice": "azelma",
+  "label": "Azelma"
+ },
+ {
+  "n": 5,
+  "engine": "pocket",
+  "voice": "cosette",
+  "label": "Cosette"
+ },
+ {
+  "n": 6,
+  "engine": "pocket",
+  "voice": "eponine",
+  "label": "Éponine"
+ },
+ {
+  "n": 7,
+  "engine": "pocket",
+  "voice": "eve",
+  "label": "Eve"
+ },
+ {
+  "n": 8,
+  "engine": "pocket",
+  "voice": "fantine",
+  "label": "Fantine"
+ },
+ {
+  "n": 9,
+  "engine": "pocket",
+  "voice": "jane",
+  "label": "Jane"
+ },
+ {
+  "n": 10,
+  "engine": "pocket",
+  "voice": "mary",
+  "label": "Mary"
+ },
+ {
+  "n": 11,
+  "engine": "pocket",
+  "voice": "vera",
+  "label": "Vera"
+ },
+ {
+  "n": 12,
+  "engine": "chatterbox",
+  "prompt": "unmute-prod-website/developpeuse-3.wav",
+  "label": "La développeuse — française native"
+ },
+ {
+  "n": 13,
+  "engine": "chatterbox",
+  "prompt": "unmute-prod-website/default_voice.wav",
+  "label": "Voix Unmute par défaut"
+ },
+ {
+  "n": 14,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex01-ex02_whisper_001_channel1_579s.wav",
+  "label": "Chuchotée 🤫"
+ },
+ {
+  "n": 15,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex01-ex02_whisper_001_channel2_717s.wav",
+  "label": "Chuchotée bis 🤫"
+ },
+ {
+  "n": 16,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex03-ex01_desire_004_channel1_545s.wav",
+  "label": "Sensuelle 🔥"
+ },
+ {
+  "n": 17,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex03-ex01_desire_004_channel2_580s.wav",
+  "label": "Sensuelle bis 🔥"
+ },
+ {
+  "n": 18,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex03-ex01_calm_001_channel1_1143s.wav",
+  "label": "Calme posée"
+ },
+ {
+  "n": 19,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex01-ex02_projected_001_channel1_46s.wav",
+  "label": "Voix de scène 🎤"
+ },
+ {
+  "n": 20,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex03-ex01_angry_001_channel1_201s.wav",
+  "label": "Énergie rock 🤘"
+ },
+ {
+  "n": 21,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/10087_11650_000028-0002_enhanced.wav",
+  "label": "Française native 1"
+ },
+ {
+  "n": 22,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/10177_10625_000134-0003_enhanced.wav",
+  "label": "Française native 2"
+ },
+ {
+  "n": 23,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/1406_1028_000009-0003_enhanced.wav",
+  "label": "Française native 3"
+ },
+ {
+  "n": 24,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/1591_1028_000108-0004_enhanced.wav",
+  "label": "Française native 4"
+ },
+ {
+  "n": 25,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/2114_1656_000053-0001_enhanced.wav",
+  "label": "Française native 5"
+ },
+ {
+  "n": 26,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/2216_1745_000007-0001_enhanced.wav",
+  "label": "Française native 6"
+ },
+ {
+  "n": 27,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/2223_1745_000009-0002_enhanced.wav",
+  "label": "Française native 7"
+ },
+ {
+  "n": 28,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/2465_1943_000152-0002_enhanced.wav",
+  "label": "Française native 8"
+ },
+ {
+  "n": 29,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/12080_11650_000047-0001_enhanced.wav",
+  "label": "Française native 9"
+ },
+ {
+  "n": 30,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/12977_10625_000037-0001_enhanced.wav",
+  "label": "Française native 10"
+ },
+ {
+  "n": 31,
+  "engine": "chatterbox",
+  "voice": "",
+  "label": "Voix Chatterbox par défaut"
+ },
+ {
+  "n": 32,
+  "engine": "chatterbox",
+  "prompt": "unmute-prod-website/developpeuse-3.wav",
+  "label": "La développeuse, clonée qualité max"
+ },
+ {
+  "n": 33,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex01-ex02_whisper_001_channel1_579s.wav",
+  "label": "Chuchotée, qualité max 🤫"
+ },
+ {
+  "n": 34,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex03-ex01_desire_004_channel1_545s.wav",
+  "label": "Sensuelle, qualité max 🔥"
+ },
+ {
+  "n": 35,
+  "engine": "chatterbox",
+  "prompt": "expresso/ex03-ex01_calm_001_channel1_1143s.wav",
+  "label": "Calme, qualité max"
+ },
+ {
+  "n": 36,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/1406_1028_000009-0003_enhanced.wav",
+  "label": "Française native 3, qualité max"
+ },
+ {
+  "n": 37,
+  "engine": "chatterbox",
+  "prompt": "cml-tts/fr/2223_1745_000009-0002_enhanced.wav",
+  "label": "Française native 7, qualité max"
+ },
+ {
+  "n": 38,
+  "engine": "chatterbox",
+  "prompt": "alba-mackenna/casual.wav",
+  "label": "Alba décontractée, qualité max"
+ },
+ {
+  "n": 39,
+  "engine": "chatterbox",
+  "prompt": "unmute-prod-website/p329_022.wav",
+  "label": "Voix VCTK p329, qualité max"
+ },
+ {
+  "n": 40,
+  "engine": "kokoro",
+  "voice": "ff_siwis",
+  "label": "Siwis — la française Kokoro"
+ },
+ {
+  "n": 41,
+  "engine": "kokoro",
+  "voice": "af_heart",
+  "label": "Heart — américaine chaleureuse ❤️"
+ },
+ {
+  "n": 42,
+  "engine": "kokoro",
+  "voice": "af_bella",
+  "label": "Bella — américaine 🔥"
+ },
+ {
+  "n": 43,
+  "engine": "kokoro",
+  "voice": "af_nicole",
+  "label": "Nicole — la chuchoteuse américaine 🤫"
+ },
+ {
+  "n": 44,
+  "engine": "kokoro",
+  "voice": "af_sky",
+  "label": "Sky — américaine"
+ },
+ {
+  "n": 45,
+  "engine": "kokoro",
+  "voice": "af_jessica",
+  "label": "Jessica — américaine"
+ },
+ {
+  "n": 46,
+  "engine": "kokoro",
+  "voice": "af_aoede",
+  "label": "Aoede — américaine"
+ },
+ {
+  "n": 47,
+  "engine": "kokoro",
+  "voice": "bf_emma",
+  "label": "Emma — britannique"
+ },
+ {
+  "n": 48,
+  "engine": "kokoro",
+  "voice": "bf_isabella",
+  "label": "Isabella — britannique"
+ },
+ {
+  "n": 49,
+  "engine": "piper",
+  "voice": "fr_FR-siwis-medium",
+  "label": "Piper Siwis — l'éclair"
+ },
+ {
+  "n": 50,
+  "engine": "piper",
+  "voice": "fr_FR-upmc-medium",
+  "label": "Piper UPMC Jessica"
+ }
+]

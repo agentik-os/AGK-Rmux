@@ -1,0 +1,117 @@
+{
+  "audit": "code",
+  "mode": "delta",
+  "target_commit": "898f6e472824a4c3a49e690a543619e8e8c8cba3",
+  "baseline": "audits/.codeaudit/verdict-f6d8f37-final.md (84/100 A)",
+  "ticket": "delta-fix4",
+  "score": 79,
+  "score_raw": "274/345",
+  "score_normalized": 79,
+  "grade": "B",
+  "confidence": "high",
+  "skill_used": "codeaudit",
+  "preamble_version": "1.0",
+  "user_need_match": {
+    "quote": "Are FIX-1, DESIGN-014 (incl. no-quit), DESIGN-015, FIX-2/DESIGN-017, FIX-4, FIX-5/6/7, DESIGN-016/018 genuinely closed? Does the delta introduce anything new (300ms grace x fast typing, Esc-Esc x other Esc arms, kitty push/pop balance)? Adjudicate the 3 disclosed TTL-residual confirm sites.",
+    "addressed": true,
+    "evidence": "All 13 claim groups dispositioned with citations at 898f6e4 (8 CLOSED, 5 PARTIAL, 0 fabricated) — see closure table in verdict-898f6e4-delta.md; 12 delta-introduced findings (1 HIGH kitty D-1, 6 MED, 5 LOW) + 6 residual-class findings (1 HIGH R-1); 3-site adjudication delivered with per-site severity (project-D HIGH / settings MED / monitor LOW, all SHIP-FOLLOW-UP).",
+    "edge_cases_covered": ["grace vs fast typing (Tab/'.'/'launcher-letter bypasses, Enter-swallow UX)", "Esc-Esc vs menu/modal/confirm Esc arms (precedence verified; stale-arm + wrong-target traced)", "kitty push/pop on quit, Ctrl+R, attach-handover, panic paths"]
+  },
+  "phase_scores": {
+    "P1_phantoms": 10, "P3_contracts": 6, "P4_data_flow": 8, "P5_state_mutation": 6,
+    "P6_concurrency": 8, "P7_blast_radius": 7, "P10_error_propagation": 9, "P11_behavioral": 9,
+    "P12_config_drift": 8, "P12_5_feature_verification": 8, "P14_git_forensics": 9,
+    "P15_runtime": 8, "P16_observability": 7, "P17_test_coverage": 8,
+    "not_applicable": ["P2", "P8", "P9", "P13", "P18", "P19"]
+  },
+  "phase0_runtime_evidence": {
+    "cargo_test": "test result: ok. 29 passed; 0 failed; 0 ignored (TEST_EXIT=0) — matches commit claim exactly (baseline 19 + 10 new)",
+    "cargo_clippy": "omega-tui 9 + omega 5 = 14 warnings (CLIPPY_EXIT=0) — identical to blamed-pre-series baseline, zero new",
+    "cargo_build_release": "Finished `release` profile (BUILD_EXIT=0)",
+    "push_state": "git ls-remote origin main = 5ac2fb1 which contains 898f6e4 (L0 pushed)",
+    "surface_stability": "git diff 898f6e4 5ac2fb1 -- <4 audited files> = empty",
+    "log": "/tmp/codeaudit-phase0-898f6e4.log"
+  },
+  "closure_table": [
+    {"claim": "FIX-1 TTL exempt while menu confirm armed; never disarms; centralized; NEW-1 trace dead", "status": "CLOSED-core/PARTIAL-invariant", "citations": ["app.rs:1277-1288", "main.rs:1148-1158", "input.rs:2033-2044", "tests input.rs:2424-2493"]},
+    {"claim": "FIX-1 leave_tab disarm + hint-seeding guard", "status": "PARTIAL", "citations": ["app.rs:1983-1986", "main.rs:2047-2052", "bypasses: input.rs:1546-1549 (F1), main.rs:879 (auto_focus_chat), input.rs:1753-1761 (/menu)"]},
+    {"claim": "DESIGN-014/FIX-11 Esc-Esc chord incl. no-quit on split delivery", "status": "CLOSED", "citations": ["input.rs:1925-1926", "input.rs:1591-1605", "test input.rs:2496-2519"]},
+    {"claim": "DESIGN-014 kitty half (push/pop)", "status": "DEFECTIVE", "citations": ["main.rs:745-762 (push before EnterAlternateScreen)", "main.rs:768 (pop inside alt screen)", "finding D-1 HIGH"]},
+    {"claim": "DESIGN-015/FIX-3 300ms post-drop grace (q/x/Enter/Esc)", "status": "CLOSED-claimed-keys", "citations": ["app.rs:1857-1861", "input.rs:1926", "guards input.rs:883/1471/1096/1599", "tests input.rs:2521-2549, app.rs:2253-2268"]},
+    {"claim": "FIX-2/DESIGN-017 sticky async notices (NEW-2)", "status": "CLOSED-NEW-2/PARTIAL-2s-promise", "citations": ["app.rs:1290-1297", "app.rs:1864-1868", "main.rs:967-972", "test app.rs:2270-2292"]},
+    {"claim": "FIX-4 chord-reset centralization (NEW-4)", "status": "CLOSED-claimed-writers/PARTIAL-contract", "citations": ["app.rs:1216-1230", "input.rs:204/1119/1710/1800/1922", "app.rs:1983-1986", "tests input.rs:2551-2594"]},
+    {"claim": "FIX-5 Refreshed-only-when-None (INFO-1)", "status": "CLOSED", "citations": ["main.rs:1456-1466"]},
+    {"claim": "FIX-6 mouse Down consumes TTL (NEW-6)", "status": "CLOSED", "citations": ["main.rs:1148-1156"]},
+    {"claim": "FIX-7/DESIGN-016 copy fixes", "status": "CLOSED", "citations": ["input.rs:1794-1797", "input.rs:1124-1128", "ui.rs:2905-2911"]},
+    {"claim": "DESIGN-018 Esc notice + Help line", "status": "PARTIAL", "citations": ["input.rs:1927-1929", "ui.rs:2971", "findings D-5, D-6"]},
+    {"claim": "29 tests passing (19 baseline + 10 new), tests honest", "status": "CLOSED", "citations": ["Phase 0 log", "10 new tests: app.rs x2, input.rs x8, all real handle_key dispatch + backdated expiry"]}
+  ],
+  "findings": [
+    {"id": "D-1", "severity": "HIGH", "introduced_by_delta": true, "title": "kitty flags pushed on main screen / popped on alternate screen: DISAMBIGUATE never active in TUI (kitty hatch no-op) + leaks into user's shell after quit (Ctrl+C no SIGINT, Esc broken) on kitty-class terminals", "location": "main.rs:745-753 x 754-762 x 768-775", "lenses": "2/2 stands high (spec+crossterm-source derived; no terminal repro)"},
+    {"id": "D-2", "severity": "MEDIUM", "introduced_by_delta": true, "title": "Ctrl+R restart accumulates one orphaned main-screen kitty-stack entry per restart", "location": "main.rs:1179 x 1208 x 742-753", "lenses": "2/2"},
+    {"id": "D-3", "severity": "MEDIUM", "introduced_by_delta": true, "title": "armed confirm escapes Menu tab undisarmed (auto_focus_chat, /menu); TTL frozen TUI-wide while latent; /menu->Enter blind mass-kill", "location": "main.rs:879,1348-1350; input.rs:1753-1761; app.rs:1278", "lenses": "2/2 MEDIUM"},
+    {"id": "D-4", "severity": "MEDIUM", "introduced_by_delta": true, "title": "forwarder-error set_status_sticky overwrites armed KillAll warning; exemption pins error text; blind Enter mass-kills", "location": "main.rs:969-971; app.rs:1293-1297,1278-1280; input.rs:2033-2044", "lenses": "3 MEDIUM + 1 LOW dissent; lead MEDIUM"},
+    {"id": "D-5", "severity": "MEDIUM", "introduced_by_delta": true, "title": "300ms cliff: chord window == grace window; slow taught Esc-Esc gesture QUITS the TUI, no timing caveat", "location": "app.rs:1303,1320; input.rs:1604-1605,1929", "lenses": "4/4 (two independent finders)"},
+    {"id": "D-6", "severity": "MEDIUM", "introduced_by_delta": true, "title": "DESIGN-018 notice teaches 'Ctrl+C = interrupt' in list focus where Ctrl+C opens the New-Claude prompt", "location": "input.rs:1927-1929", "lenses": "2/2"},
+    {"id": "D-7", "severity": "MEDIUM", "introduced_by_delta": true, "title": "sticky deadline leak: plain status write within 2s window inherits TTL exemption for the WRONG message", "location": "app.rs:1285,1295", "lenses": "2/2"},
+    {"id": "D-8", "severity": "LOW", "introduced_by_delta": true, "title": "hint-seeding overwrites unexpired sticky on tab switch (guard checks confirm but not sticky)", "location": "main.rs:2047-2052", "lenses": "2/2"},
+    {"id": "D-9", "severity": "LOW", "introduced_by_delta": true, "title": "chord arm survives tab switches/modal cancels — stale-arm replay into chat", "location": "app.rs chat_esc_at lifecycle", "lenses": "2/2 (x2 finders)"},
+    {"id": "D-10", "severity": "LOW", "introduced_by_delta": true, "title": "chord target resolved at fire time — vanish-clamp between Escs forwards literal ESC to the NEIGHBOR", "location": "input.rs:1592-1597", "lenses": "4/4"},
+    {"id": "D-11", "severity": "LOW", "introduced_by_delta": true, "title": "grace swallows are silent (Esc->Enter, Esc->q eat one keypress, no feedback)", "location": "input.rs:883,1096", "lenses": "2/2"},
+    {"id": "D-12", "severity": "LOW", "introduced_by_delta": true, "title": "no panic hook: panic skips pop_kbd_enhancement + teardown (flag exposure new; raw-mode half pre-existing)", "location": "workspace (no set_hook)", "lenses": "2/2"},
+    {"id": "R-1", "severity": "HIGH", "introduced_by_delta": false, "title": "NEW-1 class survivor: menu's own launcher shortcuts overwrite armed warning; modal Esc shows 'Cancelled' while arm persists; blind Enter mass-kills with bar lying 'Cancelled'", "location": "input.rs:1389-1446,2175-2179,2033-2044", "lenses": "2/2 stands HIGH"},
+    {"id": "R-2", "severity": "MEDIUM", "introduced_by_delta": false, "title": "Ctrl-T overwrites armed warning without disarm; blind Enter fires", "location": "main.rs:1166-1173; input.rs:322-324", "lenses": "2/2"},
+    {"id": "R-3", "severity": "MEDIUM", "introduced_by_delta": false, "title": "Tab not grace-guarded: in-flight Tab re-enters chat on clamped neighbor (re-opens NEW-3 retarget)", "location": "input.rs Tab arm (no in_post_drop_grace)", "lenses": "4/4 across two lanes"},
+    {"id": "R-4", "severity": "MEDIUM", "introduced_by_delta": false, "title": "'.' not grace-guarded: in-flight '.' silently unprotects the clamped-to neighbor (persists beyond window); launcher letters unguarded at LOW", "location": "input.rs:1520-1526", "lenses": "2 MEDIUM + 2 LOW; lead MEDIUM"},
+    {"id": "R-5", "severity": "MEDIUM", "introduced_by_delta": false, "title": "project_delete_pending advertises 'Esc to cancel' but no Esc arm clears it; field doc lies", "location": "input.rs:1366-1386,1554-1565; app.rs:1080", "lenses": "2/2"},
+    {"id": "R-6", "severity": "LOW", "introduced_by_delta": false, "title": "paste overwrites armed warning; F1->Help carries live warning; monitor_disconnect_armed survives tab switches; stale 2col chord via Esc/F1", "location": "various (see verdict.md)", "lenses": "2/2 each"}
+  ],
+  "adjudication": [
+    {"site": "Projects 'D' delete-forever (project_delete_pending)", "destructive": true, "destructive_what": "kill oracle + rm -rf local folder (main.rs:1969-1991)", "warning_vanishes": true, "render_path": "plain status write input.rs:1374, TTL-mortal; zero ui.rs reads of the flag", "disarms": "ONLY Up/Down list-nav (app.rs:2084); Esc does NOT despite advertising it; tab switch does NOT", "severity": "HIGH", "verdict": "SHIP-FOLLOW-UP"},
+    {"site": "Settings settings_confirm_pending (Uninstall/Kill-Master class)", "destructive": true, "destructive_what": "rm -f $(which pi) && rm -rf ~/.pi class via RunShellCommand (input.rs:1220-1223; app.rs:544-550,723-728)", "warning_vanishes": true, "render_path": "status-bar only (input.rs:1214-1218); zero ui.rs reads; Tab focus-toggle overwrites with focus hint", "disarms": "field nav + section change + Enter-on-other-field (rich set, narrows window); blind fire still reachable via unbound key then Enter", "severity": "MEDIUM", "verdict": "SHIP-FOLLOW-UP"},
+    {"site": "Monitor Telegram disconnect (monitor_disconnect_armed)", "destructive": true, "destructive_what": "deletes ~/.omega/telegram.toml, no backup (monitor.rs:337-345) — recoverable via setup wizard", "warning_vanishes": true, "render_path": "plain status input.rs:1185-1187; render_monitor_telegram takes no &App — structurally cannot render the arm", "disarms": "Esc yes; but arrows SCROLL (not disarm) while detail-focused; tab travel keeps flag — unbounded window", "severity": "LOW", "verdict": "SHIP-FOLLOW-UP (fold into same follow-up)"},
+    {"site": "Projects 'x' (project_confirm_pending) — disclosed but DEAD CODE", "destructive": false, "destructive_what": "n/a — 'x' now opens InputMode::ProjectDelete modal picker (input.rs:1342-1353), state-driven, TTL-immune; flag never set Some anywhere", "warning_vanishes": false, "render_path": "modal is rendered state-driven", "disarms": "n/a", "severity": "NOT-A-FINDING", "verdict": "DEFER (vacuous instance of a real class)"}
+  ],
+  "falsifiable_tests": [
+    {"name": "cargo test at HEAD", "hypothesis": "any closure broken or test-count claim inflated", "command": "cargo test -p omega-tui", "expected": "29 passed", "actual": "ok. 29 passed; 0 failed", "passed": true},
+    {"name": "clippy delta-clean", "hypothesis": "new lint debt on delta lines", "command": "cargo clippy -p omega-tui -p omega", "expected": "14 baseline warnings", "actual": "tui 9 + omega 5 = 14, zero new", "passed": true},
+    {"name": "release build", "hypothesis": "commit's exit-0 claim false", "command": "cargo build --release", "expected": "exit 0", "actual": "Finished, BUILD_EXIT=0", "passed": true},
+    {"name": "surface stability", "hypothesis": "audited surface changed under moved HEAD", "command": "git diff 898f6e4 5ac2fb1 -- <4 files>", "expected": "empty", "actual": "empty", "passed": true},
+    {"name": "TTL centralization grep", "hypothesis": "other status_message=None writers exist", "command": "grep -rn 'status_message = None' crates/", "expected": "only app.rs:1287", "actual": "sole hit app.rs:1287", "passed": true},
+    {"name": "render-path greps (4 confirm flags in ui.rs)", "hypothesis": "a state-driven render would void the warning-vanishes adjudications", "command": "grep -n '<flag>' crates/omega-tui/src/ui.rs", "expected": "zero hits each", "actual": "zero hits each (menu_confirm_pending, project_delete_pending, settings_confirm_pending, monitor_disconnect_armed)", "passed": true},
+    {"name": "adversarial refutation gate", "hypothesis": "plausible-but-wrong findings", "command": "Workflow wf_d69393ec-69a: 62 refuter lenses on 31 candidates", "expected": ">=2-of-3 consensus per survivor", "actual": "1 killed (CAND-6), 1 split-downgraded (C4), 29 stand", "passed": true}
+  ],
+  "hinge_findings": [
+    {"location": "app.rs:1277-1288 (consume_status_ttl)", "concern": "exemption blast radius — every status_message producer", "verified_safe_by": "read-side swept CLOSED; write-side overwriters found (R-1, R-2, D-4) — drives P5/P7 scores"},
+    {"location": "input.rs:1591-1605 x 1910-1933 (Esc-Esc chord)", "concern": "interaction with every other Esc arm + quit", "verified_safe_by": "precedence verified (confirm cancels win over chord); cliff D-5, stale-arm D-9, wrong-target D-10 recorded"},
+    {"location": "app.rs:1298-1316 + 4 guards (grace)", "concern": "fast-typing interaction; bypass census", "verified_safe_by": "claimed keys closed; Tab/'.'/launcher bypasses recorded (R-3, R-4)"},
+    {"location": "main.rs:658-668,742-768,1179 (kitty lifecycle)", "concern": "push/pop balance on quit/restart/panic/attach", "verified_safe_by": "process-side balanced; terminal-side WRONG-SCREEN (D-1 HIGH, D-2, D-12)"}
+  ],
+  "issues_found_and_fixed": [],
+  "killed_findings": [
+    {"id": "CAND-6", "reason": "refuted 2/2 — None branch reachable only via deliberate empty-list chat entry; real vanish paths open grace synchronously before any key dispatch"},
+    {"id": "C4-list-focus-vanish", "reason": "split 1/2 — pre-existing accepted debt per baseline NEW-3 adjudication; logged, not scored"}
+  ],
+  "edge_cases": [
+    {"finding_id": "D-5", "scenario": "human-paced second Esc at 350ms quits the TUI while the bar teaches the gesture", "covered_by_existing_test": false},
+    {"finding_id": "D-10", "scenario": "session vanishes on the 2s tick between the two Escs — literal ESC lands in the neighbor's PTY", "covered_by_existing_test": false},
+    {"finding_id": "D-4", "scenario": "queued forwarder failure resolves inside the arm-to-confirm gap, replacing the warning", "covered_by_existing_test": false},
+    {"finding_id": "R-4", "scenario": "sentence-final '.' in an in-flight stream unprotects the clamped neighbor persistently", "covered_by_existing_test": false}
+  ],
+  "cross_audit_links": [
+    {"this_finding_id": "D-5/D-6", "sibling_audit": "uiuxaudit", "note": "DESIGN-018 copy/timing — same surface as uiux fix-plan-f6d8f37-final; joint copy fix recommended"}
+  ],
+  "confidence_basis": "Closure table rests on re-run runtime evidence (29/29 tests, clippy baseline-identical, build green) + exhaustive greps quoted per row. Every surviving finding passed 2 independent refuter lenses + lead re-derivation (>=2-of-3); 1 candidate killed, 1 downgraded. Kitty findings (D-1/D-2) are the confidence boundary: kitty spec fetched and quoted + crossterm-0.29.0 source read, but no kitty-class terminal exists on this headless VPS for byte-level repro — flagged in not_done.",
+  "banned_phrase_check": "passed (no occurrences of 'looks correct', 'should be fine', 'appears to work', 'streamlined', 'to save time')",
+  "not_done": [
+    "No live-TTY reproduction this run (read-only mission); the commit's own rmux evidence pack assessed for code-consistency, not re-executed",
+    "D-1/D-2 (kitty) not reproduced on a real kitty-class terminal — headless VPS; spec+source-derived only; some emulators may defensively reset keyboard mode on alt-screen exit (would soften the leak half, not the no-op half)",
+    "crossterm parse.rs:77 single-read ESC-ESC collapse taken from the commit's citation, not re-traced into crossterm source",
+    "Forwarder-error latency window (D-4) inferred from forwarder.rs structure, not measured",
+    "Hint-seeding guard (main.rs:2047-2052), FIX-5, FIX-6 have zero automated test coverage (binary-crate event loop) — verified by reading only",
+    "BUDGET OVERRUN: brief capped 200K tokens; workflow consumed 3.80M subagent tokens / 77 agents (~19x) — disclosed per R-BUDGET, root cause 2-lens refutation fan-out on 31 candidates"
+  ],
+  "fix_plan": "audits/.codeaudit/fix-plan-898f6e4-delta.json",
+  "workflow": "wf_d69393ec-69a",
+  "finished_at": "2026-06-06T00:00:00Z"
+}

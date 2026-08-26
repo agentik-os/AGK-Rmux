@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omega-os.local/schemas/market-research-blueprint-handoff.v1.json",
+  "title": "Market Research to Blueprint Input Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["handoff_id", "project_id", "research_version", "state_revision", "state_checksum", "status", "recommendation_id", "decision", "scope", "market_models", "alternatives", "customer_evidence", "required_capabilities", "anti_features", "pricing_evidence", "channel_evidence", "constraints", "risks", "conditions", "kill_criteria", "unknowns", "mandatory_blueprint_questions", "mandatory_validation_before_build", "source_refs", "created_at"],
+  "properties": {
+    "handoff_id": {"type": "string", "pattern": "^BPH-[0-9]{3,}$"},
+    "project_id": {"type": "string", "minLength": 1},
+    "research_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "state_revision": {"type": "integer", "minimum": 0},
+    "state_checksum": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "status": {"const": "MARKET RESEARCH COMPLETE — DECISION READY"},
+    "recommendation_id": {"type": "string", "pattern": "^REC-[0-9]{3,}$"},
+    "decision": {"enum": ["GO", "PIVOT"]},
+    "scope": {
+      "type": "object",
+      "required": ["geographies", "segments", "problem", "jtbd", "promise", "business_model_hypotheses"],
+      "properties": {
+        "geographies": {"type": "array", "items": {"type": "string"}},
+        "segments": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "problem": {"type": "string", "minLength": 1},
+        "jtbd": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "promise": {"type": "string", "minLength": 1},
+        "business_model_hypotheses": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "market_models": {"type": "array", "items": {"type": "string"}},
+    "alternatives": {"type": "array", "items": {"type": "string"}},
+    "customer_evidence": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "required_capabilities": {"type": "array", "items": {"type": "string"}},
+    "anti_features": {"type": "array", "items": {"type": "string"}},
+    "pricing_evidence": {"type": "array", "items": {"type": "string"}},
+    "channel_evidence": {"type": "array", "items": {"type": "string"}},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "risks": {"type": "array", "items": {"type": "string"}},
+    "conditions": {"type": "array", "items": {"type": "string"}},
+    "kill_criteria": {"type": "array", "items": {"type": "string"}},
+    "unknowns": {"type": "array", "items": {"type": "string"}},
+    "mandatory_blueprint_questions": {"type": "array", "items": {"type": "string"}},
+    "mandatory_validation_before_build": {"type": "array", "items": {"type": "string"}},
+    "source_refs": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "created_at": {"type": "string", "format": "date-time"}
+  }
+}

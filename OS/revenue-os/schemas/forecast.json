@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Forecast",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "period": {
+      "type": "string",
+      "description": "Forecast period"
+    },
+    "scenario": {
+      "type": "string",
+      "description": "commit/best/base/downside"
+    },
+    "assumptions": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Assumptions"
+    },
+    "revenue": {
+      "type": "number",
+      "description": "Revenue"
+    },
+    "cash_in": {
+      "type": "number",
+      "description": "Collections"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "period",
+    "scenario",
+    "assumptions"
+  ],
+  "additionalProperties": false
+}

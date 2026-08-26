@@ -1,0 +1,71 @@
+{
+  "schema": "caio-implementation-runbook/v1",
+  "generated_at": "{{YYYY-MM-DDTHH:MM}}",
+  "company": "{{company}}",
+  "caio": "{{caio_name}}",
+  "build_mode": "{{realize-architecture|provision-server|build-microsaas|wire-federation|wire-integrations|full-build}}",
+  "reads": {
+    "company_ai_os_version": "{{architect blueprint version}}",
+    "discovery_rollup_present": "{{true|false}}"
+  },
+  "realization": {
+    "spec_version": "{{spec_version}}",
+    "status": "{{draft|in-review|approved}}",
+    "sponsor": "{{sponsor_name}}",
+    "approval_date": "{{YYYY-MM-DD|null}}",
+    "conditions": "{{short|none}}"
+  },
+  "server": {
+    "region": "{{region}}",
+    "residency": "{{GDPR|SOC2|HIPAA|none}}",
+    "stack": ["nextjs", "convex", "clerk", "stripe", "composio", "claude-code-sdk"],
+    "client_owned": true,
+    "export_path_documented": "{{true|false}}"
+  },
+  "seats_built": [
+    {
+      "seat": "{{cfo}}",
+      "exists": true,
+      "absorbed_by": null,
+      "real_job_line": "{{the one job a generic dashboard gets wrong}}",
+      "f_specs": ["{{F-XXX}}"],
+      "ship_gate": "{{shipped|pending|red}}",
+      "go_live_t0": "{{YYYY-MM-DDTHH:MM|null}}",
+      "baseline_events": {
+        "nsm": "{{architect success metric}}",
+        "usage": "{{model$+tokens+run}}",
+        "value": "{{workflow outcome}}",
+        "firing_since_t0": "{{true|false}}"
+      }
+    }
+  ],
+  "federation": {
+    "rules_total": "{{number}}",
+    "rules_tested_end_to_end": "{{number}}",
+    "sensitive_alerts_hitl": "{{true|false}}"
+  },
+  "integrations": {
+    "connectors_wired": ["{{CRM}}", "{{ERP}}", "{{marketing}}", "{{analytics}}", "{{HR}}", "{{comms}}"],
+    "all_live_read_passed": "{{true|false}}",
+    "seventh_connector": "{{none|connector+reason}}"
+  },
+  "reports": [
+    { "report_id": "{{R-CFO-WEEKLY-CASH}}", "frequency": "{{cron}}", "status": "{{shipped|pending}}" }
+  ],
+  "monitoring": {
+    "view_live": "{{true|false}}",
+    "model_cost_visible_to_cfo": "{{true|false}}"
+  },
+  "handoff": {
+    "to_enablement": "{{ready|not-ready}}",
+    "baseline_for_run_and_optimize": {
+      "t0_per_seat_recorded": "{{true|false}}",
+      "architect_projection_ref": "company-ai-os/09-ROI-Governance-And-Risks.md",
+      "note": "run-and-optimize computes ROI = delta(baseline since t0) vs projection; this skill lays the substrate only"
+    }
+  },
+  "delegated": {
+    "agents_to": "agentic-systems-builder",
+    "repeatable_skills_to": "agentik-skill-forge"
+  }
+}

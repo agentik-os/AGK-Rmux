@@ -1,0 +1,32 @@
+# OmegaOS provider overrides
+#
+# This file intentionally contains no credentials and no active overrides.
+# Uncomment only values you want to pin; otherwise each CLI keeps its native
+# account/model defaults. Secrets are written with:
+#   omega config set <provider>.api_key <value>
+#
+# [codex]
+# model = "gpt-5.6"
+# bypass_hook_trust = true
+#
+# [claude]
+# model = "opus"
+# effort = "high"
+#
+# [gemini]
+# model = "auto"
+#
+# [antigravity]
+# model = ""
+# effort = "medium"
+# dangerously_skip_permissions = true
+#
+# [hermes]
+# provider = "openrouter"
+# model = "anthropic/claude-opus-5"
+#
+# [glm]
+# model = "glm-5.3"
+#
+# [kimi]
+# model = "kimi-for-coding"

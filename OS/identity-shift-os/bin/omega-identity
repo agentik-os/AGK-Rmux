@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# omega-identity — the OmegaOS command for Identity Shift OS (AgentikOS suite,
+# personal group; Identity Shift {OS}). This OS is conversational (no CLI
+# engine): the wrapper opens a Claude session running the Identity Shift master
+# agent, working from the OS folder so its evidence ledger persists. The
+# coaching happens in the agent (/identity), or via the OS's Telegram bot.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+OS_DIR="$OMEGA_DIR/os/identity-shift-os"
+mkdir -p "$OS_DIR/ledger"
+
+PERSONA="$OS_DIR/MASTER.md"
+[[ -f "$PERSONA" ]] || {
+    echo "omega-identity: no master persona at $PERSONA — run OmegaOS install.sh" >&2
+    exit 1
+}
+
+cd "$OS_DIR"
+exec claude --append-system-prompt "$(cat "$PERSONA")" "$@"

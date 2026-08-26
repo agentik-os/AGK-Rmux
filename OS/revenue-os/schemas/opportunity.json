@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Opportunity",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Account"
+    },
+    "offer_id": {
+      "type": "string",
+      "description": "Offer"
+    },
+    "stage": {
+      "type": "string",
+      "description": "Pipeline stage"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Potential value"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency"
+    },
+    "stage_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Exit evidence"
+    },
+    "next_step": {
+      "type": "string",
+      "description": "Next action"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "customer_id",
+    "stage",
+    "stage_evidence",
+    "next_step"
+  ],
+  "additionalProperties": false
+}

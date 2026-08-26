@@ -1,0 +1,22 @@
+{
+  "audit": "flow",
+  "ticket": "flowaudit-f432154",
+  "mode": "no-fix (read-only dispatch) — all tasks NEEDS_REVIEW",
+  "tasks": [
+    {"id": "FIX-001", "finding_id": "F-01", "severity": "critical", "file": "crates/omega-tui/src/ui.rs", "line": 694, "fix": "Change chat-focus list hint to 'CHAT (Tab → list · Esc → agent)'; align Help lines ui.rs:2752 and ui.rs:2762-2765; delete or wire the unreachable Esc branch input.rs:1524-1531", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-002", "finding_id": "F-02", "severity": "high", "file": "crates/omega-tui/src/app.rs", "line": 1659, "fix": "In refresh(), snapshot selected session NAME before rebuild and re-resolve via select_by_name (app.rs:1165); if the name vanished while chat-focused, drop to SessionFocus::List with a '(session ended)' notice", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-003", "finding_id": "F-03", "severity": "high", "file": "crates/omega-tui/src/input.rs", "line": 1073, "fix": "Replace direct `app.session_focus = SessionFocus::Chat` with `app.enter_chat_focus()`; consider resetting follow_tail in select_next/select_prev (app.rs:1923-1937)", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-004", "finding_id": "F-04", "severity": "high", "file": "crates/omega-tui/src/ui.rs", "line": 3069, "fix": "On Sessions, render status_message when Some (priority over or alongside the git segment), with auto-expire; never return String::new() while a message is pending", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-005", "finding_id": "F-05", "severity": "high", "file": "crates/omega-core/src/session.rs", "line": 183, "fix": "Invalidate/rebuild CACHED_MANAGER on transport error; in refresh_preview distinguish daemon-unreachable from empty-pane: '(daemon unreachable — Ctrl+R to reconnect)'; feed connect errors into the fail streak instead of `let _ =` early-return (main.rs:1057 etc.)", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-006", "finding_id": "F-06", "severity": "medium", "file": "crates/omega-tui/src/ui.rs", "line": 1025, "fix": "When preview_follow_tail==false render an explicit badge even at max_scroll==0, e.g. ' ⏸ HISTORY — End: live ', and/or distinct border color", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-007", "finding_id": "F-07", "severity": "medium", "file": "crates/omega-tui/src/app.rs", "line": 1325, "fix": "scroll_preview_home: when leaving tail with max_scroll==0 set preview_needs_history + pending-home so one press reaches the top", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-008", "finding_id": "F-08", "severity": "medium", "file": "crates/omega-tui/src/input.rs", "line": 1077, "fix": "Reuse the correct strings from input.rs:1746-1748; drop the '/' claim; delete the dead cmd_capture block (input.rs:1645-1692) or reinstate its trigger", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-009", "finding_id": "F-09", "severity": "medium", "file": "crates/omega-tui/src/app.rs", "line": 1467, "fix": "Recursion branch: also clear preview_styled and preview_cursor (mirror the Master-CTA branch app.rs:1486-1487)", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-010", "finding_id": "F-10", "severity": "medium", "file": "crates/omega-cli/src/main.rs", "line": 973, "fix": "Set last_resized only after resize_pane returns Ok; leave unset on Err so the next tick retries", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-011", "finding_id": "F-11", "severity": "low", "file": "crates/omega-tui/src/ui.rs", "line": 2769, "fix": "Help: '↑ / ↓ — Navigate sessions (j/k disabled on Sessions)'", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-012", "finding_id": "F-12", "severity": "low", "file": "crates/omega-tui/src/ui.rs", "line": 747, "fix": "Re-clamp preview_scroll = preview_scroll.min(max_scroll) when publishing preview_max_scroll", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-013", "finding_id": "F-13", "severity": "low", "file": "crates/omega-tui/src/input.rs", "line": 1627, "fix": "Dead-session fallback: swallow Esc once with a 'session ended — back to list' status instead of re-dispatching it", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-014", "finding_id": "F-14", "severity": "low", "file": "crates/omega-tui/src/app.rs", "line": 1556, "fix": "Style the no-pane-content message gray + append cause/action: '(no pane content — retrying… · x: kill · Ctrl+R: reload)'", "status": "NEEDS_REVIEW"},
+    {"id": "FIX-015", "finding_id": "F-15", "severity": "low", "file": "crates/omega-tui/src/ui.rs", "line": 630, "fix": "Empty session list: in-panel CTA 'no sessions — c: new Claude · g: new agent'; adjust right-panel copy", "status": "NEEDS_REVIEW"}
+  ]
+}

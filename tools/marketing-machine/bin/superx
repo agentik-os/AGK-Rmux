@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# superx — SuperX (X/Twitter) analytics shim for the OmegaOS marketing machine.
+#
+# WHY THIS EXISTS: the vendor-documented `npm install -g superx-cli` package is
+# NOT published on the public npm registry (404, verified 2026-07-08 across the
+# package name + scoped variants). SuperX ships a real REST API though, so this
+# thin curl wrapper reproduces the documented UX against it:
+#
+#   superx posts:analytics [--since ISO8601] [--until ISO8601] | jq '.data.totals'
+#
+# Base URL : https://api.superx.so/v1   (override with SUPERX_API_BASE)
+# Auth     : Bearer sxk_...  from ~/.omega/secrets/superx.env (SUPERX_API_KEY=)
+#            Create a key in the SuperX app: Account -> Developers.
+# Docs     : https://superx.so/developers
+set -euo pipefail
+
+SUPERX_API_BASE="${SUPERX_API_BASE:-https://api.superx.so/v1}"
+SECRET_FILE="${SUPERX_ENV:-$HOME/.omega/secrets/superx.env}"
+
+die() { printf 'superx: %s\n' "$1" >&2; exit "${2:-1}"; }
+
+# --- load the key lazily (env wins; else the secrets file) — only when an ---
+# --- actual API call is made, so `superx --help` works without a key.    ---
+require_key() {
+  if [[ -z "${SUPERX_API_KEY:-}" && -f "$SECRET_FILE" ]]; then
+    # shellcheck disable=SC1090
+    set -a; source "$SECRET_FILE"; set +a
+  fi
+  [[ -n "${SUPERX_API_KEY:-}" ]] \
+    || die "no API key. Put SUPERX_API_KEY=sxk_... in $SECRET_FILE (SuperX app -> Account -> Developers)."
+  [[ "$SUPERX_API_KEY" == sxk_* ]] \
+    || die "SUPERX_API_KEY does not look like a SuperX key (expected sxk_...)."
+}
+
+# --- shared GET: prints the raw JSON body, fails loud on HTTP error --------
+api_get() {
+  require_key
+  local path="$1"; shift
+  local url="$SUPERX_API_BASE$path"
+  local qs="" k v
+  while (($#)); do k="$1"; v="$2"; shift 2
+    [[ -n "$v" ]] && qs+="${qs:+&}${k}=$(printf '%s' "$v" | jq -sRr @uri)"
+  done
+  [[ -n "$qs" ]] && url+="?$qs"
+
+  local body http
+  body="$(curl -sS -w $'\n%{http_code}' \
+    -H "Authorization: Bearer $SUPERX_API_KEY" \
+    -H "Accept: application/json" \
+    "$url")" || die "network error calling $url"
+  http="${body##*$'\n'}"; body="${body%$'\n'*}"
+
+  case "$http" in
+    2*) printf '%s\n' "$body" ;;
+    401|403) die "auth rejected (HTTP $http). Check SUPERX_API_KEY. Body: $body" "$http" ;;
+    429)     die "rate limited (HTTP 429). Retry later. Body: $body" 429 ;;
+    *)       die "SuperX API error (HTTP $http): $body" "$http" ;;
+  esac
+}
+
+usage() {
+  cat >&2 <<'EOF'
+usage: superx <command> [flags]
+
+commands:
+  posts:analytics [--since ISO8601] [--until ISO8601]
+      Aggregate post analytics. Pipe to jq, e.g.:
+        superx posts:analytics | jq '.data.totals'
+EOF
+  exit "${1:-0}"
+}
+
+# --- command dispatch ------------------------------------------------------
+cmd="${1:-}"; [[ -z "$cmd" ]] && usage 1
+shift || true
+
+case "$cmd" in
+  posts:analytics)
+    since="" until=""
+    while (($#)); do
+      case "$1" in
+        --since) since="${2:-}"; shift 2 ;;
+        --until) until="${2:-}"; shift 2 ;;
+        -h|--help) usage 0 ;;
+        *) die "unknown flag for posts:analytics: $1" ;;
+      esac
+    done
+    api_get "/posts/analytics" since "$since" until "$until"
+    ;;
+  -h|--help|help) usage 0 ;;
+  *) die "unknown command: $cmd (try: superx --help)" ;;
+esac

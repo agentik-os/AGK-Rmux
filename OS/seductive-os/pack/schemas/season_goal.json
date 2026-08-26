@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/seductive-os/season_goal.json",
+  "title": "Season Goal",
+  "description": "What the user is working on this season, four to six weeks at a time. The doctrine rule that the OS never contracts for an outcome requiring a named person's decision is structural here: there is no field for a target person, and the metrics array accepts process counts only. The cap of four installed changes and the visible NOT NOW list are also enforced by maxItems rather than by advice.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "season": {
+      "type": "string",
+      "maxLength": 80,
+      "description": "A name for the cycle"
+    },
+    "starts_on": {
+      "type": "string",
+      "format": "date"
+    },
+    "ends_on": {
+      "type": "string",
+      "format": "date"
+    },
+    "bottleneck": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Carried from the magnetism_profile. The season works on this one factor."
+    },
+    "capability_target": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "A trainable capability the user controls. Never an outcome that depends on another person's decision, and there is deliberately no field in this schema in which such a person could be named."
+    },
+    "what_the_user_wants": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "The underlying want, recorded honestly and kept separate from the capability, because the want is usually legitimate and the capability is what is actually trainable"
+    },
+    "outside_my_control": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "description": "Named explicitly so it is not silently contracted for"
+    },
+    "refuses_to_become": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "description": "What the user will not become on the way. Part of the contract, and the line the practice is not allowed to cross."
+    },
+    "process_metrics": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Reps and behaviours only. There is no field for matches, numbers or dates obtained.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metric": {
+            "enum": [
+              "reps_attempted",
+              "floors_held",
+              "debriefs_run",
+              "ladder_rung_reached",
+              "clean_runs",
+              "nos_received_and_respected",
+              "hours_in_rooms",
+              "new_conversations",
+              "self_presentation_change_held"
+            ]
+          },
+          "target": {
+            "type": "number",
+            "minimum": 0
+          },
+          "actual": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "metric",
+          "target"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "practice": {
+      "type": "object",
+      "description": "The three tiers. The floor is written first and is what survives a bad day.",
+      "properties": {
+        "floor": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "standard": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "deep": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "floor"
+      ],
+      "additionalProperties": false
+    },
+    "installed_changes": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "description": "At most four: one presence practice, one conversational practice, one exposure rep tier, one self-presentation change. A fifth is the mechanism by which the whole plan is abandoned in week two."
+    },
+    "not_now": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "description": "Everything deliberately deferred, written down. Naming what is deferred is what makes the cap hold."
+    },
+    "review_trigger": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "What triggers the season review. Change the system on evidence, never on one painful evening."
+    },
+    "status": {
+      "enum": [
+        "active",
+        "reviewed",
+        "rolled_forward",
+        "closed"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "season",
+    "capability_target",
+    "process_metrics",
+    "practice"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# omega-ideation — the OmegaOS command for Ideation OS (AgentikOS build chain
+# #01, Brainstorm {OS} v3). Thin launcher for the pack's deterministic session
+# engine (stdlib Python, no venv): init / frame / dna / add / surface / evolve /
+# portfolio / checkpoint / audit / freeze / export / handoff / summary /
+# validate / migrate over the session JSON. The IMAGINATION half (the council,
+# the debate, the evolution) is the /brainstorm skill (Claude) or the Codex
+# prompt; this CLI owns the session-state contract those agents must keep.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+
+find_engine() {
+    local candidates=(
+        "${IDEATION_ENGINE:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/ideation-os/pack/scripts/brainstorm_os.py"
+        "$HOME/OmegaOS/OS/ideation-os/pack/scripts/brainstorm_os.py"
+        "$OMEGA_DIR/os/ideation-os/pack/scripts/brainstorm_os.py"
+        "$OMEGA_DIR/skills/brainstorm-os/scripts/brainstorm_os.py"
+    )
+    for f in "${candidates[@]}"; do
+        [[ -n "$f" && -f "$f" ]] && { echo "$f"; return 0; }
+    done
+    return 1
+}
+
+ENGINE="$(find_engine)" || {
+    echo "omega-ideation: brainstorm_os.py not found (run OmegaOS install.sh, or set IDEATION_ENGINE)" >&2
+    exit 1
+}
+
+exec python3 "$ENGINE" "$@"

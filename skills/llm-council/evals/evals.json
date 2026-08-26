@@ -1,0 +1,34 @@
+{
+  "skill_name": "llm-council",
+  "note": "Trigger eval set. should_trigger=true cases must invoke llm-council (multi-model deliberation). The should_trigger=false case is a near-miss routine edit that must NOT pay 4x tokens for a council. A Workflow sub-agent cannot nest a Workflow, so a live 4-model council run is NOT executed here — the oracle runs the heavyweight live council separately as the runtime proof.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "convene the council on whether we should pick a serverless (Convex functions) vs a long-running Node service architecture for the new realtime sync layer — this is hard to undo once we commit the schema",
+      "expected_output": "Workflow council runs: four Claude models answer the architecture question independently, peer-review anonymously, Opus president returns a Verdict + Why + Where the council disagreed + Confidence.",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "@council: our verify worker says the auth fix is PASS but the secaudit flagged it FAIL. is this verify verdict trustworthy or not?",
+      "expected_output": "Council convened as a tie-break across contradictory adversarial verdicts; president verdict preserves the dissent (the FAIL position) as a tracked risk rather than dropping it.",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I want a second opinion from multiple models on this database-sharding design before I commit it — it's a one-way door",
+      "expected_output": "llm-council triggers on the explicit multi-model second-opinion + irreversible (one-way door) signal; four models deliberate, Opus president synthesizes with dissent.",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "rename the variable `usr` to `user` in src/auth/login.ts and save the file",
+      "expected_output": "No council. This is a routine one-line edit — a single agent does it directly. Convening four models + a peer-review round + a president would be 4x the cost for zero benefit.",
+      "should_trigger": false,
+      "files": []
+    }
+  ]
+}

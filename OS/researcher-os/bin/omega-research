@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# omega-research — the OmegaOS command for Researcher OS (AgentikOS build
+# chain #02, Market Research {OS}). Thin launcher for the pack's deterministic
+# workspace engine (stdlib Python, no venv): init / validate / status /
+# allocate / checkpoint / score / export / demo over the research state. The
+# REASONING half is the /market-research skill (Claude) or the Codex prompt;
+# this CLI owns the evidence-state contract those agents must keep.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+
+find_engine() {
+    local candidates=(
+        "${RESEARCH_ENGINE:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/researcher-os/pack/market-research-os/scripts/market_research_os.py"
+        "$HOME/OmegaOS/OS/researcher-os/pack/market-research-os/scripts/market_research_os.py"
+        "$OMEGA_DIR/os/researcher-os/pack/market-research-os/scripts/market_research_os.py"
+        "$OMEGA_DIR/skills/market-research-os/scripts/market_research_os.py"
+    )
+    for f in "${candidates[@]}"; do
+        [[ -n "$f" && -f "$f" ]] && { echo "$f"; return 0; }
+    done
+    return 1
+}
+
+ENGINE="$(find_engine)" || {
+    echo "omega-research: market_research_os.py not found (run OmegaOS install.sh, or set RESEARCH_ENGINE)" >&2
+    exit 1
+}
+
+exec python3 "$ENGINE" "$@"

@@ -1,0 +1,184 @@
+{
+  "name": "Design OS",
+  "slug": "design",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Compile an approved product Blueprint into a challenged, coherent, modern UX/UI definition and a machine-readable Design Handoff for Stepper.",
+  "category": "Product Stack / UX, Interaction and Visual Design Compilation",
+  "position": "Product Stack: UX/interaction/visual design compilation, second stage of the IMPLEMENT branch (Blueprint -> Design -> Stepper -> Builder)",
+  "counts": {
+    "agents": 1,
+    "skills": 1,
+    "protocols": 0,
+    "references": 12,
+    "scripts": 3,
+    "assets": 1,
+    "files": 22
+  },
+  "commands": [
+    {
+      "command": "/design",
+      "mode": "dispatch",
+      "purpose": "Open Design OS and compile a Blueprint into a validated UX/UI handoff for Stepper.",
+      "modes": [
+        "FULL",
+        "AUDIT",
+        "FLOW",
+        "AI_APP",
+        "STAX_FIT",
+        "REVISION"
+      ],
+      "default_mode": "FULL"
+    }
+  ],
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "8e713238b89e8c3dc588e92a79498ca0a02c5d7631f6e4ff1013a516497f7129",
+      "bytes": 371
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "49315dda7125ec5fc77ef5f2b96126d8b2121c6e72944b4702972e90f321d3ee",
+      "bytes": 1210
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "8411606f05fd88981e870530ade7a34c1e2f3625ff695e86d270e70384bc549e",
+      "bytes": 5802
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "18c8deef4e49147f1fdbfccdde9527e543125f036d69a16560217e8850255be3",
+      "bytes": 1437
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "e22a86731f91216ae7ebaec2219697af17e680c3426e1d199a97969d451bcdf7",
+      "bytes": 4951
+    },
+    {
+      "path": "README.md",
+      "sha256": "c989181419526283f66fec2ead4c16e10ef0da9ae384a4ea0635c2d66c57a019",
+      "bytes": 4374
+    },
+    {
+      "path": "references/ai-intelligence.md",
+      "sha256": "42bb63700af7f3f6f0e2ff3e05a1516eae954de40c6435e45149a0d4b6c44776",
+      "bytes": 11244
+    },
+    {
+      "path": "references/blueprint-intake.schema.json",
+      "sha256": "b621fd0730c592478ea7d10af81decfd4a45f0f812c3f2b530be9643184975c3",
+      "bytes": 3571
+    },
+    {
+      "path": "references/design-handoff.schema.json",
+      "sha256": "94a328ae2900f0d1f2daf1820bfb9e16a45bcc13e67858ae0debcd323367fc87",
+      "bytes": 13915
+    },
+    {
+      "path": "references/flow-challenge.md",
+      "sha256": "7b896c068a3d7d1aa463287279c9eb9ebe9c5916653e97b7126183e0e2423d57",
+      "bytes": 7964
+    },
+    {
+      "path": "references/interaction-system.md",
+      "sha256": "46c24c829cf4f93f011381d20c30af4ec40e1a33e8108e4ffafb3c25a4881634",
+      "bytes": 16532
+    },
+    {
+      "path": "references/master-system-prompt.md",
+      "sha256": "334213cf460df0349dca8efd201f2a5efd9a2e354393eab2567d45130cfe304c",
+      "bytes": 9249
+    },
+    {
+      "path": "references/output-contract.md",
+      "sha256": "ae0dc9e51225d12e0cfb3a104a7003d2851bbff586e21fd6ffbebeb2df87f5f3",
+      "bytes": 7641
+    },
+    {
+      "path": "references/responsive-accessibility.md",
+      "sha256": "86d311b615a2af115e25057fdfacaf1e4727a6a55baa37bd285f2eb22e58e055",
+      "bytes": 6437
+    },
+    {
+      "path": "references/stax-shadcn.md",
+      "sha256": "23bc2b532f529232993e1cbe6857e5a7029f4c7a8658813e6b6d871ac814a793",
+      "bytes": 12113
+    },
+    {
+      "path": "references/validation-evals.md",
+      "sha256": "8295de810c6c1e02f5eb6483bedd74c0dbb9847cdf7893de7c1ef70d5d0a44fd",
+      "bytes": 6803
+    },
+    {
+      "path": "references/visual-system.md",
+      "sha256": "cfdba84244e480484bfc115e6c78e46a04aebd67381047a771809c933d733b05",
+      "bytes": 8676
+    },
+    {
+      "path": "references/workflow-gates.md",
+      "sha256": "5194445932c2cf24e093772b87f9cf702f09996c1094e6088c69d6a94052c270",
+      "bytes": 10892
+    },
+    {
+      "path": "scripts/self_test.py",
+      "sha256": "43c54eefe170c074fa7897c14d1766e99b2ada210867dcd010be4509d82d2018",
+      "bytes": 7262
+    },
+    {
+      "path": "scripts/validate_blueprint_intake.py",
+      "sha256": "0dcc49226a277b7270831958217e6d4cfb3a6ec9aaa287c0d1bf412ac6cff277",
+      "bytes": 4826
+    },
+    {
+      "path": "scripts/validate_design_handoff.py",
+      "sha256": "cee95c1ba4be718ce3027249df11cbb2167cc6fbf7e246cfa6c7cbe644109b9d",
+      "bytes": 13544
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "a91d2f2d1adf913e0f45596873b0f678f703330229989dead3e94163c5857818",
+      "bytes": 11336
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "design.handoff.completed",
+        "consumed_by": "stepper",
+        "payload": {
+          "id": "string (record id)",
+          "design_handoff": "object (resolved design graph: screen/surface contracts, journeys, state machines, tokens and component registry; the design-handoff.json payload)",
+          "status": "string (completed)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "design.flow.challenged",
+        "consumed_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "flow_challenge": "object (the flow-challenge report: before/after paths, deleted/merged/deferred flows, friction findings)",
+          "status": "string (challenged)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "blueprint.completed",
+        "produced_by": "blueprint",
+        "payload": {
+          "id": "string (record id)",
+          "blueprint": "object (approved product/system truth: requirements, actors, contracts, domain objects, journeys)",
+          "status": "string (completed)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Contact",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Organization"
+    },
+    "name": {
+      "type": "string",
+      "description": "Contact"
+    },
+    "role": {
+      "type": "string",
+      "description": "Role"
+    },
+    "consent_status": {
+      "type": "string",
+      "description": "Communication consent/context"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "customer_id",
+    "name",
+    "consent_status"
+  ],
+  "additionalProperties": false
+}

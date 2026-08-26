@@ -1,0 +1,15 @@
+{
+ "audit": "a11yaudit",
+ "scope": "tui-theme-contrast",
+ "ticket": "theme-ffcba15",
+ "model": "claude-opus-4-8[1m]",
+ "preamble_version": "1.0",
+ "phases_applicable": 3,
+ "phases_na": 13,
+ "agents": 10,
+ "subagent_tokens": 488320,
+ "duration_ms": 548215,
+ "fixes_applied": 1,
+ "score": 82,
+ "finished_at": "2026-06-05T22:30:00+02:00"
+}

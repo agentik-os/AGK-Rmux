@@ -1,0 +1,199 @@
+{
+ "mode": "plan-only (final re-score, read-only mission)",
+ "baseline_plan": "fix-plan.json (f432154)",
+ "closed": [
+  "DESIGN-001",
+  "DESIGN-002",
+  "DESIGN-003"
+ ],
+ "tasks": [
+  {
+   "id": "DESIGN-013",
+   "finding": "NF-9 self-mirror resize spiral (HIGH)",
+   "type": "component",
+   "files": [
+    "crates/omega-cli/src/main.rs"
+   ],
+   "current": "resize loop main.rs:957-988 has no self-session exclusion; selection on the TUI's own session shrinks its pty 200->71 cols, unrecoverable",
+   "fix": "Skip resize_pane when selected session == the session hosting this TUI (read $RMUX / session env at startup); optionally also skip the preview mirror for self",
+   "status": "pending",
+   "severity": "HIGH"
+  },
+  {
+   "id": "DESIGN-014",
+   "finding": "NR-1 Alt+Esc dead on arrival (HIGH)",
+   "type": "component",
+   "files": [
+    "crates/omega-cli/src/main.rs",
+    "crates/omega-tui/src/input.rs",
+    "crates/omega-tui/src/ui.rs"
+   ],
+   "current": "No KeyboardEnhancementFlags pushed; crossterm 0.29 parses ESC ESC as plain Esc -> alt arm unreachable; Help advertises dead key; split delivery can quit the TUI",
+   "fix": "Push crossterm KeyboardEnhancementFlags at init (graceful fallback) OR rebind to a legacy-deliverable chord; re-verify with real terminal bytes, not synthetic KeyEvents",
+   "status": "pending",
+   "severity": "HIGH"
+  },
+  {
+   "id": "DESIGN-015",
+   "finding": "NR-2 Esc-then-type no-confirm kill/quit fallthrough (HIGH)",
+   "type": "component",
+   "files": [
+    "crates/omega-tui/src/input.rs"
+   ],
+   "current": "Esc silently drops to List; next keystrokes hit single-key hotkeys (x=kill no-confirm, q=quit)",
+   "fix": "Post-focus-drop input grace (ignore destructive single-key hotkeys for N ms / until a nav key), or confirm-on-kill when it follows a focus drop",
+   "status": "pending",
+   "severity": "HIGH"
+  },
+  {
+   "id": "DESIGN-016",
+   "finding": "D-007 + NR-3 + D-010 wrong copy now visible (MEDIUM)",
+   "type": "copy",
+   "files": [
+    "crates/omega-tui/src/input.rs",
+    "crates/omega-tui/src/ui.rs"
+   ],
+   "current": "input.rs:1104 onboarding hint wrong on all 3 claims (Tab->LIST not agent; Tab-Tab->FULLSCREEN; '/' forwarded); input.rs:1746 guard hint instructs a forwarded keystroke; ui.rs:2908 Help documents swallowed j/k",
+   "fix": "Three string corrections to match runtime bindings",
+   "status": "pending",
+   "severity": "MEDIUM"
+  },
+  {
+   "id": "DESIGN-017",
+   "finding": "NR-4 + NR-5 keypress-TTL eats async notices (MEDIUM)",
+   "type": "component",
+   "files": [
+    "crates/omega-cli/src/main.rs",
+    "crates/omega-tui/src/app.rs"
+   ],
+   "current": "clear-on-next-keypress TTL (main.rs:1105-1108) wipes forwarder errors and vanish notices for actively-typing users (~1 frame)",
+   "fix": "Message classes: async-origin/vanish notices get min-display ticks or time-based TTL; nav hints keep keypress TTL",
+   "status": "pending",
+   "severity": "MEDIUM"
+  },
+  {
+   "id": "DESIGN-018",
+   "finding": "NR-6 recovery keys Help-only (MEDIUM)",
+   "type": "copy",
+   "files": [
+    "crates/omega-tui/src/input.rs",
+    "crates/omega-tui/src/ui.rs"
+   ],
+   "current": "Esc status message 'Focus: session list' omits Alt+Esc/Ctrl+C; chat title omits them",
+   "fix": "Extend Esc message: 'Focus: session list (Alt+Esc = ESC to agent, Ctrl+C = interrupt)' once DESIGN-014 makes the binding real",
+   "status": "pending",
+   "severity": "MEDIUM"
+  },
+  {
+   "id": "DESIGN-004b",
+   "finding": "D-004 remainder: meta-surviving exit affordance + '?' Help (MEDIUM)",
+   "type": "component",
+   "files": [
+    "crates/omega-tui/src/ui.rs",
+    "crates/omega-tui/src/input.rs"
+   ],
+   "current": "[keys -> session] suffix suppressed when meta present; '?' forwarded so Help unreachable from chat",
+   "fix": "Append exit suffix after the meta segment (fullscreen-suffix pattern); consider intercepting '?' when chat-idle",
+   "status": "pending",
+   "severity": "MEDIUM"
+  },
+  {
+   "id": "DESIGN-019",
+   "finding": "NR-7 narrow status starvation (LOW)",
+   "type": "component",
+   "files": [
+    "crates/omega-tui/src/ui.rs"
+   ],
+   "current": "bar reserves 70 cols right; notice slot ~0 under 100 cols",
+   "fix": "Collapse right stats to a compact form (or drop segments) below ~120 cols so notices win",
+   "status": "pending",
+   "severity": "LOW"
+  },
+  {
+   "id": "DESIGN-005",
+   "finding": "F-3 rapid scroll loss (MEDIUM) - carried over",
+   "type": "component",
+   "files": [
+    "crates/omega-tui/src/app.rs"
+   ],
+   "current": "unchanged from baseline",
+   "fix": "per original plan",
+   "status": "pending",
+   "severity": "MEDIUM"
+  },
+  {
+   "id": "DESIGN-006",
+   "finding": "F-4 cwd-derived meta (MEDIUM) - carried over, live-reproduced again",
+   "type": "component",
+   "files": [
+    "crates/omega-core/src/claude_meta.rs"
+   ],
+   "current": "unchanged",
+   "fix": "per original plan",
+   "status": "pending",
+   "severity": "MEDIUM"
+  },
+  {
+   "id": "DESIGN-008",
+   "finding": "F-11 stale resize geometry (MEDIUM) - carried over, live-reproduced",
+   "type": "component",
+   "files": [
+    "crates/omega-tui/src/ui.rs",
+    "crates/omega-cli/src/main.rs"
+   ],
+   "current": "unchanged",
+   "fix": "per original plan (dims-validity flag) - partially subsumed by DESIGN-013 guard",
+   "status": "pending",
+   "severity": "MEDIUM"
+  },
+  {
+   "id": "DESIGN-009",
+   "finding": "F-9 opaque [n/n] (MEDIUM) - carried over",
+   "type": "copy",
+   "files": [
+    "crates/omega-tui/src/ui.rs"
+   ],
+   "current": "unchanged; preview_follow_tail exists but unsurfaced",
+   "fix": "per original plan",
+   "status": "pending",
+   "severity": "MEDIUM"
+  },
+  {
+   "id": "DESIGN-011",
+   "finding": "F-6 docs (LOW) - carried over",
+   "type": "docs",
+   "files": [
+    "README.md",
+    "docs/"
+   ],
+   "current": "code comment only",
+   "fix": "per original plan",
+   "status": "pending",
+   "severity": "LOW"
+  },
+  {
+   "id": "DESIGN-012",
+   "finding": "F-13 tiny-terminal notice (LOW, optional) - carried over",
+   "type": "component",
+   "files": [
+    "crates/omega-cli/src/main.rs"
+   ],
+   "current": "floor kept (prescribed); notice not added",
+   "fix": "optional per original plan",
+   "status": "pending",
+   "severity": "LOW"
+  },
+  {
+   "id": "DESIGN-020",
+   "finding": "NR-8 git status hidden behind hint/ack (LOW)",
+   "type": "component",
+   "files": [
+    "crates/omega-cli/src/main.rs"
+   ],
+   "current": "per-tab hint seeded on every arrival outranks git text",
+   "fix": "de-seed nav hints on Sessions, or let git text outrank pure-hint messages",
+   "status": "pending",
+   "severity": "LOW"
+  }
+ ]
+}

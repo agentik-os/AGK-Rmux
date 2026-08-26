@@ -1,0 +1,14 @@
+name: Review & Governance OS
+slug: review-governance
+version: 1.0.0
+category: Omega Core / Review, Risk and Governance
+position: Omega Core: closes learning loops and governs consequential change across all OSs
+default_mode: daily
+primary_boundary: "Review & Governance OS evaluates and authorizes; it does not own daily execution, rewrite source evidence, or become bureaucracy detached from risk."
+requires_human_approval_for:
+  - approving high-risk change
+  - publishing incident findings externally
+  - changing governance policy
+  - accepting residual critical risk
+  - retiring a control
+  - sharing confidential review evidence

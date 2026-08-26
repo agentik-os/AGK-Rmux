@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Value Evidence",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "engagement_id": {
+      "type": "string",
+      "description": "Engagement"
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Baseline"
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Result"
+    },
+    "method": {
+      "type": "string",
+      "description": "Measurement method"
+    },
+    "confidence_note": {
+      "type": "string",
+      "description": "Attribution limits"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "engagement_id",
+    "result",
+    "method",
+    "confidence_note"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeaudit: omega stream (b32586e, 3744f39)</title>
+<style>
+  :root{
+    color-scheme: light dark;
+    --bg:#f7f7f9; --panel:#ffffff; --panel-2:#f0f1f4; --line:#d9dbe2;
+    --ink:#14161c; --ink-2:#4a4f5c; --ink-3:#767c8b;
+    --hi:#c02d1c; --med:#a8641a; --low:#3f6f8f; --ok:#2c7a52; --info:#6b6b76;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#08090c; --panel:#0e1015; --panel-2:#13161d; --line:#23262f;
+      --ink:#e9eaef; --ink-2:#a7adba; --ink-3:#717786;
+      --hi:#f26451; --med:#e0a24a; --low:#6fb3d2; --ok:#5fbf8d; --info:#8a8f9e;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#08090c; --panel:#0e1015; --panel-2:#13161d; --line:#23262f;
+    --ink:#e9eaef; --ink-2:#a7adba; --ink-3:#717786;
+    --hi:#f26451; --med:#e0a24a; --low:#6fb3d2; --ok:#5fbf8d; --info:#8a8f9e;
+  }
+  :root[data-theme="light"]{
+    --bg:#f7f7f9; --panel:#ffffff; --panel-2:#f0f1f4; --line:#d9dbe2;
+    --ink:#14161c; --ink-2:#4a4f5c; --ink-3:#767c8b;
+    --hi:#c02d1c; --med:#a8641a; --low:#3f6f8f; --ok:#2c7a52; --info:#6b6b76;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.62;
+       font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+  .shell{max-width:1120px;margin:0 auto;padding:0 22px 90px;display:grid;grid-template-columns:1fr;gap:0}
+  @media (min-width:1000px){
+    .shell{grid-template-columns:228px 1fr;column-gap:44px;align-items:start}
+    .masthead{grid-column:1 / -1}
+    nav.toc{position:sticky;top:0;padding-top:26px;max-height:100vh;overflow:auto}
+  }
+
+  /* masthead */
+  .masthead{padding:44px 0 26px;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+  h1{font-size:clamp(26px,3.6vw,40px);line-height:1.12;letter-spacing:-.025em;margin:14px 0 10px;text-wrap:balance}
+  h1 .cmd{font-family:var(--mono);font-size:.82em;color:var(--hi)}
+  .dek{color:var(--ink-2);margin:0;max-width:66ch}
+  .meta{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px 10px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+  .meta span{border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--panel)}
+
+  /* score strip */
+  .scorestrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:26px 0 8px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .tile .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .tile .v{font-size:27px;font-weight:650;letter-spacing:-.02em;margin-top:3px}
+  .tile .n{font-size:12.5px;color:var(--ink-2)}
+  .tile.grade .v{color:var(--med)}
+  .tile.hi .v{color:var(--hi)}
+  .tile.ok .v{color:var(--ok)}
+
+  /* toc */
+  nav.toc ol{list-style:none;margin:0;padding:0;font-size:13.5px}
+  nav.toc li{margin:0 0 2px}
+  nav.toc a{display:block;padding:5px 9px;border-radius:7px;text-decoration:none;color:var(--ink-2);border-left:2px solid transparent}
+  nav.toc a:hover{background:var(--panel);color:var(--ink)}
+  nav.toc a:focus-visible{outline:2px solid var(--low);outline-offset:2px}
+  nav.toc .grp{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:16px 9px 6px}
+
+  main{min-width:0;padding-top:26px}
+  section{margin:0 0 46px;scroll-margin-top:22px}
+  h2{font-size:21px;letter-spacing:-.015em;margin:0 0 6px;text-wrap:balance}
+  h2 .num{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-right:9px}
+  h3{font-size:16px;margin:26px 0 6px;letter-spacing:-.01em}
+  p{margin:0 0 12px;max-width:70ch}
+  .lead{color:var(--ink-2)}
+  ul,ol.body{margin:0 0 12px;padding-left:20px;max-width:70ch}
+  li{margin:0 0 5px}
+  code{font-family:var(--mono);font-size:.885em;background:var(--panel-2);border:1px solid var(--line);
+       border-radius:5px;padding:1px 5px;word-break:break-word}
+  pre{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--low);border-radius:10px;
+      padding:13px 15px;overflow-x:auto;margin:0 0 14px;font-size:12.5px;line-height:1.55}
+  pre code{background:none;border:none;padding:0;font-size:12.5px}
+  .out{border-left-color:var(--ok)}
+  .bad{border-left-color:var(--hi)}
+
+  /* tables */
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:11px;background:var(--panel);margin:0 0 16px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+  th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+     background:var(--panel-2);white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.mono,th.mono{font-family:var(--mono);font-size:12px}
+
+  /* findings */
+  .f{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 14px;
+     border-left:3px solid var(--line)}
+  .f.sev-high{border-left-color:var(--hi)}
+  .f.sev-med{border-left-color:var(--med)}
+  .f.sev-low{border-left-color:var(--low)}
+  .f.sev-info{border-left-color:var(--info)}
+  .fh{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:7px}
+  .fid{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .sev{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+       border:1px solid currentColor;border-radius:999px;padding:2px 8px}
+  .sev-high .sev{color:var(--hi)} .sev-med .sev{color:var(--med)}
+  .sev-low .sev{color:var(--low)} .sev-info .sev{color:var(--info)}
+  .ft{font-size:16px;font-weight:600;letter-spacing:-.01em;flex:1 1 320px;min-width:0}
+  .loc{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin:0 0 10px;word-break:break-word}
+  .f p{max-width:78ch}
+  .fixline{border-top:1px dashed var(--line);margin-top:12px;padding-top:10px;font-size:13.5px;color:var(--ink-2)}
+  .fixline b{color:var(--ink);font-weight:600}
+
+  /* phase bars */
+  .bar{position:relative;height:7px;border-radius:4px;background:var(--panel-2);overflow:hidden;min-width:90px}
+  .bar i{position:absolute;inset:0 auto 0 0;background:var(--low);border-radius:4px}
+  .bar i.w{background:var(--med)} .bar i.b{background:var(--hi)} .bar i.g{background:var(--ok)}
+
+  .callout{background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:14px 17px;margin:0 0 16px}
+  .callout.warn{border-color:var(--hi)}
+  .callout .ct{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+
+  footer{border-top:1px solid var(--line);margin-top:20px;padding-top:18px;font-family:var(--mono);
+         font-size:11.5px;color:var(--ink-3);grid-column:1 / -1}
+  .toggle{position:fixed;right:14px;bottom:14px;z-index:9;background:var(--panel);color:var(--ink-2);
+          border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-family:var(--mono);
+          font-size:11.5px;cursor:pointer}
+  .toggle:hover{color:var(--ink)}
+  .toggle:focus-visible{outline:2px solid var(--low);outline-offset:2px}
+
+  @media print{
+    :root{--bg:#fff;--panel:#fff;--panel-2:#f4f4f6;--line:#c9ccd4;--ink:#000;--ink-2:#333;--ink-3:#555}
+    .toggle,nav.toc{display:none}
+    .shell{grid-template-columns:1fr;max-width:none;padding:0}
+    .f,.tw,pre,.tile,.callout{break-inside:avoid}
+    a{color:inherit;text-decoration:none}
+  }
+  @media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+<button class="toggle" id="tg" type="button" aria-label="Toggle colour theme">theme</button>
+<div class="shell">
+
+  <header class="masthead">
+    <div class="kicker">OmegaOS · forensic code audit · Gestalt / Popper</div>
+    <h1><span class="cmd">omega stream</span>, the mirror that can freeze while it says live</h1>
+    <p class="dek">Read-only audit of the session mirror shipped in <code>b32586e</code> plus the follow-up
+      <code>3744f39</code>. Three files, 1900 lines, fifteen falsifiable tests against a live rmux server. The
+      injection surface the operator worried about is genuinely closed. Two other things are not.</p>
+    <div class="meta">
+      <span>scope: stream.rs, main.rs (cmd_stream), omega-stream.sh</span>
+      <span>HEAD 3744f39 == origin/main</span>
+      <span>2026-07-26</span>
+      <span>worker OmegaOS-worker-codeaudit-stream</span>
+      <span>READ ONLY, no fix applied</span>
+    </div>
+
+    <div class="scorestrip">
+      <div class="tile grade"><div class="k">score</div><div class="v">78 / 100</div><div class="n">grade B, raw 329/420</div></div>
+      <div class="tile hi"><div class="k">high findings</div><div class="v">2</div><div class="n">both reproduced end to end</div></div>
+      <div class="tile"><div class="k">findings total</div><div class="v">13</div><div class="n">2 high, 4 medium, 6 low, 1 info</div></div>
+      <div class="tile ok"><div class="k">candidates killed</div><div class="v">8</div><div class="n">falsified, excluded from the score</div></div>
+      <div class="tile ok"><div class="k">confidence</div><div class="v">high</div><div class="n">15 falsifiable tests, 43/43 hinges</div></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Contents">
+    <div class="grp">Verdict</div>
+    <ol>
+      <li><a href="#answers">The four questions</a></li>
+      <li><a href="#high">Two high findings</a></li>
+      <li><a href="#medium">Medium findings</a></li>
+      <li><a href="#low">Low and info</a></li>
+    </ol>
+    <div class="grp">Evidence</div>
+    <ol>
+      <li><a href="#killed">Killed candidates</a></li>
+      <li><a href="#scores">Phase scores</a></li>
+      <li><a href="#method">Method and limits</a></li>
+      <li><a href="#bottom">Bottom line</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <section id="answers">
+    <h2><span class="num">01</span>The four questions, answered first</h2>
+    <p class="lead">The brief named four concerns. Each one got its own runtime test rather than a reading of the code.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Question</th><th>Answer</th><th>Evidence</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Shell or ssh injection through session or host names?</td>
+            <td><b style="color:var(--ok)">No.</b> Refuted at two independent layers.</td>
+            <td class="mono">7 payloads inert inside the remote single quotes; <code>'</code> refused at omega-stream.sh:85; non-slug refused at main.rs:6001</td>
+          </tr>
+          <tr>
+            <td>Does the loop ever exit on error?</td>
+            <td><b style="color:var(--ok)">No, the guarantee holds.</b></td>
+            <td class="mono">3 failure modes, all ended with <code>timeout</code> exit 124 while rendering the error</td>
+          </tr>
+          <tr>
+            <td>Unbounded probes that could hang?</td>
+            <td><b style="color:var(--hi)">Mixed.</b> The Rust probes are bounded. The loop's own capture is not.</td>
+            <td class="mono">8.02s on a black-holed box versus 12s producing zero bytes (F-001)</td>
+          </tr>
+          <tr>
+            <td>Does <code>$HOME</code> expand remotely, not locally?</td>
+            <td><b style="color:var(--ok)">Yes, remotely, correct.</b></td>
+            <td class="mono">ARGV[6] carries the literal <code>$HOME/.local/bin/rmux</code>, local home absent</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The injection question deserves its proof spelled out, because a negative result is easy to assert and hard to earn.
+      A fake <code>ssh</code> placed earlier on PATH printed the exact argv the real loop transmits:</p>
+    <pre class="out"><code>$ PATH=&lt;fake ssh&gt; timeout 4 bash scripts/omega-stream.sh fakehost 'a$(id)' 1 20
+[live]  omega stream · fakehost:a$(id) · 17:00:13 · every 1s
+ARGV[5]=fakehost
+ARGV[6]=$HOME/.local/bin/rmux capture-pane -p -t 'a$(id)' -S -20</code></pre>
+    <p>That single line answers two of the four questions. <code>$HOME</code> is transmitted literally, so it resolves on the
+      remote box, and the session name arrives inside single quotes. Feeding that exact string to a login shell with a
+      stand-in <code>rmux</code>, which is what sshd does on the far side, shows the payload staying inert:</p>
+    <pre class="out"><code>REMOTE_ARGV[3]=[a$(id)]      # also tested: backticks, ; | && , space, newline
+                             # all arrive as ONE literal argument</code></pre>
+    <p>The only character that could end the quoting is the single quote, and it is refused outright at
+      <code>omega-stream.sh:85</code>. In front of that, the Rust gate at <code>main.rs:6001</code> refuses every non-slug
+      coordinate before a viewer is ever created. Two layers, each sufficient alone, both unit-tested.
+      <code>shellcheck 0.11.0</code> is clean on the loop at default severity, which is an independent tool agreeing that
+      the quoting is not accidentally broken.</p>
+  </section>
+
+  <section id="high">
+    <h2><span class="num">02</span>Two high findings</h2>
+
+    <article class="f sev-high">
+      <div class="fh"><span class="fid">F-001</span><span class="sev">high</span>
+        <div class="ft">capture() has no wall clock, so the mirror can freeze forever while the banner still reads live</div></div>
+      <p class="loc">scripts/omega-stream.sh:131-140 (capture), :177 (the loop), :196-204 (the unreachable staleness path)</p>
+      <p><code>ConnectTimeout=10</code> bounds only the handshake. Once the connection is established, a wedged remote
+        (hung rmux server, half-open TCP, a box that stops answering after the handshake) blocks the loop inside the
+        command substitution forever. Nothing else in the script has a timer.</p>
+      <p><b>Reproduction A, never connected.</b> A fake ssh that connects and then sleeps:</p>
+      <pre class="bad"><code>$ PATH=&lt;hanging ssh&gt; timeout 12 bash scripts/omega-stream.sh fakehost somesess 1 20
+exit=124
+bytes of output produced in 12s: 0
+frames (banner lines): 0</code></pre>
+      <p>Twelve seconds at a one second interval, and the operator's screen stays completely blank. No banner, no error,
+        no hint. The "never connected" branch cannot run, because <code>capture</code> never returns.</p>
+      <p><b>Reproduction B, the mid-stream freeze, which is the dangerous one.</b> Two good frames, then the source wedges:</p>
+      <pre class="bad"><code>$ PATH=&lt;wedges after 2&gt; timeout 14 bash scripts/omega-stream.sh fakehost somesess 1 20
+[live]  omega stream · fakehost:somesess · 16:56:48 · every 1s
+FRAME 1 from the source box
+[live]  omega stream · fakehost:somesess · 16:56:49 · every 1s
+FRAME 2 from the source box
+   ... nothing for the remaining 12 seconds ...
+banner count: 2        frames labelled 'SOURCE GONE': 0</code></pre>
+      <div class="callout warn">
+        <div class="ct">why this is the worst kind of bug for this feature</div>
+        The staleness machinery exists and is correct: <code>LAST_OK</code>, the age counter, the SOURCE GONE label. It is
+        simply unreachable in this state, because it only runs after <code>capture</code> returns. So the last thing on
+        the operator's screen is a <code>[live]</code> banner with a frozen clock over a stale frame. That is verbatim the
+        state the design forbids in writing, three times over: <code>omega-stream.sh:20-23</code>,
+        <code>stream.rs:23-27</code>, and R-STREAM constraint 2, all of which say a frozen mirror must never be able to
+        pass for a quiet one. This is a promise versus delivery defect, not a missing feature.
+      </div>
+      <p>The Rust half gets exactly this right, which is what makes the gap visible. <code>probe_host_bounded</code>
+        (<code>stream.rs:414-448</code>) wraps its child in <code>tokio::time::timeout</code> with
+        <code>kill_on_drop(true)</code>, and it is measured:</p>
+      <pre class="out"><code>$ omega stream 192.0.2.1:whatever          # black-holed box
+Error: cannot list sessions on 192.0.2.1: unreachable over ssh: ... Connection timed out
+elapsed=8.02s
+$ omega stream list                        # 2 live hosts, probed in parallel
+elapsed=0.91s</code></pre>
+      <p>The short-lived probe is bounded. The long-lived puller, the one whose whole job is to notice a dead source, is not.</p>
+      <div class="fixline"><b>Fix shape.</b> Wrap both capture branches in <code>timeout $((INTERVAL + 10))</code>, add
+        <code>ServerAliveInterval=5</code> and <code>ServerAliveCountMax=2</code> to the ssh call, and give exit 124 its own
+        rendered state so the existing stale-age banner takes over.</div>
+    </article>
+
+    <article class="f sev-high">
+      <div class="fh"><span class="fid">F-002</span><span class="sev">high</span>
+        <div class="ft">viewer_name is not injective, and the CLI then tells you it is streaming the session it is not showing</div></div>
+      <p class="loc">crates/omega-core/src/stream.rs:241-250 · crates/omega-core/src/session.rs:16,38 · crates/omega-cli/src/main.rs:6063, :6176-6184</p>
+      <p>The viewer name is the identity of the mirror. It is built by string concatenation and then sanitized, and it
+        collapses two different sources onto one name in two independent ways.</p>
+      <p><b>Cause (a), the separator is ambiguous.</b> A local session that happens to look like <code>host-session</code>
+        maps onto the remote coordinate:</p>
+      <pre class="bad"><code>local  "matrix-MAC-STREAM" -> stream-matrix-MAC-STREAM
+remote "matrix:MAC-STREAM" -> stream-matrix-MAC-STREAM
+COLLIDE = true</code></pre>
+      <p><b>Cause (b), silent truncation at 48 characters</b>, and this one was reproduced live through the real binary on
+        two real sessions, 43 characters each, differing only in the last character:</p>
+      <pre class="bad"><code>$ omega stream -d audit-stream-collision-probe-session-name-A
+Streaming ...-A → session stream-audit-stream-collision-probe-session-name
+
+$ omega stream -d audit-stream-collision-probe-session-name-B
+Already streaming ...-B in session stream-audit-stream-collision-probe-session-name
+  — reusing it (a second puller would interleave).
+
+$ rmux capture-pane -p -t stream-audit-stream-collision-probe-session-nam
+[live]  omega stream · local:audit-stream-collision-probe-session-name-A · 16:57
+I am SESSION A
+I am SESSION A</code></pre>
+      <p>The operator asked for B, was told they got B, and is looking at A. For a mirror, silently wrong data presented as
+        live is the worst available failure. <code>omega stream list</code> cannot rescue them either, because the
+        "already mirrored" index matches on the same colliding name and marks both sources as mirrored while one viewer exists.</p>
+      <div class="callout">
+        <div class="ct">this is not theoretical on this box</div>
+        A live viewer right now is <code>stream-moonbasecapital-MoonBaseCapital-claude</code>, 44 characters. Four more
+        characters in the session name and it starts truncating. Real OmegaOS worker names sit right at the cliff: two
+        workers named <code>...-verification-a</code> and <code>...-verification-b</code> already collide.
+      </div>
+      <div class="fixline"><b>Fix shape.</b> Append a short hash of <code>label()</code> whenever the composed name would
+        exceed the cap, make the host and session boundary unambiguous, and at <code>main.rs:6063</code> verify that an
+        existing viewer is really mirroring the requested target before printing "reusing it".</div>
+    </article>
+  </section>
+
+  <section id="medium">
+    <h2><span class="num">03</span>Medium findings</h2>
+
+    <article class="f sev-med">
+      <div class="fh"><span class="fid">F-003</span><span class="sev">medium</span>
+        <div class="ft">No upper bound on --interval, so a typo buys a permanently frozen viewer labelled live</div></div>
+      <p class="loc">crates/omega-cli/src/main.rs:5990-5995</p>
+      <p>Only zero is refused. <code>u32::MAX</code> is accepted, the viewer renders exactly one frame, and then sleeps for
+        136 years under a <code>[live]</code> banner:</p>
+      <pre class="bad"><code>$ omega stream -d audit-stream-src --lines 4294967295 --interval 4294967295
+Streaming audit-stream-src → session stream-audit-stream-src (... every 4294967295s, 4294967295 lines).
+$ rmux capture-pane -p -t stream-audit-stream-src | grep 'omega stream'
+[live]  omega stream · local:audit-stream-src · 16:57:45 · every 4294967295s</code></pre>
+      <p>The <code>--lines</code> half of that command is harmless and the theory was falsified: rmux clamps to the
+        available scrollback, measured at 1522 bytes for a <code>-S -4294967295</code> request.</p>
+      <div class="fixline"><b>Fix shape.</b> Ceilings beside the existing zero checks, in the same style of named error.</div>
+    </article>
+
+    <article class="f sev-med">
+      <div class="fh"><span class="fid">F-004</span><span class="sev">medium</span>
+        <div class="ft">The slug rule is enforced in the CLI, not in the module that builds a shell-evaluated command</div></div>
+      <p class="loc">crates/omega-core/src/stream.rs:220-225 (the doc comment), :274-303 (viewer_command), :475-510 (create_viewer)</p>
+      <p>The sink is real, not hypothetical. rmux evaluates the new-session command string with a shell:</p>
+      <pre class="bad"><code>$ rmux new-session -d -s probe 'echo SHELL_SINK_$(id -un) > /tmp/probe.txt; sleep 3'
+$ cat /tmp/probe.txt
+SHELL_SINK_vibe</code></pre>
+      <p>And the unguarded builder will happily produce the payload for a coordinate nobody validated:</p>
+      <pre class="bad"><code>viewer_command(Local{ session: "a;id" }) = "/home/vibe/.omega/bin/omega-stream.sh local a;id 3 120"</code></pre>
+      <p>Not exploitable today: a grep across <code>crates/</code> finds zero callers outside <code>main.rs</code>, and the
+        CLI gate refuses that coordinate first. It is a latent defense-in-depth gap, one new caller (TUI, daemon, RPC) away
+        from being real, and the compiler will not say a word.</p>
+      <div class="fixline"><b>Fix shape.</b> Enforce <code>is_safe_coordinate</code> inside <code>create_viewer</code> and
+        make <code>viewer_command</code> private or fallible.</div>
+    </article>
+
+    <article class="f sev-med">
+      <div class="fh"><span class="fid">F-005</span><span class="sev">medium</span>
+        <div class="ft">The two halves disagree about where rmux lives</div></div>
+      <p class="loc">crates/omega-core/src/stream.rs:254-262 versus scripts/omega-stream.sh:41</p>
+      <p>Rust prefers <code>$HOME/.local/bin/rmux</code> and falls back to <code>rmux</code> on PATH. The shell hardcodes the
+        canonical path with no fallback. On any box where rmux lives elsewhere (Homebrew on macOS, which the script
+        explicitly supports at :151, or <code>cargo install --root</code>), preflight goes green and the viewer renders a
+        failure forever. Mechanism reproduced by running the loop with a HOME that has no <code>.local/bin/rmux</code>
+        while the session existed:</p>
+      <pre class="bad"><code>  state : SESSION NOT FOUND
+  exit  : 127
+  error : .../nohome/.local/bin/rmux: No such file or directory</code></pre>
+      <p>Bounded honesty: the full end-to-end divergence is not reproducible on this box, because rmux is at the canonical
+        path here and a viewer inherits the rmux server's HOME. The mechanism is proven, the environment is not available.</p>
+      <div class="fixline"><b>Fix shape.</b> Resolve rmux in the script the way <code>rmux_bin()</code> does, and fail loudly
+        when neither location exists.</div>
+    </article>
+
+    <article class="f sev-med">
+      <div class="fh"><span class="fid">F-006</span><span class="sev">medium</span>
+        <div class="ft">local is a magic target with no reserved-name guard</div></div>
+      <p class="loc">crates/omega-core/src/stream.rs:100-103 · scripts/omega-stream.sh:132</p>
+      <p>Nothing rejects an ssh alias literally named <code>local</code>:</p>
+      <pre class="bad"><code>parse_target("local:BluePrint-OS") = Remote { host: "local", session: "BluePrint-OS" }
+host_arg() = "local"        &lt;- exactly the loop's local-branch sentinel</code></pre>
+      <p>Preflight would probe the remote box over ssh and confirm the session there, then the viewer would read a
+        <em>local</em> session of the same name and label it live. No such alias exists in <code>~/.ssh/config</code> on this
+        box, so it is latent here. It costs one <code>bail!</code> to close.</p>
+      <div class="fixline"><b>Fix shape.</b> Refuse <code>local</code> as a host alias, or pass a sentinel that cannot be an alias.</div>
+    </article>
+  </section>
+
+  <section id="low">
+    <h2><span class="num">04</span>Low and info</h2>
+    <div class="tw">
+      <table>
+        <thead><tr><th>ID</th><th>Finding</th><th class="mono">Location</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">F-007</td>
+            <td><b>is_safe_coordinate accepts option-shaped coordinates.</b> <code>-E</code>, <code>-vvv</code>,
+              <code>-i</code> and <code>--</code> all pass, so a coordinate can reach ssh as an option rather than a host
+              when <code>~/.ssh/config</code> has an <code>Include</code> (proven: the error detail came back as
+              <code>ssh [-Q query_option]</code>). Escalation to an arbitrary file write via <code>ssh -E &lt;logfile&gt;</code>
+              was attempted and failed, so the consequence is a confusing error. Fix is one condition: also refuse a leading dash.</td>
+            <td class="mono">stream.rs:226-230</td></tr>
+          <tr><td class="mono">F-008</td>
+            <td><b>The local branch has no discriminator.</b> Every local failure is labelled SESSION NOT FOUND, including a
+              missing rmux binary (exit 127) for a session that exists. The error line tells the truth, the big label does not.</td>
+            <td class="mono">omega-stream.sh:190-194</td></tr>
+          <tr><td class="mono">F-009</td>
+            <td><b>Temp file lifecycle.</b> The <code>mktemp</code> fallback is a predictable
+              <code>/tmp/omega-stream.$$.err</code>, and the EXIT trap cannot fire under SIGKILL, so each hard-killed viewer
+              leaks a zero-byte file. Measured: unchanged count across SIGKILL, cleaned on SIGTERM. Today 5 files match 5 live viewers.</td>
+            <td class="mono">omega-stream.sh:93-94</td></tr>
+          <tr><td class="mono">F-010</td>
+            <td><b>A session named list is unreachable by its own name</b>, since the target is consumed as the subcommand.
+              An escape hatch works and is documented nowhere: <code>omega stream :list</code> streams it, thanks to the
+              degenerate-colon rule.</td>
+            <td class="mono">main.rs:5986, :516</td></tr>
+          <tr><td class="mono">F-011</td>
+            <td><b>No L0 parity gate for the stream loop.</b> <code>install.sh:1171-1175</code> installs it and the installed
+              copy is byte-identical, but <code>verify-install.sh</code> never checks it, while it does gate other assets.
+              A regression in the copy block would pass.</td>
+            <td class="mono">verify-install.sh:423</td></tr>
+          <tr><td class="mono">F-012</td>
+            <td><b>Zero automated coverage of the shell half.</b> Nineteen good Rust tests, all passing; zero tests for the
+              file that carries the never-exit invariant and the staleness state machine. Both high findings live in exactly
+              that untested region, and no test asserts that <code>viewer_name</code> is injective. The fake-ssh harness used
+              for this audit is about fifteen lines.</td>
+            <td class="mono">omega-stream.sh (all)</td></tr>
+          <tr><td class="mono">F-013</td>
+            <td><b>No log sink anywhere in the loop</b> (info). For a screen mirror that is largely by design; the cost is that
+              a viewer that never connected leaves no trace once it is killed.</td>
+            <td class="mono">omega-stream.sh (all)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="killed">
+    <h2><span class="num">05</span>Killed candidates</h2>
+    <p class="lead">Eight accusations did not survive their own falsification test. They are recorded rather than quietly
+      dropped, because a finding earns its place by resisting an honest attempt to destroy it.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Candidate</th><th>Why it died</th></tr></thead>
+        <tbody>
+          <tr><td>Command injection via session or host name</td><td>7 payloads arrive as literal argv on the remote side, the single quote is refused, and the Rust gate refuses everything non-slug first</td></tr>
+          <tr><td>Local <code>$HOME</code> leaking into the remote command</td><td>the literal <code>$HOME</code> is what ssh transmits, verified in the argv; the local home appears nowhere</td></tr>
+          <tr><td>The loop exits on error and kills the viewer</td><td>exit 124 under <code>timeout</code> in three separate failure modes, with frames rendering throughout</td></tr>
+          <tr><td>Rust probes can hang <code>omega stream list</code></td><td>8.02s on a black hole, 0.91s on two live hosts, and the wall clock is unit-tested against a TEST-NET address</td></tr>
+          <tr><td><code>--lines</code> can blow memory</td><td>rmux clamps to available scrollback, 1522 bytes for a <code>u32::MAX</code> request</td></tr>
+          <tr><td>TOCTOU between <code>session_exists</code> and <code>create_viewer</code> starts two pullers</td><td>rmux refuses duplicate names (<code>duplicate session</code>, exit 1), so the race surfaces as an error</td></tr>
+          <tr><td>A hung ssh child is orphaned when the loop dies</td><td>no survivor in <code>ps -eo pid,ppid,etimes,args</code></td></tr>
+          <tr><td>Unpushed work or config drift (L0)</td><td><code>HEAD == origin/main == 3744f39</code>, working tree clean at audit close</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="scores">
+    <h2><span class="num">06</span>Phase scores, raw 329 of 420</h2>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Phase</th><th class="mono">weight</th><th class="mono">score</th><th>profile</th><th>note</th></tr></thead>
+        <tbody>
+          <tr><td>1 Phantoms</td><td class="mono">3.0</td><td class="mono">27</td><td><div class="bar"><i class="g" style="width:90%"></i></div></td><td>script path checked before creation, install parity real</td></tr>
+          <tr><td>2 Dependencies</td><td class="mono">2.0</td><td class="mono">16</td><td><div class="bar"><i class="g" style="width:80%"></i></div></td><td>no new deps, but 230 more lines into a 305 KB god file</td></tr>
+          <tr><td>3 Contracts</td><td class="mono">2.5</td><td class="mono">12.5</td><td><div class="bar"><i class="b" style="width:50%"></i></div></td><td>F-002a, F-004, F-005, F-008, F-010</td></tr>
+          <tr><td>4 Data Flow</td><td class="mono">3.0</td><td class="mono">24</td><td><div class="bar"><i class="g" style="width:80%"></i></div></td><td>taint validated twice, F-007 only</td></tr>
+          <tr><td>5 State Mutation</td><td class="mono">2.5</td><td class="mono">17.5</td><td><div class="bar"><i style="width:70%"></i></div></td><td>frame state correct, frozen state reachable</td></tr>
+          <tr><td>6 Concurrency</td><td class="mono">3.0</td><td class="mono">12</td><td><div class="bar"><i class="b" style="width:40%"></i></div></td><td>F-001, the missing wall clock</td></tr>
+          <tr><td>7 Blast Radius</td><td class="mono">2.0</td><td class="mono">16</td><td><div class="bar"><i class="g" style="width:80%"></i></div></td><td>viewers isolated, one can serve two sources</td></tr>
+          <tr><td>8 Time Bombs</td><td class="mono">2.0</td><td class="mono">12</td><td><div class="bar"><i class="w" style="width:60%"></i></div></td><td>48-char cliff, interval ceiling, /tmp leak</td></tr>
+          <tr><td>9 Supply Chain</td><td class="mono">2.0</td><td class="mono">20</td><td><div class="bar"><i class="g" style="width:100%"></i></div></td><td>no new deps, no network install</td></tr>
+          <tr><td>10 Error Propagation</td><td class="mono">3.0</td><td class="mono">24</td><td><div class="bar"><i class="g" style="width:80%"></i></div></td><td>typed outcomes, never Err, never exits</td></tr>
+          <tr><td>11 Behavioral</td><td class="mono">2.0</td><td class="mono">14</td><td><div class="bar"><i style="width:70%"></i></div></td><td>verified live, frozen-live found</td></tr>
+          <tr><td>12 Config Drift</td><td class="mono">2.0</td><td class="mono">16</td><td><div class="bar"><i class="g" style="width:80%"></i></div></td><td>clean and pushed, verify-install gap</td></tr>
+          <tr><td>12.5 Feature Verification</td><td class="mono">3.0</td><td class="mono">21</td><td><div class="bar"><i style="width:70%"></i></div></td><td>full surface exercised, 3 findings</td></tr>
+          <tr><td>13 Entropy</td><td class="mono">1.5</td><td class="mono">12</td><td><div class="bar"><i class="g" style="width:80%"></i></div></td><td>knowledge duplicated across the language boundary</td></tr>
+          <tr><td>14 Git Forensics</td><td class="mono">1.5</td><td class="mono">15</td><td><div class="bar"><i class="g" style="width:100%"></i></div></td><td>coherent, pushed, constraints in the message</td></tr>
+          <tr><td>15 Runtime</td><td class="mono">2.0</td><td class="mono">16</td><td><div class="bar"><i class="g" style="width:80%"></i></div></td><td>live probes clean, SIGKILL leak</td></tr>
+          <tr><td>16 Observability</td><td class="mono">2.5</td><td class="mono">15</td><td><div class="bar"><i class="w" style="width:60%"></i></div></td><td>no log sink</td></tr>
+          <tr><td>17 Test Coverage</td><td class="mono">2.5</td><td class="mono">15</td><td><div class="bar"><i class="w" style="width:60%"></i></div></td><td>19 good Rust tests, 0 shell tests</td></tr>
+          <tr><td>18 API Contracts</td><td class="mono">2.0</td><td class="mono">14</td><td><div class="bar"><i style="width:70%"></i></div></td><td>unguarded public API</td></tr>
+          <tr><td>19 Resilience</td><td class="mono">2.0</td><td class="mono">10</td><td><div class="bar"><i class="b" style="width:50%"></i></div></td><td>never exits, but can freeze</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><code>329 / 420 = 78.3</code>, normalized to <b>78 / 100, grade B</b>.</p>
+  </section>
+
+  <section id="method">
+    <h2><span class="num">07</span>Method, and what was not done</h2>
+    <p>Fifteen falsifiable tests, most against live artifacts: a real rmux server, the real release binary, the real ssh
+      binary, fake ssh stubs placed earlier on PATH, and a probe crate that depends on the repo crate by path so that every
+      pure-function claim calls the <em>real</em> <code>omega_core::stream</code> functions rather than a re-implementation.
+      Independent tool lenses agreed: release build exit 0, zero clippy warnings attributable to <code>stream.rs</code>,
+      20 of 20 tests passing in 1.00s, shellcheck clean at default severity. All 43 hinge regions from
+      <code>hinge-analyzer.sh</code> are accounted for: 19 in <code>stream.rs</code>, 23 in <code>main.rs</code> (all inside
+      <code>cmd_stream</code>, <code>stream_attach</code> and <code>cmd_stream_list</code>), and 1 in <code>rules.rs</code>
+      which is doctrine text with no logic.</p>
+    <p>Every disposable rmux session created for the runtime probes was killed afterwards, and the final session list
+      contains only the operator's own sessions.</p>
+    <h3>Stated limits</h3>
+    <ul>
+      <li><b>Phases 21 to 23 (fix execution and re-audit) were not run.</b> The brief is read only, so the fix plan carries
+        every task as <code>pending</code> and no source file was touched.</li>
+      <li><b>F-005 end to end</b> is not reproducible on this box, because rmux is at the canonical path here. The mechanism
+        is proven, the environment is not available.</li>
+      <li><b>F-007 escalation</b> to an arbitrary file write was attempted and failed, so it stands as a hygiene gap, not a
+        vulnerability.</li>
+      <li><b>No hostile payload was fired at a real remote box over real ssh.</b> The far side was reproduced faithfully by
+        feeding the exact transmitted command string to a login shell with a stand-in rmux, which is what sshd does, and it
+        is labelled as a simulation.</li>
+      <li><b>The 12 second wall clock itself</b> was exercised only by the existing unit test at a 1 second bound. Every live
+        probe was ended earlier by ssh's own <code>ConnectTimeout=8</code>.</li>
+      <li><b>Out of scope, not pursued:</b> <code>crates/omega-cli/src/main.rs</code> is a 305 KB god file, flagged HIGH by the
+        Phase 0 gather, and this change added roughly 230 lines to it.</li>
+    </ul>
+  </section>
+
+  <section id="bottom">
+    <h2><span class="num">08</span>Bottom line</h2>
+    <p>The engineering discipline here is real, and the audit tried hard to prove otherwise. The five constraints are
+      enforced rather than merely documented, the failure taxonomy is typed instead of stringly, preflight refuses to create
+      a viewer that would die instantly, and the injection surface that worried the operator most is genuinely closed at two
+      layers with tests that will keep it closed.</p>
+    <p>Two things undercut it, and both live in the shell half, which has no automated coverage at all. The loop can freeze
+      forever behind a <code>[live]</code> banner because the one call that must have a wall clock does not have one. The
+      viewer name is not injective, which was reproduced live showing the wrong session under the right label. Fix F-001 and
+      F-002, add the fifteen-line fake-ssh harness that would have caught them, and this is an A.</p>
+  </section>
+
+  </main>
+
+  <footer>
+    codeaudit v3, Gestalt / Popper · scope b32586e + 3744f39 · 78/100 grade B · confidence high · 13 findings, 8 candidates falsified<br>
+    machine-readable: <code>.audit/verdict.json</code> · fix plan: <code>.audit/fix-plan.json</code> · per-track evidence: <code>.audit/reports/</code> · source of this page: <code>agentic/reports/codeaudit-stream-2026-07-26.html</code>
+  </footer>
+</div>
+<script>
+  (function(){
+    var b=document.getElementById('tg');
+    b.addEventListener('click',function(){
+      var cur=document.documentElement.getAttribute('data-theme');
+      if(!cur){cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+      document.documentElement.setAttribute('data-theme', cur==='dark'?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>

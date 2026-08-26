@@ -1,0 +1,318 @@
+{
+  "name": "Blueprint OS",
+  "slug": "blueprint",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Compile software, AI, platform, service, marketplace, mobile, web, or internal-tool ideas and existing project context into a complete, coherent, traceable Product + Technical Definition Pack before implementation planning or coding.",
+  "category": "Product Stack",
+  "position": "Product Stack: Product + Technical Definition Pack, first stage of the IMPLEMENT branch (Strategy -> Blueprint -> Design -> Stepper -> Builder)",
+  "counts": {
+    "agents": 0,
+    "skills": 1,
+    "protocols": 0,
+    "references": 7,
+    "scripts": 10,
+    "assets": 4,
+    "files": 49
+  },
+  "files": [
+    {
+      "path": "assets/blueprint-role-prompts.json",
+      "sha256": "f1f5e31079e28c26f83f1f82d762eeb76d0d71cac818ca417106f290adbebeb0",
+      "bytes": 8248
+    },
+    {
+      "path": "assets/blueprint-state.schema.json",
+      "sha256": "805fc0fc68aef301d8d246208b22f8f408e4794f2784253982f842e1d0e15798",
+      "bytes": 9409
+    },
+    {
+      "path": "assets/blueprint-tools.json",
+      "sha256": "55c63e1b86d7454e152579ecde162d6b994451b90c2d7b5dae3550a1791fa41d",
+      "bytes": 16149
+    },
+    {
+      "path": "assets/omega-os.manifest.json",
+      "sha256": "3852325317e65f66345ddb11c9fe8e71df4a8c02bc8e9ec68721f1b45c842f93",
+      "bytes": 2947
+    },
+    {
+      "path": "bin/omega-blueprint",
+      "sha256": "f7c20a8637dcbb33da1dbb5faad4d6dcdc279ef0a2f13730317b27211b24a0f1",
+      "bytes": 1151
+    },
+    {
+      "path": "commands/codex-blueprint-os.md",
+      "sha256": "3e7b908d819f6e11ff3016be3e32ef879e790e62a55a20e52f00edac3d5583c9",
+      "bytes": 1987
+    },
+    {
+      "path": "legacy/references/challenge.md",
+      "sha256": "92d1ba2c53b848338f68f89de8f2131232858c040e324f0750ea0dcc5b902f04",
+      "bytes": 6535
+    },
+    {
+      "path": "legacy/references/doctrine.md",
+      "sha256": "0a53be2d20d38fa85baa1b163a0d25cb17d714b85753a53671789eaf53fe349d",
+      "bytes": 9847
+    },
+    {
+      "path": "legacy/references/market-elite.md",
+      "sha256": "9e4d760d4d51b6653e86b993f4141a527820e0980aaa3b5e22ee8515e97c8939",
+      "bytes": 6358
+    },
+    {
+      "path": "legacy/references/output-template.md",
+      "sha256": "379dde2d6bee52b7533f019239265bec8802af2b36861c2ade4dfa6e096d0d7a",
+      "bytes": 7519
+    },
+    {
+      "path": "legacy/references/parity.md",
+      "sha256": "806cf3c3dac3d90db3a9c041575a8dc5fe6afbf0389f9a6fdd8c141c49b06710",
+      "bytes": 7051
+    },
+    {
+      "path": "legacy/references/stack-stax.md",
+      "sha256": "4372be0028eec2b0a6a7e0251eee3dbd0341250b6992efb09577a2312c3d4dbc",
+      "bytes": 7626
+    },
+    {
+      "path": "legacy/SKILL-v1.md",
+      "sha256": "2981fab6ab670d8e2ab9705d1139231e395361c7baa5265d6a0fd348912d7bc6",
+      "bytes": 16368
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "758d60b9962514bb84e01e5c49cfcd8afa97e1177578f22b96403fc6dee4ff90",
+      "bytes": 3218
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "e1faca25950607ce63e7356e534efdac2b86b219208ebdc3c6a3decc6a729b4b",
+      "bytes": 1822
+    },
+    {
+      "path": "pack/blueprint_os.py",
+      "sha256": "893d4dac147f6ded7b3411fff46e4a1946c1f51c87c029072ac5db1a7d4f7043",
+      "bytes": 16602
+    },
+    {
+      "path": "pack/blueprint-contract.md",
+      "sha256": "d85b88b5fbc130e4a28a39666b55820583ace4123eb2db76482efc9bda8677db",
+      "bytes": 12845
+    },
+    {
+      "path": "pack/blueprint-role-prompts.json",
+      "sha256": "f1f5e31079e28c26f83f1f82d762eeb76d0d71cac818ca417106f290adbebeb0",
+      "bytes": 8248
+    },
+    {
+      "path": "pack/blueprint-state.schema.json",
+      "sha256": "805fc0fc68aef301d8d246208b22f8f408e4794f2784253982f842e1d0e15798",
+      "bytes": 9409
+    },
+    {
+      "path": "pack/blueprint-tools.json",
+      "sha256": "55c63e1b86d7454e152579ecde162d6b994451b90c2d7b5dae3550a1791fa41d",
+      "bytes": 16149
+    },
+    {
+      "path": "pack/deep-guide.md",
+      "sha256": "0909f073e8b5c4aae9ee8dccbe24adc05254555b20d22cc11e95662852edd9c1",
+      "bytes": 11620
+    },
+    {
+      "path": "pack/functions-and-state.md",
+      "sha256": "263933ad6c5517cb99b200e16555fbffef6b08bb8816cf31dc60449b32ba1db3",
+      "bytes": 7393
+    },
+    {
+      "path": "pack/install_omega_os.py",
+      "sha256": "5ff97fe7e8c83c3d7f6bb5d916b38f4b3da844bd1658e53c53be5de82b1fa524",
+      "bytes": 6287
+    },
+    {
+      "path": "pack/omega-blueprint-skill.md",
+      "sha256": "3b619de2fca6b85cba5289f86e63eb257d716fd2415688c24b37c1ec5cfd7846",
+      "bytes": 4889
+    },
+    {
+      "path": "pack/omega-os-integration.md",
+      "sha256": "60d88172648694779a050c354d0fa6e1e6ac30cfb4ceaa98fd9ae62a0eb8400d",
+      "bytes": 9034
+    },
+    {
+      "path": "pack/omega-os.manifest.json",
+      "sha256": "3852325317e65f66345ddb11c9fe8e71df4a8c02bc8e9ec68721f1b45c842f93",
+      "bytes": 2947
+    },
+    {
+      "path": "pack/orchestration-and-gates.md",
+      "sha256": "e9fdb434afce0743696d9bc1285eca49e95213c81453491f5e899ae0d84612d1",
+      "bytes": 10502
+    },
+    {
+      "path": "pack/response-and-continuation.md",
+      "sha256": "e17ff0dda34800663387e43322a9e1b240fedaaaf85a44d35d001929cf9157a2",
+      "bytes": 4818
+    },
+    {
+      "path": "pack/system-prompt.md",
+      "sha256": "b4eb676c05fc790ff233c54c34ee70fb0aef3e7c6bee274ae716fa21505db544",
+      "bytes": 33293
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "e4213962883842ff861f3c5842e9596b39e80f027835a16b56b577f5e3569365",
+      "bytes": 3882
+    },
+    {
+      "path": "README.md",
+      "sha256": "b571d083c4d21d54b873becb0daf37594008880256349cbe58717dd26bf4dd17",
+      "bytes": 3981
+    },
+    {
+      "path": "references/blueprint-contract.md",
+      "sha256": "d85b88b5fbc130e4a28a39666b55820583ace4123eb2db76482efc9bda8677db",
+      "bytes": 12845
+    },
+    {
+      "path": "references/deep-guide.md",
+      "sha256": "0909f073e8b5c4aae9ee8dccbe24adc05254555b20d22cc11e95662852edd9c1",
+      "bytes": 11620
+    },
+    {
+      "path": "references/functions-and-state.md",
+      "sha256": "263933ad6c5517cb99b200e16555fbffef6b08bb8816cf31dc60449b32ba1db3",
+      "bytes": 7393
+    },
+    {
+      "path": "references/omega-os-integration.md",
+      "sha256": "60d88172648694779a050c354d0fa6e1e6ac30cfb4ceaa98fd9ae62a0eb8400d",
+      "bytes": 9034
+    },
+    {
+      "path": "references/orchestration-and-gates.md",
+      "sha256": "e9fdb434afce0743696d9bc1285eca49e95213c81453491f5e899ae0d84612d1",
+      "bytes": 10502
+    },
+    {
+      "path": "references/response-and-continuation.md",
+      "sha256": "e17ff0dda34800663387e43322a9e1b240fedaaaf85a44d35d001929cf9157a2",
+      "bytes": 4818
+    },
+    {
+      "path": "references/system-prompt.md",
+      "sha256": "b4eb676c05fc790ff233c54c34ee70fb0aef3e7c6bee274ae716fa21505db544",
+      "bytes": 33293
+    },
+    {
+      "path": "scripts/blueprint_os.py",
+      "sha256": "893d4dac147f6ded7b3411fff46e4a1946c1f51c87c029072ac5db1a7d4f7043",
+      "bytes": 16602
+    },
+    {
+      "path": "scripts/blueprint-check.sh",
+      "sha256": "71c39039ba48d87c5929570976407ac56daa80bd852fc33d7a49b089295f0c59",
+      "bytes": 17604
+    },
+    {
+      "path": "scripts/blueprint-diff.sh",
+      "sha256": "a44830eb8d8e31511d9a9a2df5722628d256fb42aa6c5693d3421256afbf3ea1",
+      "bytes": 5312
+    },
+    {
+      "path": "scripts/convex-validate.sh",
+      "sha256": "76b8dc69234863712b9d7c7f4c4454587340451c569dfc15c0a699f00ad46803",
+      "bytes": 4054
+    },
+    {
+      "path": "scripts/install_omega_os.py",
+      "sha256": "5ff97fe7e8c83c3d7f6bb5d916b38f4b3da844bd1658e53c53be5de82b1fa524",
+      "bytes": 6287
+    },
+    {
+      "path": "scripts/lib/schema_parse.py",
+      "sha256": "4e314357cbac4be7692c12ea7372245e2f6aabcffb9b8fd9bf1d11057ce22d1c",
+      "bytes": 6813
+    },
+    {
+      "path": "scripts/plan_build.py",
+      "sha256": "e3563c1ceb124556eea31c4e9afee0176972a71443f1ac2710ce0021a5987062",
+      "bytes": 17304
+    },
+    {
+      "path": "scripts/runner.py",
+      "sha256": "83f9025a53b71558c84fa5d21edbda5927f4b84ec59f80cb53cc1ad89e705e2f",
+      "bytes": 12455
+    },
+    {
+      "path": "scripts/stax_derive.py",
+      "sha256": "81f79d09ea33117cab9f00db9d5c488601c8488c5f5a0ac8d9dbd0406a75056f",
+      "bytes": 15099
+    },
+    {
+      "path": "scripts/stax_emit.py",
+      "sha256": "06f3414b18766a7dedbdf212e8da05daf10832b375ba43d24efe927436ca3935",
+      "bytes": 8296
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "0a7183a4a2021894f22ef38fdab9810d52b3302fc44398089b4c82013a7bd1d4",
+      "bytes": 5056
+    }
+  ],
+  "commands": {
+    "root": "/blueprint",
+    "aliases": []
+  },
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "blueprint.completed",
+        "consumed_by": [
+          "design",
+          "stepper"
+        ],
+        "payload": {
+          "blueprint_id": "string",
+          "project_id": "string",
+          "contracts": "object (product/ux/domain/data/api/ai/security/operations/test contracts)",
+          "stable_ids": "array<string>",
+          "status": "string (completed)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "strategy.product_bet.approved",
+        "produced_by": "strategy-portfolio",
+        "payload": {
+          "id": "string",
+          "product_bet": "object",
+          "status": "string (approved)"
+        }
+      },
+      {
+        "name": "market.validation.completed",
+        "produced_by": "market-research",
+        "payload": {
+          "id": "string",
+          "validation": "object",
+          "status": "string (completed)"
+        }
+      },
+      {
+        "name": "brainstorm.concept.selected",
+        "produced_by": "brainstorm",
+        "payload": {
+          "id": "string",
+          "concept": "object",
+          "status": "string (selected)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

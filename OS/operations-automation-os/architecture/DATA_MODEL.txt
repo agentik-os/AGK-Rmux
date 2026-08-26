@@ -1,0 +1,43 @@
+Operations & Automation OS — Logical data model
+
+ENTITIES
+- process
+- process_step
+- process_metric
+- exception_case
+- automation_candidate
+- automation_blueprint
+- integration_contract
+- automation_run
+- automation_incident
+
+RELATIONSHIPS
+- process HAS process_steps/metrics/exceptions
+- automation_candidate TARGETS process or steps
+- automation_blueprint DERIVED_FROM approved candidate
+- integration_contract USED_BY blueprint
+- automation_run EXECUTES blueprint
+- automation_incident AFFECTS runs
+- SOP DESCRIBES process
+- Review & Governance APPROVES high-risk blueprint
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- operations.process.discovered
+- operations.map.approved
+- automation.candidate.scored
+- automation.blueprint.approved
+- automation.run.started
+- automation.run.failed
+- automation.review.requested
+- automation.reconciled
+- automation.incident.opened
+- automation.retired

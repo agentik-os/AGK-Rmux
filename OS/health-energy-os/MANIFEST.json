@@ -1,0 +1,442 @@
+{
+  "name": "Health & Energy OS",
+  "slug": "health-energy",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Build and protect the user’s physical and cognitive capacity through sleep, movement, training, nutrition, recovery, stress regulation, environment and appropriate professional care.",
+  "category": "Personal Stack / Health Capacity",
+  "position": "Personal Stack: upstream capacity provider for Habit, Execution and Strategy OS",
+  "counts": {
+    "agents": 12,
+    "skills": 18,
+    "protocols": 8,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 77
+  },
+  "files": [
+    {
+      "path": "agents/behavior_designer.md",
+      "sha256": "c0f9903679d16ea6678dae14f1c5a33cf1736a5b43e6f41401023339ad6d6287",
+      "bytes": 959
+    },
+    {
+      "path": "agents/circadian_light_coach.md",
+      "sha256": "b066a6fa34e7cc6937bf17db4d3ca124b1a254ce7be671f0d02a3e6020eca0d0",
+      "bytes": 984
+    },
+    {
+      "path": "agents/evidence_translator.md",
+      "sha256": "5a712665a18cd827d5a6e55fa251494fde13a2874a09e30f6cc3ad06a2a76b8e",
+      "bytes": 959
+    },
+    {
+      "path": "agents/experiment_designer.md",
+      "sha256": "e7897bf0683bd09b2c0532092104f86328a14294f129c125b69cd1ad02917c08",
+      "bytes": 957
+    },
+    {
+      "path": "agents/health_integrator.md",
+      "sha256": "aa538a7931052945eb6a50187241ac008d006fd73562a30acfa4d4e12340a38a",
+      "bytes": 954
+    },
+    {
+      "path": "agents/medical_safety_gate.md",
+      "sha256": "b050980c36e881678af7059fa9972e5b29a266a7571d900a0edac5273d5dcc81",
+      "bytes": 981
+    },
+    {
+      "path": "agents/movement_coach.md",
+      "sha256": "c40996c933c2a801dfd70bda9b0a596f5a0d8e881eb924c51e4b3c5fc54caaf8",
+      "bytes": 968
+    },
+    {
+      "path": "agents/nutrition_coach.md",
+      "sha256": "114ce1f792520117721fd5c6f1190d16953546ffd0dfa9287822e45dcab310ac",
+      "bytes": 974
+    },
+    {
+      "path": "agents/recovery_stress_coach.md",
+      "sha256": "611f629855b6c3cced01362912c4d2ec7fcdb874e23b9b0aa371a07e94a54b58",
+      "bytes": 978
+    },
+    {
+      "path": "agents/sleep_architect.md",
+      "sha256": "05eab1c799c1b863ca0fcff5dc059cd9f61078f2916f3a584f1bcd5e757cb24e",
+      "bytes": 981
+    },
+    {
+      "path": "agents/training_coach.md",
+      "sha256": "6b8deb2a6d65d5588b2bb38918e8891863d6723a93035657798ca9a26e3ae199",
+      "bytes": 978
+    },
+    {
+      "path": "agents/wearable_analyst.md",
+      "sha256": "d8e5d3d48ddf224e70e744c054182917163f3b1dc63ca190fc11d6a17d155281",
+      "bytes": 960
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "d2581bce8b33cfae777a543f4b48ee7f43894a0800136f3fbbb9ca3e17380963",
+      "bytes": 852
+    },
+    {
+      "path": "architecture/DATA_MODEL.txt",
+      "sha256": "4b7af9c9b0b641f6e54f64b90a868dfce27729ec9e0fcc9e854a2800b65e16d9",
+      "bytes": 687
+    },
+    {
+      "path": "architecture/SECURITY.md",
+      "sha256": "c35516600216990c6987b572e8377b8fa4f3436b2a3e6e5649fc6faf821cb358",
+      "bytes": 986
+    },
+    {
+      "path": "architecture/STATE_MACHINE.md",
+      "sha256": "d502ad439ec1c38d0ce5db2b810cd34c7160a56135a855d4e308e3c1b384e267",
+      "bytes": 814
+    },
+    {
+      "path": "config/os.yaml",
+      "sha256": "d46a91a705f6bd479e5499c66abeb620fd708ba94b601a00d0c25b090fbca6a1",
+      "bytes": 620
+    },
+    {
+      "path": "config/router.json",
+      "sha256": "b527cdeaabf99ca64a9fc76d1a56fe556cf577924eb2b5e5d3deeba26a64b22b",
+      "bytes": 1390
+    },
+    {
+      "path": "evals/EVALS.md",
+      "sha256": "235fe733ea07bc809dc0fc80664ccf56a8c9ae74c008cb205274dd8a787e142c",
+      "bytes": 1703
+    },
+    {
+      "path": "examples/EXAMPLES.md",
+      "sha256": "93388c6031ec705e4141c7476fd1e994c25be84f9b3f540f3e857e87642d4b71",
+      "bytes": 793
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "02c9534a1d339c0615ae6647e8d95a416b92e020f2aa4a5d2fd39b235195a9fa",
+      "bytes": 379
+    },
+    {
+      "path": "knowledge/BOOK_CANON.md",
+      "sha256": "8aff27605b80beb4b6dcaeab9dc5d0f1bf0eca3dbccf66ac2746819c4e62b8d6",
+      "bytes": 1240
+    },
+    {
+      "path": "knowledge/FRAMEWORKS.md",
+      "sha256": "94fe4187506e84a173841b066afe4d793398a93e977f5b8752f708b3abc5296f",
+      "bytes": 658
+    },
+    {
+      "path": "knowledge/RESEARCH_NOTES.md",
+      "sha256": "53c56678b00b1f60452a9b918dc2185d9cbcb9330b1953fd2890f2541eca2208",
+      "bytes": 898
+    },
+    {
+      "path": "knowledge/SOURCES.md",
+      "sha256": "b687c19b5fc33015b087b92e9b2c354f06570af1fa21e652f03b4540438e6ebd",
+      "bytes": 1172
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "9545cfc688f6a88bdfce9f1c0396b960b6cb326e4a43f6cc886d01d2f95f1002",
+      "bytes": 8507
+    },
+    {
+      "path": "memory/MEMORY_MODEL.md",
+      "sha256": "b9e4a7bb4c815cbcc13ba58d50c2c5508d1e403ad02d5e6ca0df98297b05c069",
+      "bytes": 744
+    },
+    {
+      "path": "memory/PRIVACY.md",
+      "sha256": "b8504c91e7623f2d98a8fd40fd5cc20a495094553bd98d3bd58176618accf6d2",
+      "bytes": 597
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "ae03a2fb07f6696c7a18cca46d2037888773ff9643cd81f42e47a4feb11e2c0f",
+      "bytes": 2032
+    },
+    {
+      "path": "protocols/daily_readiness.md",
+      "sha256": "742783603293ed03a396cd7a9cdd49ddca9b8e857a6a8c4c968199df95c6b464",
+      "bytes": 476
+    },
+    {
+      "path": "protocols/health_document_ingestion.md",
+      "sha256": "7133a935eb21c3a896288bebd46c3e7f240ad9ac916c6216d20ecd34e1cd2cd8",
+      "bytes": 342
+    },
+    {
+      "path": "protocols/illness_or_injury_gate.md",
+      "sha256": "7fc7b2d5dc3f0ad4b1730aa0eeed6867665f3717f9e10c50d0145face5a77e7e",
+      "bytes": 303
+    },
+    {
+      "path": "protocols/low_energy_day.md",
+      "sha256": "7b90254c37c03988701cbf0e945325490b1aa3fdd47c7f06eee3293f522b535d",
+      "bytes": 347
+    },
+    {
+      "path": "protocols/n_of_1_experiment.md",
+      "sha256": "051f3bf167d0795c2c6991ecb87dd87cc9553c12485330edda5e8a5c64f53c38",
+      "bytes": 337
+    },
+    {
+      "path": "protocols/sleep_reset.md",
+      "sha256": "68ec8ae0e663d02a1516d77206a59c573904e9bfd2c0aadf64a74b65f058e31c",
+      "bytes": 346
+    },
+    {
+      "path": "protocols/travel_protocol.md",
+      "sha256": "db897f991145235ad90a71a3709fc5828f0b539fa1e6b32e5dadf9be936f5007",
+      "bytes": 308
+    },
+    {
+      "path": "protocols/weekly_capacity_review.md",
+      "sha256": "f61fc09a414207294f920679f01313817858aeca645293d7189dbf5034dc3bfb",
+      "bytes": 368
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "9bb20f2e2da9a783a16821f517d41cca5ace77417f73cdc6dd13a743acddf94e",
+      "bytes": 2185
+    },
+    {
+      "path": "README.md",
+      "sha256": "1ea33676bd40f1c600e9d1a40ecd218e672a01841b24410ce76873d4522dc0b2",
+      "bytes": 2284
+    },
+    {
+      "path": "runtime/os_runtime.py",
+      "sha256": "926e255e98a7d8a8c9d0dcb51bbf2e22b30a4edfea47fbd4dc0a65bc46d9eef7",
+      "bytes": 2506
+    },
+    {
+      "path": "runtime/README.md",
+      "sha256": "bdc9846b10fd4a212fef2401a276350683d41e8d96de026df0acea9556112f63",
+      "bytes": 375
+    },
+    {
+      "path": "runtime/requirements.txt",
+      "sha256": "0d5b8d9408d93e3953b2a0117a8a9657d829f2e95f79d904093bab5eec894183",
+      "bytes": 24
+    },
+    {
+      "path": "schemas/daily_readiness.json",
+      "sha256": "4bbe0fa4273a39d283d63b2fa6f7daf6daeaf4b8681ce3edb626cccff49a1c96",
+      "bytes": 1080
+    },
+    {
+      "path": "schemas/experiment.json",
+      "sha256": "97179c439e1ab0020e0d9428b9646d38d1442436df496c139e09734e75a6fa77",
+      "bytes": 1045
+    },
+    {
+      "path": "schemas/health_alert.json",
+      "sha256": "7cdb0d7c78966677ba6a08ccb0285ba540d3f2455434af98ca8cb72ddd222a2f",
+      "bytes": 937
+    },
+    {
+      "path": "schemas/health_observation.json",
+      "sha256": "03b8262a714441effd9dc0c90b356d3e8b81f495e1a513810b846c884440253b",
+      "bytes": 875
+    },
+    {
+      "path": "schemas/health_profile.json",
+      "sha256": "21beda1bb3e7ca9524055ffcbdd5c7889c8e12b6ce79ae394960cd53d6ef6a84",
+      "bytes": 1020
+    },
+    {
+      "path": "schemas/intervention.json",
+      "sha256": "d5ff8eadcc3d24ba07cb0e28a70e205ecd410910064f1224be84c666228374ed",
+      "bytes": 934
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "6cef0961d97a4cc038db4973ac0a6b67dee8c45ed2bd7d029293fff310197204",
+      "bytes": 2579
+    },
+    {
+      "path": "skills/baseline_health_inventory.md",
+      "sha256": "402670e4943c1289ce79d14a95af53c60673fb50df35b382311a9141cb875b6e",
+      "bytes": 998
+    },
+    {
+      "path": "skills/breathing_practice_selection.md",
+      "sha256": "621d84d086bd96947b12a8ba336904d1d09b51668956c6bf42e64410ccd166ab",
+      "bytes": 991
+    },
+    {
+      "path": "skills/daily_readiness.md",
+      "sha256": "87f5b99d6ffb21420f387d1359b0d4ded7a004717d1c7e971492e30fefecd2eb",
+      "bytes": 1003
+    },
+    {
+      "path": "skills/digital_cognitive_recovery.md",
+      "sha256": "ad5d566ae669ffc68e024332eb745efcd1721f4c5f0ad5f305cce55a455056a5",
+      "bytes": 979
+    },
+    {
+      "path": "skills/energy_crash_analysis.md",
+      "sha256": "107f6cea814519355fb17c15045096c40d50c11926e1a5af3a478804dad67d6b",
+      "bytes": 992
+    },
+    {
+      "path": "skills/execution_capacity_handoff.md",
+      "sha256": "06476051389d4dadee0674be57f3ea63139e3f49377ced304f8b1858eaf87023",
+      "bytes": 965
+    },
+    {
+      "path": "skills/habit_handoff.md",
+      "sha256": "8fe85d2328f3833beebdb5969ef3a980b5af2ea05b80b053ca9e789dcefddda6",
+      "bytes": 963
+    },
+    {
+      "path": "skills/injury_safe_handoff.md",
+      "sha256": "ef46421debe4dc99a55efc26ff4b07674a0903a770c6ce50ab6493edc95fb28e",
+      "bytes": 987
+    },
+    {
+      "path": "skills/lab_report_explainer.md",
+      "sha256": "48d6853d0f815caaf37a93491721c8d3a70ceb763d5b4d87bbe44b1cf8e84f58",
+      "bytes": 970
+    },
+    {
+      "path": "skills/n_of_1_experiment.md",
+      "sha256": "79254a52305c57eb2a7d79540a7e61c3e039a4b00742138604a39b6ad7020261",
+      "bytes": 986
+    },
+    {
+      "path": "skills/nutrition_pattern_review.md",
+      "sha256": "d06f5aeeb1a28cccd9991328bf3e9a8e57b47dff4127c20d090b669fa47fcc83",
+      "bytes": 1017
+    },
+    {
+      "path": "skills/recovery_prescription_builder.md",
+      "sha256": "73a88d2727a263b0a358276e479ed3a55ab54574ea41d96fd4ececbe16989f67",
+      "bytes": 979
+    },
+    {
+      "path": "skills/red_flag_triage.md",
+      "sha256": "830ceffa813c940fc702f4afa0cdfe530469c0ad3f78980378551dfeaed5d9d3",
+      "bytes": 977
+    },
+    {
+      "path": "skills/sleep_audit.md",
+      "sha256": "c1a5f3e9c8619b9feef80c95888fbd950e2f301fea5ff17a9cd98ed3afb7049d",
+      "bytes": 996
+    },
+    {
+      "path": "skills/sustainable_cut_or_build.md",
+      "sha256": "502e03af33690e5e32a1b33e151b8e3ecb870ce3c6339d149756f536273bcb45",
+      "bytes": 981
+    },
+    {
+      "path": "skills/travel_jet_lag_plan.md",
+      "sha256": "97d21e97c2b37f7e27bccadd74f61952e855ca1409ebf54b28c363ccd4417fe5",
+      "bytes": 984
+    },
+    {
+      "path": "skills/wearable_trend_review.md",
+      "sha256": "2bf2a3f61fdf2b80ffedf266f6340bd24c83365bed019aa613964b6b7b94b565",
+      "bytes": 975
+    },
+    {
+      "path": "skills/weekly_training_plan.md",
+      "sha256": "3f8870f27fba11f5f329c51d274638a9c142e744499c35d55950849c1752a302",
+      "bytes": 974
+    },
+    {
+      "path": "system/BOUNDARIES.md",
+      "sha256": "4218cc2cb4b61ecd90c3e37fec9350f995d6de8b09a328cdfda1de58c0a344f5",
+      "bytes": 925
+    },
+    {
+      "path": "system/OUTPUT_CONTRACT.md",
+      "sha256": "859b677da6a4b17d78ac34772041025f7797c6fdcf7d3e22a5095586a24803cc",
+      "bytes": 573
+    },
+    {
+      "path": "system/PRINCIPLES.md",
+      "sha256": "5b34a9d5dffc5ded2b103e8dee706e1b1825a182a60fcca116b74f0ad0dddfc4",
+      "bytes": 950
+    },
+    {
+      "path": "system/ROUTER.md",
+      "sha256": "26bde964ec22fc3144779e13e8ec924fa9624ecb8288397343ecdee85624401c",
+      "bytes": 837
+    },
+    {
+      "path": "system/SYSTEM_PROMPT.md",
+      "sha256": "b339587a752bb4df416a7a7c87e4be21f1a5abf88642f9f5b5198db6e5be90a6",
+      "bytes": 6065
+    },
+    {
+      "path": "templates/DAILY_READINESS.md",
+      "sha256": "f392384a4ad93fe0b91cfe47eb3f2271ff7ff4a66bab12cc6380d1ffda2a9a11",
+      "bytes": 258
+    },
+    {
+      "path": "templates/N_OF_1_EXPERIMENT.md",
+      "sha256": "c3d88dcc36a5ee7002e018122d02adb18b5a6cd48ce9dca2ba54935ca8f2a5a8",
+      "bytes": 205
+    },
+    {
+      "path": "templates/RED_FLAG_GATE.md",
+      "sha256": "ce4bb4b348eba9b5b50ccac5337248fbd0df8ef26284fc15bc34adbe03d3a04e",
+      "bytes": 323
+    },
+    {
+      "path": "templates/WEEKLY_HEALTH_REVIEW.md",
+      "sha256": "7fb42640ccdaba0ce46a0b5dbe4b9eaa9a0a4ce7786214eb1945dd5c69df77b6",
+      "bytes": 271
+    },
+    {
+      "path": "tests/test_package.py",
+      "sha256": "71885ea7b8fc36f20c4e4dd252af304ec93d6e20dadb4f33036fcc5c058c18ff",
+      "bytes": 573
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "health.capacity.assessed",
+        "consumed_by": "strategy-portfolio",
+        "payload": {
+          "id": "string (record id)",
+          "capacity": "object (the capacity payload)",
+          "status": "string (assessed)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "handoff.execution.capacity",
+        "consumed_by": "execution",
+        "payload": {
+          "id": "string (record id)",
+          "execution": "object (the execution payload)",
+          "status": "string (capacity)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "handoff.habits.created",
+        "consumed_by": "habit-tracker",
+        "payload": {
+          "id": "string (record id)",
+          "habits": "object (the habits payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": []
+  },
+  "schema_version": 1
+}

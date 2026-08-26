@@ -1,0 +1,44 @@
+Delivery & Customer Success OS — Logical data model
+
+ENTITIES
+- engagement
+- success_plan
+- milestone
+- deliverable
+- customer_risk
+- change_request
+- customer_health
+- value_evidence
+- renewal_plan
+
+RELATIONSHIPS
+- engagement BELONGS_TO customer
+- engagement HAS success_plan
+- success_plan DECOMPOSES_TO milestones
+- milestone HAS deliverables
+- deliverable REQUIRES acceptance
+- engagement HAS risks/changes/health/value evidence
+- renewal_plan USES value_evidence
+- Revenue OS PROVIDES contract and receives renewal
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- delivery.handoff.accepted
+- client.onboarding.started
+- success.plan.approved
+- milestone.completed
+- deliverable.accepted
+- client.risk.escalated
+- scope.change.approved
+- adoption.reviewed
+- value.evidence.verified
+- renewal.opened
+- client.offboarded

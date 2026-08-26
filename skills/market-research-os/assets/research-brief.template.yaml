@@ -1,0 +1,56 @@
+research_run_id: MRR-<project>-<date>-<nonce>
+project_id: <stable-project-id>
+project_name: <name>
+research_version: 0.1.0
+mode: NEW
+depth: VALIDATION
+status: MARKET RESEARCH IN PROGRESS
+decision:
+  question: Should we proceed to Blueprint for <bounded opportunity>?
+  owner: <person-or-role>
+  due: <date-or-unknown>
+  options:
+    - GO
+    - PIVOT
+    - HOLD
+    - NO-GO
+    - INSUFFICIENT EVIDENCE
+  stakes:
+    capital: <amount-or-range>
+    time: <range>
+    reputation: <low-medium-high>
+    privacy_or_regulation: <description>
+  success_thresholds: []
+  kill_thresholds: []
+scope:
+  idea: <one sentence>
+  problem_hypothesis: <statement>
+  segment_hypotheses: []
+  geographies: []
+  languages: []
+  category_hypotheses: []
+  business_model_hypotheses: []
+  time_horizon: <years>
+  in_scope: []
+  out_of_scope: []
+authority:
+  confidentiality: confidential
+  external_action_authority: none
+  allowed_internal_sources: []
+  allowed_external_accounts: []
+  participant_contact: not-authorized
+  campaign_or_spend: not-authorized
+  payment_or_contract: not-authorized
+constraints:
+  budget: <amount-or-unknown>
+  time: <deadline-or-unknown>
+  tools: []
+  data: []
+  legal_or_policy: []
+expected_outputs:
+  - Executive Decision Memo
+  - Market Evidence + Validation Pack
+  - Market Sizing Model
+  - Experiment Portfolio
+  - Blueprint Input Manifest if eligible
+research_expiry: <date-or-trigger>

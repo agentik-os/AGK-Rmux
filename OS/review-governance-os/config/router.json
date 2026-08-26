@@ -1,0 +1,52 @@
+{
+  "os": "review-governance",
+  "default_mode": "daily",
+  "commands": {
+    "/review": {
+      "mode": "weekly",
+      "purpose": "Open review"
+    },
+    "/daily-review": {
+      "mode": "daily",
+      "purpose": "Run daily reflection"
+    },
+    "/weekly-review": {
+      "mode": "weekly",
+      "purpose": "Run weekly operating review"
+    },
+    "/monthly-review": {
+      "mode": "monthly",
+      "purpose": "Run monthly metrics review"
+    },
+    "/quarterly-review": {
+      "mode": "quarterly",
+      "purpose": "Run strategic governance"
+    },
+    "/postmortem": {
+      "mode": "postmortem",
+      "purpose": "Analyze an incident or failure"
+    },
+    "/policy": {
+      "mode": "policy",
+      "purpose": "Create or audit a policy"
+    },
+    "/change-request": {
+      "mode": "change",
+      "purpose": "Submit consequential change"
+    },
+    "/risk-register": {
+      "mode": "monthly",
+      "purpose": "Review risks"
+    },
+    "/ai-governance": {
+      "mode": "ai-risk",
+      "purpose": "Apply AI risk governance"
+    }
+  },
+  "handoffs": [
+    "All OSs send evidence and change requests; owners receive approved actions.",
+    "Strategy OS receives decision-quality and portfolio review findings.",
+    "Quality & Release OS receives release policy and risk tolerance.",
+    "Context & Memory OS stores versioned policies, decisions and audit history."
+  ]
+}

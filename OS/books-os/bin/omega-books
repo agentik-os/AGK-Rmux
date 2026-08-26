@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# omega-books — the OmegaOS command for Books OS (AgentikOS suite).
+# Opens an interactive Claude session as the Books OS master agent (the full
+# librarian persona), working from the OS folder so the personal ledger
+# (~/.omega/os/books-os/ledger/) persists across sessions.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+OS_DIR="$OMEGA_DIR/os/books-os"
+mkdir -p "$OS_DIR/ledger"
+
+PERSONA="$OMEGA_DIR/agents/librarian.md"
+[[ -f "$PERSONA" ]] || PERSONA="$OS_DIR/MASTER.md"
+[[ -f "$PERSONA" ]] || {
+    echo "omega-books: no persona found ($OMEGA_DIR/agents/librarian.md) — run OmegaOS install.sh" >&2
+    exit 1
+}
+
+cd "$OS_DIR"
+exec claude --append-system-prompt "$(cat "$PERSONA")" "$@"

@@ -1,0 +1,14 @@
+interface:
+  display_name: Mindset {OS}
+  short_description: Jim Rohn, identity, wellbeing, and wealth OS
+  default_prompt: Use $mindset-os to compile my personal philosophy and build my next
+    90-day Jim Rohn transformation protocol.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

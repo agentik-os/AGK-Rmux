@@ -1,0 +1,11 @@
+{
+  "name": "caio-run-and-optimize",
+  "version": "1.0.0",
+  "description": "Phase-5 RUN step: measure actual ROI on real telemetry vs the architect's projection, monitor health, run the optimization loop, operate the 1h/week quota, retain + expand — looping the chain back to the architect.",
+  "skill": {
+    "entry": "SKILL.md",
+    "type": "agent",
+    "category": "14-strategy"
+  },
+  "compatibility": ["claude-code"]
+}

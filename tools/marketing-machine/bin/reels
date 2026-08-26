@@ -1,0 +1,810 @@
+#!/usr/bin/env bun
+/**
+ * reels — the Instagram half of the marketing machine's research loop.
+ *
+ * `outlier` (sibling binary) answers "what shape is winning on YouTube Shorts".
+ * `reels` answers the same question on Instagram, AND closes the loop back onto
+ * your own account: it measures which hook pattern actually performs for YOU,
+ * in the exact P1-P11 taxonomy that /reel-script writes in and /reel-lint scores.
+ * That shared taxonomy is the whole point. The eyes and the hands speak one language.
+ *
+ *   reels doctor                                        which rails are live, which are not
+ *   reels scan   --accounts FILE [--limit N]            build the niche feed
+ *   reels score  [--min N] [--json]                     rank outliers vs each account's median
+ *   reels hooks  [--top N]                              the hook library + niche pattern leaderboard
+ *   reels mine   [--limit N]                            YOUR reels + their insights (Graph API)
+ *   reels ledger                                        your measured patterns vs the niche
+ *   reels report [--alert]                              markdown digest (+ Telegram funnel)
+ *
+ * THE MATH, same as outlier: score = metric / that account's median metric.
+ * Raw counts lie across accounts of different size; the ratio travels. >=10 is a
+ * signal, >=30 is a format to reskin this week. Formats outlive topics.
+ *
+ * SOURCES, in preference order (see `reels doctor` for live status):
+ *   graph          Instagram Graph API. FREE, official, no scraping. Needs one
+ *                  IG Business token. Covers your own reels WITH insights
+ *                  (views, reach, saves, avg watch time) and any public
+ *                  business/creator account via business_discovery.
+ *                  CAVEAT (L1): business_discovery returns like/comment counts
+ *                  but NOT play counts, so competitor scoring falls back to the
+ *                  engagement metric. Your own account keeps real view counts.
+ *   apify          apify/instagram-reel-scraper. Paid. Gives real play counts.
+ *   scrapecreators api.scrapecreators.com. Paid. Gives real play counts.
+ *
+ * R-CLI: the Graph API is called over plain REST from here. No MCP server.
+ * R-ENV: every credential is read from ~/.omega/secrets/, never from the repo.
+ */
+
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
+import { execFileSync } from "node:child_process";
+
+const SCHEMA = "marketing-machine/reels@2026-07";
+const SIGNAL = 10; // above this: something worked
+const COPY_NOW = 30; // above this: reskin it this week, the window is ~2 weeks
+const HOOK_WORDS = 30; // ~ the first 10 spoken seconds, same as reel-lint
+const HOME = process.env.HOME!;
+const SECRETS = `${HOME}/.omega/secrets`;
+const ALERT = `${HOME}/.omega/bin/omega-alert-send.sh`;
+const LINTER = `${HOME}/.claude/skills/reel-lint/scripts/lint_script.py`;
+const GRAPH_VERSION = process.env.IG_GRAPH_VERSION ?? "v23.0";
+
+// ── args ────────────────────────────────────────────────────────────────────
+const argv = process.argv.slice(2);
+const cmd = argv[0];
+const flag = (name: string, dflt?: string): string | undefined => {
+  const i = argv.indexOf(`--${name}`);
+  return i === -1 ? dflt : (argv[i + 1] ?? dflt);
+};
+const has = (name: string) => argv.includes(`--${name}`);
+const die = (msg: string, code = 1): never => {
+  console.error(`reels: ${msg}`);
+  process.exit(code);
+};
+
+// ── the P1-P11 hook taxonomy ────────────────────────────────────────────────
+// MIRRORED from reel-lint's scripts/lint_script.py, which is the single source
+// of truth. `reels doctor` diffs the two and shouts if they drift apart, because
+// a hook library scored in one taxonomy and written in another is worthless.
+// Matching rule is the linter's exactly: lowercase, first HOOK_WORDS words, accents kept.
+const PATTERNS: Array<[string, string, RegExp]> = [
+  ["P1", "STOP + douleur", /^(arrête|stop)\b/],
+  ["P2", "contraste financier", /(dollars?|euros?|€|\$|paient?|paie|facture|prix|gratuit)/],
+  ["P3", "contrarian", /(la plupart des gens|tout le monde (pense|croit|fait))/],
+  ["P4", "tout le monde parle", /tout le monde parle/],
+  ["P5", "menace métier actu", /vient de (sortir|lancer).*(ia|agent)|se faire remplacer/],
+  ["P6", "combo cheat code", /(\+ *claude|claude *\+|branché|fusionné)/],
+  ["P7", "gros chiffre choc", /\d{3}[  ]?\d{3}|\d+ ?(k|m|millions?|milliers?) ?(de )?vues/],
+  ["P8", "autorité + open source", /(ceo|open.?sourc|vient de rendre public)/],
+  ["P9", "série numérotée", /jour \d+/],
+  ["P10", "listicle + prix", /\d+ (réglages|astuces|commandes|skills|façons).*(méconnu|dollars?|€)/],
+  ["P11", "KILL", /(vient de tuer|j'ai tué|a tué)/],
+];
+const TOP_PATTERNS = new Set(["P2", "P11", "P6", "P4"]); // measured priority veins
+
+/** The hook = the first HOOK_WORDS words of the caption, lowercased. */
+function hookOf(caption: string): string {
+  return caption.replace(/\s+/g, " ").trim().split(" ").slice(0, HOOK_WORDS).join(" ").toLowerCase();
+}
+function classify(caption: string): string[] {
+  const h = hookOf(caption);
+  return PATTERNS.filter(([, , rx]) => rx.test(h)).map(([id]) => id);
+}
+
+// ── types ───────────────────────────────────────────────────────────────────
+type Reel = {
+  id: string;
+  url: string;
+  caption: string;
+  hook: string;
+  patterns: string[];
+  views: number | null; // real play count when the source provides one
+  likes: number;
+  comments: number;
+  timestamp: string | null;
+  insights?: Record<string, number>; // own reels only: reach, saved, shares, avg watch time
+};
+type Account = {
+  handle: string;
+  scanned: string;
+  followers: number | null;
+  metric: "views" | "engagement"; // which number this account was scored on
+  reels: Reel[];
+};
+type Feed = { schema: string; updated: string; source: string; accounts: Account[] };
+
+const median = (xs: number[]): number => {
+  if (!xs.length) return 0;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+const fmt = (n: number) => Math.round(n).toLocaleString("en-US");
+const metricOf = (r: Reel, m: "views" | "engagement") =>
+  m === "views" ? (r.views ?? 0) : r.likes + r.comments;
+
+// ── credentials (R-ENV: ~/.omega/secrets only) ──────────────────────────────
+/** Minimal dotenv read. Deliberately not exported and never printed. */
+function secret(file: string, key: string): string | undefined {
+  if (process.env[key]) return process.env[key];
+  const path = `${SECRETS}/${file}`;
+  if (!existsSync(path)) return undefined;
+  for (const line of readFileSync(path, "utf8").split("\n")) {
+    const t = line.trim();
+    if (!t || t.startsWith("#")) continue;
+    const eq = t.indexOf("=");
+    if (eq === -1) continue;
+    if (t.slice(0, eq).trim() !== key) continue;
+    return t
+      .slice(eq + 1)
+      .trim()
+      .replace(/^["']|["']$/g, "");
+  }
+  return undefined;
+}
+const igToken = () => secret("instagram.env", "IG_ACCESS_TOKEN");
+const igUserId = () => secret("instagram.env", "IG_USER_ID");
+const apifyToken = () => secret("apify.env", "APIFY_TOKEN");
+const scKey = () => secret("integrations.env", "SCRAPECREATORS_API_KEY");
+
+async function getJson(url: string, headers: Record<string, string> = {}): Promise<any> {
+  const r = await fetch(url, { headers, signal: AbortSignal.timeout(60_000) });
+  const body = await r.text();
+  let parsed: any = null;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    /* non-JSON error page */
+  }
+  return { ok: r.ok, status: r.status, body: parsed, raw: body.slice(0, 400) };
+}
+
+// ── source: Instagram Graph API (free, official) ────────────────────────────
+const GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
+
+/** Any public business/creator account, via business_discovery. No play counts available. */
+async function graphDiscover(handle: string, limit: number): Promise<Account | null> {
+  const token = igToken();
+  const uid = igUserId();
+  if (!token || !uid) return null;
+  const h = handle.replace(/^@/, "");
+  const fields =
+    `business_discovery.username(${h})` +
+    `{followers_count,media_count,media.limit(${limit})` +
+    `{id,caption,media_type,media_product_type,like_count,comments_count,timestamp,permalink}}`;
+  const r = await getJson(`${GRAPH}/${uid}?fields=${encodeURIComponent(fields)}&access_token=${token}`);
+  const bd = r.body?.business_discovery;
+  if (!r.ok || !bd) return null;
+  const reels: Reel[] = (bd.media?.data ?? [])
+    .filter((m: any) => m.media_product_type === "REELS" || m.media_type === "VIDEO")
+    .map((m: any) => {
+      const caption = m.caption ?? "";
+      return {
+        id: m.id,
+        url: m.permalink ?? `https://instagram.com/p/${m.id}`,
+        caption,
+        hook: hookOf(caption),
+        patterns: classify(caption),
+        views: null, // business_discovery does not expose play counts
+        likes: m.like_count ?? 0,
+        comments: m.comments_count ?? 0,
+        timestamp: m.timestamp ?? null,
+      };
+    });
+  if (!reels.length) return null;
+  return {
+    handle: `@${h}`,
+    scanned: new Date().toISOString(),
+    followers: bd.followers_count ?? null,
+    metric: "engagement",
+    reels,
+  };
+}
+
+/** Your OWN account, with real insights. This is the half competitors cannot give you. */
+async function graphMine(limit: number): Promise<Account | null> {
+  const token = igToken();
+  const uid = igUserId();
+  if (!token || !uid) return null;
+  const mediaFields = "id,caption,media_type,media_product_type,like_count,comments_count,timestamp,permalink";
+  const r = await getJson(`${GRAPH}/${uid}/media?fields=${mediaFields}&limit=${limit}&access_token=${token}`);
+  if (!r.ok) die(`Graph /media failed (HTTP ${r.status}): ${r.body?.error?.message ?? r.raw}`);
+  const media = (r.body?.data ?? []).filter(
+    (m: any) => m.media_product_type === "REELS" || m.media_type === "VIDEO",
+  );
+  const reels: Reel[] = [];
+  for (const m of media) {
+    const caption = m.caption ?? "";
+    // Reel-level insights. Metric names move between Graph versions, so a failed
+    // insights call degrades this one reel to engagement-only instead of aborting.
+    const metrics = "views,reach,saved,shares,total_interactions,ig_reels_avg_watch_time";
+    const ins = await getJson(`${GRAPH}/${m.id}/insights?metric=${metrics}&access_token=${token}`);
+    const insights: Record<string, number> = {};
+    for (const row of ins.body?.data ?? []) {
+      const v = row.values?.[0]?.value;
+      if (typeof v === "number") insights[row.name] = v;
+    }
+    reels.push({
+      id: m.id,
+      url: m.permalink ?? "",
+      caption,
+      hook: hookOf(caption),
+      patterns: classify(caption),
+      views: insights.views ?? null,
+      likes: m.like_count ?? 0,
+      comments: m.comments_count ?? 0,
+      timestamp: m.timestamp ?? null,
+      insights,
+    });
+  }
+  if (!reels.length) return null;
+  const withViews = reels.filter((r) => typeof r.views === "number").length;
+  return {
+    handle: "@me",
+    scanned: new Date().toISOString(),
+    followers: null,
+    metric: withViews >= reels.length / 2 ? "views" : "engagement",
+    reels,
+  };
+}
+
+// ── source: Apify (paid) ────────────────────────────────────────────────────
+async function apifyScan(handle: string, limit: number): Promise<Account | null> {
+  const token = apifyToken();
+  if (!token) return null;
+  const h = handle.replace(/^@/, "");
+  const r = await fetch(
+    `https://api.apify.com/v2/acts/apify~instagram-reel-scraper/run-sync-get-dataset-items?token=${token}&timeout=300`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: [h], resultsLimit: limit }),
+      signal: AbortSignal.timeout(320_000),
+    },
+  );
+  if (!r.ok) {
+    const b = await r.text();
+    process.stderr.write(`    apify HTTP ${r.status}: ${b.replace(/\s+/g, " ").slice(0, 160)}\n`);
+    return null;
+  }
+  const items: any[] = await r.json();
+  const reels: Reel[] = items
+    .filter((i) => i.videoPlayCount != null || i.videoViewCount != null || i.type === "Video")
+    .map((i) => {
+      const caption = i.caption ?? "";
+      return {
+        id: i.shortCode ?? i.id ?? "",
+        url: i.url ?? "",
+        caption,
+        hook: hookOf(caption),
+        patterns: classify(caption),
+        views: i.videoPlayCount ?? i.videoViewCount ?? null,
+        likes: i.likesCount ?? 0,
+        comments: i.commentsCount ?? 0,
+        timestamp: i.timestamp ?? null,
+      };
+    });
+  if (!reels.length) return null;
+  return {
+    handle: `@${h}`,
+    scanned: new Date().toISOString(),
+    followers: items[0]?.ownerFullName ? null : null,
+    metric: reels.some((r) => r.views) ? "views" : "engagement",
+    reels,
+  };
+}
+
+// ── source: ScrapeCreators (paid) ───────────────────────────────────────────
+async function scScan(handle: string, limit: number): Promise<Account | null> {
+  const key = scKey();
+  if (!key) return null;
+  const h = handle.replace(/^@/, "");
+  const r = await getJson(`https://api.scrapecreators.com/v1/instagram/profile?handle=${h}`, {
+    "x-api-key": key,
+  });
+  if (!r.ok || r.body?.success === false) {
+    process.stderr.write(`    scrapecreators HTTP ${r.status}: ${r.body?.message ?? r.raw}\n`);
+    return null;
+  }
+  const user = r.body?.data?.user ?? r.body?.user ?? r.body;
+  const edges = user?.edge_owner_to_timeline_media?.edges ?? [];
+  const reels: Reel[] = edges
+    .slice(0, limit)
+    .filter((e: any) => e.node?.is_video)
+    .map((e: any) => {
+      const n = e.node;
+      const caption = n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "";
+      return {
+        id: n.shortcode ?? n.id,
+        url: n.shortcode ? `https://instagram.com/reel/${n.shortcode}` : "",
+        caption,
+        hook: hookOf(caption),
+        patterns: classify(caption),
+        views: n.video_play_count ?? n.video_view_count ?? null,
+        likes: n.edge_liked_by?.count ?? n.edge_media_preview_like?.count ?? 0,
+        comments: n.edge_media_to_comment?.count ?? 0,
+        timestamp: n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
+      };
+    });
+  if (!reels.length) return null;
+  return {
+    handle: `@${h}`,
+    scanned: new Date().toISOString(),
+    followers: user?.edge_followed_by?.count ?? null,
+    metric: reels.some((r) => r.views) ? "views" : "engagement",
+    reels,
+  };
+}
+
+// ── feed io ─────────────────────────────────────────────────────────────────
+const FEED = "marketing/00-context/swipe/reels.json";
+const HOOKS = "marketing/00-context/swipe/hooks.json";
+const MINE = "marketing/00-context/swipe/mine.json";
+const LEDGER = "marketing/00-context/swipe/pattern-ledger.md";
+
+function writeJson(path: string, data: unknown) {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(data, null, 2));
+}
+function loadFeed(path = flag("in", FEED)!): Feed {
+  if (!existsSync(path)) die(`no feed at ${path}. Run \`reels scan\` first.`);
+  const f: Feed = JSON.parse(readFileSync(path, "utf8"));
+  if (f.schema !== SCHEMA) die(`unknown schema ${f.schema}, expected ${SCHEMA}`);
+  return f;
+}
+
+// ── commands ────────────────────────────────────────────────────────────────
+async function cmdScan() {
+  const one = flag("account");
+  const file = flag("accounts");
+  if (!one && !file) die("usage: reels scan --accounts FILE | --account <handle> [--limit N] [--source graph|apify|scrapecreators]");
+  const limit = Number(flag("limit", "25"));
+  const out = flag("out", FEED)!;
+  const source = flag("source", "auto")!;
+
+  let handles: string[] = [];
+  if (one) handles = [one];
+  else {
+    if (!existsSync(file!)) die(`no such accounts file: ${file}`);
+    handles = readFileSync(file!, "utf8")
+      .split("\n")
+      .map((l) => l.split("#")[0].trim())
+      .filter(Boolean);
+  }
+  if (!handles.length) die(`${file} lists no accounts`);
+
+  const order =
+    source === "auto" ? ["graph", "apify", "scrapecreators"] : [source];
+  const accounts: Account[] = [];
+  let used = "";
+  for (const h of handles) {
+    process.stderr.write(`  scan ${h} … `);
+    let acc: Account | null = null;
+    for (const s of order) {
+      acc =
+        s === "graph" ? await graphDiscover(h, limit)
+        : s === "apify" ? await apifyScan(h, limit)
+        : await scScan(h, limit);
+      if (acc) {
+        used = s;
+        break;
+      }
+    }
+    if (!acc) {
+      process.stderr.write("no source returned reels\n");
+      continue;
+    }
+    accounts.push(acc);
+    process.stderr.write(
+      `${acc.reels.length} reels via ${used}, median ${fmt(median(acc.reels.map((r) => metricOf(r, acc!.metric))))} ${acc.metric}\n`,
+    );
+  }
+  if (!accounts.length)
+    die("every account failed on every source. Run `reels doctor` to see which rail is down.");
+
+  writeJson(out, { schema: SCHEMA, updated: new Date().toISOString(), source: used, accounts } satisfies Feed);
+  console.log(`\n${accounts.length}/${handles.length} accounts → ${out}`);
+  console.log(`Next: reels score --in ${out}`);
+}
+
+type Scored = Reel & { handle: string; med: number; score: number; metric: string };
+
+/**
+ * Classification is recomputed HERE, not trusted from the stored feed. A feed
+ * scanned last month carries last month's taxonomy; re-deriving from the caption
+ * means one edit to PATTERNS re-scores every feed you already own.
+ */
+function rank(feed: Feed): Scored[] {
+  const rows: Scored[] = [];
+  for (const a of feed.accounts) {
+    const med = median(a.reels.map((r) => metricOf(r, a.metric)));
+    if (!med) continue;
+    for (const r of a.reels)
+      rows.push({
+        ...r,
+        patterns: classify(r.caption),
+        handle: a.handle,
+        med,
+        metric: a.metric,
+        score: metricOf(r, a.metric) / med,
+      });
+  }
+  return rows.sort((x, y) => y.score - x.score);
+}
+const tag = (s: number) => (s >= COPY_NOW ? "COPY-NOW" : s >= SIGNAL ? "signal" : "");
+
+function cmdScore() {
+  const feed = loadFeed();
+  const min = Number(flag("min", String(SIGNAL)));
+  const rows = rank(feed).filter((r) => r.score >= min);
+  if (has("json")) return console.log(JSON.stringify(rows, null, 2));
+  if (!rows.length)
+    return console.log(`No reel scored >= ${min}x its account median. Nothing worth copying yet.`);
+
+  console.log(
+    `${rows.length} outliers >= ${min}x account median (feed ${feed.updated.slice(0, 10)}, source ${feed.source})\n`,
+  );
+  console.log("score   metric        account               patterns   hook");
+  for (const r of rows.slice(0, 40)) {
+    console.log(
+      `${r.score.toFixed(1).padStart(5)}x  ${fmt(metricOf(r, r.metric as any)).padStart(12)}  ` +
+        `${r.handle.slice(0, 20).padEnd(20)}  ${(r.patterns.join(",") || "-").padEnd(9)}  ` +
+        `${r.hook.slice(0, 44)}  ${tag(r.score)}`,
+    );
+  }
+  console.log(`\nNext: reels hooks   (turn these into a scored hook library)`);
+}
+
+function cmdHooks() {
+  const feed = loadFeed();
+  const top = Number(flag("top", "30"));
+  const out = flag("out", HOOKS)!;
+  const rows = rank(feed).filter((r) => r.score >= SIGNAL);
+
+  // Pattern leaderboard: which P wins IN THIS NICHE, by measured lift.
+  const byPattern = new Map<string, { hits: number; sum: number; best: Scored | null }>();
+  for (const r of rank(feed)) {
+    for (const p of r.patterns.length ? r.patterns : ["P0"]) {
+      const e = byPattern.get(p) ?? { hits: 0, sum: 0, best: null };
+      e.hits++;
+      e.sum += r.score;
+      if (!e.best || r.score > e.best.score) e.best = r;
+      byPattern.set(p, e);
+    }
+  }
+  const leaderboard = [...byPattern.entries()]
+    .map(([id, e]) => ({
+      pattern: id,
+      label: PATTERNS.find(([p]) => p === id)?.[1] ?? "non classé",
+      hits: e.hits,
+      avgScore: Number((e.sum / e.hits).toFixed(2)),
+      topVein: TOP_PATTERNS.has(id),
+      bestHook: e.best?.hook ?? "",
+      bestUrl: e.best?.url ?? "",
+    }))
+    .sort((a, b) => b.avgScore - a.avgScore);
+
+  const library = rows.slice(0, top).map((r) => ({
+    hook: r.hook,
+    patterns: r.patterns,
+    score: Number(r.score.toFixed(2)),
+    metric: r.metric,
+    value: metricOf(r, r.metric as any),
+    account: r.handle,
+    url: r.url,
+    tag: tag(r.score),
+  }));
+
+  writeJson(out, {
+    schema: SCHEMA,
+    updated: new Date().toISOString(),
+    source: feed.source,
+    taxonomy: "P1-P11 (reel-lint)",
+    leaderboard,
+    library,
+  });
+
+  console.log(`Hook library: ${library.length} hooks >= ${SIGNAL}x → ${out}\n`);
+  console.log("pattern  avg lift  hits  label");
+  for (const l of leaderboard.slice(0, 12))
+    console.log(
+      `${l.pattern.padEnd(7)}  ${String(l.avgScore).padStart(8)}  ${String(l.hits).padStart(4)}  ` +
+        `${l.label}${l.topVein ? "  ⭐" : ""}`,
+    );
+  console.log(`\nNext: /reel-script un reel sur <ton sujet>   (feed it the top pattern above)`);
+  console.log(`Then: /reel-lint le-script.md               (ship only at 🟢)`);
+}
+
+async function cmdMine() {
+  const limit = Number(flag("limit", "30"));
+  const out = flag("out", MINE)!;
+  if (!igToken() || !igUserId())
+    die(
+      "no Instagram Graph credential. `reels doctor` prints the exact procedure.\n" +
+        `       Expected: ${SECRETS}/instagram.env with IG_USER_ID= and IG_ACCESS_TOKEN=`,
+    );
+  const acc = await graphMine(limit);
+  if (!acc) die("Graph returned no reels for your account (posted any reel yet?)");
+  writeJson(out, { schema: SCHEMA, updated: new Date().toISOString(), source: "graph", accounts: [acc] } satisfies Feed);
+
+  const med = median(acc.reels.map((r) => metricOf(r, acc.metric)));
+  console.log(`${acc.reels.length} of your reels → ${out}   (median ${fmt(med)} ${acc.metric})\n`);
+  console.log("lift    views        saves   reach     patterns   hook");
+  for (const r of acc.reels
+    .map((r) => ({ r, s: metricOf(r, acc.metric) / (med || 1) }))
+    .sort((a, b) => b.s - a.s)
+    .slice(0, 20)) {
+    const i = r.r.insights ?? {};
+    console.log(
+      `${r.s.toFixed(2).padStart(5)}x  ${fmt(r.r.views ?? 0).padStart(11)}  ${fmt(i.saved ?? 0).padStart(6)}  ` +
+        `${fmt(i.reach ?? 0).padStart(8)}  ${(r.r.patterns.join(",") || "-").padEnd(9)}  ${r.r.hook.slice(0, 40)}`,
+    );
+  }
+  console.log(`\nNext: reels ledger   (which pattern actually works for YOU)`);
+}
+
+function cmdLedger() {
+  const out = flag("out", LEDGER)!;
+  const mineFile = flag("mine", MINE)!;
+  const hooksFile = flag("hooks", HOOKS)!;
+  if (!existsSync(mineFile)) die(`no measured reels at ${mineFile}. Run \`reels mine\` first.`);
+  const mine: Feed = JSON.parse(readFileSync(mineFile, "utf8"));
+  const acc = mine.accounts[0];
+  const med = median(acc.reels.map((r) => metricOf(r, acc.metric)));
+
+  const rows = new Map<string, { n: number; sum: number; hooks: string[] }>();
+  for (const r of acc.reels) {
+    const lift = metricOf(r, acc.metric) / (med || 1);
+    const pats = classify(r.caption); // re-derived, same reason as rank()
+    for (const p of pats.length ? pats : ["P0"]) {
+      const e = rows.get(p) ?? { n: 0, sum: 0, hooks: [] };
+      e.n++;
+      e.sum += lift;
+      if (e.hooks.length < 3) e.hooks.push(r.hook.slice(0, 70));
+      rows.set(p, e);
+    }
+  }
+  const mineBoard = [...rows.entries()]
+    .map(([p, e]) => ({ p, n: e.n, avg: e.sum / e.n, hooks: e.hooks }))
+    .sort((a, b) => b.avg - a.avg);
+
+  // The niche side, when a scan exists. Comparing the two columns is the point:
+  // a pattern that wins in the niche but not for you is a craft problem, not a
+  // format problem, and vice versa.
+  let niche = new Map<string, number>();
+  if (existsSync(hooksFile)) {
+    const h = JSON.parse(readFileSync(hooksFile, "utf8"));
+    for (const l of h.leaderboard ?? []) niche.set(l.pattern, l.avgScore);
+  }
+
+  const label = (p: string) => PATTERNS.find(([id]) => id === p)?.[1] ?? "non classé";
+  const md = [
+    `# Pattern ledger, ${new Date().toISOString().slice(0, 10)}`,
+    "",
+    `${acc.reels.length} reels mesurés sur ton compte, médiane ${fmt(med)} ${acc.metric}.`,
+    niche.size ? `Colonne niche: ${niche.size} patterns observés sur les comptes suivis.` : "Pas encore de scan de niche (reels scan puis reels hooks).",
+    "",
+    "| pattern | libellé | tes reels | ton lift moyen | lift niche | verdict |",
+    "|---|---|---|---|---|---|",
+    ...mineBoard.map((r) => {
+      const n = niche.get(r.p);
+      const verdict =
+        r.avg >= 1.5 ? "double la dose"
+        : n && n >= 1.5 && r.avg < 1 ? "marche dans la niche, pas chez toi: problème d'exécution"
+        : r.avg < 0.7 ? "arrête ce pattern"
+        : "neutre, garde en test";
+      return `| ${r.p} | ${label(r.p)} | ${r.n} | ${r.avg.toFixed(2)}x | ${n ? n.toFixed(2) + "x" : "n/a"} | ${verdict} |`;
+    }),
+    "",
+    "## Tes meilleurs hooks par pattern",
+    "",
+    ...mineBoard.flatMap((r) => [`**${r.p} ${label(r.p)}** (${r.avg.toFixed(2)}x)`, ...r.hooks.map((h) => `- ${h}`), ""]),
+    "Relance après chaque publication: reels mine puis reels ledger. Le classement bouge, la doctrine suit.",
+  ].join("\n");
+
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, md);
+  console.log(md);
+  console.log(`\n→ ${out}`);
+}
+
+function cmdReport() {
+  const feed = loadFeed();
+  const rows = rank(feed).filter((r) => r.score >= SIGNAL);
+  const copy = rows.filter((r) => r.score >= COPY_NOW);
+  const md = [
+    `# Reels digest, ${feed.updated.slice(0, 10)}`,
+    "",
+    `${feed.accounts.length} comptes suivis · ${rows.length} signaux · ${copy.length} copy-now · source ${feed.source}`,
+    "",
+    "| lift | métrique | compte | patterns | hook |",
+    "|---|---|---|---|---|",
+    ...rows
+      .slice(0, 25)
+      .map(
+        (r) =>
+          `| ${r.score.toFixed(1)}x | ${fmt(metricOf(r, r.metric as any))} ${r.metric} | ${r.handle} | ${r.patterns.join(",") || "-"} | ${r.hook.slice(0, 60)} |`,
+      ),
+    "",
+    "Au-dessus de 30x, la fenêtre est d'environ 2 semaines. Reskin, ne clone pas: change le sujet, garde la forme.",
+  ].join("\n");
+  console.log(md);
+
+  if (has("alert")) {
+    if (!existsSync(ALERT)) die(`--alert: no alert funnel at ${ALERT}`);
+    const top = copy[0];
+    const msg = top
+      ? `Reels engine: ${copy.length} format(s) COPY-NOW. Top ${top.score.toFixed(1)}x sur ${top.handle}: ${top.hook.slice(0, 80)}`
+      : `Reels engine: ${rows.length} signal(s), aucun COPY-NOW ce run.`;
+    execFileSync(ALERT, [msg], { stdio: "inherit" });
+  }
+}
+
+async function cmdDoctor() {
+  let sourcesLive = 0;
+  const check = (name: string, pass: boolean, note: string, isSource = false) => {
+    console.log(`  ${pass ? "ok  " : "warn"}  ${name.padEnd(22)} ${note}`);
+    if (pass && isSource) sourcesLive++;
+  };
+
+  console.log("Sources (a scan needs at least ONE of these live)\n");
+
+  // 1. Graph API — the free, official rail.
+  const tok = igToken();
+  const uid = igUserId();
+  if (!tok || !uid) {
+    check(
+      "instagram graph",
+      false,
+      `no credential at ${SECRETS}/instagram.env (IG_USER_ID + IG_ACCESS_TOKEN)`,
+      true,
+    );
+  } else {
+    const r = await getJson(`${GRAPH}/${uid}?fields=username,followers_count&access_token=${tok}`);
+    check(
+      "instagram graph",
+      r.ok,
+      r.ok ? `@${r.body.username}, ${fmt(r.body.followers_count ?? 0)} followers (${GRAPH_VERSION})` : `HTTP ${r.status}: ${r.body?.error?.message ?? r.raw}`,
+      true,
+    );
+  }
+
+  // 2. Apify — paid. A valid token is NOT proof that a run will start: an account
+  //    with unpaid invoices answers /users/me happily and then 403s every run.
+  //    effectivePlatformFeatures.ACTORS carries the real verdict, and reading it
+  //    costs nothing and starts nothing.
+  const ap = apifyToken();
+  if (!ap) check("apify", false, `no APIFY_TOKEN in ${SECRETS}/apify.env`, true);
+  else {
+    const r = await getJson(`https://api.apify.com/v2/users/me?token=${ap}`);
+    const blocked = r.body?.data?.effectivePlatformFeatures?.ACTORS?.disabledReason;
+    check(
+      "apify",
+      r.ok && !blocked,
+      !r.ok ? `HTTP ${r.status}: ${r.body?.error?.message ?? "unreachable"}`
+      : blocked ? `account ${r.body.data.username} BLOCKED: ${blocked} (runs will 403)`
+      : `account ${r.body.data.username}, actor runs enabled`,
+      true,
+    );
+  }
+
+  // 3. ScrapeCreators — paid.
+  const sc = scKey();
+  if (!sc) check("scrapecreators", false, "no SCRAPECREATORS_API_KEY in integrations.env", true);
+  else {
+    const r = await getJson("https://api.scrapecreators.com/v1/instagram/profile?handle=instagram", { "x-api-key": sc });
+    const live = r.ok && r.body?.success !== false;
+    check("scrapecreators", live, live ? "credits available" : `HTTP ${r.status}: ${r.body?.message ?? "blocked"}`, true);
+  }
+
+  console.log("\nDownstream (brick 2 to 4)\n");
+
+  // 4. The two skills that consume the hook library.
+  check("/reel-script", existsSync(`${HOME}/.claude/skills/reel-script/SKILL.md`), "brick 2, writes the script", false);
+  check("/reel-lint", existsSync(LINTER), "brick 2, scores it before you film", false);
+
+  // 5. Taxonomy drift: the hook library is worthless if the eyes and the hands
+  //    classify hooks differently. Compare the P-ids embedded here with the linter's.
+  if (existsSync(LINTER)) {
+    const py = readFileSync(LINTER, "utf8");
+    const ids = new Set([...py.matchAll(/\("(P\d+)[  ]/g)].map((m) => m[1]));
+    const mine = new Set(PATTERNS.map(([p]) => p));
+    const drift = [...mine].filter((p) => !ids.has(p)).concat([...ids].filter((p) => !mine.has(p)));
+    check(
+      "hook taxonomy",
+      drift.length === 0 && ids.size > 0,
+      drift.length ? `DRIFT on ${drift.join(",")} vs reel-lint. Re-sync PATTERNS in bin/reels.` : `${ids.size} patterns, in sync with reel-lint`,
+      false,
+    );
+  }
+
+  // 6. Publishing + inbound rails (R-ZERNIO / R-ZERNFLOW), reported not required.
+  let zer = "omega-zernio not on PATH";
+  try {
+    zer = execFileSync("omega-zernio", ["status"], { encoding: "utf8", timeout: 30_000 })
+      .split("\n")
+      .find((l) => l.startsWith("API reachable")) ?? "unknown";
+  } catch (e: any) {
+    const out = (e.stdout ?? "").toString();
+    if (out) zer = out.split("\n").find((l: string) => l.startsWith("API reachable")) ?? zer;
+  }
+  check("zernio (brick 3)", zer.includes("true"), zer.trim(), false);
+  check(
+    "zernflow (brick 4)",
+    existsSync(`${SECRETS}/zernflow.env`),
+    existsSync(`${SECRETS}/zernflow.env`) ? "credential present, comment-to-DM rail" : "no zernflow.env",
+    false,
+  );
+
+  console.log(
+    sourcesLive > 0
+      ? `\n${sourcesLive} source live. \`reels scan\` can run.`
+      : "\nNO SOURCE IS LIVE: `reels scan` and `reels mine` cannot run today.\n" +
+          "The rest of the loop still works offline (score, hooks, ledger on an existing feed,\n" +
+          "and bricks 2 to 4: /reel-script, /reel-lint, zernio, zernflow).\n" +
+          "Cheapest way back to a live source: the Instagram Graph token below. It is free.",
+  );
+  if (!tok || !uid) {
+    console.log(`
+To open the free rail (Instagram Graph, brick 1):
+  1. The IG account must be Business or Creator and linked to a Facebook Page.
+  2. developers.facebook.com > create an app > add "Instagram Graph API".
+  3. Graph API Explorer: grant instagram_basic, instagram_manage_insights,
+     pages_show_list, pages_read_engagement. Copy the token.
+  4. Exchange it for a long-lived token (60 days), then read your IG user id:
+     GET ${GRAPH}/me/accounts?access_token=<token>
+     GET ${GRAPH}/<page-id>?fields=instagram_business_account&access_token=<token>
+  5. Write both into ${SECRETS}/instagram.env (chmod 600, never in the repo):
+     IG_USER_ID=...
+     IG_ACCESS_TOKEN=...
+  Then: reels doctor && reels mine`);
+  }
+
+  // Last line on purpose. The standing ask-list is what stops a blocked rail from
+  // being rediscovered every session, always mid-run, always after someone
+  // announced it worked.
+  console.log(
+    "\nWhat to ask the operator for, and how to re-verify each item:\n" +
+      "  tools/marketing-machine/NEEDS-OPERATOR.md",
+  );
+}
+
+// ── main ────────────────────────────────────────────────────────────────────
+const USAGE = `reels — Instagram research + measurement engine (marketing machine)
+
+  reels doctor                                     which rails are live
+  reels scan   --accounts FILE|--account <h> [--limit N] [--source graph|apify|scrapecreators]
+  reels score  [--in FILE] [--min N] [--json]      rank vs each account's median
+  reels hooks  [--top N] [--out FILE]              hook library + pattern leaderboard
+  reels mine   [--limit N]                         your reels + insights (Graph API)
+  reels ledger                                     your measured patterns vs the niche
+  reels report [--alert]                           markdown digest (+ Telegram)
+
+Method: growth/IG-REEL-LOOP.md`;
+
+switch (cmd) {
+  case "doctor":
+    await cmdDoctor();
+    break;
+  case "scan":
+    await cmdScan();
+    break;
+  case "score":
+    cmdScore();
+    break;
+  case "hooks":
+    cmdHooks();
+    break;
+  case "mine":
+    await cmdMine();
+    break;
+  case "ledger":
+    cmdLedger();
+    break;
+  case "report":
+    cmdReport();
+    break;
+  default:
+    console.log(USAGE);
+    process.exit(cmd ? 1 : 0);
+}

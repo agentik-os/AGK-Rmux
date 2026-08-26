@@ -1,0 +1,99 @@
+{
+  "score": 72,
+  "grade": "B",
+  "verdict": "PASS",
+  "confidence": "high",
+  "skill_used": "uiuxaudit",
+  "preamble_version": "1.0",
+  "ticket": "rmux-chrome-theme-2026-06-05",
+  "read_only": true,
+  "audited_snapshot": {
+    "head": "eb271e1",
+    "config_blob": "5ddcea66eabf2e821b5d5ebcc95231895e868591",
+    "rmux_version": "0.3.1",
+    "note": "Working tree drifted mid-audit (concurrent writer): grays #737373/#464646 -> #7f7f7f/#636363, menu-selected + copy-mode styles themed. 13/16 killed findings were true pre-drift and fixed by the drift. Verdict targets the current tree."
+  },
+  "user_need_match": {
+    "quote": "Judge hierarchy, contrast (black-on-cyan, black-on-amber, dim-on-#16161a), distinguishability of the states, single-accent discipline.",
+    "addressed": true,
+    "evidence": "All four axes judged against the live rmux server and config/rmux.conf.omega:95-170 (working-tree diff). Contrast: PASS, every pair >= the repo's own theme.rs contract floors (dim #7f7f7f on #16161a = 4.51:1, dim2 #636363 = 3.00:1, black-on-#00ffff 16.75:1, black-on-#ffb000 11.46:1). Hierarchy: PASS with 2 HIGH (F1 bell-on-current composite 2.68:1 via status-format[0] style layering; F2 activity rung dead, monitor-activity off). Distinguishability: PASS (disjoint channels + live-verified textual flags). Single-accent: PASS structurally on every rendered surface; semantic leaks F3/F8.",
+    "edge_cases_covered": [
+      "bell flag raised on the ACTIVE window of a detached session (live-verified flags=[!*]) -> composite legibility",
+      "CVD: protanopia/deuteranopia separability of cyan/amber/red incl. flag redundancy",
+      "render-dead options: message-command-style and copy-mode match/mark styles in rmux 0.3.1 (source-verified)",
+      "47-char live session name vs status-left-length 32 truncation",
+      "status-right shell injection (omega clock emits no escape codes)"
+    ]
+  },
+  "falsifiable_tests": [
+    {
+      "name": "brief verify command — theme applied at runtime",
+      "hypothesis": "If the theme block failed to source (silent abort on a rejected option), status-style would be the legacy default, not the new chrome",
+      "command": "rmux show-options -g status-style",
+      "expected": "status-style \"bg=#16161a,fg=#7f7f7f\"",
+      "actual": "status-style \"bg=#16161a,fg=#7f7f7f\"",
+      "passed": true
+    },
+    {
+      "name": "WCAG contrast recomputation (all themed pairs)",
+      "hypothesis": "If the config comment's claimed ratios were fabricated, recomputation would diverge; if grays were still pre-drift, dim/dim2 would fail the theme.rs floors",
+      "command": "python3 relative-luminance computation over 11 fg/bg pairs",
+      "expected": "dim >= 4.5:1, dim2 >= 3.0:1, sel_fg-on-accent >= 4.5:1",
+      "actual": "4.51 / 3.00 / 13.80 / 16.75 / 11.46 / 5.24 / 16.06 / 5.38 / 9.85 / 2.68 (bell-on-current composite, FAIL -> finding F1) / 3.29",
+      "passed": true
+    },
+    {
+      "name": "message-command-style dead-option proof",
+      "hypothesis": "If any production code path set command_prompt:true, the ':' prompt would render quiet amber as documented and F3 would be wrong",
+      "command": "grep -rn command_prompt rmux/crates/rmux-server/src --include='*.rs' | grep -v test; sed -n '194,205p' handler_prompt.rs; sed -n '1,80p' handler_prompt/render.rs",
+      "expected": "at least one production constructor with command_prompt: true",
+      "actual": "sole production constructor handler_prompt.rs:203 sets command_prompt: false (explicit tmux-parity comment); render.rs:41,55,69 trues are all inside #[cfg(test)] mod tests -> option unreachable",
+      "passed": true
+    },
+    {
+      "name": "bell-on-active live reproduction",
+      "hypothesis": "If rmux never raised window_bell_flag on the active window, the F1 composite scenario would be unreachable",
+      "command": "scratch session: printf '\\a' in current window of detached session; list-windows flags",
+      "expected": "bell flag can co-occur with active window",
+      "actual": "idx=0 active=1 bell=1 flags=[!*]",
+      "passed": true
+    },
+    {
+      "name": "activity dead-channel reproduction",
+      "hypothesis": "If monitor-activity were enabled anywhere in config/install, the styled activity state would be reachable and F2 wrong",
+      "command": "rmux show-options -gw | grep monitor; grep -rn monitor-activity config/ install.sh scripts/",
+      "expected": "monitor-activity off and zero setters",
+      "actual": "monitor-activity off; no setter found; live no-render confirmed after output in unfocused window",
+      "passed": true
+    }
+  ],
+  "hinge_findings": [
+    {
+      "location": "config/rmux.conf.omega:116-147 (state-language cluster: status-style, window-status-*, message-*) — hinge derived manually, hinge-analyzer blind on config diffs",
+      "concern": "The entire declared state language (active/passive/focus/alert) could be internally inconsistent or unrendered at runtime",
+      "verified_safe_by": "WCAG recomputation + render-path source verification + live bell/activity tests; residual defects filed as F1 (bell composite 2.68:1), F2 (activity rung dead), F3 (message channel shared + dead mitigation)"
+    }
+  ],
+  "issues_found_and_fixed": [],
+  "findings": [
+    { "id": "F1", "severity": "HIGH", "phase": "P10/P8", "collision": true, "title": "Bell on current window composites red-on-cyan at 2.68:1", "location": "config/rmux.conf.omega:135 + runtime status-format[0]", "fix_suggested": "window-status-bell-style \"fg=#000000,bg=#ff4655,bold\"" },
+    { "id": "F2", "severity": "HIGH", "phase": "P10/P5", "collision": true, "title": "Activity rung dead: monitor-activity off, styled state unreachable", "location": "config/rmux.conf.omega:134 + runtime monitor-activity off", "fix_suggested": "set -g monitor-activity on" },
+    { "id": "F3", "severity": "MEDIUM", "phase": "P18/P1", "collision": true, "title": "message-style renders errors+benign+prompt; message-command-style is render-dead; config:145 claim false at runtime", "location": "config/rmux.conf.omega:142-147 + rmux handler_prompt.rs:203 + options/table.rs:736", "fix_suggested": "quieten message-style OR upstream PROMPT_COMMAND modeling OR correct the comment" },
+    { "id": "F4", "severity": "MEDIUM", "phase": "P4", "collision": false, "title": "Popups (flagship surface, 6 bindings) unthemed", "location": "runtime popup-style/popup-border-style default + handler_overlay/layout.rs:78-100", "fix_suggested": "set -g popup-border-style \"fg=#00ffff\"" },
+    { "id": "F5", "severity": "MEDIUM", "phase": "P4", "collision": false, "title": "status-left-length 32 truncates real names, swallowing pad+separator; comment claims otherwise", "location": "config/rmux.conf.omega:119-123", "fix_suggested": "#{=29:session_name} in the format + truthful comment" },
+    { "id": "F6", "severity": "LOW", "phase": "P5/P14", "collision": false, "title": "Alert hues are AMBER/CRIMSON accent tokens, not the mono-model alert tokens", "location": "theme.rs:211,335 vs theme.rs:153-154", "fix_suggested": "document divergence or adopt system alert tokens" },
+    { "id": "F7", "severity": "LOW", "phase": "P14", "collision": false, "title": "Static chrome vs 15 switchable TUI themes — relationship undocumented", "location": "theme.rs:347-363 vs config theme block", "fix_suggested": "declare chrome theme-invariant in config + THEMES.md" },
+    { "id": "F8", "severity": "INFO", "phase": "P1", "collision": false, "title": "clock-mode cyan = undeclared third cyan semantic", "location": "config/rmux.conf.omega:170 vs :104-106", "fix_suggested": "amend declared language or recolor #e1e1e1" },
+    { "id": "F9", "severity": "INFO", "phase": "P8", "collision": false, "title": "Protanopia collapses bell red toward ~2:1 perceived; rescued by '!' flag", "location": "config/rmux.conf.omega:135 + window-status-format flags", "fix_suggested": "none required; F1 fix also resolves" }
+  ],
+  "phase_scores": { "P1_colors": 8, "P4_components": 7, "P5_coherence": 8, "P8_a11y": 7, "P9_smells": 9, "P10_hierarchy": 6, "P14_maturity": 7, "P18_alert_channel": 5, "P19_brand": 9, "raw": 162.5, "applicable_max": 225, "normalized": 72 },
+  "adversarial_stats": { "agents": 91, "raw_findings": 30, "deduped": 29, "survivors": 13, "synthesized_findings": 9, "killed": 16, "killed_by_mid_audit_drift": 13, "killed_by_steelman": 3 },
+  "confidence_basis": "Every load-bearing claim was reproduced against the live rmux 0.3.1 server, the rmux source, or an independent WCAG recomputation — including resolving a genuine disagreement between two verifier lenses (message-command-style reachability) by reading the source myself. The 5 falsifiable tests above all carry actual captured outputs. score=72 (not the meta-protocol's 100-gate) because the mission is READ-ONLY audit-only with explicit Done Criteria 'PASS/FAIL + findings' — the fail-and-fix loop is out of scope by brief; no redispatch requested.",
+  "not_done": [
+    "Fixes NOT applied (READ-ONLY brief) — must-fix shortlist in verdict.md",
+    "Pixel rendering on remote clients (Termius) not observed — only option-level + source-level verification",
+    "Tree was moving during audit; findings valid for HEAD eb271e1 + config blob 5ddcea6 — re-verify after the concurrent session commits",
+    "telemetry.json/progress.json/fix-plan.json in this dir belong to the prior (f432154) run and were intentionally left untouched"
+  ],
+  "finished_at": "2026-06-05T19:08:30Z"
+}

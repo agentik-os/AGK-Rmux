@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Content Asset",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "pillar_id": {
+      "type": "string",
+      "description": "Parent pillar"
+    },
+    "platform": {
+      "type": "string",
+      "description": "Destination"
+    },
+    "format": {
+      "type": "string",
+      "description": "Format"
+    },
+    "job": {
+      "type": "string",
+      "description": "Audience journey job"
+    },
+    "status": {
+      "type": "string",
+      "description": "idea/draft/review/approved/published"
+    },
+    "rights_status": {
+      "type": "string",
+      "description": "Rights state"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "platform",
+    "format",
+    "job",
+    "status",
+    "rights_status"
+  ],
+  "additionalProperties": false
+}

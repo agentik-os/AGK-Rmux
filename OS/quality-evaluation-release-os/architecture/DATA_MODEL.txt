@@ -1,0 +1,42 @@
+Quality, Evaluation & Release OS — Logical data model
+
+ENTITIES
+- requirement
+- test_case
+- test_result
+- defect
+- ai_eval_case
+- release_candidate
+- release_gate
+- incident
+
+RELATIONSHIPS
+- requirement COVERED_BY test_case
+- test_case PRODUCES test_result
+- test_result MAY CREATE defect
+- release_candidate INCLUDES test_results and evals
+- release_gate EVALUATES release_candidate
+- release_candidate DEPLOYS_TO production
+- incident MAY TRIGGER rollback
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- quality.plan.created
+- test.executed
+- eval.executed
+- defect.opened
+- defect.closed
+- release.candidate.created
+- release.gate.decided
+- deployment.started
+- deployment.verified
+- rollback.executed
+- incident.handoff.created

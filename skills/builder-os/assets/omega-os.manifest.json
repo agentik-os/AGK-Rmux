@@ -1,0 +1,100 @@
+{
+  "$schema": "https://omega-os.local/schemas/plugin-manifest.v1.json",
+  "id": "builder-os",
+  "name": "Builder {OS}",
+  "version": "1.0.0",
+  "kind": "execution-runtime",
+  "description": "Consumes frozen Blueprint {OS} and BUILD READY Stepper {OS} contracts and executes them into verified, integrated, documented, release-ready software.",
+  "aliases": ["Build {OS}"],
+  "entrypoints": {
+    "system_prompt": "references/system-prompt.md",
+    "skill": "SKILL.md",
+    "role_prompts": "assets/builder-role-prompts.json",
+    "tool_definitions": "assets/builder-tools.json",
+    "state_schema": "assets/builder-state.schema.json",
+    "local_cli": "scripts/builder_os.py"
+  },
+  "commands": [
+    {"name": "/build", "mode": "RUN", "handler": "builder.run"},
+    {"name": "/build preflight", "mode": "PREFLIGHT", "handler": "builder.preflight"},
+    {"name": "/build status", "mode": "READ", "handler": "builder.status"},
+    {"name": "/build plan", "mode": "READ", "handler": "builder.plan_wave"},
+    {"name": "/build run", "mode": "RUN", "handler": "builder.run"},
+    {"name": "/build step", "mode": "STEP", "handler": "builder.claim_step"},
+    {"name": "/build test", "mode": "VERIFY", "handler": "builder.verify_step"},
+    {"name": "/build verify", "mode": "VERIFY", "handler": "builder.verify_step"},
+    {"name": "/build repair", "mode": "REPAIR", "handler": "builder.repair_step"},
+    {"name": "/build audit", "mode": "AUDIT", "handler": "builder.audit"},
+    {"name": "/build resume", "mode": "RESUME", "handler": "builder.resume"},
+    {"name": "/build pause", "mode": "PAUSE", "handler": "builder.pause"},
+    {"name": "/build release-check", "mode": "RELEASE_CHECK", "handler": "builder.release_check"},
+    {"name": "/build report", "mode": "EXPORT", "handler": "builder.export"}
+  ],
+  "status_values": [
+    "BUILD PREFLIGHT",
+    "BUILD IN PROGRESS",
+    "BUILD BLOCKED",
+    "BUILD PAUSED",
+    "BUILD COMPLETE — RELEASE READY"
+  ],
+  "boundaries": {
+    "previous_systems": ["blueprint-os", "stepper-os"],
+    "next_system": "ship",
+    "forbidden_capabilities": [
+      "redefine_product_truth",
+      "generate_competing_roadmap",
+      "mutate_frozen_handoffs",
+      "bypass_stepper_verifier",
+      "fabricate_evidence",
+      "claim_production_deployment_without_receipt",
+      "overwrite_unrelated_user_work"
+    ]
+  },
+  "orchestration": {
+    "strategy": "stepper-governed-shared-state-execution",
+    "merge_authority": "build-director",
+    "planner_authority": "stepper-os",
+    "completion_authority": "stepper-verifier-plus-builder-release-gate",
+    "optimistic_concurrency": true,
+    "append_only_events": true,
+    "resource_leases": true,
+    "checkpoint_required": true,
+    "specialists": [
+      "build-director",
+      "contract-intake-auditor",
+      "repository-cartographer",
+      "environment-engineer",
+      "stepper-adapter",
+      "context-compiler",
+      "implementation-engineer",
+      "test-engineer",
+      "root-cause-repair-engineer",
+      "architecture-reviewer",
+      "security-privacy-abuse-reviewer",
+      "ux-accessibility-visual-reviewer",
+      "data-migration-reviewer",
+      "ai-evaluation-reviewer",
+      "performance-reliability-reviewer",
+      "integration-engineer",
+      "documentation-runbook-engineer",
+      "release-engineer",
+      "traceability-auditor"
+    ]
+  },
+  "quality": {
+    "gates": ["BG01", "BG02", "BG03", "BG04", "BG05", "BG06", "BG07", "BG08", "BG09", "BG10", "BG11", "BG12", "BG13", "BG14", "BG15", "BG16", "BG17", "BG18", "BG19", "BG20"],
+    "allow_critical_gate_failures": false,
+    "require_post_integration_verification": true,
+    "require_real_command_evidence": true,
+    "require_stepper_release_pass": true,
+    "critical_trace_coverage": 1.0
+  },
+  "persistence": {
+    "source_of_truth": "canonical-builder-state-plus-stepper-tracker",
+    "stable_ids": true,
+    "input_fingerprints": true,
+    "artifact_digests": true,
+    "append_only_journal": true,
+    "immutable_handoffs": true
+  }
+}

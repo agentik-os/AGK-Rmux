@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Daily Readiness",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "date": {
+      "type": "string",
+      "description": "Observation date"
+    },
+    "sleep_hours": {
+      "type": "number",
+      "description": "Sleep opportunity/estimate"
+    },
+    "energy": {
+      "type": "integer",
+      "description": "Self-rated energy"
+    },
+    "symptoms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Current symptoms"
+    },
+    "status": {
+      "type": "string",
+      "description": "GREEN/AMBER/RED"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "date",
+    "status"
+  ],
+  "additionalProperties": false
+}

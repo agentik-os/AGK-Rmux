@@ -1,0 +1,14 @@
+name: Relationship & Network OS
+slug: relationship-network
+version: 1.0.0
+category: Personal Stack / Relationships and Network
+position: Personal Stack: trusted relationship memory, communication and network stewardship
+default_mode: brief
+primary_boundary: "Relationship & Network OS supports real relationships; it must not covertly surveil people, fabricate intimacy, manipulate affection or treat consent as a growth tactic."
+requires_human_approval_for:
+  - sending any message
+  - making an introduction
+  - sharing contact details
+  - storing highly sensitive notes
+  - inviting people to an event
+  - exporting relationship data

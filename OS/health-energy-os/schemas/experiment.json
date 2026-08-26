@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Experiment",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "hypothesis": {
+      "type": "string",
+      "description": "Testable hypothesis"
+    },
+    "metric": {
+      "type": "string",
+      "description": "Primary metric"
+    },
+    "duration_days": {
+      "type": "integer",
+      "description": "Planned duration"
+    },
+    "stop_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Safety and completion rules"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "hypothesis",
+    "metric",
+    "duration_days",
+    "stop_rules"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Story Record",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "situation": {
+      "type": "string",
+      "description": "Context"
+    },
+    "tension": {
+      "type": "string",
+      "description": "Tension"
+    },
+    "choice": {
+      "type": "string",
+      "description": "Choice"
+    },
+    "result": {
+      "type": "string",
+      "description": "Result"
+    },
+    "lesson": {
+      "type": "string",
+      "description": "Lesson"
+    },
+    "consent_status": {
+      "type": "string",
+      "description": "Permission"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "situation",
+    "tension",
+    "lesson",
+    "consent_status"
+  ],
+  "additionalProperties": false
+}

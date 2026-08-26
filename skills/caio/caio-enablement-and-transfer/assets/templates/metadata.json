@@ -1,0 +1,54 @@
+{
+  "schema": "caio-enablement-and-transfer/v1.0",
+  "generated_at": "{{YYYY-MM-DDTHH:MM}}",
+  "company": "{{company}}",
+  "engagement_mode": "{{champion-enablement|role-onboarding|full-adoption-and-transfer|transfer-only|adoption-rescue}}",
+  "reads": {
+    "implementation_runbook": "{{path_or_ref to the live system + internal docs}}",
+    "company_ai_os": "{{path to company-ai-os/ (role inventory, agent blueprints, dashboard specs)}}",
+    "discovery_dossiers": "{{path to caio-discovery-interview dossiers (ai_appetite per person)}}"
+  },
+  "system_readiness": {
+    "golden_path_green": "{{true|false}}",
+    "runtime_evidence": "{{acceptance log / live-run link}}"
+  },
+  "audiences": [
+    {
+      "person_or_role": "{{name_or_role}}",
+      "audience": "{{c-level|manager|operator|technical-owner}}",
+      "ai_literacy": "{{champion|neutral|skeptic}}",
+      "technical_level": "{{none|config-only|can-edit-prompts|can-write-code}}",
+      "the_one_workflow": "{{the real task this system changes for them}}",
+      "adkar_step": "{{awareness|desire|knowledge|ability|reinforcement}}",
+      "reached_unaided_run": "{{true|false}}"
+    }
+  ],
+  "adoption": {
+    "nsm_per_component": [
+      { "component": "{{name}}", "nsm": "{{value-received metric}}", "target": "{{> X}}", "current": "{{value_or_null}}" }
+    ],
+    "retention_curve_shape": "{{collapsing|flattening|plateau|unknown}}",
+    "validated_use_cases_count": "{{number}}",
+    "skeptics_converted": "{{n_of_m}}"
+  },
+  "transfer": {
+    "add_agent_unaided": "{{pass|fail|not-run}}",
+    "connect_tool_unaided": "{{pass|fail|not-run}}",
+    "adjust_report_unaided": "{{pass|fail|not-run}}",
+    "caio_only_credentials_remaining": "{{number}}",
+    "named_owners_complete": "{{true|false}}",
+    "weekly_guardian_routine_runs_without_caio": "{{number}}",
+    "hitl_approvers_all_client_employees": "{{true|false}}"
+  },
+  "gate_verdict": "{{transfer-complete|partial-dated|transfer-blocked|adoption-not-ready}}",
+  "handoff": {
+    "to": "caio-run-and-optimize",
+    "adoption_tracker_handed": "{{true|false}}",
+    "validated_use_cases_handed": "{{true|false}}",
+    "delegated": {
+      "agentik_skill_forge": "{{repeatable skill to codify, or null}}",
+      "agentic_systems_builder": "{{novel agent to escalate, or null}}",
+      "creator_media_engine": "{{public case study with consent, or null}}"
+    }
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "version": "1.0.0",
+  "shared_output_contract": {
+    "baseline_revision": "integer",
+    "records": "array of proposed canonical record patches",
+    "trace_links": "array of proposed typed edges",
+    "findings": "array of conflicts, gaps, risks, or critic findings",
+    "questions": "at most three material questions",
+    "assumptions": "new provisional assumptions introduced",
+    "confidence": "0..1 with rationale"
+  },
+  "roles": [
+    {
+      "id": "context-librarian",
+      "objective": "Recover authoritative project truth from authorized sources without proposing product changes.",
+      "reads": ["request", "sources", "existing_state"],
+      "writes": ["source_ledger", "facts", "decisions", "assumptions", "unknowns", "conflicts", "glossary"],
+      "instruction": "Extract literal evidence, decisions, exclusions, names, numbers, constraints, and versions. Apply authority precedence. Namespace unrelated projects. Never convert inference into a decision."
+    },
+    {
+      "id": "product-strategist",
+      "objective": "Define coherent vision, product thesis, positioning, principles, non-goals, goals, and value loop.",
+      "reads": ["canonical_baseline", "facts", "decisions", "constraints"],
+      "writes": ["vision", "thesis", "positioning", "principles", "non_goals", "goals"],
+      "instruction": "Optimize for strategic coherence and differentiation. Separate marketing claims from product truth. Register unsupported recommendations as proposals."
+    },
+    {
+      "id": "jtbd-analyst",
+      "objective": "Model actors, situations, struggles, desired progress, switching forces, and success evidence.",
+      "reads": ["baseline", "strategy", "research"],
+      "writes": ["actors", "personas", "jtbd", "value_journeys"],
+      "instruction": "Describe behavior and context, not demographic fiction. Include buyers, operators, beneficiaries, partners, administrators, and adversarial actors when relevant."
+    },
+    {
+      "id": "business-analyst",
+      "objective": "Model value exchanges, pricing/entitlements, incentives, service burden, unit-economics variables, and integrity constraints.",
+      "reads": ["strategy", "actors", "decisions"],
+      "writes": ["business_model", "economics", "entitlements", "incentive_rules", "economic_risks"],
+      "instruction": "Test incentive alignment and operating cost. Never let payment/referral mechanics bypass explicit trust, quality, admission, or safety constraints."
+    },
+    {
+      "id": "capability-architect",
+      "objective": "Translate product truth into capability and atomic requirement contracts with dependencies and acceptance links.",
+      "reads": ["strategy", "actors", "jtbd", "business_rules"],
+      "writes": ["capabilities", "requirements", "release_classifications", "dependencies"],
+      "instruction": "Reject feature-name lists. Define actor, value, rules, data, safety, dependencies, exclusions, and success for every capability."
+    },
+    {
+      "id": "ux-ia-architect",
+      "objective": "Define complete user/operator flows, information architecture, navigation, surfaces, states, accessibility, and design rules.",
+      "reads": ["actors", "requirements", "actions", "domain_terms"],
+      "writes": ["flows", "ia", "routes", "screens", "components", "design_rules"],
+      "instruction": "Design around jobs and action contracts. Include loading, empty, error, offline, denied, stale, expired, partial, and recovery states."
+    },
+    {
+      "id": "domain-modeler",
+      "objective": "Define bounded contexts, entities, ownership, state machines, policies, invariants, and failure/compensation rules.",
+      "reads": ["requirements", "actions", "flows", "business_rules"],
+      "writes": ["bounded_contexts", "entities", "commands", "events", "state_machines", "rules", "invariants"],
+      "instruction": "Make invalid states impossible or explicitly detectable. Define idempotency, concurrency, expiry, reversal, temporal, and reconciliation behavior."
+    },
+    {
+      "id": "system-architect",
+      "objective": "Define system boundaries and architecture that uphold product/domain contracts within stated constraints.",
+      "reads": ["requirements", "domain", "nfrs", "constraints", "accepted_stack"],
+      "writes": ["system_context", "architecture", "adrs", "failure_domains", "evolution_paths"],
+      "instruction": "Derive architecture from requirements and operational reality. Record alternatives, consequences, reversibility, and validation for every material choice."
+    },
+    {
+      "id": "data-api-event-architect",
+      "objective": "Define data ownership/lifecycle plus API, tool, integration, and event contracts.",
+      "reads": ["domain", "architecture", "requirements", "privacy_rules"],
+      "writes": ["data_dictionary", "api_contracts", "tool_contracts", "event_catalog", "integration_contracts"],
+      "instruction": "Specify tenancy, sensitivity, retention, deletion, consistency, schema, auth, errors, idempotency, versioning, delivery, retries, replay, and observability."
+    },
+    {
+      "id": "ai-agent-architect",
+      "objective": "Define bounded AI/agent capabilities, context, memory, tools, autonomy, confirmation, evaluation, fallback, and monitoring.",
+      "reads": ["ai_requirements", "data_contracts", "permissions", "risk_constraints"],
+      "writes": ["ai_contracts", "context_architecture", "memory_policy", "tool_permissions", "evals", "fallbacks"],
+      "instruction": "Treat AI as fallible. Define forbidden responsibilities, provenance, abstention, prompt-injection defenses, cost/latency budgets, and consequence-based human control."
+    },
+    {
+      "id": "security-privacy-abuse-analyst",
+      "objective": "Threat-model assets, actors, permissions, data, integrations, incentives, and AI behavior.",
+      "reads": ["all_normative_contracts"],
+      "writes": ["threats", "abuse_cases", "privacy_controls", "security_requirements", "incident_requirements", "mitigations"],
+      "instruction": "Assume malicious, compromised, careless, and colluding actors. Require verification for controls. Do not claim legal compliance without evidence and jurisdiction."
+    },
+    {
+      "id": "quality-engineer",
+      "objective": "Convert requirements, invariants, contracts, risks, and journeys into observable acceptance and test architecture.",
+      "reads": ["requirements", "flows", "domain", "contracts", "risks", "nfrs"],
+      "writes": ["acceptance_criteria", "test_catalog", "evaluation_plan", "operational_exercises"],
+      "instruction": "Make acceptance unambiguous and implementation-independent where possible. Cover permissions, failures, recovery, migration, accessibility, AI, and operations."
+    },
+    {
+      "id": "traceability-auditor",
+      "objective": "Build and audit bidirectional traceability without creating meaningless coverage links.",
+      "reads": ["all_records", "all_links"],
+      "writes": ["trace_links", "coverage_report", "orphan_findings"],
+      "instruction": "Find orphan intent, requirements, UX, architecture, metrics, risks, permissions, failures, and tests. Critical decisions/requirements require 100 percent coverage."
+    },
+    {
+      "id": "red-team-critic",
+      "objective": "Challenge desirability, viability, usability, feasibility, safety, reliability, operability, coherence, and minimality.",
+      "reads": ["canonical_draft", "trace_report", "gate_snapshot"],
+      "writes": ["critic_findings"],
+      "instruction": "Do not rewrite the Blueprint. Produce evidence-linked findings with severity, affected IDs, concrete failure scenario, and recommended disposition."
+    },
+    {
+      "id": "chief-blueprint-editor",
+      "objective": "Reconcile specialist patches into one authoritative, coherent, versioned Blueprint and decide gate eligibility.",
+      "reads": ["canonical_state", "specialist_patches", "findings", "user_decisions"],
+      "writes": ["canonical_state", "resolutions", "gates", "continuation", "stepper_manifest"],
+      "instruction": "Resolve by authority, evidence, constraints, risk, and reversibility—not majority vote. Preserve history. Never declare completion with a critical failure or missing mandatory artifact."
+    }
+  ]
+}

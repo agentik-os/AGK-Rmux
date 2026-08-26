@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "properties": {
+    "kind": {
+      "enum": [
+        "self",
+        "project",
+        "pattern",
+        "commitment",
+        "wisdom"
+      ]
+    },
+    "statement": {
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "user",
+        "inference",
+        "observation"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "review_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "statement",
+    "source",
+    "confidence"
+  ]
+}

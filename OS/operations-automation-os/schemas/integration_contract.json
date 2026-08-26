@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Integration Contract",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "system_a": {
+      "type": "string",
+      "description": "Producer/source"
+    },
+    "system_b": {
+      "type": "string",
+      "description": "Consumer/target"
+    },
+    "data_schema": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Schema"
+    },
+    "auth_method": {
+      "type": "string",
+      "description": "Authentication"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Idempotency design"
+    },
+    "error_policy": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Retries/errors"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "system_a",
+    "system_b",
+    "data_schema",
+    "auth_method",
+    "error_policy"
+  ],
+  "additionalProperties": false
+}

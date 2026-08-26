@@ -1,0 +1,83 @@
+{
+  "schema": "caio-run-and-optimize/v1.0",
+  "generated_at": "{{YYYY-MM-DDTHH:MM}}",
+  "language": "{{language}}",
+  "engagement": {
+    "client": "{{client_name}}",
+    "caio": "{{caio_name}}",
+    "sponsor": "{{sponsor_name}}",
+    "run_mode": "{{instrument-and-baseline|re-measure|health-and-alerts|weekly-loop|monthly-loop|weekly-quota|qbr|expansion}}",
+    "measurement_window": { "start": "{{date}}", "end": "{{date}}" },
+    "renewal_date": "{{date_or_null}}",
+    "reads": {
+      "handover": "{{path_to_caio-enablement/06-Ownership-Handover-Checklist.md_or_null}}",
+      "adoption_tracker": "{{path_to_caio-enablement/08-Adoption-Tracker.md_or_null}}",
+      "validated_use_cases": "{{path_to_caio-enablement/04-Validated-Use-Cases-Log.md_or_null}}",
+      "projected_roi": "{{path_to_09-ROI_or_null}}",
+      "backlog": "{{path_to_05-backlog_or_null}}",
+      "telemetry_wiring": "{{path_to_caio-build/07-Monitoring-And-Instrumentation.md_or_null}}"
+    }
+  },
+  "system_nsm": {
+    "name": "{{nsm_name}}",
+    "value_received_not_activity": true,
+    "telemetry_source": "{{event_source}}",
+    "vanity_test_passed": "{{true|false}}",
+    "value": "{{number}}",
+    "trend": "{{up|flat|down}}"
+  },
+  "cohorts": [
+    {
+      "go_live": "{{YYYY-MM}}",
+      "workflows": ["{{F-XXX}}", "..."],
+      "saving_m1": "{{number}}",
+      "saving_m3": "{{number_or_null}}",
+      "saving_m6": "{{number_or_null}}",
+      "shape": "{{plateau|decay}}",
+      "durable_saving": "{{number}}"
+    }
+  ],
+  "roi_actual_vs_projected": {
+    "total_projected_yr": "{{number}}",
+    "total_actual_durable_yr": "{{number}}",
+    "realization_rate": "{{percent}}",
+    "system_cost_yr": "{{number}}",
+    "net_yr": "{{number}}",
+    "payback_months": "{{number}}",
+    "verdicts": { "proven": "{{n}}", "partial": "{{n}}", "falsified": "{{n}}" },
+    "every_number_sourced": true
+  },
+  "health": {
+    "dimensions_covered": ["liveness", "cost", "usage", "quality", "value"],
+    "open_alerts": "{{n}}",
+    "alert_caught_before_complaint": "{{true|false}}",
+    "hitl_on_sensitive_still_enforced": true,
+    "model_cost_share_of_value_pct": "{{percent}}"
+  },
+  "optimization_backlog": {
+    "rescored_against_actuals": true,
+    "retention_first_while_leaking": true,
+    "this_month_hypothesis": "{{Because... I believe... I'll know if...}}",
+    "verdict": "{{tweak|build|expand}}",
+    "routed_to": "{{self|agentic-systems-builder|agentik-skill-forge|caio-enterprise-workflow-architect}}"
+  },
+  "quota": {
+    "format": "1h/week",
+    "light_by_design": true,
+    "overage_is_scoped_sow": true,
+    "scope_under_management": "{{departments}}",
+    "nrr_of_delivered_value": "{{percent}}"
+  },
+  "retention_expansion": {
+    "qbr_decision": "{{renew|expand|fix-and-hold}}",
+    "internal_reference_confirmed": "{{true|false}}",
+    "next_department_target": "{{department_or_null}}",
+    "expansion_value_metric": "departments-under-management",
+    "public_case_study": {
+      "client_consent": "{{obtained|not-obtained}}",
+      "handed_to": "creator-media-engine",
+      "produced_here": false
+    },
+    "loops_back_to": "caio-enterprise-workflow-architect"
+  }
+}

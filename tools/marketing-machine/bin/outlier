@@ -1,0 +1,268 @@
+#!/usr/bin/env bun
+/**
+ * outlier — the research engine of the marketing machine (capability G11).
+ *
+ * Implements the "predict the viral video before you build it" loop, adapted to
+ * this VPS: the swipe feed is a JSON ledger (not a Google Sheet), and the view
+ * counts come from `yt-dlp --flat-playlist` against the /shorts tab, which is
+ * free, keyless, and ~0.7s per channel.
+ *
+ *   outlier scan      --channels FILE [--limit N] [--out FILE]   build/refresh the swipe feed
+ *   outlier score     [--in FILE] [--min N] [--json]             rank outliers, flag what to copy
+ *   outlier discover  "<query>" [--n N]                          find formats you don't track yet
+ *   outlier report    [--in FILE] [--alert]                      markdown digest (+ Telegram funnel)
+ *   outlier doctor                                               check the data sources
+ *
+ * THE MATH (the whole point):
+ *   outlier score = video views / that channel's median views
+ * Raw view counts lie: 2M views on a 5M-median channel taught you nothing, while
+ * 900k on a 20k-median channel is a map. >=10 is a signal, >=30 is a format you
+ * copy this week. Formats outlive topics, so score the shape, not the subject.
+ *
+ * CAVEAT (L1, verified live): the /shorts tab reports ROUNDED views (45000000,
+ * not 45123456) and carries no upload date. The ratio survives rounding; recency
+ * is approximated by position, since the tab is reverse-chronological.
+ */
+
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
+
+const SCHEMA = "marketing-machine/swipe@2026-07";
+const SIGNAL = 10; // above this: something worked
+const COPY_NOW = 30; // above this: reskin it this week, the window is ~2 weeks
+const ALERT = `${process.env.HOME}/.omega/bin/omega-alert-send.sh`;
+
+// ── args ────────────────────────────────────────────────────────────────────
+const argv = process.argv.slice(2);
+const cmd = argv[0];
+const flag = (name: string, dflt?: string): string | undefined => {
+  const i = argv.indexOf(`--${name}`);
+  return i === -1 ? dflt : (argv[i + 1] ?? dflt);
+};
+const has = (name: string) => argv.includes(`--${name}`);
+const die = (msg: string, code = 1): never => {
+  console.error(`outlier: ${msg}`);
+  process.exit(code);
+};
+
+type Video = { id: string; title: string; views: number; pos: number };
+type Channel = { handle: string; scanned: string; videos: Video[] };
+type Swipe = { schema: string; updated: string; channels: Channel[] };
+
+const median = (xs: number[]): number => {
+  if (!xs.length) return 0;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+const fmt = (n: number) => n.toLocaleString("en-US");
+
+// ── yt-dlp: the only data source, free and keyless ──────────────────────────
+function ytdlp(url: string, limit?: number): any {
+  const args = ["--flat-playlist", "-J", "--no-warnings"];
+  if (limit) args.push("--playlist-end", String(limit));
+  args.push(url);
+  try {
+    const out = execFileSync("yt-dlp", args, {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: 120_000,
+    });
+    return JSON.parse(out);
+  } catch {
+    return null;
+  }
+}
+
+function scanChannel(handle: string, limit: number): Channel | null {
+  const h = handle.startsWith("@") ? handle : `@${handle}`;
+  const data = ytdlp(`https://www.youtube.com/${h}/shorts`, limit);
+  if (!data?.entries) return null;
+  const videos: Video[] = data.entries
+    .map((e: any, i: number) => ({
+      id: e.id,
+      title: e.title ?? "",
+      views: e.view_count,
+      pos: i,
+    }))
+    .filter((v: Video) => typeof v.views === "number");
+  if (!videos.length) return null;
+  return { handle: h, scanned: new Date().toISOString(), videos };
+}
+
+// ── commands ────────────────────────────────────────────────────────────────
+function cmdScan() {
+  const file = flag("channels") ?? die("--channels FILE required (one @handle per line)");
+  const limit = Number(flag("limit", "40"));
+  const out = flag("out", "marketing/00-context/swipe/swipe.json")!;
+  if (!existsSync(file!)) die(`no such channels file: ${file}`);
+
+  const handles = readFileSync(file!, "utf8")
+    .split("\n")
+    .map((l) => l.split("#")[0].trim())
+    .filter(Boolean);
+  if (!handles.length) die(`${file} lists no channels`);
+
+  const channels: Channel[] = [];
+  for (const h of handles) {
+    process.stderr.write(`  scan ${h} … `);
+    const c = scanChannel(h, limit);
+    if (!c) {
+      process.stderr.write("no shorts / unreachable\n");
+      continue;
+    }
+    channels.push(c);
+    process.stderr.write(`${c.videos.length} shorts, median ${fmt(median(c.videos.map((v) => v.views)))}\n`);
+  }
+  if (!channels.length) die("every channel failed. Run `outlier doctor`.");
+
+  const swipe: Swipe = { schema: SCHEMA, updated: new Date().toISOString(), channels };
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, JSON.stringify(swipe, null, 2));
+  console.log(`\n${channels.length}/${handles.length} channels → ${out}`);
+  console.log(`Next: outlier score --in ${out}`);
+}
+
+type Scored = Video & { handle: string; med: number; score: number };
+
+function load(): { swipe: Swipe; file: string } {
+  const file = flag("in", "marketing/00-context/swipe/swipe.json")!;
+  if (!existsSync(file)) die(`no swipe feed at ${file}. Run \`outlier scan\` first.`);
+  const swipe: Swipe = JSON.parse(readFileSync(file, "utf8"));
+  if (swipe.schema !== SCHEMA) die(`unknown schema ${swipe.schema}, expected ${SCHEMA}`);
+  return { swipe, file };
+}
+
+function rank(swipe: Swipe): Scored[] {
+  const rows: Scored[] = [];
+  for (const c of swipe.channels) {
+    const med = median(c.videos.map((v) => v.views));
+    if (!med) continue;
+    for (const v of c.videos) rows.push({ ...v, handle: c.handle, med, score: v.views / med });
+  }
+  return rows.sort((a, b) => b.score - a.score);
+}
+
+const tag = (s: number) => (s >= COPY_NOW ? "COPY-NOW" : s >= SIGNAL ? "signal" : "");
+
+function cmdScore() {
+  const { swipe } = load();
+  const min = Number(flag("min", String(SIGNAL)));
+  const rows = rank(swipe).filter((r) => r.score >= min);
+
+  if (has("json")) {
+    console.log(JSON.stringify(rows, null, 2));
+    return;
+  }
+  if (!rows.length) {
+    console.log(`No video scored >= ${min}x its channel median. Nothing worth copying yet.`);
+    return;
+  }
+  console.log(`${rows.length} outliers >= ${min}x channel median (feed updated ${swipe.updated.slice(0, 10)})\n`);
+  console.log("score   views         median        channel                title");
+  for (const r of rows.slice(0, 40)) {
+    console.log(
+      `${r.score.toFixed(1).padStart(5)}x  ${fmt(r.views).padStart(12)}  ${fmt(r.med).padStart(12)}  ` +
+        `${r.handle.slice(0, 20).padEnd(20)}  ${r.title.slice(0, 46)}  ${tag(r.score)}`,
+    );
+  }
+  console.log(`\nRead the first 2 seconds of every COPY-NOW row:  /watch <url>`);
+  console.log(`Then extract the shape (not the subject) with the pattern prompt in growth/OUTLIER-ENGINE.md`);
+}
+
+function cmdDiscover() {
+  const q = argv[1];
+  if (!q || q.startsWith("--")) die(`usage: outlier discover "<query>" [--n N]`);
+  const n = Number(flag("n", "20"));
+  const data = ytdlp(`ytsearch${n}:${q}`);
+  if (!data?.entries?.length) die("search returned nothing (yt-dlp reachable?)");
+
+  const rows = data.entries
+    .filter((e: any) => typeof e.view_count === "number")
+    .sort((a: any, b: any) => b.view_count - a.view_count);
+  console.log(`${rows.length} results for "${q}" (no median here: discovery only, not scoring)\n`);
+  console.log("views          channel                 title");
+  for (const e of rows) {
+    console.log(
+      `${fmt(e.view_count).padStart(12)}   ${(e.channel ?? "?").slice(0, 20).padEnd(20)}   ${(e.title ?? "").slice(0, 52)}`,
+    );
+  }
+  console.log(`\nAdd the channels that keep surfacing to your channels.txt, then: outlier scan`);
+}
+
+function cmdReport() {
+  const { swipe } = load();
+  const rows = rank(swipe).filter((r) => r.score >= SIGNAL);
+  const copy = rows.filter((r) => r.score >= COPY_NOW);
+
+  const lines = [
+    `# Outlier digest, ${swipe.updated.slice(0, 10)}`,
+    "",
+    `${swipe.channels.length} channels tracked · ${rows.length} signals · ${copy.length} copy-now`,
+    "",
+    "| score | views | channel | title |",
+    "|---|---|---|---|",
+    ...rows.slice(0, 25).map((r) => `| ${r.score.toFixed(1)}x | ${fmt(r.views)} | ${r.handle} | ${r.title.slice(0, 60)} |`),
+    "",
+    "Formats above 30x have a ~2 week window. Reskin, do not clone: swap the subject, keep the shape.",
+  ];
+  const md = lines.join("\n");
+  console.log(md);
+
+  if (has("alert")) {
+    if (!existsSync(ALERT)) die(`--alert: no alert funnel at ${ALERT}`);
+    const top = copy[0];
+    const msg = top
+      ? `Outlier engine: ${copy.length} COPY-NOW format(s). Top ${top.score.toFixed(1)}x on ${top.handle}: ${top.title}`
+      : `Outlier engine: ${rows.length} signal(s), no COPY-NOW this run.`;
+    execFileSync(ALERT, [msg], { stdio: "inherit" });
+  }
+}
+
+function cmdDoctor() {
+  let ok = true;
+  const check = (name: string, pass: boolean, note: string) => {
+    console.log(`  ${pass ? "ok  " : "FAIL"}  ${name.padEnd(22)} ${note}`);
+    if (!pass) ok = false;
+  };
+  let ver = "";
+  try {
+    ver = execFileSync("yt-dlp", ["--version"], { encoding: "utf8" }).trim();
+  } catch {
+    /* missing */
+  }
+  check("yt-dlp", !!ver, ver || "not installed (pip install -U yt-dlp)");
+
+  const probe = ver ? scanChannel("@MrBeast", 5) : null;
+  check("shorts view counts", !!probe?.videos.length, probe ? `${probe.videos.length} shorts read live` : "the /shorts tab returned no views");
+  check("alert funnel", existsSync(ALERT), ALERT);
+
+  console.log(
+    ok
+      ? "\nData source is live. Free, keyless, YouTube Shorts only."
+      : "\nDegraded. TikTok/Instagram need a paid source (Apify actor, or ScrapeCreators once credits are topped up).",
+  );
+  process.exit(ok ? 0 : 1);
+}
+
+switch (cmd) {
+  case "scan": cmdScan(); break;
+  case "score": cmdScore(); break;
+  case "discover": cmdDiscover(); break;
+  case "report": cmdReport(); break;
+  case "doctor": cmdDoctor(); break;
+  default:
+    console.log(`outlier — research engine (marketing machine, capability G11)
+
+  outlier scan --channels FILE [--limit 40] [--out swipe.json]
+  outlier score [--in swipe.json] [--min 10] [--json]
+  outlier discover "<query>" [--n 20]
+  outlier report [--in swipe.json] [--alert]
+  outlier doctor
+
+  outlier score = video views / channel median views.  >=10 signal, >=30 copy this week.
+  Method + prompts: tools/marketing-machine/growth/OUTLIER-ENGINE.md`);
+    process.exit(cmd ? 1 : 0);
+}

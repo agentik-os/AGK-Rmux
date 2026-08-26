@@ -1,0 +1,42 @@
+project:
+  name: 0Ra.world
+  repository: .
+
+blueprint:
+  root: ./blueprint
+  version: "3.0"
+
+stepper:
+  schema_version: 1
+  generated_root: ./stepper
+  state_db: ./.stepper/state.sqlite
+
+execution:
+  max_parallel_steps: 4
+  max_active_modules: 3
+  max_fix_attempts: 5
+  require_clean_git_base: true
+  use_worktrees: true
+  worktree_root: ./.stepper/worktrees
+
+planner:
+  prioritize_critical_path: true
+  prefer_module_locality: true
+
+quality:
+  require_typecheck: true
+  require_lint: true
+  fail_on_p0_orphan_requirement: true
+
+agents:
+  coder_adapter: codex
+  architecture_reviewer: enabled
+  security_reviewer: enabled
+  ux_reviewer: enabled
+  ai_reviewer: enabled
+
+release:
+  target: P0
+  require_security_gate: true
+  require_ai_eval_gate: true
+  allow_critical_blockers: false

@@ -1,0 +1,52 @@
+{
+  "os": "health-energy",
+  "default_mode": "check-in",
+  "commands": {
+    "/health": {
+      "mode": "check-in",
+      "purpose": "Open Health & Energy OS"
+    },
+    "/readiness": {
+      "mode": "check-in",
+      "purpose": "Assess today’s capacity"
+    },
+    "/health-audit": {
+      "mode": "audit",
+      "purpose": "Build a baseline"
+    },
+    "/sleep": {
+      "mode": "audit",
+      "purpose": "Audit sleep and circadian constraints"
+    },
+    "/training": {
+      "mode": "plan",
+      "purpose": "Build or revise training"
+    },
+    "/nutrition": {
+      "mode": "plan",
+      "purpose": "Review fuel and adherence"
+    },
+    "/recovery": {
+      "mode": "recovery",
+      "purpose": "Respond to fatigue or overload"
+    },
+    "/travel-health": {
+      "mode": "travel",
+      "purpose": "Design a travel protocol"
+    },
+    "/health-experiment": {
+      "mode": "experiment",
+      "purpose": "Create an N-of-1 experiment"
+    },
+    "/wearable": {
+      "mode": "explain",
+      "purpose": "Interpret trends conservatively"
+    }
+  },
+  "handoffs": [
+    "Habit Tracker OS receives agreed routines, not raw medical files.",
+    "Execution OS receives a capacity status and workload constraints.",
+    "Strategy & Portfolio OS receives sustainable capacity assumptions.",
+    "Qualified professionals receive a concise question pack when escalation is needed."
+  ]
+}

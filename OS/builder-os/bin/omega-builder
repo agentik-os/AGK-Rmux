@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# omega-builder — the OmegaOS command for Builder OS (AgentikOS suite, build
+# chain #06). Thin launcher for the pack's deterministic state CLI (stdlib
+# Python, no venv): init / validate / status / sync-step / claim / transition /
+# record-check / mark-step / gate / checkpoint / set-release / finalize /
+# release-check / demo over the canonical builder state. The REASONING half is
+# the /builder-os skill (Claude, `/build` family) or the Codex prompt; this
+# CLI owns the evidence contract those agents must keep.
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+
+find_engine() {
+    local candidates=(
+        "${BUILDER_ENGINE:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/builder-os/pack/scripts/builder_os.py"
+        "$HOME/OmegaOS/OS/builder-os/pack/scripts/builder_os.py"
+        "$OMEGA_DIR/os/builder-os/pack/scripts/builder_os.py"
+        "$OMEGA_DIR/skills/builder-os/scripts/builder_os.py"
+    )
+    for f in "${candidates[@]}"; do
+        [[ -n "$f" && -f "$f" ]] && { echo "$f"; return 0; }
+    done
+    return 1
+}
+
+ENGINE="$(find_engine)" || {
+    echo "omega-builder: builder_os.py not found (run OmegaOS install.sh, or set BUILDER_ENGINE)" >&2
+    exit 1
+}
+
+exec python3 "$ENGINE" "$@"

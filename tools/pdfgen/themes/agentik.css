@@ -1,0 +1,20 @@
+/* ============================================================
+   THEME — agentik (default): Cream + bronze.
+   Mirrors the :root token defaults in globals.css so that
+   .theme-agentik is explicit and the advertised --theme set
+   agentik theme (the classic whitepaper palette).
+   9 color tokens overridden on .theme-agentik.
+   ============================================================ */
+.theme-agentik {
+  --ink:        #14110C;
+  --ink-soft:   #2A241C;
+  --slate:      #4A4234;
+  --mute:       #7A6F5B;
+  --rule:       #14110C;
+  --hairline:   #D9D2C2;
+  --paper:      #FAFAF7;
+  --paper-alt:  #F2EEE0;
+  --accent:     #9C7B5A;
+  --accent-soft:#C8B69A;
+  --accent-ink: #FAFAF7;
+}

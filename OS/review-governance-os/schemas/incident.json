@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Incident",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "title": {
+      "type": "string",
+      "description": "Incident"
+    },
+    "impact": {
+      "type": "string",
+      "description": "Impact"
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Factual timeline"
+    },
+    "contributors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Contributing conditions"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Corrective actions"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "title",
+    "impact",
+    "timeline",
+    "contributors",
+    "actions"
+  ],
+  "additionalProperties": false
+}

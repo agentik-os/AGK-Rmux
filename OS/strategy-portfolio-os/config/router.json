@@ -1,0 +1,53 @@
+{
+  "os": "strategy-portfolio",
+  "default_mode": "diagnose",
+  "commands": {
+    "/strategy": {
+      "mode": "design",
+      "purpose": "Open strategic design"
+    },
+    "/diagnosis": {
+      "mode": "diagnose",
+      "purpose": "Define the critical challenge"
+    },
+    "/portfolio": {
+      "mode": "portfolio",
+      "purpose": "Review all projects and bets"
+    },
+    "/prioritize": {
+      "mode": "portfolio",
+      "purpose": "Rank competing initiatives"
+    },
+    "/scenario": {
+      "mode": "scenario",
+      "purpose": "Build future scenarios"
+    },
+    "/strategic-decision": {
+      "mode": "decision",
+      "purpose": "Structure a consequential choice"
+    },
+    "/quarter-plan": {
+      "mode": "quarter",
+      "purpose": "Create quarterly strategy"
+    },
+    "/kill-review": {
+      "mode": "review",
+      "purpose": "Decide continue/pivot/pause/kill"
+    },
+    "/one-page-strategy": {
+      "mode": "design",
+      "purpose": "Produce a concise strategy memo"
+    },
+    "/not-doing": {
+      "mode": "portfolio",
+      "purpose": "Define exclusions"
+    }
+  },
+  "handoffs": [
+    "Context & Memory OS supplies versioned evidence and constraints.",
+    "Market Research OS validates market assumptions.",
+    "Blueprint OS receives an approved product bet.",
+    "Execution OS receives quarterly outcomes and exclusions.",
+    "Revenue/Delivery/Operations report signals back to strategy."
+  ]
+}

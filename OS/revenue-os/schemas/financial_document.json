@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Financial Document",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "document_type": {
+      "type": "string",
+      "description": "receipt/invoice/contract/statement"
+    },
+    "file_hash": {
+      "type": "string",
+      "description": "Hash"
+    },
+    "extracted_fields": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Staged extraction"
+    },
+    "verification_status": {
+      "type": "string",
+      "description": "Status"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "document_type",
+    "file_hash",
+    "verification_status"
+  ],
+  "additionalProperties": false
+}

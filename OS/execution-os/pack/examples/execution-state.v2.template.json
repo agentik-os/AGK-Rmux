@@ -1,0 +1,50 @@
+{
+  "version": "2.0",
+  "profile": {
+    "owner": "Gareth",
+    "timezone": "Europe/Madrid",
+    "max_open_commitments": 7,
+    "max_active_commitments": 3,
+    "capacity_utilization_target": 0.7
+  },
+  "cycle": {
+    "id": "SEA-001",
+    "name": "",
+    "starts_on": "",
+    "ends_on": "",
+    "primary_domain": "",
+    "constraint": "",
+    "status": "draft"
+  },
+  "outcomes": [],
+  "milestones": [],
+  "bets": [],
+  "commitments": [],
+  "blockers": [],
+  "evidence": [],
+  "signals": [],
+  "captures": [],
+  "focus_blocks": [],
+  "promises": [],
+  "reviews": [],
+  "checkins": [],
+  "decisions": [],
+  "recovery_plans": [],
+  "events": [],
+  "scheduler": {
+    "t0_capture": null,
+    "t1_boot": null,
+    "t2_halt": null,
+    "t3_reset": null,
+    "t4_audit": null,
+    "tomorrow_first_action": "",
+    "current_single_thread": "",
+    "capacity_class": "",
+    "usable_minutes": 0
+  },
+  "calibration": {
+    "focus_estimated_minutes": 0,
+    "focus_actual_minutes": 0,
+    "completed_blocks": 0
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Context Pack",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "target_os": {
+      "type": "string",
+      "description": "Consumer OS"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Task purpose"
+    },
+    "record_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Included records"
+    },
+    "excluded_sensitive_classes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Explicit exclusions"
+    },
+    "token_budget": {
+      "type": "integer",
+      "description": "Context budget"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "target_os",
+    "purpose",
+    "record_ids"
+  ],
+  "additionalProperties": false
+}

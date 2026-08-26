@@ -1,0 +1,9 @@
+{
+  "name": "@omega/zernio",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "omega-zernio — pure Bun/TS, zero-dependency CLI over the Zernio REST API. One Zernio profile per OmegaOS project; publish/schedule social posts via raw fetch.",
+  "bin": {
+    "omega-zernio": "./cli.ts"
+  }
+}

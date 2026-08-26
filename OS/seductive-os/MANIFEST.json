@@ -1,0 +1,258 @@
+{
+  "name": "Seductive OS",
+  "slug": "seductive",
+  "version": "1.0.0",
+  "generated_at": "2026-08-12",
+  "purpose": "Build genuine personal magnetism (presence, conversational craft, warmth, style, social calibration and romantic confidence) on a consent-first foundation that refuses manipulation tactics by name and routes clinical distress to a qualified professional.",
+  "category": "Personal Stack / Magnetism",
+  "position": "Personal Stack: pairs with Mindset (identity), Health & Energy (the physical substrate), Habits (practice consistency), Alignment (values) and Relationship & Network (the platonic half)",
+  "counts": {
+    "agents": 13,
+    "references": 16,
+    "protocols": 11,
+    "schemas": 6,
+    "files": 48
+  },
+  "files": [
+    {
+      "path": "SKILL.md",
+      "sha256": "0df7b07e0ad29258d4d39fa0f35eba5dd5797b79db9e56ed9043877bbfcc347d",
+      "bytes": 19566
+    },
+    {
+      "path": "agents/anxiety_exposure_coach.md",
+      "sha256": "44e54e264c0f1bd37ff6521a2300325b8a482920f3672f89efd76d735ac5412f",
+      "bytes": 3527
+    },
+    {
+      "path": "agents/calibration_analyst.md",
+      "sha256": "00e92f8e65e03b07a916f4632c7ef9e90f40c638521380e19c9b56c9d065b1c6",
+      "bytes": 3994
+    },
+    {
+      "path": "agents/clinical_safety_gate.md",
+      "sha256": "f567dd48107a4d65457b48fa9333609e97956ed15456e9d0fcd056bde523403f",
+      "bytes": 4091
+    },
+    {
+      "path": "agents/conversation_coach.md",
+      "sha256": "72a07519ade5a197ef3a8caddf64e691a0b281f729cbbd843c5bacfd8d5865f3",
+      "bytes": 3813
+    },
+    {
+      "path": "agents/date_architect.md",
+      "sha256": "8998c2935172f7c77f9cacb8d9d5d09c9e8496ba70ceccd8104f5441daafdf64",
+      "bytes": 3773
+    },
+    {
+      "path": "agents/ethics_guardian.md",
+      "sha256": "75524cde5f34aff3cd0cee528a4d6286d94c75f19662b58c1a8b0b7fe4df1fc4",
+      "bytes": 5720
+    },
+    {
+      "path": "agents/evidence_translator.md",
+      "sha256": "55e23b6a7cd7d921b3509b5f367da23a8c6bdeb8c4c89130b5a1c582079cd32d",
+      "bytes": 3526
+    },
+    {
+      "path": "agents/inner_game_coach.md",
+      "sha256": "21f05922256ab91978aee049238be9536d0154b1346a41a36854dd0afe82997d",
+      "bytes": 3652
+    },
+    {
+      "path": "agents/magnetism_integrator.md",
+      "sha256": "cd2d9c7d0df54f5646452400dd25ee3e5341dea5a13308fabdd7dc7c79e4612b",
+      "bytes": 4952
+    },
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "cc962e5197ea5d127998d6ef9b3877d3b424acc6b5a4bcb24c3bdb8f125dc5ca",
+      "bytes": 431
+    },
+    {
+      "path": "agents/presence_coach.md",
+      "sha256": "2412ba6ceed7bdb50b381fc48ea9892a3984996ec26c4f7d2c28966dc9df4873",
+      "bytes": 3667
+    },
+    {
+      "path": "agents/rejection_coach.md",
+      "sha256": "52ef407f6449e7e1ceb1aa83ec29adbaf6d90bb695133d42f7c965ca9148ed00",
+      "bytes": 3907
+    },
+    {
+      "path": "agents/style_director.md",
+      "sha256": "c8ca79b489885d0656344acf18abdb6b5514d0adc946b520b7e72484b2faae6d",
+      "bytes": 3550
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "3ed29a4293eed074e248b13fcd255dc8430a8b13ea3978ead0f3b15a4778e6e5",
+      "bytes": 639
+    },
+    {
+      "path": "protocols/approach_anxiety_ladder.md",
+      "sha256": "71025364d15012c42c0727f6c69e37985000606ed904758a13d6817d1877f338",
+      "bytes": 6896
+    },
+    {
+      "path": "protocols/consent_check.md",
+      "sha256": "ec25446139789c4b3c54f28e97b7876cf6a542c5b0a37587a6b7603080d08ac8",
+      "bytes": 6247
+    },
+    {
+      "path": "protocols/date_design.md",
+      "sha256": "72365f895d46867ec1528a4a3ecb0fde496bf1029f18a32d2a31e2ea9afbe31f",
+      "bytes": 6828
+    },
+    {
+      "path": "protocols/digital_profile_audit.md",
+      "sha256": "5019b389914631b8aa6269ed03748f9091a7c879442bdb95a9c3a307279cd7b2",
+      "bytes": 6298
+    },
+    {
+      "path": "protocols/first_conversation.md",
+      "sha256": "9473db58546a8b20381f1948793e4ce8d98db4cc744f23b3a1697421fbff85d7",
+      "bytes": 8222
+    },
+    {
+      "path": "protocols/interaction_debrief.md",
+      "sha256": "836139c94b94b6dcb5d319c2e86d241ce69f58b301fd2e30b2c4792b8a9df302",
+      "bytes": 6153
+    },
+    {
+      "path": "protocols/magnetism_baseline.md",
+      "sha256": "3d54b03c94b86cde4ea99f61c154a5c4d5daf1af02f22e55b3df5ac4322527c7",
+      "bytes": 5368
+    },
+    {
+      "path": "protocols/post_rejection_debrief.md",
+      "sha256": "2f3907958dbfc1c8b0d7b0d9cbc578f8aa050c1ad1bded78c8732f4763712032",
+      "bytes": 6800
+    },
+    {
+      "path": "protocols/reset_5_min.md",
+      "sha256": "88cb81a1c3ee1314c1e491f1e308ac25b69e5ffac2b3498024d6993f5523f289",
+      "bytes": 4686
+    },
+    {
+      "path": "protocols/self_presentation_audit.md",
+      "sha256": "93feaba686a8efb21ed365717819b5692f7613aa5691bef1f23b819c9f7c654a",
+      "bytes": 7221
+    },
+    {
+      "path": "protocols/weekly_practice.md",
+      "sha256": "50c765f6a7eddd0a27d87c2097df3cc531afc3cb70f5fbd0157bea9aafd3ec34",
+      "bytes": 6173
+    },
+    {
+      "path": "references/anxiety-and-avoidance.md",
+      "sha256": "7cdc2bf71533055264fcc86fdc474df54638fe41c97b52250439aebc495a2275",
+      "bytes": 27502
+    },
+    {
+      "path": "references/attraction-fundamentals.md",
+      "sha256": "8299b2b94c91920170ea491e1135827908e73762589a3e79f97a87ad79acfc3a",
+      "bytes": 26896
+    },
+    {
+      "path": "references/conversation-craft.md",
+      "sha256": "8c89d7154005e6753f1189f894301262f658c98a0e79c5708f5ecdf82bdff87a",
+      "bytes": 28378
+    },
+    {
+      "path": "references/dating-strategy.md",
+      "sha256": "49ba9b61a1ae516634e6e993d6cf7950b2454e8427b2e6d2e590ff347d19ffa0",
+      "bytes": 23549
+    },
+    {
+      "path": "references/digital-and-apps.md",
+      "sha256": "7e4b19cea04841deba5a900f43abd0b718ac9082b5be8a567f431c0e1cc3a81a",
+      "bytes": 24748
+    },
+    {
+      "path": "references/ethics-and-consent.md",
+      "sha256": "9d8c910c18e9383db31aec25116df0722f07bcf2b197bbd9e7cfef10862877b4",
+      "bytes": 17490
+    },
+    {
+      "path": "references/evidence-map.md",
+      "sha256": "f5bb27e7efe7cd8e71d08da7fc3b900688a146feb95d96a0e155ef52d5633e3e",
+      "bytes": 18418
+    },
+    {
+      "path": "references/flirtation-and-escalation.md",
+      "sha256": "8cea40d4640581f98bdb897eafd7657b4ee433cd12037524e136ec1e9008c99f",
+      "bytes": 32033
+    },
+    {
+      "path": "references/inner-game-and-self-worth.md",
+      "sha256": "7d1a03e23bc7ba3a29d9327c9c7403b1ed08bcd3527741d85d67b3bbb5ad1829",
+      "bytes": 27478
+    },
+    {
+      "path": "references/long-term-desire.md",
+      "sha256": "67b4086e3f2da5b56289eb21ed5d02b724faf59bd0fd5a4ac4d45e97ada7de2d",
+      "bytes": 28774
+    },
+    {
+      "path": "references/presence-and-embodiment.md",
+      "sha256": "bf0f7e0153581618d317d47ab6e65ebdb9498976c10023da3b668e964729642e",
+      "bytes": 23796
+    },
+    {
+      "path": "references/refusals.md",
+      "sha256": "6fcd2b08c2c490ccadfad3eab6879c2e971e5353e0ba076ed5b6491e13cdba1c",
+      "bytes": 20759
+    },
+    {
+      "path": "references/rejection-resilience.md",
+      "sha256": "14e9094c7f3f7bc27b432dc7789b6172c846e31ae532a72e98e0d56012e26934",
+      "bytes": 25515
+    },
+    {
+      "path": "references/safety-and-boundaries.md",
+      "sha256": "7ee93a3bd253d41e4a73d354200e69efe6a4dde179741bc7ee12cbae8ea5c68d",
+      "bytes": 19577
+    },
+    {
+      "path": "references/social-calibration.md",
+      "sha256": "a7f9bd93ef0512627433329f59f4fadf0113655e69661a5b7b8aa86a0be8fed2",
+      "bytes": 33062
+    },
+    {
+      "path": "references/style-and-self-presentation.md",
+      "sha256": "c7bebbf34be56d533af0f81611a9a6c15724aa9e6662d1cdc2f5d70c0cac814c",
+      "bytes": 22708
+    },
+    {
+      "path": "schemas/consent_signal_read.json",
+      "sha256": "7411b0464d60590b42ed17560bf56ba01f94d2154f06cd21cee94818b5eb27ff",
+      "bytes": 9748
+    },
+    {
+      "path": "schemas/interaction_debrief.json",
+      "sha256": "c13a57658ee663b32f7d8dd4d1d48121ddd1d95354a77907a2d8b01849eb660f",
+      "bytes": 12834
+    },
+    {
+      "path": "schemas/magnetism_profile.json",
+      "sha256": "753f341f94ce5f944391c91eb86caad1ee3b98a01cc3b56379e790a331ecafbc",
+      "bytes": 7011
+    },
+    {
+      "path": "schemas/practice_log.json",
+      "sha256": "0c98e5b42f01041c80cf5c0a741642741d5bdb657f34126921464b524b5a0bea",
+      "bytes": 6223
+    },
+    {
+      "path": "schemas/season_goal.json",
+      "sha256": "cc2527cbfb8a292ec0d729708fab220ec1ac74afbe80fdec78ad430f74433024",
+      "bytes": 4998
+    },
+    {
+      "path": "schemas/self_presentation_audit.json",
+      "sha256": "e2b93b49df53ab08aa30ab811d6ec3aee43e99d8c494516a740fb7c7d40a4542",
+      "bytes": 7490
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Offer",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Offer"
+    },
+    "best_fit_customer": {
+      "type": "string",
+      "description": "ICP"
+    },
+    "outcome": {
+      "type": "string",
+      "description": "Promised outcome"
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Included scope"
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Exclusions"
+    },
+    "pricing_version": {
+      "type": "string",
+      "description": "Price version"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "name",
+    "best_fit_customer",
+    "outcome",
+    "scope",
+    "exclusions",
+    "pricing_version"
+  ],
+  "additionalProperties": false
+}

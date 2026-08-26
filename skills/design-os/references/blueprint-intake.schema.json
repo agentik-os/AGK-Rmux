@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.com/schemas/design-os/blueprint-intake.schema.json",
+  "title": "Design OS Blueprint Intake",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "project",
+    "sources",
+    "requirements",
+    "actors",
+    "decisions",
+    "unknowns"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "project": {
+      "type": "object",
+      "required": ["name", "blueprintVersion", "targetSurfaces"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "blueprintVersion": { "type": "string", "minLength": 1 },
+        "targetSurfaces": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "objective": { "type": "string" },
+        "nonGoals": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "location"],
+        "properties": {
+          "id": { "pattern": "^SRC-[0-9]{3,}$" },
+          "kind": { "type": "string" },
+          "location": { "type": "string" },
+          "version": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "criticality", "status"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "criticality": { "enum": ["critical", "important", "supporting"] },
+          "status": { "enum": ["approved", "proposed", "unknown", "conflict", "rejected"] },
+          "actorRefs": { "type": "array", "items": { "type": "string" } },
+          "decisionRefs": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": true
+      }
+    },
+    "actors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "roles": { "type": "array", "items": { "type": "string" } },
+          "jobs": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": true
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "decision"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["approved", "proposed", "superseded", "rejected"] },
+          "decision": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": true
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "severity", "status"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "question": { "type": "string", "minLength": 1 },
+          "severity": { "enum": ["critical", "high", "medium", "low"] },
+          "status": { "enum": ["open", "assumed", "resolved", "rejected"] },
+          "owner": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

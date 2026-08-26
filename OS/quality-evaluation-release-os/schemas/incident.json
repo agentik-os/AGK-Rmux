@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Incident",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "release_id": {
+      "type": "string",
+      "description": "Related release"
+    },
+    "impact": {
+      "type": "string",
+      "description": "Impact"
+    },
+    "status": {
+      "type": "string",
+      "description": "open/contained/resolved"
+    },
+    "rollback_status": {
+      "type": "string",
+      "description": "Rollback state"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "impact",
+    "status"
+  ],
+  "additionalProperties": false
+}

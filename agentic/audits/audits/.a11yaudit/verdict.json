@@ -1,0 +1,160 @@
+{
+ "audit": "a11y",
+ "score": 82,
+ "score_raw": "53/65",
+ "score_normalized": 82,
+ "grade": "A",
+ "confidence": "high",
+ "skill_used": "a11yaudit",
+ "ticket": "theme-ffcba15",
+ "preamble_version": "1.0",
+ "scope": "tui-theme-contrast",
+ "applicable_phases": {
+  "1_wcag_x3.0": "8/10=24",
+  "5_contrast_x2.5": "8/10=20",
+  "15_cognitive_x1.0": "9/10=9"
+ },
+ "user_need_match": {
+  "quote": "Audit ACCESSIBILITY of this TUI surface: verify the contract thresholds against WCAG 2.2 AA for a terminal UI, check non-color-only signaling (the 4 states must also differ by glyph/weight, not hue alone), color-blindness robustness of the 15 palettes accent-vs-error distinction, and the Paper light theme.",
+  "addressed": true,
+  "evidence": "All four asks answered with citations: thresholds map to SC 1.4.3/1.4.11 AA correctly (theme.rs:13-27, 649-667); 4 done-states glyph-unique blocked=! failed=x (ui.rs:1233-1239) + zero hue-only signals in the 3216-line render surface; CVD simulated for all 15 palettes (error-vs-bg >=3.54:1 under all CVD types, glyph channel load-bearing); Paper fully AA with two low at-a-glance regressions (F6/F7).",
+  "edge_cases_covered": [
+   "bold-as-bright terminals (F5)",
+   "light-scheme terminals under Omega exemption (F1)",
+   "future palette drift past untested floors (F2/F3)",
+   "tritanopia on orange-accent themes (Gruvbox dE7.4)",
+   "Amber accent~warn dE6.5 for normal vision"
+  ]
+ },
+ "falsifiable_tests": [
+  {
+   "name": "contract unit test (pre-fix)",
+   "hypothesis": "any role under floor fails",
+   "command": "cargo test -p omega-tui --lib theme",
+   "expected": "contrast_contract ok",
+   "actual": "4 passed; 0 failed; contrast_contract ... ok",
+   "passed": true
+  },
+  {
+   "name": "independent ratio recomputation",
+   "hypothesis": "Rust math diverges from from-scratch Bun math",
+   "command": "bun /tmp/a11y-theme-audit.ts",
+   "expected": "all 14x11 ratios clear floors",
+   "actual": "pass_45=true pass_30=true hierarchy_ok=true for all 14 themes",
+   "passed": true
+  },
+  {
+   "name": "CVD matrix sanity",
+   "hypothesis": "Machado matrices mis-transcribed",
+   "command": "simulate pure red/green under protan/deutan",
+   "expected": "converge to lightness-separated yellows",
+   "actual": "red_protan=(109,95,0) green_protan=(255,229,0)",
+   "passed": true
+  },
+  {
+   "name": "accent2-bg site census",
+   "hypothesis": "more/fewer than 5 sites or fg!=sel_fg",
+   "command": "grep -n \"\\.bg(th::accent2())\" crates/omega-tui/src/ui.rs",
+   "expected": "5 sites with sel_fg",
+   "actual": "2254,2277,2302,2534,3078 - all .fg(th::sel_fg())",
+   "passed": true
+  },
+  {
+   "name": "live-violation falsification of F2",
+   "hypothesis": "some 3.0-floor role sits in [3.0,4.5) while coloring text",
+   "command": "min-scan over contrast-cvd.json",
+   "expected": "min>=4.5 means latent-only",
+   "actual": "minimum 4.75:1 (solarized accent/success)",
+   "passed": true
+  },
+  {
+   "name": "tab-bar mitigation search",
+   "hypothesis": "UNDERLINED/REVERSED rescues the tab bar",
+   "command": "grep -n \"Modifier::\" crates/omega-tui/src/ui.rs",
+   "expected": "none in draw_tabs",
+   "actual": "only ui.rs:1218,1473 - neither in tab bar",
+   "passed": true
+  },
+  {
+   "name": "post-fix regression gate",
+   "hypothesis": "new sel_fg-on-accent2 assertion fails a theme",
+   "command": "cargo test -p omega-tui --lib theme",
+   "expected": "4 passed",
+   "actual": "4 passed; 0 failed",
+   "passed": true
+  },
+  {
+   "name": "theming-bypass sweep",
+   "hypothesis": "hardcoded Color:: breaks Paper",
+   "command": "grep -n \"Color::\" crates/omega-tui/src/ui.rs (+crate-wide)",
+   "expected": "only exempt/harmless hits",
+   "actual": "preview_to_color exempt; 250/313/2347 fallbacks; 818 detector; zero Paper-breaking",
+   "passed": true
+  }
+ ],
+ "hinge_findings": [
+  {
+   "location": "crates/omega-tui/src/theme.rs:589-684",
+   "concern": "contract test could under-specify the rendered reality",
+   "verified_safe_by": "call-site census (T1-F2/T1-F6) + independent recomputation; one gap found and FIXED (sel_fg-on-accent2)"
+  },
+  {
+   "location": "crates/omega-tui/src/theme.rs:169-189",
+   "concern": "Omega exemption could hide fixed-luminance roles",
+   "verified_safe_by": "per-role inspection - warn Rgb(255,165,0) leak found (F1, medium, NEEDS_REVIEW)"
+  },
+  {
+   "location": "crates/omega-tui/src/ui.rs:1233-1239",
+   "concern": "state glyphs could be color-only",
+   "verified_safe_by": "verbatim match-arm read: + ~ x ! unique glyphs per state"
+  }
+ ],
+ "issues_found_and_fixed": [
+  {
+   "id": "FIX-001",
+   "finding_id": "T1-F6",
+   "severity": "low",
+   "location": "crates/omega-tui/src/theme.rs:662-670",
+   "before": "contract tested sel_fg only vs accent; 5 ui.rs sites render sel_fg on accent2 bg untested",
+   "after": "sel_fg-on-accent2 >= 4.5:1 assertion + doc-table row added",
+   "verification": "cargo test -p omega-tui --lib theme -> 4 passed; 0 failed (all 14 themes >= 13.7:1)"
+  }
+ ],
+ "edge_cases": [
+  {
+   "finding_id": "T1-F5",
+   "scenario": "user runs Omega default theme on a light terminal scheme; blocked badge ! renders Rgb(255,165,0) on white = 1.97:1",
+   "covered_by_existing_test": false,
+   "evidence_gathered": "WCAG math, theme.rs:181 + ui.rs:1237",
+   "fix_includes_coverage": false
+  },
+  {
+   "finding_id": "T2-F4",
+   "scenario": "bold-as-bright emulator collapses active-tab BOLD to pure color difference",
+   "covered_by_existing_test": false,
+   "evidence_gathered": "ui.rs:592-593 highlight_style",
+   "fix_includes_coverage": false
+  },
+  {
+   "finding_id": "T4-F3",
+   "scenario": "Paper user glances at token meter at 85% - tier color black==black, alert invisible; numeral still present",
+   "covered_by_existing_test": false,
+   "evidence_gathered": "ui.rs:1802-1806/3168-3183 + paper palette",
+   "fix_includes_coverage": false
+  }
+ ],
+ "cross_audit_links": [],
+ "killed_in_verification": 0,
+ "evidence_summary_path": "audits/.a11yaudit/discovery/contrast-cvd.json",
+ "needs_manual_at_verification": [
+  {
+   "type": "terminal_screen_reader",
+   "items": [
+    "live AT pass over rendered frames (out of static scope)"
+   ]
+  }
+ ],
+ "confidence_basis": "Every contract ratio verified by two independent computations (Rust test runtime + from-scratch Bun reimplementation) that agree; every code claim carries file:line and survived a dedicated adversarial refuter (7/7 high-confidence verdicts, 0 killed); 8 falsifiable tests with captured outputs; the one fix is regression-gated by the same test suite. Not covered: live terminal screenshots and real terminal-scheme corpora for Omega.",
+ "banned_phrase_check": "passed",
+ "finished_at": "2026-06-05T22:30:00+02:00"
+}

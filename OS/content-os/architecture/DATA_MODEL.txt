@@ -1,0 +1,45 @@
+Content OS — Logical data model
+
+ENTITIES
+- voice_profile
+- content_atom
+- story_record
+- content_pillar
+- content_asset
+- platform_brief
+- production_job
+- content_campaign
+- content_metric
+- rights_record
+
+RELATIONSHIPS
+- content_atom DERIVED_FROM source
+- story_record IS content_atom
+- content_pillar USES content_atoms
+- content_asset DERIVED_FROM content_pillar
+- platform_brief GOVERNS content_asset
+- production_job PRODUCES content_asset
+- content_campaign GROUPS pillars/assets
+- content_metric MEASURES asset
+- rights_record AUTHORIZES asset
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- content.source.ingested
+- content.atom.created
+- content.pillar.approved
+- content.cascade.created
+- content.asset.drafted
+- content.asset.approved
+- content.asset.published
+- content.metric.recorded
+- content.experiment.reviewed
+- content.rights.blocked

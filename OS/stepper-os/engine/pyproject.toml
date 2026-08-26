@@ -1,0 +1,25 @@
+[project]
+name = "stepper-os"
+version = "1.0.0"
+description = "Stepper OS engine - blueprint-to-execution-graph runtime for coding agents (AgentikOS suite)"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2",
+  "typer>=0.12",
+  "rich>=13",
+  "PyYAML>=6",
+  "networkx>=3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+stepper = "stepper_engine.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["stepper_engine*"]

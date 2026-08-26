@@ -1,0 +1,12 @@
+{
+  "mode": "read-only — recommendations only, NOT executed (dispatch brief: do not fix, do not commit)",
+  "tasks": [
+    {"id": "FIX-001", "finding": "CA-1 / uiux-F-7", "file": "crates/omega-tui/src/ui.rs", "line": 3071, "fix": "Render status_message with priority over git text on the Sessions tab — unblocks the diff's vanish notice (app.rs:1729) and every kill/create confirmation", "status": "NEEDS_REVIEW", "severity": "MEDIUM", "blockedBy": []},
+    {"id": "FIX-002", "finding": "CA-1", "file": "crates/omega-tui/src/input.rs", "line": 1419, "fix": "Two-press confirm on list 'x' kill (pattern exists at input.rs:1268-1288 Settings 'x'); optionally ignore destructive keys one beat after a forced focus drop", "status": "NEEDS_REVIEW", "severity": "MEDIUM", "blockedBy": []},
+    {"id": "FIX-003", "finding": "CA-3", "file": "crates/omega-tui/src/app.rs", "line": 1712, "fix": "Extract the re-anchor block into a sync &mut self helper; add unit tests for re-anchor success, chat-vanish->List, clamp fallback (daemon-free pattern at app.rs:1995-2003)", "status": "NEEDS_REVIEW", "severity": "MEDIUM", "blockedBy": []},
+    {"id": "FIX-004", "finding": "CA-2", "file": "crates/omega-tui/src/app.rs", "line": 1727, "fix": "Vanish branch also clears last_tab_press/tab_seq_start (symmetry with app.rs:1243-1244)", "status": "NEEDS_REVIEW", "severity": "LOW", "blockedBy": []},
+    {"id": "FIX-005", "finding": "CA-4", "file": "crates/omega-cli/src/main.rs", "line": 1398, "fix": "F5 handler: only set 'Refreshed' if refresh() did not already set a status_message (or set status before refresh, matching the KillSession ordering at main.rs:1226-1228)", "status": "NEEDS_REVIEW", "severity": "LOW", "blockedBy": []},
+    {"id": "FIX-006", "finding": "CA-5", "file": "crates/omega-tui/src/input.rs", "line": 620, "fix": "Update the now-misleading 'reset selection' comment to note the refresh re-anchor override (comment-only)", "status": "NEEDS_REVIEW", "severity": "INFO", "blockedBy": []},
+    {"id": "FIX-007", "finding": "CA-6", "file": "commit-message practice", "line": 0, "fix": "When citing gitignored evidence as proof, also paste the key capture excerpts into the commit message or a tracked doc so the proof survives a clone", "status": "NEEDS_REVIEW", "severity": "INFO", "blockedBy": []}
+  ]
+}

@@ -1,0 +1,654 @@
+{
+  "name": "Delivery & Customer Success OS",
+  "slug": "delivery-customer-success",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Manage the complete customer journey after commercial commitment: handoff, onboarding, discovery, success planning, delivery, scope, communication, acceptance, adoption, value proof, renewal, expansion, referral and offboarding.",
+  "category": "Business Stack / Client Delivery and Value Realization",
+  "position": "Business Stack: converts sold promises into accepted outcomes, adoption, retention and advocacy",
+  "counts": {
+    "agents": 19,
+    "skills": 30,
+    "protocols": 9,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 102
+  },
+  "files": [
+    {
+      "path": "agents/acceptance_evidence_lead.md",
+      "sha256": "c5f50d40222949ec1b11f6fbd5fbb8e8eef1a7882ffe1713a507e0f79c1550ac",
+      "bytes": 995
+    },
+    {
+      "path": "agents/adoption_training_lead.md",
+      "sha256": "0aa642e2021defed600d9f74cc65a9c44e20c469a00bebbe2a0f7577a4a9e2ca",
+      "bytes": 996
+    },
+    {
+      "path": "agents/client_communication_lead.md",
+      "sha256": "2b53c6081d0323d2bee6cbb6b06449cb3c3bc0b324e399b8e792223904efead6",
+      "bytes": 1004
+    },
+    {
+      "path": "agents/customer_strategist.md",
+      "sha256": "0637c5a4ee24aa5af3ba9a2c596a59f36ce3dbc35a5ee782e1080df52a78c5c6",
+      "bytes": 986
+    },
+    {
+      "path": "agents/customer_success_manager.md",
+      "sha256": "0234f3f25f3d2f321c4a7f6b4d13129085614fa3524825e132bd0867bf437957",
+      "bytes": 1002
+    },
+    {
+      "path": "agents/data_privacy_steward.md",
+      "sha256": "b117944f41570d1b02402fd895497674f0e65739be260c22a318b52544408dc0",
+      "bytes": 999
+    },
+    {
+      "path": "agents/delivery_director.md",
+      "sha256": "686f57213c8ca939cf559691f57d86e28d6eb3cf29ff2c94d8bb0fcf41cce0b5",
+      "bytes": 993
+    },
+    {
+      "path": "agents/delivery_integrator.md",
+      "sha256": "91ccf4ae45a1d6b04acc23a17d6b8b26b2ab61238a0fb600647492956e46013d",
+      "bytes": 1002
+    },
+    {
+      "path": "agents/handoff_manager.md",
+      "sha256": "618b42946d067bfaf1d97228225a750f605a8fce118ef7ba9f8c229a48bcd78b",
+      "bytes": 994
+    },
+    {
+      "path": "agents/hospitality_designer.md",
+      "sha256": "6b9eb7e13ed2d3d16219279445db817adfef77420cbd4d1286ea2c609b4512ac",
+      "bytes": 990
+    },
+    {
+      "path": "agents/offboarding_manager.md",
+      "sha256": "12c93eb0584db2b8fd4f1733ae3b2b6b883b881b5e68c11bb905267846bb0453",
+      "bytes": 998
+    },
+    {
+      "path": "agents/onboarding_architect.md",
+      "sha256": "459648d66bd54ca3f475a3b6eb6f8c2fdcd5fc10f5a2980df5700d121356bbfc",
+      "bytes": 994
+    },
+    {
+      "path": "agents/project_manager.md",
+      "sha256": "99f08598b54a2292ae631199e2f584c1517915d2dbc25d6dd79af0f5d61261bc",
+      "bytes": 982
+    },
+    {
+      "path": "agents/referral_advocacy_lead.md",
+      "sha256": "f9565f26ae799712938acbb9d6ed4944ba6e33b37489084da3a0b3e0c70babd4",
+      "bytes": 1002
+    },
+    {
+      "path": "agents/renewal_expansion_strategist.md",
+      "sha256": "a0ec32515546bcfed70e44ceda6539175f38945d11ae979af02b40cabcf1bbe7",
+      "bytes": 996
+    },
+    {
+      "path": "agents/risk_escalation_manager.md",
+      "sha256": "8268cce78215169339590bafef94efa64aeeb14fc38f6edb995644bba57fb89d",
+      "bytes": 992
+    },
+    {
+      "path": "agents/scope_change_controller.md",
+      "sha256": "7071e1842a79dde0474149a2f549198a696e176ee9a2d04ede151e12d5611f72",
+      "bytes": 984
+    },
+    {
+      "path": "agents/solution_architect.md",
+      "sha256": "e09d7f2de817e146577d50c954abdc9b9d0f2ae0f0bb26bf588f325f217f646e",
+      "bytes": 995
+    },
+    {
+      "path": "agents/value_realization_analyst.md",
+      "sha256": "59b67b8762cf5f77ccd84db8d02500db6ea835bf12ec1a13d64e63728c973379",
+      "bytes": 991
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "791aefc19f05e139453706d51f49029e895577835ac4963dd3601487d67db221",
+      "bytes": 864
+    },
+    {
+      "path": "architecture/DATA_MODEL.txt",
+      "sha256": "dccedc9cc7b0484f9fc8b63279e507a7714570cbbd067e132919b755073dda7d",
+      "bytes": 931
+    },
+    {
+      "path": "architecture/SECURITY.md",
+      "sha256": "dd46aade6b1bdf5c2a8dfb33156335cfc83d99265c0cdc8f7040609a99bcdd87",
+      "bytes": 992
+    },
+    {
+      "path": "architecture/STATE_MACHINE.md",
+      "sha256": "56550ee8b274c58e85bc538e79f7176f18b170f17c720bf3b83f85be0d2711e1",
+      "bytes": 899
+    },
+    {
+      "path": "config/os.yaml",
+      "sha256": "6d96ce1085eeeef99326395f704407661264f67ffb9e3913e23a6174b1ecc90a",
+      "bytes": 742
+    },
+    {
+      "path": "config/router.json",
+      "sha256": "efa59de77a33d2e0b39b7261817a035d9b0a111ed83f85ab95736e6710ca7b0b",
+      "bytes": 1819
+    },
+    {
+      "path": "evals/EVALS.md",
+      "sha256": "f1bf2a3485fa9ceae4ff7c126b5884a3b8f9dcb290cef343051b161012cf6e30",
+      "bytes": 1799
+    },
+    {
+      "path": "examples/EXAMPLES.md",
+      "sha256": "f44ad42c74683f269b2d737643aa49e47b6ce1ec2b609b441008d0a1ea0e20e2",
+      "bytes": 680
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "fe7a8677ac607077800e8e5a52d0d61ed8714d133f4580b924ee84447f9378bb",
+      "bytes": 391
+    },
+    {
+      "path": "knowledge/BOOK_CANON.md",
+      "sha256": "338639bd035eabf713deb73f16044aef56f86748b28e009c25985b698dc368a3",
+      "bytes": 1471
+    },
+    {
+      "path": "knowledge/FRAMEWORKS.md",
+      "sha256": "0fe047d862b8019f03f722f6d18c5c7014b3194ec711dc4242214ee41aa9e49c",
+      "bytes": 730
+    },
+    {
+      "path": "knowledge/RESEARCH_NOTES.md",
+      "sha256": "2a2b571f405ee44f3da69ae9916412c0666addb69aff52f3f49cee2a560161fe",
+      "bytes": 882
+    },
+    {
+      "path": "knowledge/SOURCES.md",
+      "sha256": "7dc267d0c815c1a5bee948d6e37521f1d579495d417637c587e4e62fe0dfb8db",
+      "bytes": 896
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "b42feb5ef2dcc9393aca4dd0bbb3743cdd965de6e09b291d4f948ffb25b027d2",
+      "bytes": 6543
+    },
+    {
+      "path": "memory/MEMORY_MODEL.md",
+      "sha256": "1a2c71d5a4fd7773ce05ceb39e215a5eeb3362cb6997a89d6012290a2e173242",
+      "bytes": 810
+    },
+    {
+      "path": "memory/PRIVACY.md",
+      "sha256": "f970a4a98ae74b4c83d9e57eae52f2828427f9db75adb9e36a8eeee89d86cb38",
+      "bytes": 608
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "1da847c16f794cc6a1863530f37faeab7530e082e0f90f6bea2539de9cb44182",
+      "bytes": 3213
+    },
+    {
+      "path": "protocols/customer_risk_recovery.md",
+      "sha256": "aa1603ce7f1f0729a7fde62331530a6e1ae7b15aec6235c0327ad363e51ccb44",
+      "bytes": 347
+    },
+    {
+      "path": "protocols/delivery_cadence.md",
+      "sha256": "e6ca3727562ec6300e558e8b5e0430cf709b8e917b5a2b2f6d85c59da7040560",
+      "bytes": 327
+    },
+    {
+      "path": "protocols/offboarding.md",
+      "sha256": "8c775656df626689af7c9d4542d39e39268fbe9c175fdef8f0dcf17e265d440a",
+      "bytes": 365
+    },
+    {
+      "path": "protocols/onboarding.md",
+      "sha256": "bb1bb15c79edfdf8e4090808b846eccb69e796150c45ef0bd97fb679468ac8d6",
+      "bytes": 368
+    },
+    {
+      "path": "protocols/renewal_expansion.md",
+      "sha256": "384e085a92e58eb61722deff8225beae553cbd1c21a740fe66cceefd63e1ff8f",
+      "bytes": 356
+    },
+    {
+      "path": "protocols/sales_to_delivery_handoff.md",
+      "sha256": "3502d1a61b843deacc57b89e212bd0732202d4e91fa616914995970d5e55b0ac",
+      "bytes": 407
+    },
+    {
+      "path": "protocols/scope_change.md",
+      "sha256": "7adf2e2e1619b339fa2a85c302632ae4432fcf973bb962ee552fe0bb35c7fac3",
+      "bytes": 353
+    },
+    {
+      "path": "protocols/success_planning.md",
+      "sha256": "25792b321cf59c7987aa8e4fdbef0b8cadfaefff0a0359cc037870b5a0f4f94d",
+      "bytes": 360
+    },
+    {
+      "path": "protocols/value_review_qbr.md",
+      "sha256": "0267ac9a0b18e1d69bfc811a988f575cafe886d95411566b4ab6d8079e63b5bf",
+      "bytes": 347
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "2b46e76c3b781f34c5518ef946bec5c0d605883b379b9ab932a0a0486ce4c99b",
+      "bytes": 2252
+    },
+    {
+      "path": "README.md",
+      "sha256": "5de499d6a35497b93884f1465d6ff62a081012339cdf481041986ed7331c8cca",
+      "bytes": 2651
+    },
+    {
+      "path": "runtime/os_runtime.py",
+      "sha256": "926e255e98a7d8a8c9d0dcb51bbf2e22b30a4edfea47fbd4dc0a65bc46d9eef7",
+      "bytes": 2506
+    },
+    {
+      "path": "runtime/README.md",
+      "sha256": "f78358fca58b452cbf4a3f7e80cb2e2a262188f81d8f113ec0d071ef54d8f5ba",
+      "bytes": 377
+    },
+    {
+      "path": "runtime/requirements.txt",
+      "sha256": "0d5b8d9408d93e3953b2a0117a8a9657d829f2e95f79d904093bab5eec894183",
+      "bytes": 24
+    },
+    {
+      "path": "schemas/change_request.json",
+      "sha256": "90f908d3573fcce6798be0ffe28b86b851f174e770cf8a85b3d62c9f2293760b",
+      "bytes": 1095
+    },
+    {
+      "path": "schemas/customer_health.json",
+      "sha256": "07de1f09f0d97f0d368ab9368f86fde7acb57619d099ed5e7c85523b7f83f7a0",
+      "bytes": 1051
+    },
+    {
+      "path": "schemas/customer_risk.json",
+      "sha256": "250351b3dc78d3544c65b284f9ea8bd3f22013b445c8e13e1854db97e5e44d6d",
+      "bytes": 1179
+    },
+    {
+      "path": "schemas/deliverable.json",
+      "sha256": "9828baf2e05a06d9eed64c059a8d5bbf8808653718437923326a0bf31c11a64a",
+      "bytes": 1025
+    },
+    {
+      "path": "schemas/engagement.json",
+      "sha256": "d7f01e3730bed693c4ba59bca323fb481480701f766fc5fabb5f52e3e72367b1",
+      "bytes": 979
+    },
+    {
+      "path": "schemas/milestone.json",
+      "sha256": "9b8ae83d803c47808d4b0904c9a639f3fdf9fea33a8b4da51ef431e2762855ea",
+      "bytes": 1160
+    },
+    {
+      "path": "schemas/renewal_plan.json",
+      "sha256": "5ee7ee656705b41e572a9e4ba680daff1719d23c1de15d61ff2e7df84d6679d8",
+      "bytes": 1171
+    },
+    {
+      "path": "schemas/success_plan.json",
+      "sha256": "6bd283138c8eb6f43d3f708ea6c1c82e200f90b89abb452acb45bc286633123b",
+      "bytes": 1224
+    },
+    {
+      "path": "schemas/value_evidence.json",
+      "sha256": "f87ae66142b7cc1017c44b92eaece725216f1689f662487b715c3ce099d1fdd6",
+      "bytes": 1129
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "4f1bb0a080242e54064a1c06a9648baa9fb5eff3ee598433c177be1cfbf2da23",
+      "bytes": 2714
+    },
+    {
+      "path": "skills/acceptance_criteria.md",
+      "sha256": "8eb694f3239391bd5066d3761c6f72a570cb91cad7f3e1151b8f5c1deb28eca8",
+      "bytes": 978
+    },
+    {
+      "path": "skills/adoption_plan.md",
+      "sha256": "bf31aaf6f06a874fcd2e35fd1e8150705f21439437ffa0924a67873ec2e72f4d",
+      "bytes": 985
+    },
+    {
+      "path": "skills/capacity_margin_handoff.md",
+      "sha256": "0161b7a808219b7924cdc9b420bc9e97b2d8a11821d5f6a7e14e09a68d0a7cc3",
+      "bytes": 996
+    },
+    {
+      "path": "skills/case_study.md",
+      "sha256": "8c03e68fc9e2669b969e71f0aae19801dbf52a314f1529b67e7d1a8ddb08d3e7",
+      "bytes": 976
+    },
+    {
+      "path": "skills/change_request.md",
+      "sha256": "f275b265aead215be4b5a56a935a8757c7d12acf3e766328a8169dc2b2fc8b30",
+      "bytes": 993
+    },
+    {
+      "path": "skills/client_update.md",
+      "sha256": "6808881fb8f176936f5a33de210d9f2992aa8cf251fc4b4f0ad51731e24448ad",
+      "bytes": 982
+    },
+    {
+      "path": "skills/contract_to_delivery_handoff.md",
+      "sha256": "2415a695ecbce322d9d94f2f5cb65181eab95e5f690954bfb27245feb220662d",
+      "bytes": 1020
+    },
+    {
+      "path": "skills/customer_effort_audit.md",
+      "sha256": "f9fec81558b741a87cea6e92b04c220ba844e4322d6a33cac8be5b587a0db97b",
+      "bytes": 977
+    },
+    {
+      "path": "skills/customer_escalation.md",
+      "sha256": "02274cbc9e4ef0438a36e9ace2b2d9792e8c9eb3e9580d8c6351b4ff3d9b6611",
+      "bytes": 988
+    },
+    {
+      "path": "skills/decision_log.md",
+      "sha256": "fa13a373305128aeada8a1e738df793d5c0c6b4156c88bbe57042ab0f3e550b9",
+      "bytes": 978
+    },
+    {
+      "path": "skills/deliverable_acceptance.md",
+      "sha256": "3019ee08836e11349ef16dc97be8c187c20e3a6ec6f07f13c2a94fddf128caf2",
+      "bytes": 985
+    },
+    {
+      "path": "skills/delivery_retrospective.md",
+      "sha256": "8d362e9cbd74db689e0538c1b4d76007e8ec06cb9bcdb1ab6ae161051827f8a2",
+      "bytes": 988
+    },
+    {
+      "path": "skills/discovery_plan.md",
+      "sha256": "bf21d110768995012ce942b5580e3f73edd24c8d8625837abbd4deb0311a19d2",
+      "bytes": 994
+    },
+    {
+      "path": "skills/expansion_hypothesis.md",
+      "sha256": "b7e418b3398cb5f75008558670261e3a6f9823014abc63cb88b037069f8c3f68",
+      "bytes": 986
+    },
+    {
+      "path": "skills/health_score.md",
+      "sha256": "1aeb82d5b78eadd21278fbfd49f4960cc54b8531b1e4565ed1a601744b66e3b6",
+      "bytes": 995
+    },
+    {
+      "path": "skills/hospitality_moment.md",
+      "sha256": "bf87a7e24cdc7d4c4ee7e2a263f3bb0a87292a286e14a42b3689c5b66e51b82e",
+      "bytes": 973
+    },
+    {
+      "path": "skills/issue_management.md",
+      "sha256": "9d3902e54e4cc734791b8aa2d87971d940cb2ceb358f469529a8986fdac4e6c7",
+      "bytes": 975
+    },
+    {
+      "path": "skills/milestone_plan.md",
+      "sha256": "5c556d237374fdbf5f19e67a08ce422c7eb794f180b6316858224072d2f2c48d",
+      "bytes": 984
+    },
+    {
+      "path": "skills/offboarding.md",
+      "sha256": "c414dcde31dff71e9189e53eead260b5d4b949b2c703f690c64035a573ffdabe",
+      "bytes": 995
+    },
+    {
+      "path": "skills/onboarding_checklist.md",
+      "sha256": "06506a8808168e893f801f0ca04f5e9e3244e5b7754d2e32daa65fde1dc007d9",
+      "bytes": 1007
+    },
+    {
+      "path": "skills/qbr_value_review.md",
+      "sha256": "15e3ed1ba91078460a036f151e05d180aaba9ed081facfb6b524c66af3c4e08d",
+      "bytes": 980
+    },
+    {
+      "path": "skills/raci_governance.md",
+      "sha256": "f1db487367fdfc346a2aae16564c973d447afa8dbbf6e038d8166b9b752f853e",
+      "bytes": 994
+    },
+    {
+      "path": "skills/referral_request.md",
+      "sha256": "738a63953b3581da39931d0911b4b5333c41704cda04932a5eb790b5cba5f957",
+      "bytes": 976
+    },
+    {
+      "path": "skills/renewal_readiness.md",
+      "sha256": "f3de982222b975cb5dbcaef21846351aecb1afa8278f29574b5716a69f5a925b",
+      "bytes": 979
+    },
+    {
+      "path": "skills/risk_register.md",
+      "sha256": "3a1e47dcfdc88f3354286fbcadfb856da8d1b6761268076516a198c0f921e1f4",
+      "bytes": 986
+    },
+    {
+      "path": "skills/scope_baseline.md",
+      "sha256": "7e60f4534a107fb22a024a057d3ec446ad1d1f893ff9085911d29a8900548022",
+      "bytes": 965
+    },
+    {
+      "path": "skills/stakeholder_map.md",
+      "sha256": "dc90c18b2e30315d9cdd7e67a52bc278258e115203fa44f2a7c94acbcebbe94f",
+      "bytes": 995
+    },
+    {
+      "path": "skills/success_plan.md",
+      "sha256": "76410c50b9e9573b396b3733e12b6468fb3bbebd8b551057bb9aee862bf2793b",
+      "bytes": 996
+    },
+    {
+      "path": "skills/training_package.md",
+      "sha256": "e496fc5e1606496eff26c290d0b729a03a6f5c5b69311fe20fd388a619bdaf55",
+      "bytes": 983
+    },
+    {
+      "path": "skills/value_evidence.md",
+      "sha256": "06c48d88084a5a828a442b6cef171680b7bb18be0c8d60e8bc6dfa3d90a640ec",
+      "bytes": 982
+    },
+    {
+      "path": "system/BOUNDARIES.md",
+      "sha256": "10bdf19ad24b935e161d6d17f21040732149ba00d47a43367898a39eb7a0d770",
+      "bytes": 900
+    },
+    {
+      "path": "system/OUTPUT_CONTRACT.md",
+      "sha256": "fa839e9f8dc77d32e8f8c70c6104a0739b84d91c362f6f9d97332f3da443e7c1",
+      "bytes": 640
+    },
+    {
+      "path": "system/PRINCIPLES.md",
+      "sha256": "8579e431898b9bdd2fd41093dea255e65a9903670ea3d7df82c8e101573ca101",
+      "bytes": 921
+    },
+    {
+      "path": "system/ROUTER.md",
+      "sha256": "0e69a1ee62bd04e64dc8ac995959e3639c8d9d1ceb6d3197f7fafeb4b4087b4f",
+      "bytes": 1058
+    },
+    {
+      "path": "system/SYSTEM_PROMPT.md",
+      "sha256": "f6f79c620911755ed4268f21e7ea80b581e0eafa1a1722fa23bf5691d24af832",
+      "bytes": 6587
+    },
+    {
+      "path": "templates/CHANGE_REQUEST.md",
+      "sha256": "8b9d1393ede62dbec67b788e0488fa3dbe5aa8119224ccd07342afc985c0c711",
+      "bytes": 298
+    },
+    {
+      "path": "templates/CLIENT_UPDATE.md",
+      "sha256": "1519549e9f45d748eb22cc204be80245a4fe43d25eddc2d81d1a9a598bed3755",
+      "bytes": 211
+    },
+    {
+      "path": "templates/HEALTH_SCORE.md",
+      "sha256": "ea22b7067df4a140f805fb6c53cdb563a5d1a19b335021162e3d528a7261aed0",
+      "bytes": 253
+    },
+    {
+      "path": "templates/QBR_VALUE_REVIEW.md",
+      "sha256": "1d9a8f23b6ed0c19bf68b7cffda3cab39e0479eb4c2316c0f93ac318778b3943",
+      "bytes": 273
+    },
+    {
+      "path": "templates/SALES_TO_DELIVERY_HANDOFF.md",
+      "sha256": "d928636f8f320f64933835d4227b627627f0d167bfcee777d8131e0382299729",
+      "bytes": 356
+    },
+    {
+      "path": "templates/SUCCESS_PLAN.md",
+      "sha256": "37db0d9f456b85c0032b7d695d5e122d70734d46fa83a277732a6a897ccd699b",
+      "bytes": 283
+    },
+    {
+      "path": "tests/test_package.py",
+      "sha256": "71885ea7b8fc36f20c4e4dd252af304ec93d6e20dadb4f33036fcc5c058c18ff",
+      "bytes": 573
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "delivery.handoff.accepted",
+        "consumed_by": "revenue",
+        "payload": {
+          "id": "string (record id)",
+          "handoff": "object (the handoff payload)",
+          "status": "string (accepted)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "delivery.workflow.stable",
+        "consumed_by": "operations-automation",
+        "payload": {
+          "id": "string (record id)",
+          "workflow": "object (the workflow payload)",
+          "status": "string (stable)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "delivery.renewal_signal.created",
+        "consumed_by": [
+          "revenue",
+          "strategy-portfolio"
+        ],
+        "payload": {
+          "id": "string (record id)",
+          "renewal_signal": "object (the renewal signal payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "delivery.change_scope.approved",
+        "consumed_by": [
+          "builder"
+        ],
+        "payload": {
+          "id": "string",
+          "scope": "object",
+          "acceptance_criteria": "array<object>",
+          "customer_ref": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "revenue.contract.signed",
+        "produced_by": "revenue",
+        "payload": {
+          "id": "string (record id)",
+          "contract": "object (the contract payload)",
+          "status": "string (signed)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "revenue.delivery_handoff.created",
+        "produced_by": "revenue",
+        "payload": {
+          "id": "string (record id)",
+          "delivery_handoff": "object (the delivery handoff payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "automation.candidate.scored",
+        "produced_by": "operations-automation",
+        "payload": {
+          "id": "string (record id)",
+          "candidate": "object (the candidate payload)",
+          "status": "string (scored)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "revenue.renewal.decisioned",
+        "produced_by": "revenue",
+        "payload": {
+          "id": "string (record id)",
+          "renewal": "object (the renewal payload)",
+          "status": "string (decisioned)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "payment.reconciled",
+        "produced_by": [
+          "revenue"
+        ],
+        "payload": {
+          "id": "string",
+          "payment_id": "string",
+          "invoice_id": "string",
+          "amount": "number",
+          "currency": "string",
+          "reconciliation": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "relationship.delivery_commitment.ready",
+        "produced_by": [
+          "relationship-network"
+        ],
+        "payload": {
+          "id": "string",
+          "commitment": "object",
+          "consent_status": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

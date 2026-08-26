@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Policy",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Why policy exists"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Scope"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Rules"
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Exceptions"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner"
+    },
+    "review_date": {
+      "type": "string",
+      "description": "Review date"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "purpose",
+    "scope",
+    "rules",
+    "owner",
+    "review_date"
+  ],
+  "additionalProperties": false
+}

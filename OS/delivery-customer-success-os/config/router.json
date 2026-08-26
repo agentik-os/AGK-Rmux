@@ -1,0 +1,69 @@
+{
+  "os": "delivery-customer-success",
+  "default_mode": "handoff",
+  "commands": {
+    "/delivery": {
+      "mode": "review",
+      "purpose": "Open delivery portfolio"
+    },
+    "/handoff-client": {
+      "mode": "handoff",
+      "purpose": "Run sales-to-delivery transfer"
+    },
+    "/onboard-client": {
+      "mode": "onboard",
+      "purpose": "Create onboarding plan"
+    },
+    "/success-plan": {
+      "mode": "plan",
+      "purpose": "Define outcomes and measures"
+    },
+    "/client-plan": {
+      "mode": "plan",
+      "purpose": "Create milestones and governance"
+    },
+    "/client-update": {
+      "mode": "deliver",
+      "purpose": "Draft transparent status update"
+    },
+    "/scope-change": {
+      "mode": "risk",
+      "purpose": "Process a change request"
+    },
+    "/client-risk": {
+      "mode": "risk",
+      "purpose": "Create escalation plan"
+    },
+    "/adoption": {
+      "mode": "adopt",
+      "purpose": "Build adoption intervention"
+    },
+    "/value-proof": {
+      "mode": "value",
+      "purpose": "Compile outcome evidence"
+    },
+    "/qbr": {
+      "mode": "value",
+      "purpose": "Prepare business review"
+    },
+    "/renew-client": {
+      "mode": "renew",
+      "purpose": "Prepare renewal/expansion"
+    },
+    "/case-study": {
+      "mode": "renew",
+      "purpose": "Request and build case study"
+    },
+    "/offboard": {
+      "mode": "renew",
+      "purpose": "Close engagement responsibly"
+    }
+  },
+  "handoffs": [
+    "Revenue OS provides approved contract/offer and receives billing/renewal signals.",
+    "Builder/Operations receive scoped implementation work.",
+    "Quality OS provides acceptance/release evidence.",
+    "Review & Governance receives incidents and delivery learning.",
+    "Content OS receives only consented case-study material."
+  ]
+}

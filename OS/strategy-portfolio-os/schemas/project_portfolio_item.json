@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project Portfolio Item",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Project"
+    },
+    "status": {
+      "type": "string",
+      "description": "proposed/experiment/funded/paused/killed"
+    },
+    "bet_id": {
+      "type": "string",
+      "description": "Related thesis"
+    },
+    "allocation": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Committed resources"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "name",
+    "status"
+  ],
+  "additionalProperties": false
+}

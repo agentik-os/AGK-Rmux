@@ -1,0 +1,52 @@
+{
+  "os": "wealth-capital",
+  "default_mode": "dashboard",
+  "commands": {
+    "/wealth": {
+      "mode": "dashboard",
+      "purpose": "Open personal CFO dashboard"
+    },
+    "/money-close": {
+      "mode": "close",
+      "purpose": "Reconcile the month"
+    },
+    "/cashflow": {
+      "mode": "dashboard",
+      "purpose": "Analyze personal cash flow"
+    },
+    "/saving": {
+      "mode": "plan",
+      "purpose": "Create or revise savings plan"
+    },
+    "/emergency-fund": {
+      "mode": "plan",
+      "purpose": "Size and fund resilience reserve"
+    },
+    "/debt": {
+      "mode": "decision",
+      "purpose": "Choose a debt strategy"
+    },
+    "/invest-policy": {
+      "mode": "plan",
+      "purpose": "Create an investment policy statement"
+    },
+    "/purchase": {
+      "mode": "decision",
+      "purpose": "Evaluate a major purchase"
+    },
+    "/money-scenario": {
+      "mode": "scenario",
+      "purpose": "Model a financial scenario"
+    },
+    "/receipt": {
+      "mode": "ingest",
+      "purpose": "Stage a personal document or receipt"
+    }
+  },
+  "handoffs": [
+    "Revenue OS sends verified owner pay/distribution and business reserve information.",
+    "Strategy & Portfolio OS receives personal capital constraints, not raw transaction history.",
+    "Execution OS receives agreed money tasks and reminders.",
+    "Qualified advisers receive organized records and question packs."
+  ]
+}

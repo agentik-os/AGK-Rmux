@@ -1,0 +1,78 @@
+{
+  "schema": "caio-ai-readiness-assessment/v1.0",
+  "generated_at": "{{YYYY-MM-DDTHH:MM}}",
+  "assessed_by": "{{operator}}",
+  "mode": "{{lead-triage|qualification-call|re-qualification}}",
+  "company": {
+    "name": "{{Company}}",
+    "size_band": "{{1-10|11-50|51-200|201-1000|1000+}}",
+    "sector": "{{sector}}",
+    "country": "{{country}}",
+    "website": "{{url_or_null}}",
+    "regulatory": ["{{GDPR|SOC2|HIPAA|FINRA|sector|none}}"],
+    "current_stack": ["{{tool}}", "..."]
+  },
+  "sponsor": {
+    "name_or_role": "{{name/role_or_null}}",
+    "is_budget_holder": "{{true|false|unknown}}",
+    "on_the_call": "{{true|false}}"
+  },
+  "why_now": "{{the dated trigger, or null}}",
+  "beachhead": "{{the one painful workflow, or null}}",
+  "scores": {
+    "d1_leadership_sponsorship": "{{0-4}}",
+    "d2_tooling_api_exposure": "{{0-4}}",
+    "d3_strategy_usecase_clarity": "{{0-4}}",
+    "d4_data_readiness": "{{0-4}}",
+    "d5_governance_risk_compliance": "{{0-4}}",
+    "d6_culture_change_appetite": "{{0-4}}",
+    "d7_talent_ai_literacy": "{{0-4}}",
+    "d8_infrastructure": "{{0-4}}",
+    "d9_budget_commitment": "{{0-4}}"
+  },
+  "weights": {
+    "d1": 18, "d2": 14, "d3": 12, "d4": 12, "d5": 11,
+    "d6": 10, "d7": 8, "d8": 8, "d9": 7,
+    "override_reason": "{{null_or_reason}}"
+  },
+  "readiness_index": "{{0-100}}",
+  "tier": "{{Nascent|Emerging|Ready|Leading}}",
+  "four_forces": {
+    "push": "{{0-3}}",
+    "pull": "{{0-3}}",
+    "anxiety": "{{0-3}}",
+    "habit": "{{0-3}}",
+    "change_appetite": "{{(push+pull)-(anxiety+habit)}}",
+    "net": "{{positive|negative}}"
+  },
+  "hard_gates": {
+    "g1_sponsorship": "{{pass|fail}}",
+    "g2_api_exposure": "{{pass|fail}}",
+    "g3_usecase": "{{pass|fail}}",
+    "g4_compliance": "{{pass|fail}}",
+    "g5_commitment": "{{pass|fail}}"
+  },
+  "verdict": "{{GO|NOT-YET|REDIRECT}}",
+  "verdict_reason_oneline": "{{the decisive factor}}",
+  "engagement": {
+    "start_phase": "{{phase_or_null}}",
+    "duration_months_indicative": "{{1-3_or_null}}",
+    "members_indicative": "{{N_or_null}}",
+    "indicative_investment_eur": "{{2500 + 2500*N*M, or null}}",
+    "monthly_recurring_eur": "{{2500*N, or null}}",
+    "setup_eur": 2500
+  },
+  "not_yet": {
+    "failing_gates": ["{{Gx}}", "..."],
+    "fix_first": ["{{action}}", "..."],
+    "requalify_trigger": "{{condition/date_or_null}}"
+  },
+  "redirect": {
+    "alternative": "{{point-SaaS|data-engineer|internal-hire|compliance-partner|single-agent|null}}",
+    "pointer": "{{where to send them, or null}}"
+  },
+  "handoff": {
+    "on_go": "/market-proposal",
+    "then": ["caio-discovery-interview", "caio-enterprise-workflow-architect"]
+  }
+}

@@ -1,0 +1,338 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/seductive-os/consent_signal_read.json",
+  "title": "Consent Signal Read",
+  "description": "One run of the consent gate, recorded BEFORE the interaction so the prediction can be checked afterwards. The doctrine that a failed gate stops the mode, and that a soft no routes to disengagement rather than to a second attempt, is enforced here by the schema itself: a record carrying a failed gate, an answered question, or any disengagement signal cannot also carry a proceed verdict. No third party is identifiable in this file. The only person field is a single given name, and the context is a generic category rather than a place.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "person_ref": {
+      "type": "object",
+      "description": "The only permitted representation of the other person. There is deliberately no field for a surname, workplace, address, handle, profile, phone, email or photo, and additionalProperties is false so none can be added.",
+      "properties": {
+        "first_name": {
+          "type": "string",
+          "maxLength": 24,
+          "pattern": "^[^\\s0-9@.,;:/\\\\<>]{1,24}$",
+          "description": "A single given name or an initial. The pattern rejects whitespace, digits and punctuation, so a full name, an email or a handle cannot be written here."
+        }
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "$ref": "#/$defs/context",
+      "description": "A generic category. There is no free-text venue field, so a real person's regular places cannot be recorded."
+    },
+    "relation": {
+      "enum": [
+        "stranger",
+        "acquaintance",
+        "peer_colleague_no_reporting_line",
+        "reports_to_user",
+        "user_reports_to_them",
+        "student_or_client_or_patient",
+        "serving_the_user_at_work",
+        "friend",
+        "app_match"
+      ],
+      "description": "Several of these fail gate 1 on their own"
+    },
+    "gate_cheap_refusal": {
+      "type": "boolean",
+      "description": "True when they can say no cheaply here. False for structural power, professional duty of care, captivity, service asymmetry, a stated partner, or significant intoxication."
+    },
+    "gate_already_answered": {
+      "type": "boolean",
+      "description": "True when they have NOT already answered, so the gate passes. False when any refusal is already on the record."
+    },
+    "gate_survives_knowing": {
+      "type": "boolean",
+      "description": "True when the move survives them knowing exactly what it is"
+    },
+    "gate_reading_not_inventing": {
+      "type": "boolean",
+      "description": "True when the read rests on the observed column rather than on inference alone"
+    },
+    "signals_observed": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/engagement_signal"
+      },
+      "uniqueItems": true,
+      "description": "Only what a camera would have caught"
+    },
+    "disengagement_signals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/disengagement_signal"
+      },
+      "uniqueItems": true,
+      "description": "Each is a full answer at full strength with no discount for ambiguity. Any entry here forces a stop verdict."
+    },
+    "inference": {
+      "type": "string",
+      "maxLength": 400,
+      "description": "Everything not in signals_observed, held here so it stays labelled as inference"
+    },
+    "disconfirming_evidence": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "What would show this read is wrong. Mandatory, because a read with no falsifier is a hope."
+    },
+    "read": {
+      "$ref": "#/$defs/interest_read"
+    },
+    "verdict": {
+      "enum": [
+        "proceed",
+        "proceed_with_constraint",
+        "stop_no_approach",
+        "stop_different_context",
+        "stop_clean_exit",
+        "stop_question_already_answered"
+      ]
+    },
+    "constraint": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Named constraint when the verdict is proceed_with_constraint, for example one ask, dropped on anything short of a clear yes"
+    },
+    "failed_gate": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Which gate failed and why, absent when all four passed"
+    },
+    "alternative_offered": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "The honest alternative offered on a stop: a different context, one legible low-pressure statement of interest, or a clean exit"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "gate_cheap_refusal",
+    "gate_already_answered",
+    "gate_survives_knowing",
+    "gate_reading_not_inventing",
+    "disconfirming_evidence",
+    "verdict"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "One failed gate stops the mode. There is no majority vote and no averaging, so a record with any gate false cannot carry a proceed verdict.",
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "gate_cheap_refusal": {
+                "const": false
+              }
+            },
+            "required": [
+              "gate_cheap_refusal"
+            ]
+          },
+          {
+            "properties": {
+              "gate_already_answered": {
+                "const": false
+              }
+            },
+            "required": [
+              "gate_already_answered"
+            ]
+          },
+          {
+            "properties": {
+              "gate_survives_knowing": {
+                "const": false
+              }
+            },
+            "required": [
+              "gate_survives_knowing"
+            ]
+          },
+          {
+            "properties": {
+              "gate_reading_not_inventing": {
+                "const": false
+              }
+            },
+            "required": [
+              "gate_reading_not_inventing"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "verdict": {
+            "$ref": "#/$defs/stop_verdict"
+          }
+        },
+        "required": [
+          "verdict",
+          "failed_gate"
+        ]
+      }
+    },
+    {
+      "description": "A soft no is a full no. A disinterest read routes to graceful disengagement, never to a persistence tactic.",
+      "if": {
+        "properties": {
+          "read": {
+            "enum": [
+              "soft_no",
+              "explicit_no",
+              "clear_disinterest"
+            ]
+          }
+        },
+        "required": [
+          "read"
+        ]
+      },
+      "then": {
+        "properties": {
+          "verdict": {
+            "$ref": "#/$defs/stop_verdict"
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      }
+    },
+    {
+      "description": "Any observed disengagement signal is an answer, so the record cannot express proceeding past it.",
+      "if": {
+        "properties": {
+          "disengagement_signals": {
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": [
+          "disengagement_signals"
+        ]
+      },
+      "then": {
+        "properties": {
+          "verdict": {
+            "$ref": "#/$defs/stop_verdict"
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      }
+    },
+    {
+      "description": "A constraint must be named when the verdict is proceed_with_constraint.",
+      "if": {
+        "properties": {
+          "verdict": {
+            "const": "proceed_with_constraint"
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      },
+      "then": {
+        "required": [
+          "constraint"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "stop_verdict": {
+      "enum": [
+        "stop_no_approach",
+        "stop_different_context",
+        "stop_clean_exit",
+        "stop_question_already_answered"
+      ]
+    },
+    "interest_read": {
+      "enum": [
+        "clear_interest",
+        "ambiguous",
+        "cannot_tell",
+        "clear_disinterest",
+        "soft_no",
+        "explicit_no"
+      ]
+    },
+    "context": {
+      "enum": [
+        "bar_or_club",
+        "cafe_or_restaurant",
+        "party_or_gathering",
+        "class_or_course",
+        "gym_or_sport",
+        "hobby_group",
+        "work_adjacent",
+        "street_or_transit",
+        "shop_or_market",
+        "dating_app",
+        "online_community",
+        "through_friends",
+        "travel",
+        "other"
+      ]
+    },
+    "engagement_signal": {
+      "enum": [
+        "turned_toward",
+        "added_information_beyond_minimum",
+        "asked_something_back",
+        "stayed_after_their_group_moved",
+        "reclosed_a_distance",
+        "initiated_a_new_topic",
+        "sustained_eye_contact_comfortably",
+        "laughed_unprompted",
+        "made_a_future_reference"
+      ]
+    },
+    "disengagement_signal": {
+      "enum": [
+        "stated_partner",
+        "not_looking_right_now",
+        "maybe_another_time_no_time_offered",
+        "returned_to_friends",
+        "stall_unresolved",
+        "one_word_replies",
+        "body_turned_away",
+        "step_back_not_reclosed",
+        "same_busy_story_twice",
+        "silence_after_ask",
+        "reply_stopped",
+        "enthusiasm_only_when_paying",
+        "hesitant_or_cornered_yes"
+      ]
+    }
+  }
+}

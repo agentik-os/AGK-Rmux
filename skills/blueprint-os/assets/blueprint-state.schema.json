@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omega-os.local/schemas/blueprint-state.v1.json",
+  "title": "Blueprint OS Canonical State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "run", "sources", "records", "trace_links", "findings", "gates", "continuation", "exports"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "project_name", "namespace", "version", "status", "revision", "id_counters"],
+      "properties": {
+        "project_id": { "type": "string", "minLength": 1 },
+        "project_name": { "type": "string", "minLength": 1 },
+        "namespace": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$" },
+        "status": { "enum": ["BLUEPRINT IN PROGRESS", "BLUEPRINT BLOCKED", "BLUEPRINT COMPLETE — STEPPER READY"] },
+        "revision": { "type": "integer", "minimum": 0 },
+        "checksum": { "type": ["string", "null"] },
+        "id_counters": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "created_at": { "type": ["string", "null"], "format": "date-time" },
+        "updated_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "mode", "request"],
+      "properties": {
+        "run_id": { "type": "string", "minLength": 1 },
+        "mode": { "enum": ["NEW", "RECOVER", "EXTEND", "REVISE", "AUDIT", "DELTA"] },
+        "request": { "type": "string", "minLength": 1 },
+        "locale": { "type": ["string", "null"] },
+        "audience": { "type": ["string", "null"] },
+        "baseline_revision": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source" }
+    },
+    "records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/record" }
+    },
+    "trace_links": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/traceLink" }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "gates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gate" }
+    },
+    "continuation": { "$ref": "#/$defs/continuation" },
+    "exports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["export_id", "revision", "view", "format", "artifact_ref"],
+        "properties": {
+          "export_id": { "type": "string" },
+          "revision": { "type": "integer", "minimum": 0 },
+          "view": { "type": "string" },
+          "format": { "type": "string" },
+          "artifact_ref": { "type": "string" },
+          "created_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      }
+    },
+    "handoff": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/handoff" }
+      ]
+    }
+  },
+  "$defs": {
+    "canonicalId": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,8}-[0-9]{3,}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "source_type", "authority_tier", "confidentiality"],
+      "properties": {
+        "id": { "$ref": "#/$defs/canonicalId" },
+        "title": { "type": "string" },
+        "source_type": { "type": "string" },
+        "uri": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "fingerprint": { "type": ["string", "null"] },
+        "authority_tier": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "confidentiality": { "enum": ["public", "internal", "confidential", "restricted"] },
+        "evidence_locators": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "status", "title", "body", "epistemic_type", "sources", "dependencies", "created_revision", "updated_revision"],
+      "properties": {
+        "id": { "$ref": "#/$defs/canonicalId" },
+        "kind": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["proposed", "accepted", "rejected", "deferred", "superseded", "deprecated", "validated"] },
+        "title": { "type": "string", "minLength": 1 },
+        "body": { "type": "object" },
+        "epistemic_type": { "enum": ["FACT", "DECISION", "ASSUMPTION", "PROPOSAL", "UNKNOWN", "CONFLICT", "DEFERRED", "SUPERSEDED"] },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "dependencies": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "created_revision": { "type": "integer", "minimum": 0 },
+        "updated_revision": { "type": "integer", "minimum": 0 },
+        "supersedes": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "change_reason": { "type": ["string", "null"] }
+      }
+    },
+    "traceLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_id", "relation", "to_id", "rationale", "status"],
+      "properties": {
+        "from_id": { "$ref": "#/$defs/canonicalId" },
+        "relation": { "enum": ["derived_from", "decides", "satisfies", "depends_on", "conflicts_with", "supersedes", "realized_by", "reads", "writes", "emits", "consumes", "authorized_by", "verified_by", "measured_by", "mitigated_by", "blocks"] },
+        "to_id": { "$ref": "#/$defs/canonicalId" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["active", "proposed", "superseded"] }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "finding_type", "severity", "statement", "affected_ids", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/canonicalId" },
+        "finding_type": { "type": "string" },
+        "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
+        "statement": { "type": "string" },
+        "evidence_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "affected_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "status": { "enum": ["open", "resolved", "deferred", "rejected"] },
+        "disposition": { "type": ["string", "null"] }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_id", "result", "critical", "evidence_ids", "blocker_ids"],
+      "properties": {
+        "gate_id": { "type": "string", "pattern": "^G(0[1-9]|1[0-9]|20)$" },
+        "result": { "enum": ["PASS", "CONDITIONAL", "FAIL", "N/A"] },
+        "critical": { "type": "boolean" },
+        "evidence_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "blocker_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "condition": { "type": ["string", "null"] },
+        "owner": { "type": ["string", "null"] },
+        "evaluated_revision": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["completed_sections", "remaining_sections", "unresolved_blockers"],
+      "properties": {
+        "part": { "type": "integer", "minimum": 1 },
+        "estimated_parts": { "type": ["integer", "null"], "minimum": 1 },
+        "completed_sections": { "type": "array", "items": { "type": "string" } },
+        "current_section": { "type": ["string", "null"] },
+        "next_exact_section": { "type": ["string", "null"] },
+        "remaining_sections": { "type": "array", "items": { "type": "string" } },
+        "unresolved_blockers": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "changed_record_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "checkpoint_revision": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["handoff_id", "project_id", "blueprint_version", "state_revision", "state_checksum", "status", "artifact_refs"],
+      "properties": {
+        "handoff_id": { "type": "string" },
+        "project_id": { "type": "string" },
+        "blueprint_version": { "type": "string" },
+        "state_revision": { "type": "integer", "minimum": 0 },
+        "state_checksum": { "type": "string" },
+        "status": { "const": "BLUEPRINT COMPLETE — STEPPER READY" },
+        "release_groups": { "type": "array", "items": { "type": "object" } },
+        "capability_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "requirement_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "acceptance_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "risk_ids": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "conditional_items": { "type": "array", "items": { "$ref": "#/$defs/canonicalId" } },
+        "prohibited_shortcuts": { "type": "array", "items": { "type": "string" } },
+        "artifact_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+2026-06-05T22:30:00+02:00 a11yaudit --scope tui-theme-contrast started
+2026-06-05T22:30:00+02:00 phase0: cargo test 4/4 ok; gather: web tools N/A (non-web surface, preamble s5); independent contrast+CVD computed
+2026-06-05T22:30:00+02:00 fan-out wf_25f62f44-d7a: 3 tracks + 7 refuters, 0 killed
+2026-06-05T22:30:00+02:00 FIX-001 applied + verified; verdict 82/100 A; report -> ~/.omega/state/audit-a11y-theme-ffcba15.md

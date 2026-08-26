@@ -1,0 +1,14 @@
+interface:
+  display_name: Builder {OS}
+  short_description: Execute Blueprint and Stepper into verified code
+  default_prompt: Use $builder-os to execute this project from its frozen Blueprint
+    and Stepper through verified release readiness.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

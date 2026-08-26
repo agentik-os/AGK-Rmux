@@ -1,0 +1,49 @@
+# OmegaOS configuration
+# Copy to ~/.omega/config.toml. Every field has a sensible built-in default, so
+# an empty or partial file is valid — uncomment only what you want to override.
+# (Fields are top-level, not nested under a table.)
+
+# The default agent runtime CLI. Codex/Sol (OpenAI) is the built-in default —
+# every oracle, worker, orchestrate, team spawn, patrol re-spawn and plain
+# Telegram dispatch uses it when no `--agent` is given. Switch the global default
+# back to Claude by uncommenting the line below. Either way you can still choose
+# per mission: `omega dispatch <proj> "…" --agent claude`, the /duo binome, the
+# TUI agent picker, or a trailing "… avec claude" in a Telegram message.
+# agent_command = "codex"
+# default_model = "opus"   # (Claude-only: the model tier when the agent is Claude)
+
+# Root that holds your project category folders (customers/ side-business/
+# tools/). Auto-detected per-user if omitted — never hardcoded.
+# projects_dir = "/home/you/projects"
+
+# Persistent AISB master + automatic session naming.
+# aisb_agent = "codex"
+# auto_spawn_master = false   # retired aisb-master rmux viewer (brain = Atlas Telegram bot)
+# auto_naming = true
+
+# TUI color theme — pick interactively in the TUI (Settings → Theme, with live
+# preview) or set the slug here. One of: omega (default), matrix, terminal,
+# amber, noir, paper, monogram, dracula, nord, gruvbox, solarized, tokyo-night,
+# synthwave, ocean, crimson, transparent-dark, transparent-light, glass-cyan,
+# glass-green, glass-amber, glass-purple, glass-pink, glass-blue. The glass-*
+# family paints NO background (your terminal's transparency/blur shows) with
+# bright inks tuned for dark translucent terminals. Unknown slugs fall back
+# to omega.
+# theme = "omega"
+
+# Paint the theme's full-screen background. Set to false to keep your
+# terminal's own background (transparency, background image, user colors)
+# while accent/text colors still follow the theme. Also toggleable in the
+# TUI (Settings → Theme).
+# theme_background = true
+
+# On-screen clock timezone (IANA name). A headless VPS usually runs in UTC, so
+# the status-bar clock would otherwise show UTC instead of your wall time. This
+# localizes ONLY the displayed clock — logs/state stay UTC. DST is automatic.
+# Leave commented to follow the system zone ($TZ, then the OS local zone).
+# timezone = "Europe/Paris"
+
+# Telegram bridge (optional — omit the whole section to disable).
+# [telegram]
+# bot_token = "..."
+# chat_id = 123456789

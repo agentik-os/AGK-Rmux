@@ -1,0 +1,14 @@
+name: Quality, Evaluation & Release OS
+slug: quality-evaluation-release
+version: 1.0.0
+category: Product Stack / Independent Quality and Release Authority
+position: Product Stack: independent certification between Builder OS and production
+default_mode: intake
+primary_boundary: "Builder OS builds and repairs; Quality, Evaluation & Release OS independently defines evidence, evaluates, gates and authorizes release. It does not certify absent evidence."
+requires_human_approval_for:
+  - waiving critical gate
+  - deploying to production
+  - using production customer data
+  - publishing vulnerabilities
+  - executing rollback with data migration
+  - accepting high residual risk

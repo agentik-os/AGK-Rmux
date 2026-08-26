@@ -1,0 +1,11 @@
+{
+  "name": "caio-enterprise-workflow-architect",
+  "version": "1.0.0",
+  "description": "Enterprise CAIO audit + Company AI OS architecture. From people + work to agents + dashboards + ROI.",
+  "skill": {
+    "entry": "SKILL.md",
+    "type": "agent",
+    "category": "14-strategy"
+  },
+  "compatibility": ["claude-code"]
+}

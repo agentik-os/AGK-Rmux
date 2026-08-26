@@ -1,0 +1,262 @@
+{
+ "score": 58,
+ "grade": "D",
+ "confidence": "high",
+ "skill_used": "uiuxaudit",
+ "preamble_version": "1.0",
+ "ticket": "uiux-wfview-f6d8f37-final",
+ "mode": "final-rescore-read-only",
+ "commit_under_audit": "f6d8f37",
+ "tui_surface_identical_to": [
+  "4ff5b94",
+  "0cadbf5"
+ ],
+ "baseline": {
+  "verdict": "verdict-f432154.md",
+  "score": 42,
+  "grade": "F"
+ },
+ "delta": 16,
+ "v2_inputs_note": "--user-need/--hinge not passed as flags; user-need verbatim from dispatch brief; hinge via hinge-analyzer.sh --ref=f432154 (45 hinges, 25 in scoped files, evidence-final/hinge-f432154-to-f6d8f37.json). L3 decision, baseline precedent.",
+ "user_need_match": {
+  "quote": "Final re-score uiuxaudit of the OmegaOS TUI wfview/sessions surface at post-fix HEAD ... For EACH of DESIGN-001..012: status at HEAD ... Re-score ... Flag any NEW UX regressions introduced by the fix series",
+  "addressed": true,
+  "evidence": "All 12 DESIGN findings statused with file:line@HEAD + live captures (verdict table); rubric re-applied on identical phases/weights (raw 118.25/205 vs 85.5/205); 8 new fix-series regressions + 1 pre-existing blind-spot finding, 1 candidate adversarially killed.",
+  "edge_cases_covered": [
+   "kill-confirm friction (NR-2,NR-3,NR-7)",
+   "status-message noise (NR-4,NR-5,NR-8)",
+   "Esc/Alt+Esc discoverability (NR-1,NR-6)"
+  ]
+ },
+ "falsifiable_tests": [
+  {
+   "name": "F-1 re-anchor under live list mutation",
+   "hypothesis": "If DESIGN-001 unfixed, spawning a row-0 session while chat-focused retargets keystrokes",
+   "command": "rmux new-session -d -s a-shift-fin ...; rmux send-keys -t uiuxview-fin -l 'xyz'; rmux capture-pane -t uiuxtgt-fin/-t a-shift-fin",
+   "expected": "xyz in uiuxtgt-fin only",
+   "actual": "uiuxtgt-fin cat -v: 'abcxyz'; a-shift-fin: empty prompt; selection held (uiux-T5-aftershift.txt)",
+   "passed": true
+  },
+  {
+   "name": "F-2 Esc local, not forwarded",
+   "hypothesis": "If unfixed, Esc stays in chat and ^[ reaches the agent pty",
+   "command": "rmux send-keys -t uiuxview-fin Escape; rmux capture-pane -t uiuxtgt-fin -p (cat -v watching)",
+   "expected": "focus LIST, no ^[ in target",
+   "actual": "title CHAT->LIST, bar 'Focus: session list', cat -v shows no ^[ (uiux-T4-afteresc.txt)",
+   "passed": true
+  },
+  {
+   "name": "F-7 status_message renders on Sessions",
+   "hypothesis": "If unfixed, '.'-protect and guard notices never render on the Sessions tab",
+   "command": "rmux send-keys -l '.'; then C-x in chat; rmux capture-pane (bar line)",
+   "expected": "notices visible",
+   "actual": "'uiuxtgt-fin is now protected' and 'Session is protected (press . to unlock)' both rendered (uiux-T7-ctrlx-protected.txt)",
+   "passed": true
+  },
+  {
+   "name": "F-12 chat Ctrl+X guard",
+   "hypothesis": "If unfixed, Ctrl+X kills a protected session instantly from chat",
+   "command": "rmux send-keys -t uiuxviewN-fin C-x; rmux has-session -t uiuxtgt2-fin",
+   "expected": "session alive",
+   "actual": "PROTECTED-GUARD-HELD; unprotected path killed + dropped to List (uiux-N5-kill.txt)",
+   "passed": true
+  },
+  {
+   "name": "regression suite at HEAD",
+   "hypothesis": "If the fix3 tests are fabricated/broken they fail at HEAD",
+   "command": "cargo test -p omega-tui",
+   "expected": "19 passed",
+   "actual": "test result: ok. 19 passed; 0 failed",
+   "passed": true
+  },
+  {
+   "name": "Tab semantics vs displayed hint (D-007)",
+   "hypothesis": "If the hint were correct, Tab forwards ^I to agent and Tab-Tab returns to list",
+   "command": "rmux send-keys Tab (then Tab Tab); rmux capture-pane both panes",
+   "expected_if_hint_true": "^I in cat -v; list on double-tab",
+   "actual": "Tab -> LIST (no ^I); Tab-Tab -> [FULLSCREEN - Tab-Tab to exit] (uiux-N7-tabtab.txt) - hint inverted on both claims",
+   "passed": true
+  },
+  {
+   "name": "NF-9 self-mirror spiral",
+   "hypothesis": "If a self-exclusion guard existed, selection landing on the TUI's own session would not resize it",
+   "command": "kill chatted session -> clamp lands on viewer's own session; capture width",
+   "expected_if_guarded": "width stays 200",
+   "actual": "200x50 viewer converged to 71 cols, 3 reproductions (uiux-T8b-selfspiral.txt, uiux-T9b.txt)",
+   "passed": true
+  }
+ ],
+ "hinge_findings": [
+  {
+   "location": "crates/omega-tui/src/app.rs:1760-1778",
+   "concern": "re-anchor fallback paths (vanish/clamp) could retarget",
+   "verified_safe_by": "F-1 re-anchor under live list mutation + 3 reanchor tests + refuter audit of all selected/sessions mutators"
+  },
+  {
+   "location": "crates/omega-tui/src/input.rs:1666-1668",
+   "concern": "local Esc arm could leak to forwarder or soft-lock",
+   "verified_safe_by": "F-2 Esc local test; AF-5 swallow audited (NR-2/NR-1 capture the residual hazards)"
+  },
+  {
+   "location": "crates/omega-tui/src/input.rs:1745-1747",
+   "concern": "guard could be bypassed or dead",
+   "verified_safe_by": "F-12 chat Ctrl+X guard live test (protected alive, unprotected killed)"
+  },
+  {
+   "location": "crates/omega-cli/src/main.rs:1105-1106",
+   "concern": "clear-on-keypress TTL could eat messages",
+   "verified_safe_by": "NOT fully safe - confirmed harmful for async-origin notices (NR-4, NR-5); structural code analysis, flagged medium confidence"
+  }
+ ],
+ "findings_status": {
+  "DESIGN-001": "FIXED",
+  "DESIGN-002": "FIXED",
+  "DESIGN-003": "FIXED",
+  "DESIGN-004": "PARTIAL",
+  "DESIGN-005": "STILL_OPEN",
+  "DESIGN-006": "STILL_OPEN",
+  "DESIGN-007": "PARTIAL",
+  "DESIGN-008": "STILL_OPEN",
+  "DESIGN-009": "STILL_OPEN",
+  "DESIGN-010": "STILL_OPEN",
+  "DESIGN-011": "STILL_OPEN",
+  "DESIGN-012": "STILL_OPEN"
+ },
+ "findings_refute_upheld": {
+  "DESIGN-001": true,
+  "DESIGN-002": true,
+  "DESIGN-003": true,
+  "DESIGN-004": true,
+  "DESIGN-005": null,
+  "DESIGN-006": null,
+  "DESIGN-007": true,
+  "DESIGN-008": null,
+  "DESIGN-009": null,
+  "DESIGN-010": null,
+  "DESIGN-011": null,
+  "DESIGN-012": null
+ },
+ "new_regressions": [
+  {
+   "id": "NR-1",
+   "severity": "HIGH",
+   "title": "Alt+Esc dead on arrival - no literal-ESC path to agent; split delivery can quit the TUI",
+   "citations": [
+    "main.rs:717-722",
+    "input.rs:1858",
+    "crossterm-0.29.0 parse.rs:77",
+    "live: M-Escape -> chat exit + TUI quit, no ^[ forwarded"
+   ]
+  },
+  {
+   "id": "NR-2",
+   "severity": "HIGH",
+   "title": "Esc-then-type fallthrough: silent List drop makes 'x' no-confirm kill / 'q' quit",
+   "citations": [
+    "input.rs:1859-1870",
+    "input.rs:1446-1457",
+    "input.rs:877-880",
+    "live: double-Esc closed the TUI"
+   ]
+  },
+  {
+   "id": "NR-3",
+   "severity": "MEDIUM",
+   "title": "Guard hint 'press . to unlock' forwards '.' to the agent in chat context",
+   "citations": [
+    "input.rs:1744-1748",
+    "input.rs:1887,1917-1919",
+    "input.rs:1491"
+   ]
+  },
+  {
+   "id": "NR-4",
+   "severity": "MEDIUM",
+   "title": "Forwarder errors visible ~1 frame for typing users (TTL ordering)",
+   "citations": [
+    "main.rs:931-934,944,1105-1108",
+    "forwarder.rs:34-47"
+   ],
+   "confidence": "medium-code-derived"
+  },
+  {
+   "id": "NR-5",
+   "severity": "MEDIUM",
+   "title": "Vanish notice TTL~0 for its audience; compounds NR-2",
+   "citations": [
+    "app.rs:1765-1776",
+    "main.rs:1105-1108",
+    "live: notice absent at +3.5s (spiral interfered)"
+   ],
+   "confidence": "medium-code-derived"
+  },
+  {
+   "id": "NR-6",
+   "severity": "MEDIUM",
+   "title": "Alt+Esc/Ctrl+C recovery is Help-tab-only, zero in-context discoverability",
+   "citations": [
+    "ui.rs:2969",
+    "ui.rs:776",
+    "input.rs:1868"
+   ]
+  },
+  {
+   "id": "NR-7",
+   "severity": "LOW",
+   "title": "Guard/kill feedback invisible <~135 cols (70-col right reservation)",
+   "citations": [
+    "ui.rs:3181-3201",
+    "live at 90 cols: protect/guard/kill notices all invisible"
+   ]
+  },
+  {
+   "id": "NR-8",
+   "severity": "LOW",
+   "title": "Sessions git status hidden behind per-tab hint / F5 ack",
+   "citations": [
+    "main.rs:1987-2000,1409",
+    "ui.rs:3216-3219"
+   ]
+  }
+ ],
+ "new_findings_preexisting": [
+  {
+   "id": "NF-9",
+   "severity": "HIGH",
+   "title": "Self-mirror resize spiral: no self-session exclusion in resize loop; TUI shrinks itself to ~71 cols when selection lands on its own session (default after kill/vanish clamp)",
+   "citations": [
+    "main.rs:957-988",
+    "live 3x: uiux-T8b-selfspiral.txt, uiux-T9b.txt"
+   ],
+   "baseline_blind_spot": true
+  }
+ ],
+ "killed_candidates": [
+  {
+   "title": "vanish notice on wrong tab via chat /-command capture",
+   "reason": "cmd_capture has no entry point - '/' forwarded verbatim (input.rs:1918-1926); trigger unreachable. 1/3 lenses."
+  }
+ ],
+ "phase_scores": {
+  "P4_components": 7,
+  "P5_coherence": 7,
+  "P6_interaction": 7,
+  "P7_responsive": 3.5,
+  "P10_hierarchy": 6,
+  "P11_microcopy": 4,
+  "P15_navigation": 6,
+  "P18_error_recovery": 5
+ },
+ "applicable_raw_max": 205,
+ "raw_score": 118.25,
+ "confidence_basis": "Every DESIGN status is 2-3-lens verified (code verifier + adversarial refuter for all non-LOW FIXED/PARTIAL claims + live rmux runtime for D-001/002/003/004/006/007/008 and Tab semantics). All refuters upheld. New regressions NR-1/NR-2/NR-7 carry live corroboration; NR-4/NR-5 are structural code-ordering findings without a live timing repro and are marked medium confidence individually. Workflow run wf_cd2cb4c4-f2e (20 agents); live captures in evidence-final/.",
+ "not_done": [
+  "Alt+Esc not tested with a real kitty/CSI-u terminal (rmux M-Escape delivers split ESC ESC; probative for NR-1 split branch only)",
+  "NR-4/NR-5 TTL timing not runtime-reproduced (structural reasoning; vanish-notice absence live-observed but confounded by NF-9 spiral)",
+  "sub-16-row terminal behavior (D-012) not live-captured - code-deterministic, accepted-debt LOW",
+  "D-005 scroll burst not re-reproduced live at HEAD (code byte-identical to baseline's live repro)",
+  "R-BUDGET breach: ~975K subagent tokens vs 400K mission cap - process breach flagged, no further fan-out after detection"
+ ],
+ "cross_audit_confirmations": [],
+ "finished_at": "2026-06-06T01:05:00+02:00"
+}

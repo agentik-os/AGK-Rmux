@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Release Candidate",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "version": {
+      "type": "string",
+      "description": "Candidate version"
+    },
+    "artifact_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Build artifacts"
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence"
+    },
+    "known_defects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Known defects"
+    },
+    "status": {
+      "type": "string",
+      "description": "draft/go/no-go/released"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "version",
+    "artifact_ids",
+    "evidence_ids",
+    "status"
+  ],
+  "additionalProperties": false
+}

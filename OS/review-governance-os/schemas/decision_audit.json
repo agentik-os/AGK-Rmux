@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decision Audit",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "decision_id": {
+      "type": "string",
+      "description": "Original decision"
+    },
+    "original_assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Assumptions"
+    },
+    "actual_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observed evidence"
+    },
+    "process_grade": {
+      "type": "string",
+      "description": "Decision-process quality"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "decision_id",
+    "original_assumptions",
+    "actual_evidence",
+    "process_grade"
+  ],
+  "additionalProperties": false
+}

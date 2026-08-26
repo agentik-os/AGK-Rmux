@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Access Policy",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "subject": {
+      "type": "string",
+      "description": "User/agent/OS"
+    },
+    "resource_scope": {
+      "type": "string",
+      "description": "Allowed scope"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Allowed purpose"
+    },
+    "expires_at": {
+      "type": "string",
+      "description": "Expiry"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "subject",
+    "resource_scope",
+    "purpose"
+  ],
+  "additionalProperties": false
+}

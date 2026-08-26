@@ -1,0 +1,88 @@
+story_id: sto_YYYYMMDD_slug
+title_working: ""
+created_at: ""
+updated_at: ""
+status: seed
+
+ownership:
+  storyteller: ""
+  recorder: ""
+  primary_character: ""
+  other_people: []
+
+intent:
+  job: connect
+  audience: ""
+  desired_update: ""
+  channels: []
+  agency_contract: coach
+
+source:
+  source_type: memory
+  raw_text: ""
+  source_refs: []
+  artifacts: []
+  captured_at: ""
+
+truth:
+  primary_class: remembered
+  overall_confidence: medium
+  chronology: approximate
+  dialogue: paraphrased
+  claims: []
+  unresolved: []
+
+privacy:
+  level: private
+  identifiable_people: []
+  consent_records: []
+  confidential_topics: []
+  release_constraints: []
+
+dna:
+  core_change: ""
+  pressure: ""
+  hinge: ""
+  proof_detail: ""
+  meaning: ""
+  truth_boundary: ""
+  voice_marker: ""
+  dignity_constraint: ""
+
+craft:
+  story_class: moment
+  desire: ""
+  old_belief: ""
+  obstacle: ""
+  stakes: ""
+  choice: ""
+  external_consequence: ""
+  internal_update: ""
+  residue: ""
+  selected_structure: ""
+  beats: []
+
+voice:
+  source_samples: []
+  fingerprint: []
+  preserve: []
+  avoid: []
+
+versions: []
+derivatives: []
+
+evaluation:
+  truth_gate: pending
+  consent_gate: pending
+  scores: []
+  release_verdict: needs_deepening
+
+performance:
+  publications: []
+  audience_evidence: []
+  learning: []
+
+tags: []
+connections: []
+next_action: ""
+

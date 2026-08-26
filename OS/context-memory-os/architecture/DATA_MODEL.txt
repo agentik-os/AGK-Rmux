@@ -1,0 +1,39 @@
+Context & Memory OS — Logical data model
+
+ENTITIES
+- source
+- memory_record
+- entity
+- relationship_edge
+- decision_record
+- context_pack
+- access_policy
+- contradiction
+
+RELATIONSHIPS
+- source SUPPORTS memory_record
+- memory_record DESCRIBES entity
+- entity CONNECTED_BY relationship_edge
+- decision_record REFERENCES sources
+- context_pack INCLUDES memory_records
+- access_policy GOVERNS all resources
+- contradiction LINKS memory_records
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- memory.source.ingested
+- memory.record.staged
+- memory.record.verified
+- memory.record.superseded
+- memory.context.compiled
+- memory.contradiction.opened
+- memory.correction.applied
+- memory.deletion.completed

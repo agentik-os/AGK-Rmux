@@ -1,0 +1,14 @@
+interface:
+  display_name: Design {OS}
+  short_description: Compile UX/UI into build-ready contracts
+  default_prompt: Use $design-os to challenge this Blueprint and produce a validated
+    UX/UI handoff for Stepper.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

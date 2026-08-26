@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# AGK control layer — one Linux user, four scopes.
+#   agk                  → cd into the active workspace and open omega
+#   agk switch mission   → persist scope + Hermes profile + secrets ns
+#   agk list|show|provision
+set -euo pipefail
+
+OMEGA="${OMEGA:-omega}"
+SCOPE_ENV="${HOME}/.omega/state/scope.env"
+
+load_scope_env() {
+  if [[ -f "$SCOPE_ENV" ]]; then
+    # shellcheck disable=SC1090
+    . "$SCOPE_ENV"
+  fi
+}
+
+case "${1:-}" in
+  switch|use)
+    shift
+    exec "$OMEGA" agk switch "$@"
+    ;;
+  list|show|provision)
+    exec "$OMEGA" agk "$@"
+    ;;
+  "")
+    load_scope_env
+    if [[ -n "${OMEGA_SCOPE:-}" && -d "${HOME}/workspace/${OMEGA_SCOPE}" ]]; then
+      cd "${HOME}/workspace/${OMEGA_SCOPE}"
+    fi
+    exec "$OMEGA"
+    ;;
+  *)
+    load_scope_env
+    if [[ -n "${OMEGA_SCOPE:-}" && -d "${HOME}/workspace/${OMEGA_SCOPE}" ]]; then
+      cd "${HOME}/workspace/${OMEGA_SCOPE}"
+    fi
+    exec "$OMEGA" "$@"
+    ;;
+esac

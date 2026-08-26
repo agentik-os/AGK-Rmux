@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Strategic Bet",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "thesis": {
+      "type": "string",
+      "description": "Why this may work"
+    },
+    "strategic_fit": {
+      "type": "number",
+      "description": "Fit score"
+    },
+    "evidence_score": {
+      "type": "number",
+      "description": "Evidence score"
+    },
+    "resource_cost": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Time/capital/people"
+    },
+    "kill_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Stop conditions"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "thesis",
+    "strategic_fit",
+    "evidence_score",
+    "resource_cost",
+    "kill_criteria"
+  ],
+  "additionalProperties": false
+}

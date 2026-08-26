@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Metric Definition",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Metric"
+    },
+    "formula": {
+      "type": "string",
+      "description": "Definition"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner"
+    },
+    "decision_link": {
+      "type": "string",
+      "description": "Decision influenced"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "name",
+    "formula",
+    "owner",
+    "decision_link"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,30 @@
+● Output: hello-from-permission-test
+
+✻ Sautéed for 6s
+
+❯ Write a file called notes.md containing the single word hello
+
+● Write(notes.md)
+  ⎿  User rejected write to notes.md
+      1 hello
+
+✻ Worked for 46s
+
+❯ Run the bash command: rm -f /tmp/claude-1000/nonexistent-probe-file
+
+  Listed 1 directory (ctrl+o to expand)
+
+✻ Brewed for 1m 22s
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+  fais aussi le refactor avant de fermer
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ auto mode on (shift+tab to cycle)
+
+
+
+
+
+
+

@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "namespace": "market_research",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "research_run_initialize",
+      "description": "Initialize a project-scoped market research run, decision brief, depth, authority, stable ID counters, and revision zero.",
+      "mutates": true,
+      "idempotency_required": true,
+      "input": {"type": "object", "required": ["project_id", "project_name", "mode", "depth", "decision_question"], "properties": {"project_id": {"type": "string"}, "project_name": {"type": "string"}, "mode": {"enum": ["NEW", "RECOVER", "RAPID_SCAN", "FULL_VALIDATION", "DILIGENCE", "DEEP_DIVE", "MONITOR", "AUDIT", "DELTA"]}, "depth": {"enum": ["SIGNAL", "VALIDATION", "INVESTMENT_GRADE"]}, "decision_question": {"type": "string"}, "decision_owner": {"type": "string"}, "external_action_authority": {"enum": ["none", "research-only", "approved-scope"]}, "idempotency_key": {"type": "string"}}}
+    },
+    {
+      "name": "research_source_register",
+      "description": "Register a source with provenance, coverage, authority, access method, rights basis, privacy class, fingerprint, and limitations.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "source"], "properties": {"run_id": {"type": "string"}, "baseline_revision": {"type": "integer"}, "source": {"type": "object"}, "idempotency_key": {"type": "string"}}}
+    },
+    {
+      "name": "research_preflight_evaluate",
+      "description": "Create or evaluate a source acquisition preflight and return ALLOW, ALLOW_WITH_CONTROLS, MANUAL_ONLY, REQUIRES_PERMISSION, or PROHIBITED.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "preflight"], "properties": {"run_id": {"type": "string"}, "preflight": {"type": "object"}, "reviewer": {"type": "string"}, "idempotency_key": {"type": "string"}}}
+    },
+    {
+      "name": "research_id_allocate",
+      "description": "Allocate monotonic project-scoped stable IDs centrally.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "prefix", "count"], "properties": {"run_id": {"type": "string"}, "prefix": {"enum": ["SRC", "FCT", "MEA", "INF", "ASM", "HYP", "DEC", "PRP", "UNK", "CNF", "LIM", "NEG", "RQ", "QST", "SEG", "JTBD", "ALT", "CMP", "SIG", "DAT", "MTH", "SAM", "INT", "SUR", "EXP", "OBS", "EST", "MOD", "SCN", "PRC", "ECO", "CHN", "RSK", "MIT", "GATE", "REC", "BPH"]}, "count": {"type": "integer", "minimum": 1, "maximum": 100}}}
+    },
+    {
+      "name": "research_record_upsert",
+      "description": "Upsert a typed canonical research record with evidence, method, scope, confidence, conflicts, and verification.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "collection", "record"], "properties": {"run_id": {"type": "string"}, "baseline_revision": {"type": "integer"}, "collection": {"type": "string"}, "record": {"type": "object"}, "idempotency_key": {"type": "string"}}}
+    },
+    {
+      "name": "research_trace_link",
+      "description": "Create typed bidirectional trace links between decision questions, hypotheses, sources, findings, models, experiments, risks, recommendations, and handoffs.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "from_id", "to_id", "relation"], "properties": {"run_id": {"type": "string"}, "from_id": {"type": "string"}, "to_id": {"type": "string"}, "relation": {"type": "string"}, "rationale": {"type": "string"}}}
+    },
+    {
+      "name": "research_query_plan_register",
+      "description": "Register a reproducible source query or retrieval plan including scope, preflight, tool, schema, budget, and stopping rules.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "query_plan"], "properties": {"run_id": {"type": "string"}, "query_plan": {"type": "object"}, "idempotency_key": {"type": "string"}}}
+    },
+    {
+      "name": "research_acquisition_run_register",
+      "description": "Register an authorized acquisition run, coverage, lineage, cost, failures, and validation sample results. It does not itself grant network access.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "query_plan_id", "preflight_id", "result"], "properties": {"run_id": {"type": "string"}, "query_plan_id": {"type": "string"}, "preflight_id": {"type": "string"}, "result": {"type": "object"}, "idempotency_key": {"type": "string"}}}
+    },
+    {
+      "name": "research_model_upsert",
+      "description": "Create or update an auditable market, price, economics, scenario, forecast, or channel model with source-linked inputs, formulas, ranges, and sensitivity.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "model"], "properties": {"run_id": {"type": "string"}, "baseline_revision": {"type": "integer"}, "model": {"type": "object"}, "recalculate": {"type": "boolean"}}}
+    },
+    {
+      "name": "research_study_upsert",
+      "description": "Create or update an interview, observation, survey, concept, choice, or usability study with sample, instrument, consent, analysis, results, and limitations.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "study"], "properties": {"run_id": {"type": "string"}, "study": {"type": "object"}, "external_action_authority": {"type": "string"}}}
+    },
+    {
+      "name": "research_experiment_upsert",
+      "description": "Create or update an experiment contract/result. Execution above design-only requires explicit autonomy-tier authority.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "experiment"], "properties": {"run_id": {"type": "string"}, "experiment": {"type": "object"}, "autonomy_tier": {"enum": ["A0", "A1", "A2", "A3", "A4"]}, "confirmation_token": {"type": "string"}}}
+    },
+    {
+      "name": "research_finding_register",
+      "description": "Register a source- and method-linked fact, measurement, inference, assumption, unknown, conflict, limitation, or negative-evidence finding.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "finding"], "properties": {"run_id": {"type": "string"}, "finding": {"type": "object"}, "idempotency_key": {"type": "string"}}}
+    },
+    {
+      "name": "research_validate",
+      "description": "Run deterministic schema, ID, provenance, preflight, model-input, experiment, traceability, continuation, and decision checks.",
+      "mutates": false,
+      "input": {"type": "object", "required": ["run_id"], "properties": {"run_id": {"type": "string"}, "strict": {"type": "boolean"}}}
+    },
+    {
+      "name": "research_gate_evaluate",
+      "description": "Evaluate the 24 research quality gates and critical completion rules for the actual depth achieved.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "gate_ids"], "properties": {"run_id": {"type": "string"}, "gate_ids": {"type": "array", "items": {"type": "string"}}, "depth": {"type": "string"}}}
+    },
+    {
+      "name": "research_score",
+      "description": "Compute transparent evidence, hypothesis, opportunity, and gate diagnostics without overriding kill gates or missing evidence.",
+      "mutates": false,
+      "input": {"type": "object", "required": ["run_id", "view"], "properties": {"run_id": {"type": "string"}, "view": {"enum": ["evidence", "hypotheses", "opportunity", "gates", "readiness"]}}}
+    },
+    {
+      "name": "research_checkpoint_save",
+      "description": "Persist a restart-safe checkpoint with revision, checksum, ID counters, source/query snapshot, artifacts, experiments, gates, and next exact section.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "next_exact_section"], "properties": {"run_id": {"type": "string"}, "next_exact_section": {"type": "string"}, "current_artifact": {"type": "string"}, "remaining_artifacts": {"type": "array"}}}
+    },
+    {
+      "name": "research_export",
+      "description": "Render a client-safe or machine-readable view with confidentiality, PII, licensing, and source-locator controls.",
+      "mutates": false,
+      "input": {"type": "object", "required": ["run_id", "view", "format"], "properties": {"run_id": {"type": "string"}, "view": {"type": "string"}, "format": {"enum": ["markdown", "json", "csv", "xlsx", "pdf"]}, "audience": {"enum": ["internal", "client", "public", "blueprint"]}}}
+    },
+    {
+      "name": "research_blueprint_handoff_create",
+      "description": "Freeze a schema-valid Blueprint Input Manifest only after decision and eligibility gates pass.",
+      "mutates": true,
+      "input": {"type": "object", "required": ["run_id", "recommendation_id"], "properties": {"run_id": {"type": "string"}, "recommendation_id": {"type": "string"}, "decision_owner_acceptance": {"type": "string"}, "idempotency_key": {"type": "string"}}}
+    },
+    {
+      "name": "research_delta",
+      "description": "Compare two frozen research versions and report source, definition, evidence, confidence, model, risk, gate, recommendation, and Blueprint impact.",
+      "mutates": false,
+      "input": {"type": "object", "required": ["project_id", "from_version", "to_version"], "properties": {"project_id": {"type": "string"}, "from_version": {"type": "string"}, "to_version": {"type": "string"}}}
+    },
+    {
+      "name": "research_status",
+      "description": "Return current run/version/status/depth/progress, sources, hypotheses, experiments, blockers, gates, cost, and continuation pointer.",
+      "mutates": false,
+      "input": {"type": "object", "required": ["run_id"], "properties": {"run_id": {"type": "string"}}}
+    }
+  ]
+}

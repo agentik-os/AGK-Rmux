@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Test Result",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "test_case_id": {
+      "type": "string",
+      "description": "Test"
+    },
+    "build_id": {
+      "type": "string",
+      "description": "Build/version"
+    },
+    "status": {
+      "type": "string",
+      "description": "pass/fail/blocked"
+    },
+    "evidence_uri": {
+      "type": "string",
+      "description": "Evidence"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "test_case_id",
+    "build_id",
+    "status"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+# ═══════════════════════════════════════════════════════════════════════════
+# omega-design — drive Open Design (nexu-io/open-design) from OmegaOS.
+# A local, self-hosted design engine: agents generate prototypes, dashboards,
+# decks, images and video from a brand contract (DESIGN.md), viewable in the
+# browser over Tailscale. The daemon owns /api/*; this wraps the common ops.
+#
+#   omega-design status              container + tailscale-serve + URL
+#   omega-design url                 print the tailnet view URL
+#   omega-design up | down | restart lifecycle (docker compose)
+#   omega-design systems             list the built-in design systems
+#   omega-design skills              list the functional skills
+#   omega-design templates           list the render templates (decks/prototypes/…)
+#   omega-design api <path> [curl…]  raw call, e.g.  omega-design api /api/health
+# ═══════════════════════════════════════════════════════════════════════════
+set -uo pipefail
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+REPO="$OMEGA_DIR/repos/open-design"
+DEPLOY="$REPO/deploy"
+PORT="${OPEN_DESIGN_PORT:-7456}"
+# Always include the OmegaOS override (CLI-baked image + agent-auth mount) when
+# present, so up/restart never revert to the vanilla image that detects no CLI.
+DC=(docker compose -f "$DEPLOY/docker-compose.yml")
+[ -f "$DEPLOY/docker-compose.omega.yml" ] && DC+=(-f "$DEPLOY/docker-compose.omega.yml")
+BASE="http://127.0.0.1:${PORT}"
+# View URL, resolved by what actually exists:
+#   Tailscale up AND serving this port -> the tailnet HTTPS URL (remote-viewable)
+#   otherwise (no Tailscale / local machine)   -> plain localhost
+TS_HOST="$(tailscale status --json 2>/dev/null | python3 -c "import json,sys;print(json.load(sys.stdin)['Self']['DNSName'].rstrip('.'))" 2>/dev/null || true)"
+SSH_HINT=""
+if [ -n "$TS_HOST" ] && tailscale serve status 2>/dev/null | grep -q ":${PORT}"; then
+    URL="https://${TS_HOST}:${PORT}"        # served over the tailnet
+elif [ -n "$TS_HOST" ]; then
+    URL="https://${TS_HOST}:${PORT}"        # tailnet up; `omega-design serve` will expose it
+else
+    # No Tailscale: the daemon is bound to loopback. Reach it with an SSH tunnel
+    # using the key you already SSH in with, then open it locally.
+    URL="http://localhost:${PORT}"
+    SSH_USER="${OMEGA_SSH_USER:-${USER:-$(id -un 2>/dev/null || echo user)}}"
+    SSH_HOST="${OMEGA_SSH_HOST:-$(printf '%s' "${SSH_CONNECTION:-}" | awk '{print $3}')}"
+    SSH_PORT="${OMEGA_SSH_PORT:-$(printf '%s' "${SSH_CONNECTION:-}" | awk '{print $4}')}"
+    [ -n "$SSH_HOST" ] || SSH_HOST="<server>"
+    SSH_HINT="ssh -N -L ${PORT}:127.0.0.1:${PORT}${SSH_PORT:+ -p $SSH_PORT} ${SSH_USER}@${SSH_HOST}   # then open http://localhost:${PORT}"
+fi
+
+_list() { curl -s "${BASE}$1" 2>/dev/null | python3 -c "import json,sys
+d=json.load(sys.stdin)
+items=d if isinstance(d,list) else (d.get('items') or d.get('designSystems') or d.get('templates') or d.get('skills') or [])
+for x in items: print(' -', x.get('name') or x.get('id') or x if isinstance(x,dict) else x)" 2>/dev/null || echo "  (endpoint returned no list)"; }
+
+case "${1:-status}" in
+  url) echo "$URL" ;;
+  ssh) [ -n "$SSH_HINT" ] && echo "$SSH_HINT" || echo "Tailscale is up — just open: $URL" ;;
+  status)
+    echo "Open Design"
+    docker ps --filter name=open-design --format '  container: {{.Status}}  {{.Ports}}' 2>/dev/null || echo "  container: (docker unavailable)"
+    tailscale serve status 2>/dev/null | grep -q ":${PORT}" && echo "  served:    $URL (tailnet-only)" || echo "  served:    NOT (run: omega-design serve)"
+    curl -sf -o /dev/null -w "  health:    HTTP %{http_code}\n" "${BASE}/api/health" 2>/dev/null || echo "  health:    unreachable"
+    ;;
+  up)      ( cd "$DEPLOY" && "${DC[@]}" up -d ) ;;
+  down)    ( cd "$DEPLOY" && "${DC[@]}" down ) ;;
+  restart) ( cd "$DEPLOY" && "${DC[@]}" up -d ) ;;
+  serve)   tailscale serve --bg --https=${PORT} "${BASE}" && echo "served at $URL" ;;
+  agents)  curl -s "${BASE}/api/agents" 2>/dev/null | python3 -c "import json,sys
+d=json.load(sys.stdin); items=d if isinstance(d,list) else (d.get('agents') or d.get('items') or [])
+det=[a for a in items if isinstance(a,dict) and (a.get('detected') or a.get('available'))]
+print('detected local CLIs:', ', '.join(a.get('id') or a.get('name') for a in det) or 'NONE (run the installer to bake claude/codex into the image)')" 2>/dev/null ;;
+  systems)   _list /api/design-systems ;;
+  skills)    _list /api/skills ;;
+  templates) _list /api/design-templates ;;
+  plugins)   _list /api/plugins ;;
+  api)  shift; p="${1:-/api/health}"; shift 2>/dev/null || true; curl -s "$@" "${BASE}${p}" ;;
+  import-all) # register EVERY OmegaOS git project (idempotent: skips existing)
+    ROOT="${OMEGA_PROJECTS_ROOT:-$HOME/Station}"; n=0
+    EXISTING="$(curl -s "${BASE}/api/projects" 2>/dev/null | python3 -c "import json,sys
+try:
+    d=json.load(sys.stdin); it=d.get('projects',d) if isinstance(d,dict) else d
+    print('\n'.join((p.get('metadata') or {}).get('baseDir','') for p in it))
+except Exception: pass" 2>/dev/null)"
+    while IFS= read -r p; do [ -n "$p" ] || continue
+      printf '%s\n' "$EXISTING" | grep -qxF "$p" && continue
+      curl -s -X POST "${BASE}/api/import/folder" -H "Content-Type: application/json" -d "{\"baseDir\":\"$p\"}" >/dev/null 2>&1 && n=$((n+1))
+    done < <(find "$ROOT" -maxdepth 3 -name .git -type d 2>/dev/null | sed "s#/.git##" | sort -u)
+    echo "  imported $n new project(s) (existing skipped) -> refresh $URL"
+    ;;
+  composio) # set the Composio API key SERVER-SIDE (the tailnet UI can't: loopback-only)
+    shift; k="${1:-}"
+    [ -n "$k" ] || { echo "usage: omega-design composio <COMPOSIO_API_KEY>  (clears with: omega-design composio -)"; exit 2; }
+    [ "$k" = "-" ] && k=""
+    curl -s -X PUT "${BASE}/api/connectors/composio/config" -H "Content-Type: application/json" -d "{\"apiKey\":\"$k\"}" \
+      -w "\n  composio -> HTTP %{http_code}\n" | tail -2
+    ;;
+  import) # register an OmegaOS project into Open Design so it shows in the UI
+    shift; arg="${1:-}"
+    [ -n "$arg" ] || { echo "usage: omega-design import <project-name-or-path>"; exit 2; }
+    if [ -d "$arg" ]; then p="$(cd "$arg" && pwd)"; else
+      p="$(find "${OMEGA_PROJECTS_ROOT:-$HOME/Station}" -maxdepth 3 -type d -name "$arg" 2>/dev/null | head -1)"
+    fi
+    [ -n "$p" ] && [ -d "$p" ] || { echo "not found: $arg (try: omega-design projects)"; exit 1; }
+    # idempotent: if already imported, don't create a duplicate
+    if curl -s "${BASE}/api/projects" 2>/dev/null | python3 -c "import json,sys;d=json.load(sys.stdin);it=d.get('projects',d) if isinstance(d,dict) else d;sys.exit(0 if any((x.get('metadata') or {}).get('baseDir')=='$p' for x in it) else 1)" 2>/dev/null; then
+      echo "  already imported: $p"; exit 0; fi
+    r=$(curl -s -X POST "${BASE}/api/import/folder" -H "Content-Type: application/json" -d "{\"baseDir\":\"$p\"}" 2>/dev/null)
+    echo "$r" | python3 -c "import json,sys;d=json.load(sys.stdin);pr=d.get('project',{});print('  imported:',pr.get('name'),'->',pr.get('metadata',{}).get('baseDir'));print('  open','''"$URL"''','and it is in your project list')" 2>/dev/null || echo "  import response: $r"
+    ;;
+  projects) # list OmegaOS projects you can open as a working directory
+    ROOT="${OMEGA_PROJECTS_ROOT:-$HOME/Station}"
+    echo "Projects under $ROOT (use the full path as the working directory in Open Design):"
+    find "$ROOT" -maxdepth 3 -name .git -type d 2>/dev/null | sed "s#/.git##" | sort | sed 's/^/  /' | head -60 ;;
+  telegram|tg) # push the view link + how-to to the operator on Telegram
+    st=$(curl -sf -o /dev/null -w "%{http_code}" "${BASE}/api/health" 2>/dev/null)
+    ag=$(omega-design agents 2>/dev/null | sed 's/detected local CLIs: //')
+    msg="\xF0\x9F\x8E\xA8 <b>Open Design</b> $([ "$st" = 200 ] && echo live || echo '(not running)')
+Voir / construire : $URL
+$([ -n "$SSH_HINT" ] && echo "Sans Tailscale : <code>$SSH_HINT</code>")
+Agents : $ag
+Refonte : Recent projects (bas de la Home) ou <code>omega-design import &lt;projet&gt;</code>"
+    if [ -x "$OMEGA_DIR/bin/omega-alert-send.sh" ]; then
+      printf "$msg" | xargs -0 "$OMEGA_DIR/bin/omega-alert-send.sh" >/dev/null 2>&1 && echo "  sent to Telegram: $URL" || echo "  telegram send failed"
+    else echo "  omega-alert-send.sh not found"; fi
+    ;;
+  settings) # the full settings block (also written to ~/.omega/open-design.info)
+    st=$(curl -sf -o /dev/null -w "%{http_code}" "${BASE}/api/health" 2>/dev/null)
+    cmcp=$(claude mcp list 2>/dev/null | grep -i open-design | grep -o "Connected\|Failed" || echo "not set")
+    xmcp=$(grep -q "mcp_servers.open-design" "$HOME/.codex/config.toml" 2>/dev/null && echo "yes" || echo "no")
+    ag=$(omega-design agents 2>/dev/null | sed 's/detected local CLIs: //')
+    cat <<TXT
+Open Design — settings
+  Status            : $([ "$st" = 200 ] && echo "running (healthy)" || echo "stopped")
+  View link         : $URL
+$([ -n "$SSH_HINT" ] && echo "  SSH tunnel        : $SSH_HINT")
+  API (tools)       : ${BASE}/v1  (loopback)
+  Connected agents  : ${ag:-none}   (subscription: claude=Anthropic, codex=OpenAI)
+  Claude drives it  : MCP $cmcp
+  Codex drives it   : MCP config $xmcp
+  API token         : ~/.omega/secrets/open-design.env
+  Projects mounted  : ${OMEGA_PROJECTS_ROOT:-$HOME/Station} (read-write) — see: omega-design projects
+  Redesign a project: "Recent projects" (Home) or  omega-design import <project>
+  Commands          : omega-design status|url|ssh|open|telegram|agents|projects|import|import-all|up|serve
+  Reproducible      : omega update re-runs the installer (Phase 6.916) if installed — keeps all of the above.
+TXT
+    ;;
+  open|info) # the operator-facing quick card
+    st=$(curl -sf -o /dev/null -w "%{http_code}" "${BASE}/api/health" 2>/dev/null)
+    cat <<TXT
+┌─ Open Design ─ the self-hosted design engine ────────────────
+  View it:   $URL      $([ "$st" = 200 ] && echo "(live)" || echo "(NOT running — omega-design up && omega-design serve)")
+$([ -n "$SSH_HINT" ] && printf '  No Tailscale? SSH tunnel (uses your key):\n     %s\n' "$SSH_HINT")
+  Agents:    $(omega-design agents 2>/dev/null | sed 's/detected local CLIs: //')
+
+  How to use it:
+   1. Open the link above (needs Tailscale on your device if it's the tailnet URL).
+   2. New Project → pick a Design System (150+: apple, airbnb, agentic…) or write your own DESIGN.md.
+   3. Local CLI → Rescan → pick claude or codex (your subscription).
+   4. To REDESIGN a project (the web folder-picker can't reach server folders):
+        omega-design projects        # list your OmegaOS project paths
+        omega-design import <name>   # register it -> it appears in the UI project list
+      (No "connect GitHub": your projects are already local git repos, mounted; push works.)
+   5. Generate prototypes / dashboards / decks / images / video; it renders in the browser.
+
+  Marketing: build the visual system + viewable creatives here, publish via Zernio.
+  CLI: omega-design status | url | agents | projects | systems | up | serve
+└──────────────────────────────────────────────────────────────
+TXT
+    ;;
+  *) grep '^#' "$0" | sed 's/^# \{0,1\}//' | head -22 ;;
+esac

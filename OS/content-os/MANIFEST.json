@@ -1,0 +1,888 @@
+{
+  "name": "Content OS",
+  "slug": "content",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Operate the entire content lifecycle, from positioning and daily capture to story mining, research, writing, visual/audio/video production, platform-native packaging, publishing, community engagement and performance learning.",
+  "category": "Communication Stack / End-to-End Content Intelligence and Production",
+  "position": "Communication Stack: turns life, expertise, products and proof into native multi-platform content",
+  "counts": {
+    "agents": 38,
+    "skills": 44,
+    "protocols": 12,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 154
+  },
+  "files": [
+    {
+      "path": "agents/analytics_experiment_lead.md",
+      "sha256": "09a889d1e36427b82d8357fe5ecd855d620396d5f333633d9a125a7754298fe5",
+      "bytes": 1032
+    },
+    {
+      "path": "agents/audience_researcher.md",
+      "sha256": "4c066417ecaf1ebbd42e104ad9925aa9d42f5a7d1c21a02f986c2ce30a376136",
+      "bytes": 1031
+    },
+    {
+      "path": "agents/blog_seo_specialist.md",
+      "sha256": "bf39d978233a658969743531d8ae5e40326e3ede6bd5bc0edfee6be5b4d80295",
+      "bytes": 1034
+    },
+    {
+      "path": "agents/cascade_architect.md",
+      "sha256": "1ad81747dadba73364b504c309c776da68b65534969d9a7c46ad0955b07f34a2",
+      "bytes": 1009
+    },
+    {
+      "path": "agents/chief_content_officer.md",
+      "sha256": "596e1e1dc3db2cd493120b9e10f8e5a2c8b19110900e1f280cb7d3061548f2ad",
+      "bytes": 1010
+    },
+    {
+      "path": "agents/community_engagement_lead.md",
+      "sha256": "0925ace42799e6bf2516be615d489d8d94e9584185d3513d878163ec4328357d",
+      "bytes": 1037
+    },
+    {
+      "path": "agents/content_gps_architect.md",
+      "sha256": "a3442c5b485055f9a6d40e52e5c352ece4f65d7078e110cb78d94d5c7863a282",
+      "bytes": 1100
+    },
+    {
+      "path": "agents/content_operations_manager.md",
+      "sha256": "00830caedcb9c0f48b6b0e12b42d6c03bee33aa5ef76fc962f21868eb782da95",
+      "bytes": 1024
+    },
+    {
+      "path": "agents/copy_chief.md",
+      "sha256": "14070e6a3420103e5b502580f7987c070eb19a2f10af82e12e001923f3db4ae9",
+      "bytes": 998
+    },
+    {
+      "path": "agents/cta_conversion_editor.md",
+      "sha256": "b859f35104cfab2dcaa4339b64a95397f54e5d5431b1094ef9c591411dc95e92",
+      "bytes": 1031
+    },
+    {
+      "path": "agents/daily_capture_curator.md",
+      "sha256": "4cbb248ff38cdb292b0256ef8859446efbe97befb2700011261805ac37561b27",
+      "bytes": 1033
+    },
+    {
+      "path": "agents/editor_motion_designer.md",
+      "sha256": "6cbd856def5428c8b52ab4d9191ceaad4777a86ebdb3d992b0630fc3a733a4bd",
+      "bytes": 1028
+    },
+    {
+      "path": "agents/editorial_calendar_planner.md",
+      "sha256": "1f5aa055114c271846b27397ebde8417b2bc75ca5a9660dbd0b156f360ba178d",
+      "bytes": 1022
+    },
+    {
+      "path": "agents/editorial_director.md",
+      "sha256": "41bfd62b3f4d49c3fd50c67035f58f799b01393a6890a86418b107a3bb9d0ce1",
+      "bytes": 1013
+    },
+    {
+      "path": "agents/fact_checker.md",
+      "sha256": "b5f98e8da099afb3fcd7e6781c2e35fcd89fb8de7eecc21ee052248b381ec8ed",
+      "bytes": 1001
+    },
+    {
+      "path": "agents/hook_specialist.md",
+      "sha256": "86d36fa47e20efeb22165cf9390210b8f7a83a6d9efeb02a3ed4e71588825d81",
+      "bytes": 999
+    },
+    {
+      "path": "agents/image_prompt_designer.md",
+      "sha256": "cb2ed77c429b0438fb7ef526679e45fa66252cbace42bf3b368bc81e05ac4398",
+      "bytes": 1035
+    },
+    {
+      "path": "agents/instagram_specialist.md",
+      "sha256": "0626d8d8cabb80c0a13f18d8a880c428417651f4c0ad09be46843cf75751f2d9",
+      "bytes": 1014
+    },
+    {
+      "path": "agents/linkedin_specialist.md",
+      "sha256": "d5f835f0d33795efd298a3e592d5715729f58007ea492be421e0f651edeee043",
+      "bytes": 1028
+    },
+    {
+      "path": "agents/localization_dubbing_lead.md",
+      "sha256": "3bff73cd1c09688ab0cca872b885bdcb95fc3454c8553d04844f3eccd43ddea2",
+      "bytes": 1025
+    },
+    {
+      "path": "agents/long_form_writer.md",
+      "sha256": "db1cc150d3c780f100bba20d35e6ecbbddce8894226b361541591116e640c355",
+      "bytes": 1009
+    },
+    {
+      "path": "agents/newsletter_specialist.md",
+      "sha256": "ea68bfe39566adec43544037fb3ea5fa66887463bc70b3a6a7e5a90febb2f09e",
+      "bytes": 1028
+    },
+    {
+      "path": "agents/podcast_audio_producer.md",
+      "sha256": "db99df24a95c5f7cc26b5151ac435660050005f7b17e20328a965cca055a54f9",
+      "bytes": 1028
+    },
+    {
+      "path": "agents/positioning_strategist.md",
+      "sha256": "033a928b4ac1945b75922a9f41f7351f94d2caf5022ea46402d346bfd8eced4c",
+      "bytes": 1022
+    },
+    {
+      "path": "agents/researcher.md",
+      "sha256": "1b90e2772824cc670e5b76d2417c86b931f1a13f08ca56198396a8385e71e3ea",
+      "bytes": 994
+    },
+    {
+      "path": "agents/rights_safety_accessibility_editor.md",
+      "sha256": "6282d67e3e64f17556acd8f8c40edfd8ae6a7e5e30d0df0082cccea240027323",
+      "bytes": 1056
+    },
+    {
+      "path": "agents/short_form_writer.md",
+      "sha256": "7a4ca2eceae5864819e825b24542c5183e89c448aa82b127d8bc248c6784cda3",
+      "bytes": 1005
+    },
+    {
+      "path": "agents/sound_designer.md",
+      "sha256": "9087f4581013914afcf2f9dd5d3006bb6e33006e908a6bbd0fce19994a6a0990",
+      "bytes": 1021
+    },
+    {
+      "path": "agents/story_miner.md",
+      "sha256": "17b8d85acfd5d71d4df005ddf377e76ddfdbaba93d53642abf8c3ff7ff8bb7e3",
+      "bytes": 1008
+    },
+    {
+      "path": "agents/storyteller.md",
+      "sha256": "5a0e556f148fa54d948ae7319aff269cbfcdf761c5fba85010456316077f444f",
+      "bytes": 996
+    },
+    {
+      "path": "agents/thumbnail_packaging_director.md",
+      "sha256": "c15940c8034edd9b51806034b2d3944f43418c59ab40d2ca93300857ac501880",
+      "bytes": 1021
+    },
+    {
+      "path": "agents/tiktok_specialist.md",
+      "sha256": "9e74b355671797f0bd02948ae3195b31eb499b20064e4a2d35662e18cf5bd65c",
+      "bytes": 1033
+    },
+    {
+      "path": "agents/video_director.md",
+      "sha256": "a3160df5347b6c63027dcdb198a39a3f8d41cab82e8ba8e98a0b6f590ace51ae",
+      "bytes": 1029
+    },
+    {
+      "path": "agents/visual_creative_director.md",
+      "sha256": "fe552d797f1a7ffed331b96c07f4bfbebcc29c4bcc04b28459b2941a3437f41a",
+      "bytes": 1037
+    },
+    {
+      "path": "agents/voice_guardian.md",
+      "sha256": "56bc96d540b3b931edd4f7e25ea341e2b5b2dd13fa965403bb9c6745b57607a0",
+      "bytes": 1023
+    },
+    {
+      "path": "agents/x_specialist.md",
+      "sha256": "dee1979e1ef5668b2cb87dc3ffb1107178aa80d45603c28c4626c6158fa0e41e",
+      "bytes": 1014
+    },
+    {
+      "path": "agents/youtube_long_form_specialist.md",
+      "sha256": "88fea1b170330be4f538cae9350b38c14e767b9d783cf610a60effcfbefa6bd7",
+      "bytes": 1031
+    },
+    {
+      "path": "agents/youtube_shorts_specialist.md",
+      "sha256": "a3bf93c07a190346101307131d14db5eb1525b0fc7300bb920324026bcd4af59",
+      "bytes": 1028
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "42e7e855d24512ceea2706104908b02a9f0f343e812f18e97b05d8b9c7f684cf",
+      "bytes": 844
+    },
+    {
+      "path": "architecture/DATA_MODEL.txt",
+      "sha256": "6706f6a107a18aa77f222a399b661986364a5bebddca4bdbe903d96df2fd5571",
+      "bytes": 965
+    },
+    {
+      "path": "architecture/SECURITY.md",
+      "sha256": "cfd3a51802c6a4b349563153fb3346a1710d3a13470b38cfe1bf14236ea0b5f9",
+      "bytes": 1039
+    },
+    {
+      "path": "architecture/STATE_MACHINE.md",
+      "sha256": "68e067762562c975e1560c10aef557ddfb9df22a4a23a8616d54a7a6492c6e58",
+      "bytes": 973
+    },
+    {
+      "path": "config/os.yaml",
+      "sha256": "69c4b98e871bc478dba80f893602954e1fc9b3a431ff59d514be3548b4437605",
+      "bytes": 755
+    },
+    {
+      "path": "config/router.json",
+      "sha256": "a7136d4a43f8c6cc2275f566d0c08ec04e2d9094a3586dfb28e1cdbe077164b6",
+      "bytes": 2240
+    },
+    {
+      "path": "evals/EVALS.md",
+      "sha256": "aca3454efb2f4e8e8299fe0a027e76331a6d24a50f123513a52591d1012be9dc",
+      "bytes": 2266
+    },
+    {
+      "path": "examples/EXAMPLES.md",
+      "sha256": "dfcbb865781f6b2ae4b5afeb19a6ffbf7d2a6af2a887baabc98dfee569d4cfff",
+      "bytes": 832
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "b5fb40c70c6a735b9e2a95282be437dfae3411a8315695f73fa4f52f9ae25624",
+      "bytes": 373
+    },
+    {
+      "path": "knowledge/BOOK_CANON.md",
+      "sha256": "2ca9ef174e389f6e1f46281ae38537fb9b7bfd17021560ecec9e6de3d5cce723",
+      "bytes": 1895
+    },
+    {
+      "path": "knowledge/FRAMEWORKS.md",
+      "sha256": "957149045207fbca1dea0eadfe059fb4de9b6a5d73f9d2b629cd813ad37a2a76",
+      "bytes": 1103
+    },
+    {
+      "path": "knowledge/RESEARCH_NOTES.md",
+      "sha256": "4b758f97d26723853f42586413fc2fb9294ee1a2215924ef3a89f737ce1e0b3f",
+      "bytes": 1042
+    },
+    {
+      "path": "knowledge/SOURCES.md",
+      "sha256": "05f4b557d3a62081c7ea6292ecc79a4b88f7a0275bb5b9e4b106d741b58acd36",
+      "bytes": 3152
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "48e12a6efac58df1c5f27ab7aae7ae49df193a37e7f9beea857ca866b83b5646",
+      "bytes": 7359
+    },
+    {
+      "path": "memory/MEMORY_MODEL.md",
+      "sha256": "714daa35725462843eb7d1cad63ee2bb5f40654c8405db972ec5721966206c3d",
+      "bytes": 831
+    },
+    {
+      "path": "memory/PRIVACY.md",
+      "sha256": "0a806a5fbab5253ebcb58df37693ed8059e4f286b59997a24cd83744227f9d05",
+      "bytes": 646
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "95f1307053139573a98035fce1e5d5a74b2f649b3dcc9c6fb9e742fd1b562174",
+      "bytes": 3319
+    },
+    {
+      "path": "platforms/BLOG_SEO.md",
+      "sha256": "482b5f7f88bbc399e913f926d45af3afb14b8787b54eba92a78036bb61072682",
+      "bytes": 650
+    },
+    {
+      "path": "platforms/INSTAGRAM.md",
+      "sha256": "89c0046d007104491c077cd8fd78b68fd0249d7d9af3ddbec96bd78402747200",
+      "bytes": 1417
+    },
+    {
+      "path": "platforms/LINKEDIN.md",
+      "sha256": "791d59757b4f1a571b48700f415fb074a5636050be391211382bf31b0065457e",
+      "bytes": 1070
+    },
+    {
+      "path": "platforms/NEWSLETTER.md",
+      "sha256": "37323a61bfc179de2eedd725e0f9a3c2ce33dd424fbeace60a2a7ed3338119ae",
+      "bytes": 922
+    },
+    {
+      "path": "platforms/PLATFORM_MATRIX.md",
+      "sha256": "c959e078193ff3c9c7e361da3e5afaa015974565f9c2c683b8c20ed3f5c2286d",
+      "bytes": 2755
+    },
+    {
+      "path": "platforms/PODCAST_AUDIO.md",
+      "sha256": "4b099338f92f3360c2751b12eaf108648542ab0a5eda76b85ea15a718dd60b55",
+      "bytes": 513
+    },
+    {
+      "path": "platforms/REDDIT_COMMUNITY.md",
+      "sha256": "8e5f727936f0547f2c37bf5df7558784df96db8ad6b618b4630dd47a79a211ef",
+      "bytes": 438
+    },
+    {
+      "path": "platforms/TIKTOK.md",
+      "sha256": "1b95cca1437bc6f462cbebb2fd4d55209728a5dd7d4af0d3d2683f24a4b69d1e",
+      "bytes": 1306
+    },
+    {
+      "path": "platforms/X.md",
+      "sha256": "ae4fa105cd2e42cada3159c3254749050d46f6985130052cfdc2bd631a2c6873",
+      "bytes": 923
+    },
+    {
+      "path": "platforms/YOUTUBE_LONG.md",
+      "sha256": "62b3ddeb6135bcafa38c3d565c7e4636ab1330a88be2ad26a418b568e45d7dd1",
+      "bytes": 1409
+    },
+    {
+      "path": "platforms/YOUTUBE_SHORTS.md",
+      "sha256": "811c4ffc74e8be3619707638d3d4fd5a1d1a974294e5917a08c881f5cc18e002",
+      "bytes": 631
+    },
+    {
+      "path": "protocols/audio_production.md",
+      "sha256": "4a847227a6b7feec691228a9f551ee1708fb74aed359cc8909636b6ae43e798d",
+      "bytes": 322
+    },
+    {
+      "path": "protocols/content_gps.md",
+      "sha256": "469f2afff438f9f26b2bf3c64da23a0db67865a80c2c64eab0c03c2fac2ee3dc",
+      "bytes": 512
+    },
+    {
+      "path": "protocols/content_to_revenue_handoff.md",
+      "sha256": "b094e731f990c884ceddc191ad2915d780c9f5ab3dec64f458e466dc1f60487d",
+      "bytes": 328
+    },
+    {
+      "path": "protocols/content_waterfall.md",
+      "sha256": "8f62b5de5f12e74e0da4400d348fadc322e249971adce3a02181a34e4d6e74e0",
+      "bytes": 438
+    },
+    {
+      "path": "protocols/daily_life_to_content.md",
+      "sha256": "619ce61e4641f575151f4e26df0060e8b374ee5bd0d66d6902fab66da7569470",
+      "bytes": 399
+    },
+    {
+      "path": "protocols/performance_learning.md",
+      "sha256": "02262889d1f00ec171554b64b3ba1ef9c4be9da2494d2b8162d19c77a47a46a8",
+      "bytes": 359
+    },
+    {
+      "path": "protocols/pillar_creation.md",
+      "sha256": "7186bdc6e1d324bc4f42cacbad39e0e26fa84a2d5c7b2692755379ab601af919",
+      "bytes": 370
+    },
+    {
+      "path": "protocols/platform_native_review.md",
+      "sha256": "76f60999d712e17010654484e8007ed12316ac5ed40853a464d2a76ebcfa3427",
+      "bytes": 351
+    },
+    {
+      "path": "protocols/publishing_gate.md",
+      "sha256": "10447bb580b976fab4d5ea12bd13c6afeee79de8190b36079b0c924515e6e8d2",
+      "bytes": 306
+    },
+    {
+      "path": "protocols/video_production.md",
+      "sha256": "e4568900e4fada3d4cbd55ec996d0f504d8b969e7b5141cc18211ee562f61989",
+      "bytes": 320
+    },
+    {
+      "path": "protocols/visual_production.md",
+      "sha256": "2632ddebc3d4a1f94b52ce685ebfabe395bd6435b5869971195bacbf5d6f4001",
+      "bytes": 340
+    },
+    {
+      "path": "protocols/weekly_editorial_council.md",
+      "sha256": "9e95af79a7eb68a1d8eb30dee863325d50f3b2d8c4d9c45720addcc2f436e5cb",
+      "bytes": 365
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "8a820ee36448aa0d0f91c86615d62b9d6929a60ce8db438abe33ca61fe4856bb",
+      "bytes": 2387
+    },
+    {
+      "path": "README.md",
+      "sha256": "698350a142f9d9a39946238012c6fee2abb7453415eea6b6da4072311f6ab75d",
+      "bytes": 2946
+    },
+    {
+      "path": "runtime/os_runtime.py",
+      "sha256": "926e255e98a7d8a8c9d0dcb51bbf2e22b30a4edfea47fbd4dc0a65bc46d9eef7",
+      "bytes": 2506
+    },
+    {
+      "path": "runtime/README.md",
+      "sha256": "785006a8620bf78e3f542dc77e0f2ae28dd2bd1c8610d27b34a9fd1543b4b6ae",
+      "bytes": 376
+    },
+    {
+      "path": "runtime/requirements.txt",
+      "sha256": "0d5b8d9408d93e3953b2a0117a8a9657d829f2e95f79d904093bab5eec894183",
+      "bytes": 24
+    },
+    {
+      "path": "schemas/content_asset.json",
+      "sha256": "bca25e7966497cb516338895715d35b3960e206ceabeada036079e4cf4218543",
+      "bytes": 1160
+    },
+    {
+      "path": "schemas/content_atom.json",
+      "sha256": "8696926ada2bfff250aad45e3a95f31148e8330309c5fac006b37d2fb7bb1505",
+      "bytes": 1071
+    },
+    {
+      "path": "schemas/content_campaign.json",
+      "sha256": "8dd88430f82fce8c317bf2a84d9801eec46e8bb538c4c8fb5993b0655d583ecf",
+      "bytes": 1135
+    },
+    {
+      "path": "schemas/content_metric.json",
+      "sha256": "7aaaafb06891ac27d8b35d318f9954078cb9baa688dd22cd971ebaa19571a5b7",
+      "bytes": 1051
+    },
+    {
+      "path": "schemas/content_pillar.json",
+      "sha256": "abeaafad1fe6392a3260331abe959a8730702a48583b841895342b078bf83667",
+      "bytes": 1104
+    },
+    {
+      "path": "schemas/platform_brief.json",
+      "sha256": "c7331e279a4c505ab13a420d4345ed2225b65db859f7fb1e3b5fd05c13715b50",
+      "bytes": 1105
+    },
+    {
+      "path": "schemas/production_job.json",
+      "sha256": "2b3ad7900758773159be8b80ba527a991c52819ab717c8a4c108a7cdda8c959f",
+      "bytes": 1143
+    },
+    {
+      "path": "schemas/rights_record.json",
+      "sha256": "899b766f9994857fca1149ff36793d901c5a1e07f57251eacd04b6694dd7be94",
+      "bytes": 981
+    },
+    {
+      "path": "schemas/story_record.json",
+      "sha256": "24425647f59fecf9c8732dab8ec7a8fee5fa7eb26333f44b0838e6c3a5144dce",
+      "bytes": 1098
+    },
+    {
+      "path": "schemas/voice_profile.json",
+      "sha256": "e3e3eecf3311b77c0413948268d48bc7cb8be5ffffea8b281da46c91ec903be5",
+      "bytes": 1200
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "44f39abf766fff13e3b8cc56ee3097c234541d02d5e497a44c7d10c26b3b2000",
+      "bytes": 2771
+    },
+    {
+      "path": "skills/accessibility_pass.md",
+      "sha256": "38a29d06875dc990369bc2506cfc7bb70284dfceaa8c58d06137de29454a0201",
+      "bytes": 1038
+    },
+    {
+      "path": "skills/anti_generic_pass.md",
+      "sha256": "0d79263e76c7060512ebc6a850929fc00f183beb92827ae113b2c88800689bbb",
+      "bytes": 1028
+    },
+    {
+      "path": "skills/audience_language_mining.md",
+      "sha256": "8c08b66c08325671991316bde70b382ca5854b53314b864f596a5590c3c227f4",
+      "bytes": 1046
+    },
+    {
+      "path": "skills/authenticity_audit.md",
+      "sha256": "17feccd38ed5046ea30aaf9108a09ede4771d27853b23e7ef66dffdc74fe3140",
+      "bytes": 1025
+    },
+    {
+      "path": "skills/campaign_architecture.md",
+      "sha256": "aebb56373439a258acec55d4e3b0cc40a4bbdaab8d2c1bec7742ee8cfd62a455",
+      "bytes": 1042
+    },
+    {
+      "path": "skills/caption_description.md",
+      "sha256": "44db9d75f84e6288a501a6e8f16ddb421a73a63878b6463e5a54552dbe2e3082",
+      "bytes": 1021
+    },
+    {
+      "path": "skills/carousel.md",
+      "sha256": "c11eede7b38c1f9b41fe03dacf1906bed7d2ce88981528d08f4d39d04a6f5b98",
+      "bytes": 1029
+    },
+    {
+      "path": "skills/community_response.md",
+      "sha256": "8e67945b97edd79e6dd8ef05af9a9b2e649971d84cc050e111ef2098edf0293e",
+      "bytes": 1019
+    },
+    {
+      "path": "skills/content_atom_extraction.md",
+      "sha256": "a7876ecf8cab1000eddb1c57a98137ff909e7114be9498ef813c8106481f9aaa",
+      "bytes": 1052
+    },
+    {
+      "path": "skills/content_experiment.md",
+      "sha256": "5e2b59d47e061bf9bf7733428f33e404729882024e6ec763f0eee40344b7d853",
+      "bytes": 1029
+    },
+    {
+      "path": "skills/content_gps.md",
+      "sha256": "9523f8ebf9b62c49c61030caf8b141751fb4a094a5ee426e36039161e5ae3fc8",
+      "bytes": 1066
+    },
+    {
+      "path": "skills/content_pillars.md",
+      "sha256": "ff85269c64f63e0d7a1e750b1516b288c587e25b28a30bf348b7aa87e7f2545a",
+      "bytes": 1022
+    },
+    {
+      "path": "skills/content_positioning.md",
+      "sha256": "a43c7ffba89882c7553b621290db0b9751e400ba86d124716e0a0085f1423dd6",
+      "bytes": 1056
+    },
+    {
+      "path": "skills/content_waterfall.md",
+      "sha256": "935ecc7d2242a51331f4ded81c440a9e87c76d6085590dcdee53bd03cd97df96",
+      "bytes": 1020
+    },
+    {
+      "path": "skills/daily_capture.md",
+      "sha256": "05a66e8ccb80fed26f720fe74d67e239a4a3ecd8adb9e5e58ce47e87ee50d68a",
+      "bytes": 1043
+    },
+    {
+      "path": "skills/editing_blueprint.md",
+      "sha256": "b1cdbf63c3bb4c37aa43388799dd401a4c2138752a92cab90705e2ec41a73de4",
+      "bytes": 1036
+    },
+    {
+      "path": "skills/editorial_calendar.md",
+      "sha256": "a112fc8b0e04398c2ac897572ae95906b6ec691117a221ff13550ba4e430bc1d",
+      "bytes": 1017
+    },
+    {
+      "path": "skills/editorial_thesis.md",
+      "sha256": "76a37c375263266fea239b77c753a8d2fb25ee7c0d94c643ea77e03f4434edd0",
+      "bytes": 1035
+    },
+    {
+      "path": "skills/evergreen_refresh.md",
+      "sha256": "384db1b0df840f7207c65b3a2341220eb11df9b4885ec12129cd7099a134bff9",
+      "bytes": 1037
+    },
+    {
+      "path": "skills/fact_citation_check.md",
+      "sha256": "190b99cb1d62b6cecd7e8bbd57aa63cba01f752f32e7b347c472239f954d3160",
+      "bytes": 1009
+    },
+    {
+      "path": "skills/hook_bank.md",
+      "sha256": "678dee2069108d956cab10757f5a13bdafe9399e120ad3e79b956c5c42f31fd2",
+      "bytes": 1035
+    },
+    {
+      "path": "skills/image_generation_brief.md",
+      "sha256": "3980a92ba40638b2fa99fd6a2b96f89cf8a6841f2c0585787396d5e2322713e5",
+      "bytes": 1054
+    },
+    {
+      "path": "skills/linkedin_post.md",
+      "sha256": "fc45e83e1120e1f8a82d3199c7b0c0282df8268f443ce951e1892b434bd5118f",
+      "bytes": 1037
+    },
+    {
+      "path": "skills/localization.md",
+      "sha256": "f9401f9a0eeaf3eefbb0bd506e1de190bf93ca38efe292ba370157fefd3fdc81",
+      "bytes": 1018
+    },
+    {
+      "path": "skills/long_form_article.md",
+      "sha256": "0f3e6c356da247243e9fe3683816d5518c5c6f5a67a6b66eda07e925c34c7c7d",
+      "bytes": 1028
+    },
+    {
+      "path": "skills/newsletter_edition.md",
+      "sha256": "6eee01109dc7395e56afc56ab460ba9e78d7afeccf951b9eb0a494afb388e621",
+      "bytes": 1018
+    },
+    {
+      "path": "skills/performance_review.md",
+      "sha256": "ac3a4ea574cf192a907cade109c7206b58090d22632cb2af710b54aa3442376a",
+      "bytes": 1049
+    },
+    {
+      "path": "skills/pillar_content.md",
+      "sha256": "4d5d3b539858602041759482fdb10920367b39b4bc2cb9b1917e8a3f326649cc",
+      "bytes": 1004
+    },
+    {
+      "path": "skills/platform_native_adaptation.md",
+      "sha256": "480262d4b1149411c3d401c255c94e7cd80e748431d115814d3f0285ecd1d3d6",
+      "bytes": 1041
+    },
+    {
+      "path": "skills/podcast_package.md",
+      "sha256": "516e12a488dbff656d31b8962ced1dbe08656953e64a5e70386b55839e005315",
+      "bytes": 1023
+    },
+    {
+      "path": "skills/proof_bank.md",
+      "sha256": "81ccec4d5374632d76efe77ba938f18057911a461c29e04e3b240e521b43c3d8",
+      "bytes": 1035
+    },
+    {
+      "path": "skills/publishing_checklist.md",
+      "sha256": "f0e83517a62a68675c7c50140a1a7f5b885cb896e759555009053df9d3399663",
+      "bytes": 1021
+    },
+    {
+      "path": "skills/rights_consent_check.md",
+      "sha256": "a9baed57a85f5c64d399bcf2f4f5389e75a851292408b38fe9c4121209d6f216",
+      "bytes": 1044
+    },
+    {
+      "path": "skills/seo_brief.md",
+      "sha256": "d8f79756b528c848d35a5c24ecf880d09fe9fb6ef0106e8aecefeb2d4ecfe02f",
+      "bytes": 1045
+    },
+    {
+      "path": "skills/short_video_script.md",
+      "sha256": "acdd08c436f075735cab03cd676517cc4a250a777d537c27ed117cb38f164f43",
+      "bytes": 1030
+    },
+    {
+      "path": "skills/shot_list.md",
+      "sha256": "cdacf2dc4e28286286319ef9b1ab489d4d0f72ae1f73774988c1ba5835ca77cf",
+      "bytes": 1029
+    },
+    {
+      "path": "skills/sound_brief.md",
+      "sha256": "ad5804788d76bee80c228d7cbb07ad9bda4194904b8df1de5eb29b6e47d62ad4",
+      "bytes": 1032
+    },
+    {
+      "path": "skills/story_bank.md",
+      "sha256": "6e90a951908a898e4d22da3b64b42c1046dad2dd557d468b937a054c812c1007",
+      "bytes": 1027
+    },
+    {
+      "path": "skills/thumbnail_package.md",
+      "sha256": "d9f0cd9fc261795f4a39b54b03d11dcc6a3df45de0acbb218136a83c5ca1bf2a",
+      "bytes": 1020
+    },
+    {
+      "path": "skills/topic_map.md",
+      "sha256": "07380c4857ac53608ab757f3bcf1fb6507985840a3cd4d12c562199fca9d7654",
+      "bytes": 1016
+    },
+    {
+      "path": "skills/visual_brief.md",
+      "sha256": "69a2d803ab07518deca9f21a1faa6c3bf4243cff2542a583641c5c5f9040f4a5",
+      "bytes": 1051
+    },
+    {
+      "path": "skills/voice_profile.md",
+      "sha256": "ff16eddd455250fd23dac52495b6dd00fb78e1fc70d586eec87e0bc74a15d8de",
+      "bytes": 1048
+    },
+    {
+      "path": "skills/x_thread.md",
+      "sha256": "7256eaf331c045961fd885f212de81a5f415e7ea3badb8ffd059be5ecfa38c01",
+      "bytes": 1015
+    },
+    {
+      "path": "skills/youtube_script.md",
+      "sha256": "9b992f1a04fc92bd4976a09ef59bdbfa5ceb30b45f405bcf98f375fa87b894f4",
+      "bytes": 1034
+    },
+    {
+      "path": "system/BOUNDARIES.md",
+      "sha256": "7536aff178c651c959dcb68ce811f48ba5f4b3646beada7b5e1adcdc54bac872",
+      "bytes": 922
+    },
+    {
+      "path": "system/OUTPUT_CONTRACT.md",
+      "sha256": "781bf6fedd3385abe0b15b135004af49add581cc57508ce30cbf5c480a197ec3",
+      "bytes": 642
+    },
+    {
+      "path": "system/PRINCIPLES.md",
+      "sha256": "07cd81736de531b545fc74b731ebdd1e8eea0cc8f11bff21bdecb0c1a28419cf",
+      "bytes": 1160
+    },
+    {
+      "path": "system/ROUTER.md",
+      "sha256": "2ceacb0d56677ec1a8877fd40a11d1d870292ef9a266aa6cb23fbc9a89d554c0",
+      "bytes": 1286
+    },
+    {
+      "path": "system/SYSTEM_PROMPT.md",
+      "sha256": "93341a50235351eac95bb3e98d3ccfa26e1a7da427157fbf8446f7215507f1fa",
+      "bytes": 7580
+    },
+    {
+      "path": "templates/CONTENT_GPS_CANVAS.md",
+      "sha256": "41485f527112e47652a263208cae5cdc587664e340d506f0d1d5300e3a448082",
+      "bytes": 379
+    },
+    {
+      "path": "templates/DAILY_CAPTURE.md",
+      "sha256": "d92721e5cc4ea225be6655fd94a30fbd020631ff6f9f8a7d72bddf6cee8c4a0c",
+      "bytes": 278
+    },
+    {
+      "path": "templates/PERFORMANCE_REVIEW.md",
+      "sha256": "98e6be7103bc8a836e1e998c7781e7950dc771e4dc946b21eb06525bd585415c",
+      "bytes": 288
+    },
+    {
+      "path": "templates/PILLAR_BRIEF.md",
+      "sha256": "d84805e21596282b28efd6d7c631f1c5011cc2e9463de9e8442e622830cbea4a",
+      "bytes": 241
+    },
+    {
+      "path": "templates/PLATFORM_BRIEF.md",
+      "sha256": "529f0c73a5176af23f68fc7a9d38ce5aa0480f6363c0e33b0716723c6ff71648",
+      "bytes": 259
+    },
+    {
+      "path": "templates/RIGHTS_AND_CONSENT.md",
+      "sha256": "6aa838292b6031070b4d3ec96c560a836ed08aea9c5c803eb95e0e507422cd45",
+      "bytes": 276
+    },
+    {
+      "path": "templates/SOUND_BRIEF.md",
+      "sha256": "19c2d9dc49121b439a5824ffe7da21e13cf1f876228e4dffec4beb85e0672937",
+      "bytes": 231
+    },
+    {
+      "path": "templates/VIDEO_PACKAGE.md",
+      "sha256": "7212ead774bd82598d91197e647058ab6b38eafb06c64286663766b4e7e28f95",
+      "bytes": 384
+    },
+    {
+      "path": "templates/VISUAL_BRIEF.md",
+      "sha256": "628e285367788e8d602e0888906ebda6e4269e9381301b0c0d4922098fbbdc54",
+      "bytes": 285
+    },
+    {
+      "path": "templates/WATERFALL_MAP.md",
+      "sha256": "6231ceee1470cdde7b6d3ac3aa6823769ba2a64de378340d25aa6cecd4ea2281",
+      "bytes": 396
+    },
+    {
+      "path": "tests/test_package.py",
+      "sha256": "71885ea7b8fc36f20c4e4dd252af304ec93d6e20dadb4f33036fcc5c058c18ff",
+      "bytes": 573
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "content.intent.qualified",
+        "consumed_by": "revenue",
+        "payload": {
+          "id": "string (record id)",
+          "intent": "object (the intent payload)",
+          "status": "string (qualified)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "content.performance.feedback",
+        "consumed_by": "storyteller",
+        "payload": {
+          "id": "string (record id)",
+          "performance": "object (the performance payload)",
+          "status": "string (feedback)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "content.release_candidate.created",
+        "consumed_by": [
+          "quality-evaluation-release"
+        ],
+        "payload": {
+          "id": "string",
+          "candidate": "object",
+          "claims": "array<object>",
+          "rights": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "content.change.requested",
+        "consumed_by": [
+          "review-governance"
+        ],
+        "payload": {
+          "id": "string",
+          "change": "object",
+          "policy_refs": "array<string>",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "content.automation_candidate.created",
+        "consumed_by": [
+          "operations-automation"
+        ],
+        "payload": {
+          "id": "string",
+          "workflow": "object",
+          "stability_evidence": "array<object>",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "revenue.offer_objective.updated",
+        "produced_by": "revenue",
+        "payload": {
+          "id": "string (record id)",
+          "offer_objective": "object (the offer objective payload)",
+          "status": "string (updated)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "story.ready_for_adaptation",
+        "produced_by": "storyteller",
+        "payload": {
+          "id": "string (record id)",
+          "story": "object (the story payload)",
+          "status": "string (ready_for_adaptation)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "relationship.gathering.created",
+        "produced_by": "relationship-network",
+        "payload": {
+          "id": "string (record id)",
+          "gathering": "object (the gathering payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

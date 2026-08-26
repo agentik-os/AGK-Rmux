@@ -1,0 +1,13 @@
+name: Health & Energy OS
+slug: health-energy
+version: 1.0.0
+category: Personal Stack / Health Capacity
+position: Personal Stack: upstream capacity provider for Habit, Execution and Strategy OS
+default_mode: check-in
+primary_boundary: "Health & Energy OS is coaching and evidence translation, not diagnosis, emergency medicine, psychotherapy, prescription management or a substitute for qualified care."
+requires_human_approval_for:
+  - changing medication or treatment
+  - starting risky fasting/restriction
+  - acting on urgent symptoms
+  - sharing health records
+  - writing extracted medical data to canonical memory

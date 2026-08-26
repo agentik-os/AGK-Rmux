@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/seductive-os/practice_log.json",
+  "title": "Practice Log",
+  "description": "One practice rep and its outcome. Two doctrine rules are structural here. First, the process is scored and the outcome is not: `outcome` is a closed vocabulary describing what happened, and there is deliberately NO field for a phone number, a contact detail, a match or any other trophy, because what gets logged is what gets optimized. Second, a rep involves a real person who did not agree to be in a file, so this record holds no person reference at all: a third party can only appear in an interaction_debrief, and there only as a given name.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Practice date, logged on the day rather than on Sunday from memory"
+    },
+    "practice": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "What was practised"
+    },
+    "tier": {
+      "enum": [
+        "floor",
+        "standard",
+        "deep"
+      ],
+      "description": "Floor survives a bad day and needs no other person. Deep is never the minimum and never the measure of self-respect."
+    },
+    "context": {
+      "$ref": "#/$defs/context",
+      "description": "A generic category. There is no free-text venue field."
+    },
+    "ladder_rung": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "The approach anxiety ladder rung, where the rep came from one"
+    },
+    "completed": {
+      "type": "boolean",
+      "description": "Whether the rep ran to its designed end. A session ended on a stop rule is completed, not failed."
+    },
+    "prediction": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "What the user predicted would happen, written BEFORE the rep, so calibration can be measured"
+    },
+    "outcome": {
+      "enum": [
+        "did_not_attempt",
+        "attempted_and_withdrew",
+        "stopped_on_stop_rule",
+        "rep_completed_no_interaction",
+        "conversation_happened",
+        "conversation_ended_by_other",
+        "conversation_ended_by_user",
+        "invitation_made_and_accepted",
+        "no_received_and_respected",
+        "interrupted_by_circumstance"
+      ],
+      "description": "A closed vocabulary. `no_received_and_respected` is a clean outcome, not a failure: a run that ends in a no and a clean exit is a successful run."
+    },
+    "discomfort_before": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "discomfort_peak": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "The peak matters more than the endpoint for judging habituation and for triggering a stop rule"
+    },
+    "discomfort_after": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "process_score": {
+      "type": "object",
+      "description": "The only score. All seven true is a clean run, including when the answer was no.",
+      "properties": {
+        "grounded_before_entering": {
+          "type": "boolean"
+        },
+        "recalled_three_specifics": {
+          "type": "boolean"
+        },
+        "said_one_true_thing": {
+          "type": "boolean"
+        },
+        "checked_the_read": {
+          "type": "boolean"
+        },
+        "made_interest_legible_without_pressure": {
+          "type": "boolean"
+        },
+        "respected_answer_at_first_signal": {
+          "type": "boolean"
+        },
+        "left_them_neutral_or_better": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "grounded_before_entering",
+        "respected_answer_at_first_signal",
+        "left_them_neutral_or_better"
+      ],
+      "additionalProperties": false
+    },
+    "clean_run": {
+      "type": "boolean",
+      "description": "All seven process questions true"
+    },
+    "stop_rule_triggered": {
+      "enum": [
+        "none",
+        "anxiety_sustained_8_plus",
+        "panic_response",
+        "dissociation",
+        "reps_became_compulsive"
+      ]
+    },
+    "lesson": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "One local lesson about this rep. Never a global belief about the self, which is the wrong lesson this log exists to prevent."
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "date",
+    "practice",
+    "tier",
+    "completed"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "A completed rep records what happened and how it felt, so habituation can be judged across sessions.",
+      "if": {
+        "properties": {
+          "completed": {
+            "const": true
+          }
+        },
+        "required": [
+          "completed"
+        ]
+      },
+      "then": {
+        "required": [
+          "outcome"
+        ]
+      }
+    },
+    {
+      "description": "A rep stopped on a stop rule must name which rule fired.",
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "stopped_on_stop_rule"
+          }
+        },
+        "required": [
+          "outcome"
+        ]
+      },
+      "then": {
+        "properties": {
+          "stop_rule_triggered": {
+            "not": {
+              "const": "none"
+            }
+          }
+        },
+        "required": [
+          "stop_rule_triggered"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "context": {
+      "enum": [
+        "solo",
+        "bar_or_club",
+        "cafe_or_restaurant",
+        "party_or_gathering",
+        "class_or_course",
+        "gym_or_sport",
+        "hobby_group",
+        "work_adjacent",
+        "street_or_transit",
+        "shop_or_market",
+        "dating_app",
+        "online_community",
+        "through_friends",
+        "travel",
+        "other"
+      ]
+    }
+  }
+}

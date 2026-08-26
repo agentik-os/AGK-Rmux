@@ -1,0 +1,43 @@
+experiment_id: EXP-001
+version: 1.0.0
+title: <name>
+decision_question_ids: [RQ-001]
+hypothesis_ids: [HYP-001]
+evidence_level_target: E6
+status: proposed
+population: <exact population>
+inclusion: []
+exclusion: []
+recruitment_or_channel: <source>
+unit_of_analysis: <person-account-session-transaction>
+stimulus_offer_workflow: <description>
+variants: []
+control_baseline: <description>
+primary_metric:
+  name: <metric>
+  numerator: <definition>
+  denominator: <definition>
+  window: <time window>
+secondary_metrics: []
+guardrails: []
+pass_threshold: <threshold>
+fail_threshold: <threshold>
+ambiguous_rule: <rule>
+sample_precision_power_rule: <rule>
+duration_and_stopping_rule: <rule>
+analysis_plan: <plan>
+segment_analysis: []
+confounds_and_bias: []
+data_quality_rules: []
+consent_privacy_ethics: []
+external_action_authority: none
+budget_and_spend_cap: <amount>
+owner: <role>
+reviewers: []
+preregistered_at: <timestamp>
+results: null
+deviations: []
+decision_consequence:
+  pass: <action>
+  fail: <action>
+  ambiguous: <action>

@@ -1,0 +1,437 @@
+{
+  "id": "market-research-os",
+  "name": "Market Research {OS}",
+  "version": "1.0.0",
+  "kind": "evidence-and-validation-compiler",
+  "category": "Business Stack / Market Evidence and Validation Intelligence",
+  "omega_position": "Core Stack (supporting): market and customer evidence and validation for Strategy and Blueprint",
+  "status": "installable reference implementation",
+  "description": "Compiles an idea or market decision into a source-backed Market Evidence + Validation Pack and a gated Blueprint input manifest.",
+  "default_command": "/market-research",
+  "counts": {
+    "agents": 1,
+    "skills": 1,
+    "protocols": 0,
+    "references": 13,
+    "scripts": 3,
+    "assets": 18,
+    "files": 40
+  },
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "c72bce3b5bebe8f34f9614a5685b041271f33cd42d7240a3efe0bed01621d42a",
+      "bytes": 389
+    },
+    {
+      "path": "assets/blueprint-input-manifest.schema.json",
+      "sha256": "042950068ae8933183ce7f2da3a706f701d476e0d7fa49602482ec94b05582e8",
+      "bytes": 3072
+    },
+    {
+      "path": "assets/competitor-profile.template.yaml",
+      "sha256": "234e92c8500d5c00cb101462e10e4eb8b0c175e22f01a33d1a3be3db044111e5",
+      "bytes": 945
+    },
+    {
+      "path": "assets/customer-interview.template.md",
+      "sha256": "1315f81373540a85a35a6ad223b6ced3080adefa42245ae441a84148b13d0cff",
+      "bytes": 2450
+    },
+    {
+      "path": "assets/decision-scorecard.template.csv",
+      "sha256": "9194423ab79087c6630b9f34a0966e488d97ed3155a3af9db271d8229aff867e",
+      "bytes": 1283
+    },
+    {
+      "path": "assets/evidence-ledger.template.csv",
+      "sha256": "f9a9afbca7a112a248fb9396d4b8293104d2fe8c1764f3312fd218e11a437be7",
+      "bytes": 432
+    },
+    {
+      "path": "assets/experiment.template.yaml",
+      "sha256": "7865a3dbc2c81bf9c9add1d3a74f2bd1765074337130df1abb5b26c202cc7fba",
+      "bytes": 1026
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "e9301497fa98ef56aaca7ede0857b9a18dc06c34040f0679c609a6bf49b1d38b",
+      "bytes": 420
+    },
+    {
+      "path": "assets/market-model.template.csv",
+      "sha256": "fea96af3328d384e1be79c1ae5442f6ab9f919edf6fbbdf8145f7937915b599b",
+      "bytes": 836
+    },
+    {
+      "path": "assets/market-research-role-prompts.json",
+      "sha256": "b6e3d65bb031d6f761d9ee73a59ed86191d96556d123e8408a32468e6e69499a",
+      "bytes": 7962
+    },
+    {
+      "path": "assets/market-research-state.schema.json",
+      "sha256": "2a8f6b57480a51dd67e90332e785cc03d86f035da0279210ec6a0222f4e4e102",
+      "bytes": 16198
+    },
+    {
+      "path": "assets/market-research-tools.json",
+      "sha256": "d486edd9adf6b983f5ce0047b842bff0562a4e545528ba8d35ff77bda8613ffe",
+      "bytes": 9739
+    },
+    {
+      "path": "assets/omega-os.manifest.json",
+      "sha256": "93b53beccf12d4d6ef82217385ac2e0b3a46e5225af6cc6bad0358a91e315b01",
+      "bytes": 4432
+    },
+    {
+      "path": "assets/report.template.md",
+      "sha256": "629b2c296b93aed8ddf28b80573083cf87b756ead47955e3b7446ea24e94f5e0",
+      "bytes": 1996
+    },
+    {
+      "path": "assets/research-brief.template.yaml",
+      "sha256": "45d2db4a84896da10bbb46a828c661c24aa0d41977ea4b2df0e11fe607a3318e",
+      "bytes": 1400
+    },
+    {
+      "path": "assets/research-plan.template.yaml",
+      "sha256": "c3beae96539fc0259f417d1e7a331088f1832017dfac96bdd8072eb9eaddc7bd",
+      "bytes": 1469
+    },
+    {
+      "path": "assets/source-preflight.template.yaml",
+      "sha256": "de53c575c829922aa2a7475c7a5817c604fe3a5d66accf4cff38817555551832",
+      "bytes": 928
+    },
+    {
+      "path": "assets/survey-questionnaire.template.md",
+      "sha256": "d76d736f8c82026c57f2e8e5a6da3fb3e71693284743700b80703ee6c1375d86",
+      "bytes": 3195
+    },
+    {
+      "path": "assets/voc-codebook.template.csv",
+      "sha256": "9226dc7e873ca266153cb7f9df692d0c41c6611ca5e0dc622fa0ca4043556799",
+      "bytes": 961
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "efcb47bd9949312518673df8c075c813ba8829de9ebfbc7fd373b917ad854754",
+      "bytes": 7118
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "54ca12840b83dd3896d78c478dd0913eae8a292211fef56e6320154fe30a256d",
+      "bytes": 1561
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "64a46211ed67dcde0e20430baf6f2a7f5c08a83ed6241859b980faff6709c8cc",
+      "bytes": 2346
+    },
+    {
+      "path": "README.md",
+      "sha256": "a0790db3ed3816c5d58fe40910a036c7f13b359d0a14194f0e5030ceb2af3134",
+      "bytes": 7412
+    },
+    {
+      "path": "references/agency-service-model.md",
+      "sha256": "41fb04710e083b909b30957b5a1da62377aef012c6e6ca0c2233f32eb4024768",
+      "bytes": 7617
+    },
+    {
+      "path": "references/data-acquisition-and-compliance.md",
+      "sha256": "402e1e02540cd68110aefade2a7a4c8d5b72702a9c2d797909245b97e39e0214",
+      "bytes": 12078
+    },
+    {
+      "path": "references/evidence-source-notes.md",
+      "sha256": "41e0ac87ea8fda7dcd15bfa80060d274be9eb0445bd5586ae01bd7046d4e2241",
+      "bytes": 4857
+    },
+    {
+      "path": "references/experiments-and-primary-research.md",
+      "sha256": "5ec67662d92668ca9f4609b146132b91f1cc057c27aad312a8d2e72cf5c3ad9b",
+      "bytes": 14093
+    },
+    {
+      "path": "references/methods-and-frameworks.md",
+      "sha256": "4f3eaece73814b4169443eff132a48f769814b334bb303320a46da19ab0c6476",
+      "bytes": 21333
+    },
+    {
+      "path": "references/omega-os-integration.md",
+      "sha256": "ff532fa0b6c72c130ecc753682bcd7ec1532271099741b707855afcfb5e5dd21",
+      "bytes": 11363
+    },
+    {
+      "path": "references/orchestration-and-gates.md",
+      "sha256": "fb56dfa91e999d35f4832d24fd079ada4bf8c9e7b4170756781f3aedf565596d",
+      "bytes": 15239
+    },
+    {
+      "path": "references/research-contract.md",
+      "sha256": "6bbdfe5fbd0c79d40073010103aafdec68ad22d0b901b033a0ae36572eb2e07a",
+      "bytes": 14368
+    },
+    {
+      "path": "references/response-and-continuation.md",
+      "sha256": "9cad376554d54364e47b1b50ae40164e7b20eb95ef2f02b9aef72146a4f8295e",
+      "bytes": 5945
+    },
+    {
+      "path": "references/scoring-and-decision.md",
+      "sha256": "d8ee86944edc2f73d018c9e42123d06869bb56e20dc841ddfcbe3f069bc7dda7",
+      "bytes": 7549
+    },
+    {
+      "path": "references/source-and-tool-registry.md",
+      "sha256": "74ac9fc96f02753789906ad9f1676ebe6fe1b1c74d20d812da274734134e47a4",
+      "bytes": 18323
+    },
+    {
+      "path": "references/system-prompt.md",
+      "sha256": "2baf16b541c41a6f905ea8dd369ac1657904b881ac10d1a31e555b64ce6310f6",
+      "bytes": 31933
+    },
+    {
+      "path": "references/vertical-playbooks.md",
+      "sha256": "ef1a4bb7fa2a98e70bafd06bd3bb868b2d93e33648223bc69df3068efc78acb8",
+      "bytes": 10940
+    },
+    {
+      "path": "scripts/build_complete_manual.py",
+      "sha256": "7b00bd7eb48039a742c0e72e000f12e79af36080767fd17b7db8e6e5f83ee582",
+      "bytes": 3924
+    },
+    {
+      "path": "scripts/install_omega_os.py",
+      "sha256": "86f28a16f07004907eda9c79fe1283dc9a94cfac201366c2bcc7f77f9ccef619",
+      "bytes": 5302
+    },
+    {
+      "path": "scripts/market_research_os.py",
+      "sha256": "19d3cd213611413899e29f0bb289c7d9f4a29bb2f2490b0e35a09b79ac8dbf25",
+      "bytes": 31586
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "7afb962c5d788f041671812c582ed5e98b1bf2d5da8aa7bce5782756158893c9",
+      "bytes": 15411
+    }
+  ],
+  "commands": [
+    {
+      "name": "/market-research",
+      "mode": "infer"
+    },
+    {
+      "name": "/market-research scan",
+      "mode": "RAPID_SCAN"
+    },
+    {
+      "name": "/market-research validate",
+      "mode": "FULL_VALIDATION"
+    },
+    {
+      "name": "/market-research diligence",
+      "mode": "DILIGENCE"
+    },
+    {
+      "name": "/market-research recover",
+      "mode": "RECOVER"
+    },
+    {
+      "name": "/market-research deep",
+      "mode": "DEEP_DIVE"
+    },
+    {
+      "name": "/market-research monitor",
+      "mode": "MONITOR"
+    },
+    {
+      "name": "/market-research audit",
+      "mode": "AUDIT"
+    },
+    {
+      "name": "/market-research delta",
+      "mode": "DELTA"
+    },
+    {
+      "name": "/market-research continue",
+      "mode": "resume"
+    },
+    {
+      "name": "/market-research status",
+      "mode": "read"
+    },
+    {
+      "name": "/market-research score",
+      "mode": "read"
+    },
+    {
+      "name": "/market-research export",
+      "mode": "read"
+    },
+    {
+      "name": "/market-research handoff",
+      "mode": "gated"
+    }
+  ],
+  "invocation_modes": [
+    "NEW",
+    "RECOVER",
+    "RAPID_SCAN",
+    "FULL_VALIDATION",
+    "DILIGENCE",
+    "DEEP_DIVE",
+    "MONITOR",
+    "AUDIT",
+    "DELTA"
+  ],
+  "depth_profiles": [
+    "SIGNAL",
+    "VALIDATION",
+    "INVESTMENT_GRADE"
+  ],
+  "status_values": [
+    "MARKET RESEARCH IN PROGRESS",
+    "MARKET RESEARCH BLOCKED",
+    "MARKET RESEARCH COMPLETE , DECISION READY"
+  ],
+  "decision_values": [
+    "GO",
+    "PIVOT",
+    "HOLD",
+    "NO-GO",
+    "INSUFFICIENT EVIDENCE"
+  ],
+  "specialist_roles": [
+    "engagement-director",
+    "context-librarian",
+    "research-architect",
+    "acquisition-provenance-lead",
+    "market-category-analyst",
+    "market-sizing-modeler",
+    "customer-jtbd-researcher",
+    "survey-quant-methodologist",
+    "competitive-intelligence-analyst",
+    "demand-signal-analyst",
+    "pricing-economics-analyst",
+    "gtm-strategist",
+    "experiment-designer",
+    "privacy-ethics-governance-reviewer",
+    "data-quality-auditor",
+    "red-team-investment-critic",
+    "traceability-auditor",
+    "chief-research-editor"
+  ],
+  "machine_tools": [
+    "research_run_initialize",
+    "research_source_register",
+    "research_preflight_evaluate",
+    "research_id_allocate",
+    "research_record_upsert",
+    "research_trace_link",
+    "research_query_plan_register",
+    "research_acquisition_run_register",
+    "research_model_upsert",
+    "research_study_upsert",
+    "research_experiment_upsert",
+    "research_finding_register",
+    "research_validate",
+    "research_gate_evaluate",
+    "research_score",
+    "research_checkpoint_save",
+    "research_export",
+    "research_blueprint_handoff_create",
+    "research_delta",
+    "research_status"
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "market.validation.completed",
+        "consumed_by": [
+          "blueprint",
+          "strategy-portfolio",
+          "revenue"
+        ],
+        "payload": {
+          "id": "string",
+          "validation": "object",
+          "decision": "string",
+          "evidence_refs": "array<string>",
+          "blueprint_input_manifest": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "market.study.audited",
+        "consumed_by": null,
+        "payload": {
+          "id": "string",
+          "audit": "object",
+          "verdict": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.record.staged",
+        "consumed_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "id": "string",
+          "record": "object",
+          "provenance": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "brainstorm.concept.selected",
+        "produced_by": [
+          "brainstorm"
+        ],
+        "payload": {
+          "id": "string",
+          "concept": "object",
+          "lineage": "array<string>",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.context.compiled",
+        "produced_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "id": "string",
+          "context": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "memory.record.verified",
+        "produced_by": [
+          "context-memory"
+        ],
+        "payload": {
+          "id": "string",
+          "record": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1,
+  "slug": "market-research"
+}

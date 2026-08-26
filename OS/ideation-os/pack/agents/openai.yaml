@@ -1,0 +1,6 @@
+interface:
+  display_name: "Brainstorm {OS}"
+  short_description: "Evolve and challenge ideas across every surface"
+  default_prompt: "Use $brainstorm-os to evolve this idea through imagination, adversarial debate, and a mobile, web, desktop, or multi-surface decision."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"

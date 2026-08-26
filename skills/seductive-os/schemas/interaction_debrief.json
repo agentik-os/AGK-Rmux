@@ -1,0 +1,462 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik-os.dev/schemas/seductive-os/interaction_debrief.json",
+  "title": "Interaction Debrief",
+  "description": "One reviewed interaction. Two structural rules are enforced by this schema rather than by convention. First, OBSERVED and INFERRED are separate objects and cannot be merged: an inference is only expressible inside `inferred`, and every inference must carry a competing explanation. Second, the only permitted representation of another person is `person_ref`, which holds a single given name and a generic context and nothing else. There is deliberately no field anywhere in this file for a surname, workplace, address, handle, profile link, phone number, email or photo, and `additionalProperties` is false at every level, so no such field can be added by a writer. Covers ordinary debriefs and rejection debriefs through `kind`.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "kind": {
+      "enum": [
+        "conversation",
+        "date",
+        "digital",
+        "rejection"
+      ],
+      "description": "A rejection debrief is the same record with the closure block carrying the weight"
+    },
+    "person_ref": {
+      "type": "object",
+      "description": "The ONLY permitted representation of a third party. They never consented to be in this file, so the structure holds a given name at most.",
+      "properties": {
+        "first_name": {
+          "type": "string",
+          "maxLength": 24,
+          "pattern": "^[^\\s0-9@.,;:/\\\\<>]{1,24}$",
+          "description": "A single given name or an initial. The pattern rejects whitespace, digits and punctuation, so a full name, an email, a handle or an address cannot be written here."
+        },
+        "met_context": {
+          "$ref": "#/$defs/context"
+        }
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "$ref": "#/$defs/context"
+    },
+    "observed": {
+      "type": "object",
+      "description": "Only what a camera and a microphone would have caught. No interpretation is expressible here.",
+      "properties": {
+        "said": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "maxItems": 20,
+          "description": "Words actually spoken, by either person"
+        },
+        "did": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "maxItems": 20,
+          "description": "Actions and body, as recorded rather than as read"
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "who_initiated": {
+          "$ref": "#/$defs/actor"
+        },
+        "who_ended_it": {
+          "$ref": "#/$defs/actor"
+        },
+        "how_it_ended": {
+          "enum": [
+            "clear_yes",
+            "soft_no",
+            "clear_no",
+            "stall_no_time_offered",
+            "no_reply",
+            "natural_end",
+            "interrupted",
+            "user_exited",
+            "other_exited"
+          ]
+        },
+        "disengagement_signals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/disengagement_signal"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "said",
+        "how_it_ended"
+      ],
+      "additionalProperties": false
+    },
+    "inferred": {
+      "type": "array",
+      "description": "Everything that is not in the observed column. Each entry must carry at least one competing explanation that fits the same observed facts, which is what forces the conclusion to be re-derived.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "claim": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "supported_by": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": "The observed items this claim rests on"
+          },
+          "alternative_explanation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "description": "A competing explanation fitting the same observed facts. Mandatory. Most inferences about a stranger have a mundane alternative that has nothing to do with the user."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "label": {
+            "$ref": "#/$defs/evidence_label"
+          }
+        },
+        "required": [
+          "claim",
+          "alternative_explanation",
+          "confidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "rederived_conclusion": {
+      "type": "string",
+      "maxLength": 600,
+      "description": "What the observed column alone actually supports, which is usually less than the first reading in both directions"
+    },
+    "process_score": {
+      "$ref": "#/$defs/process_score"
+    },
+    "what_went_well": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 5
+    },
+    "one_adjustment": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Exactly one. A debrief producing five adjustments produces zero changed behaviours."
+    },
+    "their_side": {
+      "type": "object",
+      "description": "The other person's experience, as a calibration instrument rather than a courtesy",
+      "properties": {
+        "what_their_day_was_about": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "what_they_got_from_it": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "where_they_had_least_room": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "were_they_managing_me": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "calibration": {
+      "type": "object",
+      "properties": {
+        "predicted_read": {
+          "$ref": "#/$defs/interest_read"
+        },
+        "what_happened": {
+          "$ref": "#/$defs/interest_read"
+        },
+        "error_direction": {
+          "enum": [
+            "over_read",
+            "under_read",
+            "accurate",
+            "unknown"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "closure": {
+      "type": "object",
+      "description": "The anti-rumination bound, enforced by range rather than by advice",
+      "properties": {
+        "passes_used": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3,
+          "description": "One pass plus at most two re-analyses, ever. A fourth is rumination and the schema refuses to record it."
+        },
+        "review_window_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "closed": {
+          "type": "boolean"
+        },
+        "closed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "next_rep": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "passes_used",
+        "review_window_minutes",
+        "closed"
+      ],
+      "additionalProperties": false
+    },
+    "clinical_flag": {
+      "$ref": "#/$defs/clinical_flag"
+    },
+    "privacy": {
+      "$ref": "#/$defs/privacy"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "kind",
+    "observed",
+    "inferred",
+    "rederived_conclusion",
+    "closure",
+    "privacy"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "A record the user did not consent to persist is session-only.",
+      "if": {
+        "properties": {
+          "privacy": {
+            "properties": {
+              "consent_to_persist": {
+                "const": false
+              }
+            },
+            "required": [
+              "consent_to_persist"
+            ]
+          }
+        },
+        "required": [
+          "privacy"
+        ]
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "properties": {
+              "retention": {
+                "const": "session_only"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "context": {
+      "enum": [
+        "bar_or_club",
+        "cafe_or_restaurant",
+        "party_or_gathering",
+        "class_or_course",
+        "gym_or_sport",
+        "hobby_group",
+        "work_adjacent",
+        "street_or_transit",
+        "shop_or_market",
+        "dating_app",
+        "online_community",
+        "through_friends",
+        "travel",
+        "other"
+      ],
+      "description": "A generic category only. There is no free-text venue field, so a real person's regular places cannot be recorded."
+    },
+    "actor": {
+      "enum": [
+        "user",
+        "other",
+        "mutual",
+        "unknown"
+      ]
+    },
+    "evidence_label": {
+      "enum": [
+        "E1",
+        "E2",
+        "E3",
+        "P",
+        "C"
+      ]
+    },
+    "interest_read": {
+      "enum": [
+        "clear_interest",
+        "ambiguous",
+        "cannot_tell",
+        "clear_disinterest",
+        "soft_no",
+        "explicit_no"
+      ]
+    },
+    "disengagement_signal": {
+      "enum": [
+        "stated_partner",
+        "not_looking_right_now",
+        "maybe_another_time_no_time_offered",
+        "returned_to_friends",
+        "stall_unresolved",
+        "one_word_replies",
+        "body_turned_away",
+        "step_back_not_reclosed",
+        "same_busy_story_twice",
+        "silence_after_ask",
+        "reply_stopped",
+        "enthusiasm_only_when_paying",
+        "hesitant_or_cornered_yes"
+      ],
+      "description": "Each is a full answer at full strength, with no discount for ambiguity"
+    },
+    "process_score": {
+      "type": "object",
+      "description": "Process only. There is deliberately no field recording a phone number, a match or any other outcome trophy.",
+      "properties": {
+        "grounded_before_entering": {
+          "type": "boolean"
+        },
+        "recalled_three_specifics": {
+          "type": "boolean"
+        },
+        "said_one_true_thing": {
+          "type": "boolean"
+        },
+        "checked_the_read": {
+          "type": "boolean"
+        },
+        "made_interest_legible_without_pressure": {
+          "type": "boolean"
+        },
+        "respected_answer_at_first_signal": {
+          "type": "boolean"
+        },
+        "left_them_neutral_or_better": {
+          "type": "boolean"
+        },
+        "clean_run": {
+          "type": "boolean",
+          "description": "All seven true. A clean run that ended in a no is a success and is scored as one."
+        }
+      },
+      "required": [
+        "grounded_before_entering",
+        "recalled_three_specifics",
+        "said_one_true_thing",
+        "checked_the_read",
+        "made_interest_legible_without_pressure",
+        "respected_answer_at_first_signal",
+        "left_them_neutral_or_better"
+      ],
+      "additionalProperties": false
+    },
+    "clinical_flag": {
+      "type": "object",
+      "properties": {
+        "present": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "body_dysmorphia",
+            "compulsive_pursuit_or_surveillance",
+            "disabling_social_anxiety",
+            "substance_as_precondition",
+            "post_breakup_crisis",
+            "self_harm",
+            "coercive_control",
+            "other"
+          ]
+        },
+        "routed_to_professional": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "present"
+      ],
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "properties": {
+        "consent_to_persist": {
+          "type": "boolean",
+          "description": "Explicit user consent. Without it the record does not outlive the session."
+        },
+        "retention": {
+          "enum": [
+            "session_only",
+            "season",
+            "until_user_deletes"
+          ]
+        },
+        "third_party_present": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "consent_to_persist",
+        "retention"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

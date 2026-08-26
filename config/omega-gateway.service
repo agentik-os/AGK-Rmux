@@ -1,0 +1,12 @@
+[Unit]
+Description=OmegaOS gateway daemon (app API)
+After=network.target
+
+[Service]
+ExecStart=%h/.local/bin/omega-gatewayd serve
+Restart=on-failure
+RestartSec=5
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target

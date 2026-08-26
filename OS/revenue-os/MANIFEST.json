@@ -1,0 +1,827 @@
+{
+  "name": "Revenue OS",
+  "slug": "revenue",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "purpose": "Give the business one conversational intelligence and governed database for offers, positioning, pricing, leads, sales, customers, contracts, invoices, payments, expenses, cash flow, reserves, forecasts, retention and expansion.",
+  "category": "Business Stack / Commercial and Financial Intelligence",
+  "position": "Business Stack: conversational revenue brain, CRM, offers, sales, billing, AR and business financial control",
+  "counts": {
+    "agents": 24,
+    "skills": 40,
+    "protocols": 10,
+    "references": 0,
+    "scripts": 0,
+    "assets": 0,
+    "files": 128
+  },
+  "files": [
+    {
+      "path": "agents/accounting_copilot.md",
+      "sha256": "2a15cf05784b0d770dd4f2e7d7502ce4071320436a2e9dc6f7ac5655b9d5f77a",
+      "bytes": 1061
+    },
+    {
+      "path": "agents/accounts_receivable_manager.md",
+      "sha256": "8cab080159226c1948b5c50ba5ebb9335e15c1e2fa1d53ebf7821466f89f297f",
+      "bytes": 1062
+    },
+    {
+      "path": "agents/billing_operator.md",
+      "sha256": "b472be1ff87dd42e9b0807a609f97eee16f481af4204f2a96bf1408c62d58ca0",
+      "bytes": 1047
+    },
+    {
+      "path": "agents/cash_reserve_steward.md",
+      "sha256": "88fa16444f68404363876b61ae73c70bab6939fcf2299cb26d0b1faebe6df82e",
+      "bytes": 1042
+    },
+    {
+      "path": "agents/collections_writer.md",
+      "sha256": "cec39e3bd3136755da6ae79675e6923414074046500f87c61ad59e67138dd800",
+      "bytes": 1051
+    },
+    {
+      "path": "agents/controller_close_agent.md",
+      "sha256": "4d914c64aad4ba37aba936d1f799d7794231f181a4ab0880859de93ac5050c62",
+      "bytes": 1045
+    },
+    {
+      "path": "agents/crm_steward.md",
+      "sha256": "d4ff414bc88bb755259e44d051f7a3708c4f3513757c4f04fcbab782202a9999",
+      "bytes": 1056
+    },
+    {
+      "path": "agents/customer_economics_analyst.md",
+      "sha256": "5f706566c41c55856ce8f6a36a65efdd9df1e4602fd88a84608990b6c28824cb",
+      "bytes": 1050
+    },
+    {
+      "path": "agents/document_vision_agent.md",
+      "sha256": "ff93f1aef775d9e9830b385ec1f3ae26624d28c460059fcfaab4776804996fad",
+      "bytes": 1061
+    },
+    {
+      "path": "agents/growth_strategist.md",
+      "sha256": "e39f224f442e8b5243d71941a54c70beefbe10741f053064a473e9dbab475c03",
+      "bytes": 1049
+    },
+    {
+      "path": "agents/lead_qualification_agent.md",
+      "sha256": "819dbe08aa0f60dd59013687bf0b179dfcd05dd761d7046983bd31fb2a1b9b22",
+      "bytes": 1061
+    },
+    {
+      "path": "agents/negotiation_advisor.md",
+      "sha256": "90f03bf56c8bad939d8439b0f99e66c32e1b11ada957db2d8630cf4d3bbff4f1",
+      "bytes": 1040
+    },
+    {
+      "path": "agents/offer_architect.md",
+      "sha256": "310b87d9f883a2604716f4560d059f0fae86a8cee8981168e8807173d1b5d829",
+      "bytes": 1056
+    },
+    {
+      "path": "agents/pipeline_forecast_analyst.md",
+      "sha256": "41489d2afc07f85a236feb14122286f5992afd4e6b34eae8793bc1f69a40cb9e",
+      "bytes": 1059
+    },
+    {
+      "path": "agents/positioning_strategist.md",
+      "sha256": "893424df83d1486ba2b61e944e696714295f403fbdae594eb44e60298b153578",
+      "bytes": 1066
+    },
+    {
+      "path": "agents/pricing_strategist.md",
+      "sha256": "303670d1d674ab6f248ff5b7b02cd8e726312f1ba922e14cb768c2b4546e3e35",
+      "bytes": 1060
+    },
+    {
+      "path": "agents/proposal_deal_desk.md",
+      "sha256": "06f4492992b8d64774b62ab67db1a4ed6d664e9e47516ca166b1f279de953fde",
+      "bytes": 1055
+    },
+    {
+      "path": "agents/retention_expansion_strategist.md",
+      "sha256": "d33306e533eb8c12fb3cf6eee03c9b2b0d9d82958097ac767f75c800a27ee3ab",
+      "bytes": 1077
+    },
+    {
+      "path": "agents/revenue_chief.md",
+      "sha256": "e23c71d50f948f812f71ff9f90e7251159583641ef6821e8fd35bd57072b7d57",
+      "bytes": 1036
+    },
+    {
+      "path": "agents/revenue_integrator.md",
+      "sha256": "89dc7f9d797efa6a85ee202a5f62b5f8a50b74c0c5bda350c587c5c6a7324e82",
+      "bytes": 1069
+    },
+    {
+      "path": "agents/sales_call_coach.md",
+      "sha256": "9ad3a98b5a6920d0da5e734410bdadb3dcfe13de8021ce136ced40952b7d1651",
+      "bytes": 1044
+    },
+    {
+      "path": "agents/sales_methodologist.md",
+      "sha256": "452f9a1dfab83053407efbe1ae46ccc2b1bc05356e5287ccd3ce19e1d05a390d",
+      "bytes": 1040
+    },
+    {
+      "path": "agents/tax_compliance_gate.md",
+      "sha256": "06b6d1567fff8133448cefc34010763566dccb39cb39ecb8e948d228c2ac8a42",
+      "bytes": 1057
+    },
+    {
+      "path": "agents/unit_economics_analyst.md",
+      "sha256": "7a294dc092c99a1c5b8fd49c043c09aebae88f1e848e9136463ea16c81bdf428",
+      "bytes": 1064
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "8abbfb047cabe8a4683ae39e2dd2abb8e6f0536fc8cbc748c163637369dfad35",
+      "bytes": 844
+    },
+    {
+      "path": "architecture/DATA_MODEL.txt",
+      "sha256": "9dcd6313d83af8736ee957882414f94aa71e81c7e1acc9c06b9216ecda55fdd7",
+      "bytes": 1158
+    },
+    {
+      "path": "architecture/SECURITY.md",
+      "sha256": "cf71960e50101c71a0d030c5ed723d8018dbbc89a4aeae114df97af058a6ad66",
+      "bytes": 1027
+    },
+    {
+      "path": "architecture/STATE_MACHINE.md",
+      "sha256": "1cd1006dfe5452e765c068a8ebd00eb9607add43653bb44bc74d12cdb595d445",
+      "bytes": 1008
+    },
+    {
+      "path": "config/os.yaml",
+      "sha256": "ddfee736d6b0e9402ff80b2742493c8110415394f9a91ff58bf169858c2e0b12",
+      "bytes": 821
+    },
+    {
+      "path": "config/router.json",
+      "sha256": "061f89210adda0cf201e1c0293da7ecf5a3f7ac0b1dffc6ee4d4aa93c2aced7d",
+      "bytes": 2142
+    },
+    {
+      "path": "database/ACCOUNTING_BOUNDARY.md",
+      "sha256": "e15f57b8e0d5b4f64e3d3a0aedac3c4d9017d4a0d7e9d886313bc5e30d1919f5",
+      "bytes": 683
+    },
+    {
+      "path": "database/ARCHITECTURE.md",
+      "sha256": "7a8f89b913d66a2a216c2a984b5df08ca045b872188ad4c424b7e9e7768a1779",
+      "bytes": 1176
+    },
+    {
+      "path": "database/INGESTION_PIPELINE.md",
+      "sha256": "b7fff59575f80a6f19dae8ea442d8680e13339f12887f95ddbba8ccb34d0f79c",
+      "bytes": 874
+    },
+    {
+      "path": "database/postgres_schema.sql",
+      "sha256": "4741ec5cff4fb2fca30495375017686c4eca97aab39168b66f3a9f5340e182b8",
+      "bytes": 6568
+    },
+    {
+      "path": "evals/EVALS.md",
+      "sha256": "3782e1de1858e65d68d3530c093947a6d001dcdd987970e407df4e5fd45a41a6",
+      "bytes": 2258
+    },
+    {
+      "path": "examples/EXAMPLES.md",
+      "sha256": "ec7a4ee74244cf1d61a4e72c63c3a6fa208d663d87df3d7514378dfab348f14d",
+      "bytes": 1040
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "c0b182aeb6c8dffc035413da7d58cddde2dcd451cb87d184ccc84d34c136fefc",
+      "bytes": 373
+    },
+    {
+      "path": "knowledge/BOOK_CANON.md",
+      "sha256": "f711009c6a4acb3bd20bd7e4c1330e8e2b1a1ef440d49b1ffe5505458732295b",
+      "bytes": 1898
+    },
+    {
+      "path": "knowledge/FRAMEWORKS.md",
+      "sha256": "42d1cb3914a839e799ca47701707982dadf1fa0a619715031559d7a33a522ae9",
+      "bytes": 1332
+    },
+    {
+      "path": "knowledge/RESEARCH_NOTES.md",
+      "sha256": "956f50fc15597d5cfd8d04e220dd23f8262b9b995fe8b14f5395cefc61a10292",
+      "bytes": 1019
+    },
+    {
+      "path": "knowledge/SOURCES.md",
+      "sha256": "ab6a6d52f1220ac755cece10bed7a10e4038be4ba65d720169b860e459d2d2bf",
+      "bytes": 1749
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "a93fdf8cd6c990c27c7eca706b8c5d76bf8f07e969b6da67d9f1cd77740a8775",
+      "bytes": 7265
+    },
+    {
+      "path": "memory/MEMORY_MODEL.md",
+      "sha256": "b7bb86e5515e2af476f29f0fc6e12d6dcec7bbc2aad15fe955d19d04033d9f4c",
+      "bytes": 911
+    },
+    {
+      "path": "memory/PRIVACY.md",
+      "sha256": "18b01098f7a67c89386496370afea6543f32b42a288a96879479623884b03f35",
+      "bytes": 637
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "aeab942fa344124c4fe5edbc6698dc5ea100d3e50f72832165e74894ecb1d1ad",
+      "bytes": 5050
+    },
+    {
+      "path": "protocols/cash_reserve.md",
+      "sha256": "a16a8797ec8f9575dd6a4dcb1405ef3414ff3df0827a0d370ff25ec84a4d6d46",
+      "bytes": 365
+    },
+    {
+      "path": "protocols/invoice_to_cash.md",
+      "sha256": "f55fc2070fce064148ab9359dca39f359f5d7ea1a587ee2b078c5d611a8fb327",
+      "bytes": 365
+    },
+    {
+      "path": "protocols/monthly_revenue_close.md",
+      "sha256": "8d896da59c61751efd587d4ed6f7dc9159a7de37e60516c6cfe0ad3e3f8f644d",
+      "bytes": 392
+    },
+    {
+      "path": "protocols/multimodal_financial_ingestion.md",
+      "sha256": "e99f5490da3bf69143ab1ac701fd3a2623dc2d345dc9f61dd584ab82907e50ee",
+      "bytes": 431
+    },
+    {
+      "path": "protocols/offer_workshop.md",
+      "sha256": "47033d5ad0d105e4b9092cdc03d0ae3f8d19556a58aa6993dcc3ce211b32b4b3",
+      "bytes": 387
+    },
+    {
+      "path": "protocols/pipeline_council.md",
+      "sha256": "1263b4b2390c834c3cd35f9f91ec222b70a819ac918a74cef996986758fb7ffc",
+      "bytes": 366
+    },
+    {
+      "path": "protocols/renewal_expansion.md",
+      "sha256": "f8a792acc950347e00ffcfc268248ac3ce78c35f358851d25cd56f25fed8521c",
+      "bytes": 381
+    },
+    {
+      "path": "protocols/revenue_brain_intake.md",
+      "sha256": "070f847e3897b057b71edd71d694ed903eb0dee0a69a4ba47470b7bda5b12025",
+      "bytes": 394
+    },
+    {
+      "path": "protocols/revenue_scenario.md",
+      "sha256": "c92c428a10fdfe46c0c78947e0384360651e58a18aa22e0f478c27eca04cb952",
+      "bytes": 361
+    },
+    {
+      "path": "protocols/sales_call.md",
+      "sha256": "067e0fd7a4099a8ccf4edfdaf319e28e0692bcfe5315a744b9e5362007dc3a7e",
+      "bytes": 350
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "22200acc8a31d0cb9173cc273916ec1ecf61fe3a9f2c12d5c5e283b1fd4a33ff",
+      "bytes": 2398
+    },
+    {
+      "path": "README.md",
+      "sha256": "cffdd4d06f63532d0889a8cfa2e836f2d41c192f3aa863a4f4b29dcd6cddde05",
+      "bytes": 2971
+    },
+    {
+      "path": "runtime/bootstrap_revenue_db.py",
+      "sha256": "70ca8344e4ae6908cc43f6594170a0c423f524d788a57974c224e477d2f187b3",
+      "bytes": 1253
+    },
+    {
+      "path": "runtime/os_runtime.py",
+      "sha256": "926e255e98a7d8a8c9d0dcb51bbf2e22b30a4edfea47fbd4dc0a65bc46d9eef7",
+      "bytes": 2506
+    },
+    {
+      "path": "runtime/README.md",
+      "sha256": "4da884b33c89ab3013e9f17bd20d64f15b9ac3aa15c78142592197ced44d352d",
+      "bytes": 376
+    },
+    {
+      "path": "runtime/requirements.txt",
+      "sha256": "0d5b8d9408d93e3953b2a0117a8a9657d829f2e95f79d904093bab5eec894183",
+      "bytes": 24
+    },
+    {
+      "path": "schemas/activity.json",
+      "sha256": "c22be8180f498327c0af49554e83bd308c1f10d66e6ca87ab9ca2a7241fa04f5",
+      "bytes": 1131
+    },
+    {
+      "path": "schemas/business_entity.json",
+      "sha256": "c8dbaaf2de32a76dafc7501e63d007ffa5391044a051e37eb0a5f9599c312ad4",
+      "bytes": 962
+    },
+    {
+      "path": "schemas/business_expense.json",
+      "sha256": "2ac7bbf6b4cd180369480d4737c2b6bda440478e72a7ec58bf1a2933c3b29f7a",
+      "bytes": 1149
+    },
+    {
+      "path": "schemas/contact.json",
+      "sha256": "ee7b9b0e24163c6ee0e30cb117f07665be82c1e61c0d49af4e6fb325eead6e2d",
+      "bytes": 943
+    },
+    {
+      "path": "schemas/contract.json",
+      "sha256": "e9ff6e3d7234544aa79b5b9b05b13efbf66f8a347ddedb7d1c741f9e7497e0b9",
+      "bytes": 1116
+    },
+    {
+      "path": "schemas/customer.json",
+      "sha256": "90091ac35bcc15ee032528da94b3ca180b47fbf307ba180360f3ecbe6565f84d",
+      "bytes": 989
+    },
+    {
+      "path": "schemas/financial_document.json",
+      "sha256": "bdaf3195ecec8bda608fa78b6e87622d6b53b8d69d7d66c7e73ccea00dc5d7dd",
+      "bytes": 1035
+    },
+    {
+      "path": "schemas/forecast.json",
+      "sha256": "ec648951e5e0dcf8066ac7be2ef90b0ab29e12dcdd489dc53aa6738a30ebb798",
+      "bytes": 1064
+    },
+    {
+      "path": "schemas/invoice.json",
+      "sha256": "4578ae199b4e9ef9ae93561d96a917d902f238c7554a7c3aa63d990ac41376b9",
+      "bytes": 1260
+    },
+    {
+      "path": "schemas/offer.json",
+      "sha256": "6f2455cf391019c53896a0e758752a9823149c4c6cc102df17264f97b2799af7",
+      "bytes": 1258
+    },
+    {
+      "path": "schemas/opportunity.json",
+      "sha256": "8af87c4c01fd016710664cb34d17ba153ac15741e60e7fa372a7a051ea630b37",
+      "bytes": 1259
+    },
+    {
+      "path": "schemas/payment.json",
+      "sha256": "871e65a39e8ac47e884cec2006ba5c17f1d651f7a91702b5a9164baffa99d42a",
+      "bytes": 1043
+    },
+    {
+      "path": "schemas/reserve_policy.json",
+      "sha256": "591d57a3b16c2f19206c784d072a5b45cc48be0de8fc1f78e4c2ec68056b6b35",
+      "bytes": 930
+    },
+    {
+      "path": "schemas/revenue_metric.json",
+      "sha256": "ac1262b7bc29b3be50a8951ddc197244e9bedd32ddff068d2e38bc6cec931ebc",
+      "bytes": 1076
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "3b4b81891906eefb651b0af6b9972ee935a87c6505d6acf6d242743d97edb84d",
+      "bytes": 2762
+    },
+    {
+      "path": "skills/accounting_question_pack.md",
+      "sha256": "c2c581629457775a3e38323506551525a89f090c115d2a701c4563b42e44fbd5",
+      "bytes": 1062
+    },
+    {
+      "path": "skills/accounts_receivable_aging.md",
+      "sha256": "2504688850217a93bf50e5ae02eb171c988ed790dac9e33ffeb8c4e1d66b49e3",
+      "bytes": 1050
+    },
+    {
+      "path": "skills/business_reserve_policy.md",
+      "sha256": "c8ca81038b7ee9cff445f0697d461834db1a9d7f3d2ba978a71b4f3fdda22411",
+      "bytes": 1072
+    },
+    {
+      "path": "skills/cash_flow_forecast.md",
+      "sha256": "10a667ab608ff44942befbfe703733439758b060960271f2d70f980d7d85a2de",
+      "bytes": 1062
+    },
+    {
+      "path": "skills/crm_hygiene.md",
+      "sha256": "b6f1a06e3e8547a4c847926b26824386079dfba8fe10ca40d08da53c22971fad",
+      "bytes": 1069
+    },
+    {
+      "path": "skills/customer_360.md",
+      "sha256": "93121f6a3c032a4e3264bb5820ba188d64feca99631fdb3f09f69e4b19bc8401",
+      "bytes": 1066
+    },
+    {
+      "path": "skills/deal_desk_review.md",
+      "sha256": "fb1d97de2899251333ebabf5738d650c5712adbfd199b0f8730e41ce4705f70a",
+      "bytes": 1057
+    },
+    {
+      "path": "skills/discovery_plan.md",
+      "sha256": "338563aea42ba1378a67b69e5f501f033f629e23c134382d7e9970e421fd8b53",
+      "bytes": 1069
+    },
+    {
+      "path": "skills/dispute_resolution.md",
+      "sha256": "9f2c2ec5a12ca59655a065ab2f4634e3969eebd9554fcc0e93b6c0e3e09d1361",
+      "bytes": 1054
+    },
+    {
+      "path": "skills/executive_revenue_memo.md",
+      "sha256": "b6cac29ca0dd2782777306670b1bfaafff318d4f88823421479162289843842f",
+      "bytes": 1050
+    },
+    {
+      "path": "skills/expansion_opportunity.md",
+      "sha256": "33f72314b973ea4c211b054910bdcca80677981026b330ebaddff562a1cdee28",
+      "bytes": 1061
+    },
+    {
+      "path": "skills/forecast.md",
+      "sha256": "b490cab064de5abd43d241ace0b5d3a1c3af74ffcb0ccbaa395bbeefff306758",
+      "bytes": 1053
+    },
+    {
+      "path": "skills/invoice_draft.md",
+      "sha256": "e709a78227ebea931c65632f4bb48e00fd36584cf8d1dae6702b408c5992dfa4",
+      "bytes": 1048
+    },
+    {
+      "path": "skills/lead_capture.md",
+      "sha256": "d19b0b807b412f98351fe4ee1de6d6f082577cdec5da2a6c0c9fd3d2b343ee86",
+      "bytes": 1029
+    },
+    {
+      "path": "skills/lead_qualification.md",
+      "sha256": "3a536db8817e458609811ab2f948e845464c19dfadb388e6ef52956ed699b069",
+      "bytes": 1072
+    },
+    {
+      "path": "skills/metric_dictionary.md",
+      "sha256": "0cd39d1512a088771904df270b09a00c254fd8e14ebb38dfc5b2fc3ced98456b",
+      "bytes": 1076
+    },
+    {
+      "path": "skills/monthly_revenue_close.md",
+      "sha256": "7613599053132e34cd8e5816c725147d1d472b061aef32c1f6d1eccdad450800",
+      "bytes": 1066
+    },
+    {
+      "path": "skills/multimodal_document_intake.md",
+      "sha256": "e7014d4101d7a0c0fd8cf587a794a55140bfb662f0619237d5849613054e1357",
+      "bytes": 1073
+    },
+    {
+      "path": "skills/negotiation_plan.md",
+      "sha256": "90f98adc8ed7935e075af6db42214315a3436bb7462531e3072e2f34f3a6e17e",
+      "bytes": 1074
+    },
+    {
+      "path": "skills/offer_audit.md",
+      "sha256": "e8747c6a32dfbff0906f77c3e0c608cacbe15b02b4f5e97b1aac7935bd79e558",
+      "bytes": 1071
+    },
+    {
+      "path": "skills/offer_design.md",
+      "sha256": "e817b68f74db46e75b017372ba37084ea60bf2d89079042ccd543d95e6bd323a",
+      "bytes": 1080
+    },
+    {
+      "path": "skills/overdue_follow_up_alert.md",
+      "sha256": "ea7124084b6df65c4abc365c76e6ceda753c150f9be60fcccfdfe8c5823885ee",
+      "bytes": 1062
+    },
+    {
+      "path": "skills/payment_reminder.md",
+      "sha256": "e3214b97c774a50923c6c417502a1544900d40c8dc4f3550b5a392e8e48b0c98",
+      "bytes": 1056
+    },
+    {
+      "path": "skills/personal_wealth_handoff.md",
+      "sha256": "e2a013631f6ce9cda3f8477f30bde3445b8f6147ddab06699b546972631f9270",
+      "bytes": 1070
+    },
+    {
+      "path": "skills/pipeline_gap_alert.md",
+      "sha256": "a3e8b681462b608e917db14118f3566a96c0b75eabb979b64bf49c124f736e5f",
+      "bytes": 1052
+    },
+    {
+      "path": "skills/pipeline_review.md",
+      "sha256": "aa9cfa1106eb6f17a232e9331d5de3901caf4c64396a84c71f1a03ccd5cec4e0",
+      "bytes": 1066
+    },
+    {
+      "path": "skills/positioning_canvas.md",
+      "sha256": "0ced2dbcdaea545f439d9df19f4c8f9f92349b0aae189f75f20789c5b16603d5",
+      "bytes": 1089
+    },
+    {
+      "path": "skills/pricing_architecture.md",
+      "sha256": "a889231b7a922acd5c2471acc640bddd6434b593c80aeea7d8d15ed8c564f127",
+      "bytes": 1078
+    },
+    {
+      "path": "skills/proposal_builder.md",
+      "sha256": "cebf1ff4aa83a94267d039afac606b53152309176f6e9a53eabe287b6c743cf1",
+      "bytes": 1090
+    },
+    {
+      "path": "skills/receipt_expense_staging.md",
+      "sha256": "a5af8bcb91cb560b3af979d7e51263c8a94a00d879773c13f6b89829517c9cf1",
+      "bytes": 1074
+    },
+    {
+      "path": "skills/reconciliation.md",
+      "sha256": "4c73e1d4957c424a4dbb035f2a348dc82cc1574f13f87f92b4e39b2e2ccf12c0",
+      "bytes": 1053
+    },
+    {
+      "path": "skills/referral_case_study_request.md",
+      "sha256": "9fcb1558f22f6fbd233b04a7ede67417526b5d3aa33b7e0242c328473b5fe3e8",
+      "bytes": 1061
+    },
+    {
+      "path": "skills/renewal_plan.md",
+      "sha256": "71a365acacaec10a56b8e2ddf664a46628e14e5ee9315fbb5fcf853bcacf03ea",
+      "bytes": 1062
+    },
+    {
+      "path": "skills/revenue_data_model_setup.md",
+      "sha256": "57f9a4effffa5d6af70d493e0c4af26a019503bea61a2ae527132d7b23ad46b4",
+      "bytes": 1096
+    },
+    {
+      "path": "skills/revenue_recognition_staging.md",
+      "sha256": "e07a2c2dd682800af153f39e25505e4d246ee2786fe56cea39d313d549bd398d",
+      "bytes": 1070
+    },
+    {
+      "path": "skills/revenue_scenario.md",
+      "sha256": "6d335ee1ec1e3c17e45396ab9c53dbec87bc868bd7e581e74f2aac59f2a82d3d",
+      "bytes": 1067
+    },
+    {
+      "path": "skills/sales_call_debrief.md",
+      "sha256": "72fd3d037479e9034c97b2813f09b757ddcdf288271279320eb0e4a3461e2177",
+      "bytes": 1084
+    },
+    {
+      "path": "skills/sales_call_prep.md",
+      "sha256": "96ac7b37eed50dc9943af22507080e9102c724943f925ecef099739077633046",
+      "bytes": 1080
+    },
+    {
+      "path": "skills/unit_economics.md",
+      "sha256": "6c128f32334a59160b05f8be791f5019e00b7b1999163eac6341c920fd7b4b73",
+      "bytes": 1067
+    },
+    {
+      "path": "skills/willingness_to_pay_research_handoff.md",
+      "sha256": "a747bd462bf038f4eed8dc31add9ef101c984d45842ee8ef8d5f4cea8520871f",
+      "bytes": 1058
+    },
+    {
+      "path": "system/BOUNDARIES.md",
+      "sha256": "3d1144d870cd07f3a121207051fb245187b119560319052211edd447a00c29b7",
+      "bytes": 1015
+    },
+    {
+      "path": "system/OUTPUT_CONTRACT.md",
+      "sha256": "84ddc3bd0d62fb62948b0e8487710feace564c199ab8b8ef50d0de8aa1374d0e",
+      "bytes": 656
+    },
+    {
+      "path": "system/PRINCIPLES.md",
+      "sha256": "5e918e1a2500944a8d9ff4981bf971928baa4f0e71525dcd277b6d10c02c0013",
+      "bytes": 1218
+    },
+    {
+      "path": "system/ROUTER.md",
+      "sha256": "4444b0f165a4dae3ad9fba10d7f6561f63c795e2e2d900f1fc186d5cab8c023d",
+      "bytes": 1175
+    },
+    {
+      "path": "system/SYSTEM_PROMPT.md",
+      "sha256": "b6d68e075203a80bd5013e6210075bbf9daf3e3280843d3792941dc4706f779c",
+      "bytes": 7505
+    },
+    {
+      "path": "templates/CASHFLOW_SCENARIO.md",
+      "sha256": "f7a7f179b3fdf4dc66ca48b7510ede5593899f5ece9552d408a4c7e1539b2852",
+      "bytes": 291
+    },
+    {
+      "path": "templates/COLLECTIONS_CADENCE.md",
+      "sha256": "50c43b6ac7e7431d7cf200f7f3cf282f285b557122ca61f7388b03afafa702f6",
+      "bytes": 441
+    },
+    {
+      "path": "templates/MONTHLY_CLOSE.md",
+      "sha256": "74ebc5cb077b2d406812117c84a9bb7845e16c7d0acd456e5b576589347b24b6",
+      "bytes": 386
+    },
+    {
+      "path": "templates/OFFER_CANVAS.md",
+      "sha256": "a8cb90f98426d8c36b118b3170a9dfceb3d88c78ea61fb5e9e7b052097ec4e3c",
+      "bytes": 319
+    },
+    {
+      "path": "templates/PIPELINE_REVIEW.md",
+      "sha256": "7f09630c7242198e249c97d1c6433f3ad3bbde7ebaebe4809b1998822bf7ef03",
+      "bytes": 281
+    },
+    {
+      "path": "templates/SALES_CALL.md",
+      "sha256": "1374df9d53451165c0e91434cc97e3f54a7f31a3c5ec39b012d9a933f3bc575e",
+      "bytes": 304
+    },
+    {
+      "path": "tests/test_package.py",
+      "sha256": "71885ea7b8fc36f20c4e4dd252af304ec93d6e20dadb4f33036fcc5c058c18ff",
+      "bytes": 573
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "produces": [
+      {
+        "name": "revenue.offer_objective.updated",
+        "consumed_by": "content",
+        "payload": {
+          "id": "string (record id)",
+          "offer_objective": "object (the offer objective payload)",
+          "status": "string (updated)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "revenue.contract.signed",
+        "consumed_by": "delivery-customer-success",
+        "payload": {
+          "id": "string (record id)",
+          "contract": "object (the contract payload)",
+          "status": "string (signed)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "revenue.delivery_handoff.created",
+        "consumed_by": "delivery-customer-success",
+        "payload": {
+          "id": "string (record id)",
+          "delivery_handoff": "object (the delivery handoff payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "revenue.owner_distribution.verified",
+        "consumed_by": "wealth-capital",
+        "payload": {
+          "id": "string (record id)",
+          "owner_distribution": "object (the owner distribution payload)",
+          "status": "string (verified)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "revenue.renewal.decisioned",
+        "consumed_by": [
+          "delivery-customer-success",
+          "strategy-portfolio"
+        ],
+        "payload": {
+          "id": "string (record id)",
+          "renewal": "object (the renewal payload)",
+          "status": "string (decisioned)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "revenue.change.requested",
+        "consumed_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "change": "object (the change payload)",
+          "status": "string (requested)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "payment.reconciled",
+        "consumed_by": [
+          "delivery-customer-success"
+        ],
+        "payload": {
+          "id": "string",
+          "payment_id": "string",
+          "invoice_id": "string",
+          "amount": "number",
+          "currency": "string",
+          "reconciliation": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "content.intent.qualified",
+        "produced_by": "content",
+        "payload": {
+          "id": "string (record id)",
+          "intent": "object (the intent payload)",
+          "status": "string (qualified)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "delivery.handoff.accepted",
+        "produced_by": "delivery-customer-success",
+        "payload": {
+          "id": "string (record id)",
+          "handoff": "object (the handoff payload)",
+          "status": "string (accepted)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "delivery.renewal_signal.created",
+        "produced_by": "delivery-customer-success",
+        "payload": {
+          "id": "string (record id)",
+          "renewal_signal": "object (the renewal signal payload)",
+          "status": "string (created)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "change.approved",
+        "produced_by": "review-governance",
+        "payload": {
+          "id": "string (record id)",
+          "change": "object (the change payload)",
+          "status": "string (approved)",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "market.validation.completed",
+        "produced_by": [
+          "market-research"
+        ],
+        "payload": {
+          "id": "string",
+          "validation": "object",
+          "willingness_to_pay": "object",
+          "segment": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "strategy.product_bet.approved",
+        "produced_by": [
+          "strategy-portfolio"
+        ],
+        "payload": {
+          "id": "string",
+          "product_bet": "object",
+          "commercial_constraints": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      },
+      {
+        "name": "relationship.revenue_introduction.ready",
+        "produced_by": [
+          "relationship-network"
+        ],
+        "payload": {
+          "id": "string",
+          "introduction": "object",
+          "consent_status": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ]
+  },
+  "schema_version": 1
+}

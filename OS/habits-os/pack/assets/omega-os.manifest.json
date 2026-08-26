@@ -1,0 +1,45 @@
+{
+  "manifest_version": "1.0",
+  "id": "habit-tracker-os",
+  "display_name": "Habit Tracker {OS}",
+  "category": "life-behavior",
+  "entrypoint": "SKILL.md",
+  "system_prompt": "references/system-prompt.md",
+  "tool_contracts": "assets/tool-contracts.json",
+  "state_schema": "assets/habit-state.schema.json",
+  "local_engine": "scripts/habit_os.py",
+  "integrations": {
+    "accepts": ["mindset-os.identity-contract.v1", "life-os.season.v1", "calendar.event.v1", "device.observation.v1"],
+    "emits": ["habit.contract.v1", "habit.event.v1", "habit.review.v1", "mindset.reflection-packet.v1"]
+  },
+  "commands": [
+    "/habit setup",
+    "/habit today",
+    "/habit checkin",
+    "/habit correct",
+    "/habit urge",
+    "/habit review",
+    "/habit recover",
+    "/habit adapt",
+    "/habit experiment",
+    "/habit chart",
+    "/habit export",
+    "/habit delete"
+  ],
+  "status_model": ["draft", "active", "paused", "recovering", "retired", "archived"],
+  "primary_limits": {
+    "today_items": 7,
+    "demanding_builds": 3,
+    "default_review_days": 7
+  },
+  "safety": {
+    "policy": "references/safety-and-boundaries.md",
+    "release_gate": "all_safety_cases_pass",
+    "human_escalation": true
+  },
+  "compatibility": {
+    "python": ">=3.10",
+    "storage": "sqlite3",
+    "llm_provider": "provider-agnostic"
+  }
+}

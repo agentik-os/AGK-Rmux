@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# omega-designer — the OmegaOS command for Designer OS (AgentikOS build chain
+# #04, Design {OS}). Thin dispatcher over the pack's deterministic validators
+# (stdlib Python, no venv):
+#
+#   omega-designer intake  <blueprint-intake.json>   validate the Blueprint intake
+#   omega-designer handoff <design-handoff.json>     validate the Design Handoff for Stepper
+#   omega-designer self-test                          run the validator self-test
+#
+# The DESIGN half (challenge the blueprint, define flows/IA/screens/states,
+# map to shadcn/ui + STAX, produce the handoff) is the /design-os skill
+# (Claude) or the Codex prompt; these scripts own the schema contracts the
+# intake and handoff must satisfy. NB: this is `omega-designer`, distinct from
+# `omega-design` (the Open Design workspace CLI).
+set -euo pipefail
+
+OMEGA_DIR="${OMEGA_DIR:-$HOME/.omega}"
+
+find_scripts() {
+    local candidates=(
+        "${DESIGNER_ENGINE_DIR:-}"
+        "$HOME/Station/SideBusiness/OmegaOS/OS/designer-os/pack/scripts"
+        "$HOME/OmegaOS/OS/designer-os/pack/scripts"
+        "$OMEGA_DIR/os/designer-os/pack/scripts"
+        "$OMEGA_DIR/skills/design-os/scripts"
+    )
+    for d in "${candidates[@]}"; do
+        [[ -n "$d" && -f "$d/self_test.py" ]] && { echo "$d"; return 0; }
+    done
+    return 1
+}
+
+DIR="$(find_scripts)" || {
+    echo "omega-designer: Design OS scripts not found (run OmegaOS install.sh, or set DESIGNER_ENGINE_DIR)" >&2
+    exit 1
+}
+
+cmd="${1:-}"; shift || true
+case "$cmd" in
+    intake|validate-intake)   exec python3 "$DIR/validate_blueprint_intake.py" "$@" ;;
+    handoff|validate-handoff) exec python3 "$DIR/validate_design_handoff.py" "$@" ;;
+    self-test|test)           exec python3 "$DIR/self_test.py" "$@" ;;
+    ""|-h|--help)
+        echo "omega-designer — Design OS validators"
+        echo "  omega-designer intake  <blueprint-intake.json>   validate the Blueprint intake"
+        echo "  omega-designer handoff <design-handoff.json>     validate the Design Handoff for Stepper"
+        echo "  omega-designer self-test                          run the validator self-test"
+        echo "Design runs in the agent: /design-os (Claude), Codex prompt, or the OS bot." ;;
+    *) echo "omega-designer: unknown command '$cmd' (intake | handoff | self-test)" >&2; exit 2 ;;
+esac

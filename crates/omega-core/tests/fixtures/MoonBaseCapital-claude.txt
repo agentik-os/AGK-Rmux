@@ -1,0 +1,143 @@
+  runner's escalation with a person's name.
+
+✻ Brewed for 6m 54s
+
+※ recap: Goal was to bootstrap both Moonbase repos and start the build; S0.0's machine half is done and shipped as
+  Knowledge PR #4, so all gates pass except human ones. Next: someone signs the 12 rows and pushes mtm-runtime
+  from srv1693641. (disable recaps in /config)
+      25 -
+      26 -# graphify: the graph is derived from the tree, rebuilt by the skill, never committed.
+      27 -graphify-out/
+
+  Pushed to moon, created PR #5, ran 1 shell command
+
+● Fait. Product PR #5 vers staging: https://github.com/MoonBaseCapital/MoonBaseCapital/pull/5
+
+  En ouvrant le sujet j'ai trouvé plus large que les 10 fichiers. 75e3319 (#4) n'a touché qu'un seul fichier,
+  .claude/settings.json, 24 lignes. Il a supprimé le hook et donc le bruit, mais il a laissé les deux fichiers qui disent à
+  un agent de lancer graphify, et le skill de 1 568 lignes qu'ils désignent. CLAUDE.md:61 ouvrait toujours sur "Build it
+  first" avec quatre commandes de requête vers des chemins qui ne peuvent pas exister, et .claude/CLAUDE.md disait encore de
+  l'utiliser "before doing anything else".
+
+  Une instruction survit à l'outil qu'elle nomme. Ce dépôt a déjà enregistré la même phrase fausse deux fois de suite:
+  d'abord elle affirmait qu'un graphe existait alors qu'il n'avait jamais existé, ensuite elle disait d'en construire un. La
+  laisser en place après avoir retiré le hook prépare le troisième tour.
+
+  Supprimé:
+
+  ┌───────────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────┐
+  │                     quoi                      │                              pourquoi                               │
+  ├───────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────┤
+  │ .claude/skills/graphify/, 10 fichiers, 1 568  │ le skill que la description de #4 disait déjà partant               │
+      10     "dev": "node scripts/not-yet.mjs dev S0.2",
+     … +19 lines
+
+      107 +# FLOOR ADDED 2026-07-26, form 2 of the three RUNNER.md allows: a NAMED CASE that must
+      108 +# appear in the delegate's captured output. Until now this block ended at
+      109 +# `pnpm test:oneproject` and the runner REFUSED to grade it, correctly: every command
+      110 +# here hands its verdict to pnpm, and a gate that asserts nothing exits 0 exactly like a
+      111 +# gate that asserted everything. This block was one of the 411 that `run.py floors`
+      112 +# names, and S0.1 is the step where the one-project gate is born, so it is the wrong
+      113 +# place to accept an exit code as a verdict.
+      114 +#
+      115 +# The gate prints one summary line naming how many LIVE assertions ran and how many are
+      116 +# not yet checkable. The floor is that the line exists AND that the live count is not
+      117 +# zero, which is what tells a real run apart from an empty one.
+      118 +pnpm test:oneproject 2>&1 | tee /tmp/moonbase-oneproject.txt
+      119 +grep -qE '^one-project: [1-9][0-9]* of [0-9]+ live assertions pass' \
+      120 +     /tmp/moonbase-oneproject.txt \
+      121 +  || { echo "the one-project gate produced no line naming a non-zero live assertion count"; exit 1; }
+      122  ```
+      123
+      124  ```bash
+
+  Ran 1 shell command
+
+  again, it says No edit to any step file EXCEPT ADDING AN ID TO AN EXISTING Resolves LINE. That carve-out exists for
+  precisely this. Attach each of the fourteen to the Resolves line of the step that will build it. M&A / Deals lives in
+  S6.2 through S6.5 and S7.1, so read those five and place each id where the behaviour actually belongs, not where it fits
+  alphabetically. The same Do-not binds you twice more: no new claim on an id another step already resolves, so each id
+  lands in exactly ONE step, and you still build none of the fourteen. Adding an id declares which step owns it, it does
+  not build it. Then re-run the one-project block and it goes green. Two things I got wrong that you caught, and I want
+  them recorded rather than smoothed over: I declared the MOONBASE_KB defect class closed at two steps, and your
+  one-project block was the THIRD instance, so my sweep was too narrow because it looked for migration/ and context/ paths
+  and never for the knowledge-base TOOLS. Your comment naming it as a class rather than a typo is the right call. Keep
+  going after this into S0.2.
+
+● Correction accepted, and it is the better reading: the Do-not's carve-out exists exactly for this, and adding an id
+  declares ownership without building. Let me read the five steps and place each id where the behaviour actually belongs.
+
+  Ran 1 shell command
+
+● Those five are searcher and LP steps, not M&A. Let me find which steps actually own each module by mapping every Resolves
+  id back through the matrix.
+
+  Ran 2 shell commands
+
+
+
+● CI on my "green" baseline also failed. Reading the real failures rather than assuming.
+
+  Ran 1 shell command
+
+● Two real failures, both mine. The ninth config file (mandated by this step) and a pipefail abort that ate doctor's exit code before it could be graded.
+
+  Ran 5 shell commands
+       3 import { useEffect, useState } from 'react';
+       4 import { useQuery } from 'convex/react';
+       5 import { api } from '../../../../convex/_generated/api';
+       6 import { EntryPanel, OrgSwitcher, type Entry, type EntryState } from './EntryPanel';
+       7
+  one fails a gate instead of surviving to a review. Exempt the token file itself, which is where literals live by design. THREE, draw the specimen line explicitly:
+  CanvasBoard.tsx and DataApp.tsx carry raw values too but their commit says the specimen ported into the host, so they are INHERITED. Record which files are
+  specimen-inherited and therefore exempt until their rewrite step, and make the ratchet count only the rest. An exemption that is written down can be argued with. An
+  exemption that is merely tolerated becomes the rule.
+
+● Enumerating: (1) fix the three literals with named tokens, (2) extend the ratchet to px in components with the token file exempt, (3) record the specimen-inherited
+  exemption explicitly so the ratchet counts only the rest.
+
+● You are right on all three counts. Confirming the exact lines before touching them.
+
+  Ran 2 shell commands
+
+● Four, not three — the sweep also caught letterSpacing: '0.14em' on line 285, same class, same file. Fixing all four with named tokens.
+
+  Ran 2 shell commands
+
+● The only survivor is my own comment quoting the old value — which would trip the very ratchet I'm about to write. Rewording, then measuring both sides of the line.
+
+  Ran 2 shell commands
+
+● Zero in Moonbase code, 27 across 22 specimen files. Finding the step that owns the specimen restyle so the exemption names its expiry.
+
+  Ran 5 shell commands
+
+● 91 mentions of the specimen across the plan and zero that say when it is replaced. The exemption has no expiry step — that goes in the record.
+
+  Ran 1 shell command
+
+● The per-file counts are wrong: I counted single-quoted literals only, and the specimen is double-quoted. That is the quote-style trap this repo keeps producing.
+  Re-measuring both styles.
+
+  Ran 1 shell command
+
+● 147 and 1663 in the specimen — and 6 unitless numeric style props in Moonbase code, which React renders as px. Same violation, different spelling. Finding them.
+
+  Ran 1 shell command
+
+● All six are margin: 0. Zero is the absence of a design value, not one — a token for zero would be absurd. Excluding zero explicitly and re-measuring.
+
+  Running 1 shell command…
+
+✻ Recording the specimen line… (22m 58s · ↓ 42.8k tokens · thought for 4s)
+  ⎿  ◼ Record the specimen-inherited exemption explicitly
+     ◻ STANDING: every Convex function gets a real end-to-end test through the deployment, refusal as well as success
+     ◻ Drive the runner to S12.7: resume at S2.6, remaining front + tests
+     ◻ Extend the ratchet to px literals in components
+     ✔ P2 loop through S2.5 (superseded by the drive-to-S12.7 mission)
+      … +10 completed
+                                                                                                                                                   ◎ /goal active (1d)
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── Review Moonbase Capital projects ──
+❯ 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ bypass permissions on · ← for agents · PR #4 · PR #5 · PR #10 · PR #9 · PR #1 · 2 shells · esc to interrupt · ctrl+t to hide tasks · ↓ to manage

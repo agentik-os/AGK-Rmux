@@ -1,0 +1,56 @@
+{
+  "os": "quality-evaluation-release",
+  "default_mode": "intake",
+  "commands": {
+    "/quality": {
+      "mode": "intake",
+      "purpose": "Open quality authority"
+    },
+    "/test-plan": {
+      "mode": "plan",
+      "purpose": "Build risk-based test plan"
+    },
+    "/traceability": {
+      "mode": "plan",
+      "purpose": "Map requirements to evidence"
+    },
+    "/qa": {
+      "mode": "test",
+      "purpose": "Run functional and exploratory QA"
+    },
+    "/ai-eval": {
+      "mode": "eval",
+      "purpose": "Design/run AI evaluations"
+    },
+    "/security-review": {
+      "mode": "audit",
+      "purpose": "Apply security standards"
+    },
+    "/accessibility": {
+      "mode": "audit",
+      "purpose": "Audit WCAG/mobile accessibility"
+    },
+    "/release-candidate": {
+      "mode": "candidate",
+      "purpose": "Assemble candidate evidence"
+    },
+    "/release-gate": {
+      "mode": "candidate",
+      "purpose": "Issue release decision"
+    },
+    "/deploy": {
+      "mode": "release",
+      "purpose": "Execute controlled release"
+    },
+    "/rollback": {
+      "mode": "incident",
+      "purpose": "Trigger or prepare rollback"
+    }
+  },
+  "handoffs": [
+    "Blueprint/Design provide contracts; Stepper provides implementation order; Builder provides build artifacts.",
+    "Review & Governance OS owns policy exceptions and postmortems.",
+    "Operations OS receives runbooks and observability contracts.",
+    "Context & Memory OS stores release evidence manifests."
+  ]
+}

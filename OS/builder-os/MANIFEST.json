@@ -1,0 +1,450 @@
+{
+  "name": "Builder {OS}",
+  "slug": "builder",
+  "id": "builder",
+  "version": "1.0.0",
+  "generated_at": "2026-08-11",
+  "kind": "execution-runtime",
+  "purpose": "Consume a frozen Blueprint {OS} handoff and a BUILD READY Stepper {OS} graph and execute them into verified, integrated, documented, release-ready software, writing deterministic evidence back at every step.",
+  "category": "Product Stack / Autonomous Implementation Runtime",
+  "position": "Product Stack: final stage of the IMPLEMENT branch; executes Stepper's program and hands off to Quality, Evaluation & Release OS.",
+  "aliases": [
+    "Build {OS}"
+  ],
+  "default_command": "/build",
+  "structure_note": "Single execution-runtime skill, not a multi-skill or multi-agent library. No skills/ or protocols/ directory: the operating protocol lives in references/. The agents/ directory holds one product interface descriptor (openai.yaml); the 19 specialists are role boundaries in assets/builder-role-prompts.json, not separate agent files.",
+  "counts": {
+    "agents": 1,
+    "skills": 1,
+    "protocols": 0,
+    "references": 12,
+    "scripts": 2,
+    "assets": 5,
+    "files": 48
+  },
+  "commands": [
+    {
+      "name": "/build",
+      "mode": "RUN",
+      "handler": "builder.run",
+      "purpose": "Execute the frozen Stepper graph"
+    },
+    {
+      "name": "/build preflight",
+      "mode": "PREFLIGHT",
+      "handler": "builder.preflight",
+      "purpose": "Validate inputs, repository, environment, baselines"
+    },
+    {
+      "name": "/build status",
+      "mode": "READ",
+      "handler": "builder.status",
+      "purpose": "Report evidence-backed status and gate snapshot"
+    },
+    {
+      "name": "/build plan",
+      "mode": "READ",
+      "handler": "builder.plan_wave",
+      "purpose": "Show the next Planner-approved execution wave"
+    },
+    {
+      "name": "/build run",
+      "mode": "RUN",
+      "handler": "builder.run",
+      "purpose": "Run the selected execution wave"
+    },
+    {
+      "name": "/build step",
+      "mode": "STEP",
+      "handler": "builder.claim_step",
+      "purpose": "Claim and execute one Stepper step"
+    },
+    {
+      "name": "/build test",
+      "mode": "VERIFY",
+      "handler": "builder.verify_step",
+      "purpose": "Run the step deterministic checks"
+    },
+    {
+      "name": "/build verify",
+      "mode": "VERIFY",
+      "handler": "builder.verify_step",
+      "purpose": "Independent verification and risk gates"
+    },
+    {
+      "name": "/build repair",
+      "mode": "REPAIR",
+      "handler": "builder.repair_step",
+      "purpose": "Bounded root-cause repair of a failed step"
+    },
+    {
+      "name": "/build audit",
+      "mode": "AUDIT",
+      "handler": "builder.audit",
+      "purpose": "Audit drift, evidence, traceability, readiness"
+    },
+    {
+      "name": "/build resume",
+      "mode": "RESUME",
+      "handler": "builder.resume",
+      "purpose": "Reconcile a checkpoint and continue"
+    },
+    {
+      "name": "/build pause",
+      "mode": "PAUSE",
+      "handler": "builder.pause",
+      "purpose": "Checkpoint and pause safely"
+    },
+    {
+      "name": "/build release-check",
+      "mode": "RELEASE_CHECK",
+      "handler": "builder.release_check",
+      "purpose": "Evaluate Stepper release truth plus BG01-BG20"
+    },
+    {
+      "name": "/build report",
+      "mode": "EXPORT",
+      "handler": "builder.export",
+      "purpose": "Export status, audit, evidence, or final handoff"
+    }
+  ],
+  "status_values": [
+    "BUILD PREFLIGHT",
+    "BUILD IN PROGRESS",
+    "BUILD BLOCKED",
+    "BUILD PAUSED",
+    "BUILD COMPLETE, RELEASE READY"
+  ],
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "f6c31f5533dfa2c302b566a1da2a8eac6c6da0c7e4163c4b4efa15f7134d1703",
+      "bytes": 400
+    },
+    {
+      "path": "assets/builder-role-prompts.json",
+      "sha256": "b6dc4f6f7ea419db3880ce0569f53cc8ee976d26583ec0a37057b12d7383d6a0",
+      "bytes": 8505
+    },
+    {
+      "path": "assets/builder-state.schema.json",
+      "sha256": "9a1c22e26adff47626a38f189ee2624a35f06794cfd7e61ebeb8397be80e373f",
+      "bytes": 20968
+    },
+    {
+      "path": "assets/builder-tools.json",
+      "sha256": "a5e198ae739d233fbf3503e5e7b818057d7d7ecb65ae9f0a38009ceae696b643",
+      "bytes": 27628
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "8936b24f674a1250d999e2c2b5901374fb4240426f32bd1ae340c352a90d617d",
+      "bytes": 1738
+    },
+    {
+      "path": "assets/omega-os.manifest.json",
+      "sha256": "3f3967d556cb1c35f6064a4c381a4d47d2d1ebdce4ffa3196d9196f858bb70ba",
+      "bytes": 4015
+    },
+    {
+      "path": "bin/omega-builder",
+      "sha256": "e5a3d5a8236fcb3185ae7f4e9290cab9551fa317cc2ecd5dd714427dd8825489",
+      "bytes": 1243
+    },
+    {
+      "path": "commands/codex-builder-os.md",
+      "sha256": "a0b3f71d8ba4ff624ef2c82ada6813f9455c5a4daa9570a7c23bdec5cb4a4885",
+      "bytes": 1866
+    },
+    {
+      "path": "MASTER.md",
+      "sha256": "5a0b195817fccf1a96b85b712b9b5fe4c189368cd2090b1323c2ec48ea979aa5",
+      "bytes": 2844
+    },
+    {
+      "path": "OMEGA_INTEGRATION.md",
+      "sha256": "5ca35ec8e1699466e7a694009a6988629911cbdc6a7dc84113c5c6c15b9cf8d7",
+      "bytes": 2056
+    },
+    {
+      "path": "pack/agents/openai.yaml",
+      "sha256": "f6c31f5533dfa2c302b566a1da2a8eac6c6da0c7e4163c4b4efa15f7134d1703",
+      "bytes": 400
+    },
+    {
+      "path": "pack/assets/builder-role-prompts.json",
+      "sha256": "b6dc4f6f7ea419db3880ce0569f53cc8ee976d26583ec0a37057b12d7383d6a0",
+      "bytes": 8505
+    },
+    {
+      "path": "pack/assets/builder-state.schema.json",
+      "sha256": "9a1c22e26adff47626a38f189ee2624a35f06794cfd7e61ebeb8397be80e373f",
+      "bytes": 20968
+    },
+    {
+      "path": "pack/assets/builder-tools.json",
+      "sha256": "a5e198ae739d233fbf3503e5e7b818057d7d7ecb65ae9f0a38009ceae696b643",
+      "bytes": 27628
+    },
+    {
+      "path": "pack/assets/icon.svg",
+      "sha256": "8936b24f674a1250d999e2c2b5901374fb4240426f32bd1ae340c352a90d617d",
+      "bytes": 1738
+    },
+    {
+      "path": "pack/assets/omega-os.manifest.json",
+      "sha256": "3f3967d556cb1c35f6064a4c381a4d47d2d1ebdce4ffa3196d9196f858bb70ba",
+      "bytes": 4015
+    },
+    {
+      "path": "pack/references/change-governance.md",
+      "sha256": "82ce095bd479f9a4135106c887d0a8df01a607f76d6563e993173bccff8aea63",
+      "bytes": 2986
+    },
+    {
+      "path": "pack/references/contract.md",
+      "sha256": "1fcd9a02e27fa267a4fb66a4e018000be9f5ecc7a77e7cece549bca41f115af0",
+      "bytes": 5948
+    },
+    {
+      "path": "pack/references/documentation-followup.md",
+      "sha256": "a0f9642800a762ed550d9829355aaa5928d8d8899126c3907c102bf79211cadb",
+      "bytes": 3649
+    },
+    {
+      "path": "pack/references/execution-loop.md",
+      "sha256": "50175fd5b5c225bbf662d69135d04ec9233043b1b14f3a747559b7003fe30eef",
+      "bytes": 6228
+    },
+    {
+      "path": "pack/references/git-integration.md",
+      "sha256": "bfa2ed4c9212687ab215605a2866b4f84b77a7eaaa82efdb8ca47c7663c181e1",
+      "bytes": 3843
+    },
+    {
+      "path": "pack/references/intake-preflight.md",
+      "sha256": "2d52402ec6ea6e66c76477c72321308c0bc40720b01b0c1f4222fc32f99246fc",
+      "bytes": 5196
+    },
+    {
+      "path": "pack/references/omega-integration.md",
+      "sha256": "528a457b526e39c236c578798da6c3552a5789cdcd5613367d01d06fed75fb25",
+      "bytes": 5407
+    },
+    {
+      "path": "pack/references/recovery-and-resume.md",
+      "sha256": "1cf41a46908ce475d5eff7242bca4528d125009ca7bc01cd3b90be494171815f",
+      "bytes": 4099
+    },
+    {
+      "path": "pack/references/release-handoff.md",
+      "sha256": "9d737eb48360582deff58aae9168c03137579d2844d4621446e0f5f9bbc254c4",
+      "bytes": 3558
+    },
+    {
+      "path": "pack/references/roles-orchestration.md",
+      "sha256": "3f1093f1f4a67a6834e3db84f605ee0a2e93e3e2e619fb6bf01bd325ffd3e23e",
+      "bytes": 6054
+    },
+    {
+      "path": "pack/references/system-prompt.md",
+      "sha256": "885006fcaee1c706ce437d0b26f79d9520804307c4ebce90b23a4dd1ae50bdd0",
+      "bytes": 26615
+    },
+    {
+      "path": "pack/references/verification-gates.md",
+      "sha256": "6cd3575766e555e6a2e293d5969514762098647da09b3aa72bb8bba52ca09429",
+      "bytes": 7190
+    },
+    {
+      "path": "pack/scripts/builder_os.py",
+      "sha256": "6304b71f14c260c004d995d6560fdbcd3b5ca2a843e70021398c23061f2baec9",
+      "bytes": 52684
+    },
+    {
+      "path": "pack/scripts/install_omega_os.py",
+      "sha256": "2d9ec56247ec32586af47f65b2608322021a57680accbd9ed90ee37d7c160f2d",
+      "bytes": 6900
+    },
+    {
+      "path": "pack/SKILL.md",
+      "sha256": "9f0f7ae0e052da1df2bbce461beb2895b894d20515ce40fdf2abeb44a599b7e3",
+      "bytes": 10572
+    },
+    {
+      "path": "README_FR.md",
+      "sha256": "2d700dd714de9817c987f5c71309559917798ccdd35941af52b8dcdbca13a4f2",
+      "bytes": 1436
+    },
+    {
+      "path": "README.md",
+      "sha256": "e40c1ad19e39ca3f90aee92750f86b08dce08dc36225ad8ada4ecf12152a420f",
+      "bytes": 3297
+    },
+    {
+      "path": "references/change-governance.md",
+      "sha256": "82ce095bd479f9a4135106c887d0a8df01a607f76d6563e993173bccff8aea63",
+      "bytes": 2986
+    },
+    {
+      "path": "references/contract.md",
+      "sha256": "1fcd9a02e27fa267a4fb66a4e018000be9f5ecc7a77e7cece549bca41f115af0",
+      "bytes": 5948
+    },
+    {
+      "path": "references/documentation-followup.md",
+      "sha256": "a0f9642800a762ed550d9829355aaa5928d8d8899126c3907c102bf79211cadb",
+      "bytes": 3649
+    },
+    {
+      "path": "references/execution-loop.md",
+      "sha256": "50175fd5b5c225bbf662d69135d04ec9233043b1b14f3a747559b7003fe30eef",
+      "bytes": 6228
+    },
+    {
+      "path": "references/git-integration.md",
+      "sha256": "bfa2ed4c9212687ab215605a2866b4f84b77a7eaaa82efdb8ca47c7663c181e1",
+      "bytes": 3843
+    },
+    {
+      "path": "references/intake-preflight.md",
+      "sha256": "2d52402ec6ea6e66c76477c72321308c0bc40720b01b0c1f4222fc32f99246fc",
+      "bytes": 5196
+    },
+    {
+      "path": "references/omega-integration.md",
+      "sha256": "528a457b526e39c236c578798da6c3552a5789cdcd5613367d01d06fed75fb25",
+      "bytes": 5407
+    },
+    {
+      "path": "references/recovery-and-resume.md",
+      "sha256": "1cf41a46908ce475d5eff7242bca4528d125009ca7bc01cd3b90be494171815f",
+      "bytes": 4099
+    },
+    {
+      "path": "references/release-handoff.md",
+      "sha256": "9d737eb48360582deff58aae9168c03137579d2844d4621446e0f5f9bbc254c4",
+      "bytes": 3558
+    },
+    {
+      "path": "references/roles-orchestration.md",
+      "sha256": "3f1093f1f4a67a6834e3db84f605ee0a2e93e3e2e619fb6bf01bd325ffd3e23e",
+      "bytes": 6054
+    },
+    {
+      "path": "references/system-prompt.md",
+      "sha256": "885006fcaee1c706ce437d0b26f79d9520804307c4ebce90b23a4dd1ae50bdd0",
+      "bytes": 26615
+    },
+    {
+      "path": "references/verification-gates.md",
+      "sha256": "6cd3575766e555e6a2e293d5969514762098647da09b3aa72bb8bba52ca09429",
+      "bytes": 7190
+    },
+    {
+      "path": "scripts/builder_os.py",
+      "sha256": "6304b71f14c260c004d995d6560fdbcd3b5ca2a843e70021398c23061f2baec9",
+      "bytes": 52684
+    },
+    {
+      "path": "scripts/install_omega_os.py",
+      "sha256": "2d9ec56247ec32586af47f65b2608322021a57680accbd9ed90ee37d7c160f2d",
+      "bytes": 6900
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "9f0f7ae0e052da1df2bbce461beb2895b894d20515ce40fdf2abeb44a599b7e3",
+      "bytes": 10572
+    }
+  ],
+  "events": {
+    "schema_status": "defined",
+    "source": "OMEGA_INTEGRATION.md",
+    "produces": [
+      {
+        "name": "builder.artifact.shipped",
+        "consumed_by": "quality-evaluation-release",
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": "The Builder to Quality edge: a verified, integrated build artifact ready for the release gate (integrated revision fingerprint, evidence refs, trace links); staged canonically via memory.record.staged."
+        }
+      },
+      {
+        "name": "builder.build.verified",
+        "consumed_by": null,
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": "Local closure event raised once Quality's release.gate.decided is consumed; records the frozen release candidate as verified release evidence via memory.record.staged; not consumed by name outside this OS."
+        }
+      }
+    ],
+    "consumes": [
+      {
+        "name": "stepper.graph.frozen",
+        "produced_by": "stepper",
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": ""
+        }
+      },
+      {
+        "name": "defect.opened",
+        "produced_by": "quality-evaluation-release",
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": ""
+        }
+      },
+      {
+        "name": "release.gate.decided",
+        "produced_by": "quality-evaluation-release",
+        "payload": {
+          "id": "string",
+          "data": "object",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)",
+          "description": ""
+        }
+      },
+      {
+        "name": "delivery.change_scope.approved",
+        "produced_by": [
+          "delivery-customer-success"
+        ],
+        "payload": {
+          "id": "string",
+          "scope": "object",
+          "acceptance_criteria": "array<object>",
+          "customer_ref": "string",
+          "status": "string",
+          "recorded_at": "string (ISO-8601 timestamp)"
+        }
+      }
+    ],
+    "memory_bus": {
+      "reads": [
+        "memory.context.compiled"
+      ],
+      "writes": [
+        "memory.record.staged"
+      ],
+      "returned": [
+        "memory.record.verified"
+      ],
+      "counterparty": "context-memory"
+    }
+  },
+  "schema_version": 1
+}

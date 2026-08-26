@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "namespace": "habit",
+  "tools": [
+    {
+      "name": "habit.get_context",
+      "description": "Return token-bounded canonical habit context for a conversation mode.",
+      "side_effect": "read",
+      "input_schema": {
+        "type": "object",
+        "required": ["user_id", "mode"],
+        "properties": {
+          "user_id": { "type": "string" },
+          "mode": { "enum": ["setup", "today", "check_in", "urge", "lapse", "review", "adapt", "recover", "visualize", "export", "safety"] },
+          "habit_ids": { "type": "array", "items": { "type": "string" } },
+          "days": { "type": "integer", "minimum": 1, "maximum": 365, "default": 28 }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "habit.list_today",
+      "description": "Return ranked due habits with target, minimum, cue, and ranking reasons; never more than seven primary items.",
+      "side_effect": "read",
+      "input_schema": {
+        "type": "object",
+        "required": ["user_id", "local_date"],
+        "properties": {
+          "user_id": { "type": "string" },
+          "local_date": { "type": "string", "format": "date" },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 7, "default": 7 }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "habit.create_contract",
+      "description": "Create a draft or accepted habit contract; active contracts must satisfy all invariants.",
+      "side_effect": "write",
+      "approval": "required_for_active",
+      "input_schema_ref": "habit-state.schema.json#/$defs/habit"
+    },
+    {
+      "name": "habit.update_contract",
+      "description": "Create a superseding habit contract version without overwriting history.",
+      "side_effect": "write",
+      "approval": "required_for_material_change",
+      "input_schema": {
+        "type": "object",
+        "required": ["habit_id", "expected_version", "patch", "reason"],
+        "properties": {
+          "habit_id": { "type": "string" },
+          "expected_version": { "type": "integer", "minimum": 1 },
+          "patch": { "type": "object" },
+          "reason": { "type": "string" },
+          "experiment_id": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "habit.record_log",
+      "description": "Append an explicit or trusted observed behavior event and return an idempotent receipt.",
+      "side_effect": "write",
+      "approval": "implicit_when_user_explicitly_reports_event",
+      "input_schema_ref": "habit-state.schema.json#/$defs/log"
+    },
+    {
+      "name": "habit.correct_log",
+      "description": "Supersede a log with corrected fields while preserving provenance and derivation invalidation.",
+      "side_effect": "write",
+      "approval": "explicit_user_correction",
+      "input_schema": {
+        "type": "object",
+        "required": ["log_id", "replacement", "reason"],
+        "properties": {
+          "log_id": { "type": "string" },
+          "replacement": { "type": "object" },
+          "reason": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "habit.delete_data",
+      "description": "Delete or redact selected habit data and invalidate affected derived reviews.",
+      "side_effect": "destructive",
+      "approval": "explicit",
+      "input_schema": {
+        "type": "object",
+        "required": ["user_id", "scope", "target_ids", "confirmation_token"],
+        "properties": {
+          "user_id": { "type": "string" },
+        "scope": { "enum": ["log", "habit", "all"] },
+          "target_ids": { "type": "array", "items": { "type": "string" } },
+          "confirmation_token": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "habit.start_experiment",
+      "description": "Create a proposed or accepted time-bounded single-change experiment.",
+      "side_effect": "write",
+      "approval": "required_for_active",
+      "input_schema_ref": "habit-state.schema.json#/$defs/experiment"
+    },
+    {
+      "name": "habit.compute_review",
+      "description": "Compute reproducible metrics and pattern candidates for a date window without inventing missing outcomes.",
+      "side_effect": "read",
+      "input_schema": {
+        "type": "object",
+        "required": ["user_id", "window_start", "window_end", "timezone"],
+        "properties": {
+          "user_id": { "type": "string" },
+          "habit_ids": { "type": "array", "items": { "type": "string" } },
+          "window_start": { "type": "string", "format": "date" },
+          "window_end": { "type": "string", "format": "date" },
+          "timezone": { "type": "string" },
+          "include_visuals": { "type": "boolean", "default": false }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "habit.save_review",
+      "description": "Persist an accepted review snapshot linked to its exact evidence window and logs.",
+      "side_effect": "write",
+      "approval": "implicit_after_user_requests_review",
+      "input_schema_ref": "habit-state.schema.json#/$defs/review"
+    },
+    {
+      "name": "habit.change_season",
+      "description": "Create a new explicit season version and recompute load policy.",
+      "side_effect": "write",
+      "approval": "explicit_unless_safety_crisis",
+      "input_schema_ref": "habit-state.schema.json#/$defs/season"
+    },
+    {
+      "name": "habit.render_visual",
+      "description": "Return a table or Mermaid visual from computed, source-linked metrics.",
+      "side_effect": "read",
+      "input_schema": {
+        "type": "object",
+        "required": ["user_id", "visual_type", "window_start", "window_end"],
+        "properties": {
+          "user_id": { "type": "string" },
+          "habit_ids": { "type": "array", "items": { "type": "string" } },
+          "visual_type": { "enum": ["trend", "barrier_map", "growth_graph", "experiment_timeline", "outcome_table"] },
+          "window_start": { "type": "string", "format": "date" },
+          "window_end": { "type": "string", "format": "date" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "habit.export_state",
+      "description": "Export user-controlled state and event history as JSON/CSV with schema and provenance metadata.",
+      "side_effect": "read",
+      "input_schema": {
+        "type": "object",
+        "required": ["user_id", "format", "scope"],
+        "properties": {
+          "user_id": { "type": "string" },
+          "format": { "enum": ["json", "csv"] },
+          "scope": { "enum": ["active", "all", "logs_only"] },
+          "include_sensitive": { "type": "boolean", "default": false }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}

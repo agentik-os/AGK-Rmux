@@ -1,0 +1,2674 @@
+#!/usr/bin/env bun
+/**
+ * omega-duo — the deterministic muscle of the Claude⇄Codex binome.
+ *
+ * ONE responsibility: run a code task on the best available agent (Codex first,
+ * Claude on fallback) and report HONESTLY which agent did it. It knows nothing
+ * about strategy, plans, or verdicts — that lives in the /duo skill. This binary
+ * only executes and reports.
+ *
+ * The skill drives it; it never drives the skill.
+ *
+ *   omega-duo run    --task <file.md> --cwd <dir> [--mode plan|code|review]
+ *                    [--agent codex|claude|glm] [--verify "<shell command>"]
+ *   omega-duo status                # is Codex marked exhausted this window?
+ *   omega-duo reset                 # clear the exhausted flag (re-enable Codex)
+ *   omega-duo doctor [--json]       # local health: bins, auth, quota flag, glm, last run
+ *   omega-duo init <slug> --cwd <d> # scaffold agentic/duo/<slug>/ task templates
+ *   omega-duo history [--limit N] [--json]  # parse past run logs
+ *
+ * stdout on `run` is a single JSON line:
+ *   { agent, ok, output, fell_back, reason, exit_code, log,
+ *     sandbox_degraded, capabilities: { shell_exec, worktree_read },
+ *     guard_error, verify, checkpoint, diffstat }
+ *
+ * `--agent glm` is strictly opt-in: GLM never joins the automatic quota
+ * fallback chain and a GLM failure never marks the Codex exhausted flag.
+ *
+ * WHY a binary and not skill prose: quota detection + fallback is control flow
+ * that must be deterministic and testable. A model improvising an error-parser
+ * is exactly the silent-failure vector this replaces (R-KARPATHY simplicity,
+ * L1 runtime-truth).
+ */
+
+import { spawn, spawnSync } from "node:child_process";
+import {
+  appendFileSync,
+  chmodSync,
+  existsSync,
+  lstatSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  readlinkSync,
+  realpathSync,
+  rmSync,
+  statSync,
+  unlinkSync,
+  watch,
+  writeFileSync,
+} from "node:fs";
+import { createHash, randomBytes } from "node:crypto";
+import { homedir, tmpdir } from "node:os";
+import { join, relative, resolve } from "node:path";
+
+function resolveOmegaDir(): string {
+  const explicit = process.env.OMEGA_DIR;
+  if (explicit) return explicit;
+  const consolidated = join(homedir(), "OmegaOS", "System");
+  try {
+    if (statSync(consolidated).isDirectory()) return consolidated;
+  } catch {}
+  return join(homedir(), ".omega");
+}
+
+const OMEGA_DIR = resolveOmegaDir();
+const LOG_DIR = join(OMEGA_DIR, "logs", "duo");
+const STATE_DIR = join(OMEGA_DIR, "state");
+const EXHAUSTED_FLAG = join(STATE_DIR, "duo-codex-exhausted");
+
+// ── Quota-vs-code-error detection ────────────────────────────────────────────
+// A quota/limit failure triggers fallback; ANY OTHER failure (compile error,
+// red test, bad path) is a real task failure and must surface as-is — masking a
+// code bug behind "oh, the quota" is the trap we refuse to fall into.
+//
+// This regex is a BEST-EFFORT guess: the exact string Codex emits when a
+// ChatGPT plan is exhausted is not knowable without hitting the ceiling. So we
+// ALSO log every Codex failure verbatim to LOG_DIR — the first real limit hit
+// gives us the true string to tighten this against real evidence, not a guess.
+const QUOTA_RE =
+  /(usage limit|rate.?limit|quota|too many requests|429|out of (credits|tokens)|insufficient.quota|plan limit|resets? (at|in))/i;
+const AUTH_RE =
+  /(\b401\b|unauthori[sz]ed|token_(expired|invalidated)|refresh_token_invalidated|access token could not be refreshed|refresh token (was )?revoked|authentication token (has been )?(expired|invalidated)|session has ended|not logged in|run codex login|please (log|sign) (in|out))/i;
+
+// The interactive `codex` may be a shell function injecting a profile; call the
+// real binary. Overridable for tests / non-standard installs.
+const CODEX_BIN = process.env.DUO_CODEX_BIN || "codex";
+const CLAUDE_BIN = process.env.DUO_CLAUDE_BIN || "claude";
+// GLM = Claude Code redirected to Z.AI's Anthropic-compatible endpoint (the
+// exact launch path of `omega new --agent glm`, agents.rs). Strictly opt-in.
+const GLM_BIN = process.env.DUO_GLM_BIN || CLAUDE_BIN;
+const GLM_BASE_URL = process.env.DUO_GLM_BASE_URL || "https://api.z.ai/api/anthropic";
+
+interface GlmConfig {
+  apiKey: string | null;
+  model: string | null;
+}
+
+function glmConfig(): GlmConfig {
+  if (process.env.DUO_GLM_API_KEY) {
+    return {
+      apiKey: process.env.DUO_GLM_API_KEY,
+      model: process.env.DUO_GLM_MODEL || null,
+    };
+  }
+  // Minimal [glm] section scan of providers.toml — flat string keys only, no
+  // TOML dependency. Anything fancier belongs to omega-core, not this bridge.
+  try {
+    const raw = readFileSync(join(OMEGA_DIR, "providers.toml"), "utf8");
+    let inGlm = false;
+    let apiKey: string | null = null;
+    let model: string | null = null;
+    for (const line of raw.split(/\r?\n/)) {
+      const section = line.match(/^\s*\[([^\]]+)\]/);
+      if (section) {
+        inGlm = section[1].trim() === "glm";
+        continue;
+      }
+      if (!inGlm) continue;
+      const kv = line.match(/^\s*([A-Za-z_]+)\s*=\s*"([^"]*)"/);
+      if (!kv || !kv[2]) continue;
+      if (kv[1] === "api_key") apiKey = kv[2];
+      if (kv[1] === "model") model = kv[2];
+    }
+    return { apiKey, model };
+  } catch {
+    return { apiKey: null, model: null };
+  }
+}
+
+function ts(): string {
+  // Date is fine here (real binary, not a replayable workflow script).
+  return new Date().toISOString().replace(/[:.]/g, "-");
+}
+
+function ensureDirs() {
+  for (const d of [LOG_DIR, STATE_DIR]) mkdirSync(d, { recursive: true, mode: 0o700 });
+}
+
+function codexExhausted(): { exhausted: boolean; until: string | null } {
+  if (!existsSync(EXHAUSTED_FLAG)) return { exhausted: false, until: null };
+  const raw = readFileSync(EXHAUSTED_FLAG, "utf8").trim();
+  // Flag body may hold an ISO reset time. If present and passed, auto-clear.
+  const until = raw || null;
+  if (until) {
+    const t = Date.parse(until);
+    if (!Number.isNaN(t) && Date.now() >= t) {
+      try { unlinkSync(EXHAUSTED_FLAG); } catch {}
+      return { exhausted: false, until: null };
+    }
+  }
+  return { exhausted: true, until };
+}
+
+function markExhausted(until: string | null) {
+  ensureDirs();
+  writeFileSync(EXHAUSTED_FLAG, until || "", "utf8");
+}
+
+interface RunResult {
+  ok: boolean;
+  output: string;
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  spawnError: boolean;
+}
+
+function runProcess(
+  bin: string,
+  argv: string[],
+  cwd: string,
+  stdin: string,
+  extraEnv: Record<string, string> = {},
+): Promise<RunResult> {
+  return new Promise((resolve) => {
+    const child = spawn(bin, argv, {
+      cwd,
+      env: { ...process.env, GIT_OPTIONAL_LOCKS: "0", ...extraEnv },
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    let out = "";
+    let err = "";
+    let spawnMessage: string | null = null;
+    child.stdout.on("data", (d) => (out += d.toString()));
+    child.stderr.on("data", (d) => (err += d.toString()));
+    child.on("error", (e) => {
+      spawnMessage = `spawn error: ${e.message}`;
+    });
+    child.on("close", (code) => {
+      if (spawnMessage) err = `${spawnMessage}${err ? `\n${err}` : ""}`;
+      const combined = (out + (err ? "\n[stderr]\n" + err : "")).trim();
+      resolve({
+        ok: !spawnMessage && code === 0,
+        output: combined,
+        stdout: out,
+        stderr: err,
+        exitCode: spawnMessage ? 127 : (code ?? 1),
+        spawnError: Boolean(spawnMessage),
+      });
+    });
+    child.stdin.on("error", () => {
+      // A process may exit before consuming all input. The close event remains
+      // the single source of the final result.
+    });
+    child.stdin.end(stdin);
+  });
+}
+
+interface Capabilities {
+  shell_exec: boolean;
+  worktree_read: boolean;
+}
+
+interface VerifyReport {
+  cmd: string;
+  exit_code: number;
+  ok: boolean;
+  timed_out: boolean;
+  tail: string;
+}
+
+interface Checkpoint {
+  head: string | null;
+  stash: string | null;
+  ref: string | null;
+}
+
+interface BridgeResult {
+  agent: "codex" | "claude" | "glm" | null;
+  ok: boolean;
+  output: string;
+  fell_back: boolean;
+  reason: string | null;
+  exit_code: number;
+  log: string | null;
+  sandbox_degraded: boolean;
+  capabilities: Capabilities;
+  guard_error: GuardError | null;
+  verify: VerifyReport | null;
+  checkpoint: Checkpoint | null;
+  diffstat: string | null;
+  // Code mode only: whether the AGENT itself succeeded, independent of the
+  // --verify outcome. ok:false + agent_ok:true means "implementation produced,
+  // success criterion red" — a FIX loop input, never a reason to re-implement
+  // from scratch or fall back.
+  agent_ok: boolean | null;
+}
+
+interface Logger {
+  path: string;
+  line: (text: string) => void;
+}
+
+interface RepoProbe {
+  relativePath: string;
+  commandPath: string;
+  expectedHash: string;
+  marker: string;
+  prompt: string;
+}
+
+interface GuardedRun {
+  result: RunResult | null;
+  mutated: boolean;
+  guardError: GuardError | null;
+}
+
+interface GuardError {
+  code: "guard-error";
+  message: string;
+}
+
+interface Preflight {
+  ok: boolean;
+  output: string;
+  exitCode: number;
+  failure: "auth" | "quota" | "readonly" | "read-unavailable" | null;
+  sandboxDegraded: boolean;
+  capabilities: Capabilities;
+  guardError?: GuardError;
+}
+
+const NO_CAPABILITIES: Capabilities = { shell_exec: false, worktree_read: false };
+
+function emit(result: BridgeResult): number {
+  console.log(JSON.stringify(result));
+  return result.ok ? 0 : (result.exit_code || 1);
+}
+
+function makeResult(overrides: Partial<BridgeResult>): BridgeResult {
+  const result: BridgeResult = {
+    agent: null,
+    ok: false,
+    output: "",
+    fell_back: false,
+    reason: null,
+    exit_code: 1,
+    log: null,
+    sandbox_degraded: false,
+    capabilities: { ...NO_CAPABILITIES },
+    guard_error: null,
+    verify: null,
+    checkpoint: null,
+    diffstat: null,
+    agent_ok: null,
+    ...overrides,
+  };
+  // JSON is the public contract. A failed bridge result must never advertise
+  // exit_code=0 while emit() silently exits non-zero.
+  if (!result.ok && result.exit_code === 0) result.exit_code = 1;
+  return result;
+}
+
+function diagnostics(result: RunResult, stdin: string): string {
+  const normalize = (line: string) =>
+    line.trim().replace(/\s+/g, " ").toLocaleLowerCase("en-US");
+  const taskLines = stdin
+    .split(/\r?\n/)
+    .map(normalize)
+    .filter(Boolean);
+  const withoutEchoPrefix = (line: string) => {
+    let candidate = line;
+    const prefix =
+      /^[\s"'`>*_~()-]*(?:\[(?:task(?: line)?|prompt|user(?: input)?|input|request|instruction)\]|(?:task(?: line)?|prompt|user(?: input)?|input|request|instruction))\s*[:>|-]?\s*/i;
+    for (let depth = 0; depth < 4; depth++) {
+      const next = candidate
+        .replace(prefix, "")
+        .replace(/^[\s"'`[\]{}()]+|[\s"'`[\]{}()]+$/g, "");
+      if (next === candidate) break;
+      candidate = next;
+    }
+    return candidate;
+  };
+  const withoutTrailingPunctuation = (line: string) =>
+    line.replace(/[\s.,;:!?]+$/g, "");
+  const scrub = (text: string) =>
+    text
+      .split(/\r?\n/)
+      .filter((line) => {
+        const normalized = normalize(line);
+        if (!normalized) return false;
+        const echoCandidate = withoutTrailingPunctuation(
+          withoutEchoPrefix(normalized),
+        );
+        // Agents can echo a whole task line or only its diagnostic phrase.
+        // Neither is provider evidence. The direction is intentional: a task
+        // line "401" does not hide a longer real "HTTP 401 ..." diagnostic.
+        return !taskLines.some((taskLine) => {
+          const taskCandidate = withoutTrailingPunctuation(taskLine);
+          return (
+            taskCandidate === echoCandidate ||
+            ((echoCandidate.length >= 8 ||
+              /^(?:401|403|429|quota)$/i.test(echoCandidate)) &&
+              taskCandidate.includes(echoCandidate))
+          );
+        });
+      });
+  // Authentication and quota classification share this exact scrubbed source.
+  return [...scrub(result.stderr), ...scrub(result.stdout)].join("\n");
+}
+
+function classifyFailure(
+  result: RunResult,
+  stdin: string,
+): "auth" | "quota" | "other" {
+  const text = diagnostics(result, stdin);
+  if (/(?:^|\n)\s*(?:HTTP(?:\/\S+)?\s+)?401\b[^\n]*(?:\n|$)/i.test(
+    text,
+  )) {
+    return "auth";
+  }
+  if (AUTH_RE.test(text)) return "auth";
+  if (QUOTA_RE.test(text)) return "quota";
+  return "other";
+}
+
+function gitOutput(cwd: string, args: string[]): string {
+  const result = spawnSync("git", ["-C", cwd, ...args], {
+    encoding: "utf8",
+    maxBuffer: 128 * 1024 * 1024,
+    env: { ...process.env, GIT_OPTIONAL_LOCKS: "0", GIT_PAGER: "cat" },
+  });
+  if (result.error || result.status !== 0) {
+    const detail = (result.stderr || result.error?.message || "unknown git error").trim();
+    throw new Error(detail);
+  }
+  return result.stdout;
+}
+
+function repositoryRoot(cwd: string): string {
+  const topLevel = gitOutput(cwd, ["rev-parse", "--show-toplevel"]).trim();
+  if (!topLevel) throw new Error("git returned an empty repository root");
+  const canonical = realpathSync(topLevel);
+  if (!statSync(canonical).isDirectory()) {
+    throw new Error("git top-level is not a directory");
+  }
+  return canonical;
+}
+
+function repositoryProbe(taskCwd: string, repoRoot: string): RepoProbe {
+  const tracked = gitOutput(repoRoot, ["ls-files", "-z", "--cached"])
+    .split("\0")
+    .filter(Boolean);
+  const readable = (path: string) => {
+    try {
+      const stat = lstatSync(join(repoRoot, path));
+      return stat.isFile() || stat.isSymbolicLink();
+    } catch {
+      return false;
+    }
+  };
+  const relativePath =
+    tracked.find((path) => path === "Cargo.toml" && readable(path)) ||
+    tracked.find(
+      (path) =>
+        /^[A-Za-z0-9_./@+=-]+$/.test(path) &&
+        !path.includes("..") &&
+        readable(path),
+    );
+  if (!relativePath) throw new Error("repository has no safe tracked file for a read probe");
+  const commandPath = relative(realpathSync(taskCwd), join(repoRoot, relativePath))
+    .replaceAll("\\", "/");
+  if (!commandPath || !/^[A-Za-z0-9_./@+=-]+$/.test(commandPath)) {
+    throw new Error("repository has no shell-safe relative path for a read probe");
+  }
+  const expectedHash = gitOutput(repoRoot, ["hash-object", "--", relativePath]).trim();
+  if (!/^[a-f0-9]{40,64}$/.test(expectedHash)) {
+    throw new Error("git returned an invalid worktree hash");
+  }
+  const marker = `OMEGA_DUO_PROBE_${randomBytes(12).toString("hex")}`;
+  const encodedPath = Buffer.from(relativePath, "utf8").toString("base64");
+  const prompt = [
+    "OmegaOS capability preflight. Do not edit any file.",
+    "Use your shell tool to run git hash-object on the tracked worktree file described below.",
+    `Probe metadata: OMEGA_DUO_PROBE ${marker} ${encodedPath}`,
+    `Run: git hash-object -- ${commandPath}`,
+    `Reply with exactly ${marker}=<hash-output> and nothing else.`,
+  ].join("\n");
+  return { relativePath, commandPath, expectedHash, marker, prompt };
+}
+
+function gitMetadataRoots(repoRoot: string): string[] {
+  const candidates = [
+    gitOutput(repoRoot, ["rev-parse", "--absolute-git-dir"]).trim(),
+    gitOutput(repoRoot, ["rev-parse", "--git-common-dir"]).trim(),
+  ];
+  const roots = new Set<string>();
+  for (const candidate of candidates) {
+    if (!candidate) throw new Error("git returned an empty metadata directory");
+    const absolute = realpathSync(resolve(repoRoot, candidate));
+    if (!statSync(absolute).isDirectory()) {
+      throw new Error(`git metadata path is not a directory: ${absolute}`);
+    }
+    roots.add(absolute);
+  }
+  return [...roots].sort();
+}
+
+function worktreeFingerprint(repoRoot: string): string {
+  const hash = createHash("sha256");
+  for (const args of [
+    ["rev-parse", "--verify", "HEAD"],
+    ["symbolic-ref", "-q", "HEAD"],
+    ["ls-files", "-z", "--stage"],
+    ["status", "--porcelain=v2", "-z", "--untracked-files=all", "--ignored=no"],
+    ["diff", "--no-ext-diff", "--binary", "--"],
+  ]) {
+    const result = spawnSync("git", ["-C", repoRoot, ...args], {
+      encoding: "buffer",
+      maxBuffer: 128 * 1024 * 1024,
+      env: { ...process.env, GIT_OPTIONAL_LOCKS: "0", GIT_PAGER: "cat" },
+    });
+    if (result.error) throw result.error;
+    hash.update(args.join("\0"));
+    hash.update("\0");
+    hash.update(String(result.status));
+    hash.update("\0");
+    hash.update(result.stdout);
+    hash.update("\0");
+    hash.update(result.stderr);
+    hash.update("\0");
+  }
+
+  const visit = (
+    root: string,
+    namespace: string,
+    relativeDir: string,
+    excludeRootGitEntry: boolean,
+  ) => {
+    const directory = relativeDir ? join(root, relativeDir) : root;
+    const entries = readdirSync(directory, { withFileTypes: true })
+      .filter(
+        (entry) =>
+          !(
+            excludeRootGitEntry &&
+            relativeDir === "" &&
+            entry.name === ".git" &&
+            entry.isDirectory()
+          ),
+      )
+      .sort((left, right) => left.name.localeCompare(right.name));
+
+    for (const entry of entries) {
+      const relativePath = relativeDir
+        ? `${relativeDir}/${entry.name}`
+        : entry.name;
+      const absolutePath = join(root, relativePath);
+      const stat = lstatSync(absolutePath, { bigint: true });
+
+      hash.update(namespace);
+      hash.update("\0");
+      hash.update(relativePath);
+      hash.update("\0");
+      hash.update(entry.isDirectory() ? "directory" :
+        entry.isFile() ? "file" :
+        entry.isSymbolicLink() ? "symlink" : "special");
+      hash.update("\0");
+      for (const value of [
+        stat.mode,
+        stat.uid,
+        stat.gid,
+        stat.size,
+        stat.mtimeNs,
+        stat.ctimeNs,
+      ]) {
+        hash.update(String(value));
+        hash.update("\0");
+      }
+
+      if (entry.isDirectory()) {
+        visit(root, namespace, relativePath, false);
+      } else if (entry.isSymbolicLink()) {
+        hash.update(readlinkSync(absolutePath));
+        hash.update("\0");
+      }
+    }
+  };
+
+  visit(repoRoot, "worktree", "", true);
+  for (const [index, metadataRoot] of gitMetadataRoots(repoRoot).entries()) {
+    hash.update(`git-metadata-root-${index}`);
+    hash.update("\0");
+    hash.update(metadataRoot);
+    hash.update("\0");
+    visit(metadataRoot, `git-metadata-${index}`, "", false);
+  }
+  return hash.digest("hex");
+}
+
+function gitObservableFingerprint(repoRoot: string): string {
+  const hash = createHash("sha256");
+  for (const args of [
+    ["rev-parse", "--verify", "HEAD"],
+    ["symbolic-ref", "-q", "HEAD"],
+    ["ls-files", "-z", "--stage"],
+    ["status", "--porcelain=v2", "-z", "--untracked-files=all", "--ignored=no"],
+    ["diff", "--no-ext-diff", "--binary", "--"],
+  ]) {
+    const result = spawnSync("git", ["-C", repoRoot, ...args], {
+      encoding: "buffer",
+      maxBuffer: 128 * 1024 * 1024,
+      env: { ...process.env, GIT_OPTIONAL_LOCKS: "0", GIT_PAGER: "cat" },
+    });
+    const allowedStatus =
+      result.status === 0 ||
+      (args[0] === "symbolic-ref" && result.status === 1);
+    if (result.error || !allowedStatus) {
+      throw result.error || new Error(result.stderr.toString());
+    }
+    hash.update(args.join("\0"));
+    hash.update(String(result.status));
+    hash.update(result.stdout);
+  }
+  return hash.digest("hex");
+}
+
+async function runGuarded(
+  repoRoot: string,
+  run: () => Promise<RunResult>,
+  requireLiveWatcher = false,
+  strictFilesystem = requireLiveWatcher,
+): Promise<GuardedRun> {
+  let observedMutation = false;
+  const watchers: ReturnType<typeof watch>[] = [];
+  const watcherErrors: string[] = [];
+  const observe = () => {
+    observedMutation = true;
+  };
+  // Bun's recursive Linux watcher can allocate one inotify instance per
+  // directory and exhaust shared-host limits. Keep live watches on the two
+  // mutation roots; the complete before/after inventory covers every nested
+  // persistent worktree and Git-metadata change.
+  let metadataRoots: string[] = [];
+  if (strictFilesystem) {
+    try {
+      metadataRoots = gitMetadataRoots(repoRoot);
+    } catch (error: any) {
+      return {
+        result: null,
+        mutated: false,
+        guardError: {
+          code: "guard-error",
+          message: "Git metadata roots unavailable: " + error.message,
+        },
+      };
+    }
+  }
+  if (requireLiveWatcher) {
+    for (const root of [repoRoot, ...metadataRoots]) {
+      try {
+        watchers.push(watch(root, { recursive: false }, observe));
+      } catch (error: any) {
+        watcherErrors.push(`${root}: ${error.code || error.message}`);
+      }
+    }
+  }
+  const closeWatchers = () => {
+    for (const watcher of watchers) watcher.close();
+  };
+  if (process.env.DUO_SELFTEST_WATCHER_FAIL === "1") {
+    watchers.splice(0).forEach((watcher) => watcher.close());
+    watcherErrors.push("injected watcher failure");
+  }
+  if (requireLiveWatcher && watchers.length === 0) {
+    return {
+      result: null,
+      mutated: false,
+      guardError: {
+        code: "guard-error",
+        message: "write guard unavailable: no live filesystem watcher (" +
+          watcherErrors.join("; ") + ")",
+      },
+    };
+  }
+
+  let before: string;
+  try {
+    before = strictFilesystem ? worktreeFingerprint(repoRoot) : gitObservableFingerprint(repoRoot);
+  } catch (error: any) {
+    closeWatchers();
+    return {
+      result: null,
+      mutated: false,
+      guardError: {
+        code: "guard-error",
+        message: "write guard unavailable: " + error.message,
+      },
+    };
+  }
+  const result = await run();
+  // Filesystem notifications arrive asynchronously.
+  await new Promise((resolve) => setTimeout(resolve, 75));
+  closeWatchers();
+  try {
+    const after = strictFilesystem ? worktreeFingerprint(repoRoot) : gitObservableFingerprint(repoRoot);
+    return {
+      result,
+      mutated: (strictFilesystem && observedMutation) || before !== after,
+      guardError: null,
+    };
+  } catch (error: any) {
+    return {
+      result,
+      mutated: false,
+      guardError: {
+        code: "guard-error",
+        message: "write guard verification failed: " + error.message,
+      },
+    };
+  }
+}
+
+// Codex reads every prompt from stdin. Every `plan` and `review` preflight
+// starts in the native read-only sandbox. Only an actual failed repository read
+// probe can select the disclosed full-access fallback, which remains protected
+// by an external worktree guard.
+function codexArgv(mode: string, degraded = false, preflight = false): string[] {
+  const base = ["exec", "--skip-git-repo-check"];
+  if (preflight || mode !== "code") {
+    if (degraded) return [...base, "--dangerously-bypass-approvals-and-sandbox", "-"];
+    return [...base, "--sandbox", "read-only", "-"];
+  }
+  if (mode === "code") {
+    // Bypass Codex's bwrap workspace sandbox. On this operator-owned VPS the
+    // network namespace is locked down, so bwrap's loopback setup fails
+    // ("RTM_NEWADDR: Operation not permitted") and the sandbox can't write a
+    // single file. Bypassing matches how Claude already runs here
+    // (--dangerously-skip-permissions): same trust boundary, same box, the
+    // operator owns it. The legacy env name is retained for compatibility;
+    // Codex >=0.147: never pair --sandbox with --approve-for-me (0.149 dies).
+    if (process.env.DUO_CODEX_FULL_AUTO === "1") {
+      return [...base, "--sandbox", "workspace-write", "--ask-for-approval", "never", "--dangerously-bypass-hook-trust", "-"];
+    }
+    return [...base, "--dangerously-bypass-approvals-and-sandbox", "-"];
+  }
+  throw new Error("invalid duo mode");
+}
+
+function claudeArgv(readOnly: boolean, degraded = false): string[] {
+  if (readOnly && !degraded) return ["-p", "--permission-mode", "plan"];
+  return ["-p", "--dangerously-skip-permissions"];
+}
+
+// The claude-family agents (claude itself, and glm = claude redirected to
+// Z.AI) share one execution path, parameterized by this spec.
+interface ClaudeFamilySpec {
+  name: "claude" | "glm";
+  bin: string;
+  extraArgs: string[];
+  extraEnv: Record<string, string>;
+}
+
+function claudeSpec(): ClaudeFamilySpec {
+  return { name: "claude", bin: CLAUDE_BIN, extraArgs: [], extraEnv: {} };
+}
+
+function glmSpec(cfg: GlmConfig): ClaudeFamilySpec {
+  return {
+    name: "glm",
+    bin: GLM_BIN,
+    extraArgs: cfg.model ? ["--model", cfg.model] : [],
+    extraEnv: {
+      ANTHROPIC_BASE_URL: GLM_BASE_URL,
+      ANTHROPIC_AUTH_TOKEN: cfg.apiKey || "",
+    },
+  };
+}
+
+function probeSucceeded(result: RunResult, probe: RepoProbe): boolean {
+  return result.ok && result.output.includes(`${probe.marker}=${probe.expectedHash}`);
+}
+
+function positiveSandboxReadDenial(result: RunResult): boolean {
+  const lines = result.output.split(/\r?\n/);
+  // Transport/provider failures are never evidence that the local read
+  // sandbox denied access, even if their prose also contains "sandbox denied".
+  const transportFailure =
+    /\b(?:http(?:\/[0-9.]+)?[\s:_-]*[45]\d\d|[45]\d\d|[45]xx|econn(?:refused|reset|aborted)|enetunreach|etimedout|eai_again|network|connection|socket|timeout|timed out|dns|tls|upstream|gateway|service unavailable|provider (?:error|failure|unavailable))\b/i;
+  if (lines.some((line) => transportFailure.test(line))) return false;
+  // This is emitted by Codex's local Bubblewrap bootstrap before the generated
+  // repository probe can run. It is precise host-side sandbox evidence, not
+  // model prose or a remote transport failure.
+  if (
+    lines.some((line) =>
+      /\bbwrap:\s*loopback:\s*failed rtm_newaddr:\s*operation not permitted\b/i.test(
+        line,
+      ),
+    )
+  ) {
+    return true;
+  }
+  const patterns = [
+    /\b(?:command|probe|tool|call)\b.{0,120}\b(?:blocked|denied|restricted|not permitted)\b.{0,120}\b(?:permission|approval|sandbox|plan mode|read|access|repository|worktree)\b/i,
+    /\b(?:permission|approval|sandbox|plan mode)\b.{0,120}\b(?:blocked|denied|restricted|not permitted)\b.{0,120}\b(?:command|probe|tool|call)\b/i,
+  ];
+  return lines.some((line) => patterns.some((pattern) => pattern.test(line)));
+}
+
+async function codexPreflight(
+  taskCwd: string,
+  repoRoot: string,
+  probe: RepoProbe,
+  logger: Logger,
+): Promise<Preflight> {
+  let degraded = false;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    logger.line(`## codex preflight sandbox=${degraded ? "degraded-guarded" : "read-only"}`);
+    const guarded = await runGuarded(
+      repoRoot,
+      () => runProcess(CODEX_BIN, codexArgv("plan", degraded, true), taskCwd, probe.prompt),
+      degraded,
+      degraded,
+    );
+    if (guarded.guardError) {
+      return {
+        ok: false,
+        output: JSON.stringify(guarded.guardError),
+        exitCode: 1,
+        failure: "read-unavailable",
+        sandboxDegraded: degraded,
+        capabilities: { ...NO_CAPABILITIES },
+        guardError: guarded.guardError,
+      };
+    }
+    if (guarded.mutated) {
+      return {
+        ok: false,
+        output: "read-only preflight mutated the worktree",
+        exitCode: 1,
+        failure: "readonly",
+        sandboxDegraded: degraded,
+        capabilities: { ...NO_CAPABILITIES },
+      };
+    }
+    const result = guarded.result!;
+    logger.line(`codex preflight exit=${result.exitCode} ok=${result.ok}`);
+    logger.line(result.output);
+    if (probeSucceeded(result, probe)) {
+      return {
+        ok: true,
+        output: result.output,
+        exitCode: 0,
+        failure: null,
+        sandboxDegraded: degraded,
+        capabilities: { shell_exec: true, worktree_read: true },
+      };
+    }
+    // A missing Codex binary proves nothing about its native sandbox. Do not
+    // turn an unspawnable attempt into permission to bypass that sandbox.
+    if (result.spawnError) {
+      return {
+        ok: false,
+        output: result.output,
+        exitCode: result.exitCode || 1,
+        failure: "read-unavailable",
+        sandboxDegraded: degraded,
+        capabilities: { ...NO_CAPABILITIES },
+      };
+    }
+    const failure = classifyFailure(result, probe.prompt);
+    if (failure === "auth" || failure === "quota") {
+      return {
+        ok: false,
+        output: result.output,
+        exitCode: result.exitCode || 1,
+        failure,
+        sandboxDegraded: degraded,
+        capabilities: { ...NO_CAPABILITIES },
+      };
+    }
+    if (degraded) {
+      return {
+        ok: false,
+        output: result.output || "Codex could not prove worktree read access",
+        exitCode: result.exitCode || 1,
+        failure: "read-unavailable",
+        sandboxDegraded: true,
+        capabilities: { ...NO_CAPABILITIES },
+      };
+    }
+    if (!positiveSandboxReadDenial(result)) {
+      return {
+        ok: false,
+        output: result.output || "Codex worktree read unavailable",
+        exitCode: result.exitCode || 1,
+        failure: "read-unavailable",
+        sandboxDegraded: false,
+        capabilities: { ...NO_CAPABILITIES },
+      };
+    }
+    degraded = true;
+  }
+  return {
+    ok: false,
+    output: "Codex worktree preflight exhausted",
+    exitCode: 1,
+    failure: "read-unavailable",
+    sandboxDegraded: true,
+    capabilities: { ...NO_CAPABILITIES },
+  };
+}
+
+async function claudePreflight(
+  taskCwd: string,
+  repoRoot: string,
+  probe: RepoProbe,
+  logger: Logger,
+  spec: ClaudeFamilySpec = claudeSpec(),
+): Promise<Preflight> {
+  let degraded = false;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    logger.line(
+      `## ${spec.name} worktree preflight permissions=${degraded ? "degraded-guarded" : "plan"}`,
+    );
+    const guarded = await runGuarded(
+      repoRoot,
+      () =>
+        runProcess(
+          spec.bin,
+          [...claudeArgv(true, degraded), ...spec.extraArgs],
+          taskCwd,
+          probe.prompt,
+          spec.extraEnv,
+        ),
+      degraded,
+      degraded,
+    );
+    if (guarded.guardError) {
+      return {
+        ok: false,
+        output: JSON.stringify(guarded.guardError),
+        exitCode: 1,
+        failure: "read-unavailable",
+        sandboxDegraded: degraded,
+        capabilities: { ...NO_CAPABILITIES },
+        guardError: guarded.guardError,
+      };
+    }
+    if (guarded.mutated) {
+      return {
+        ok: false,
+        output: "Claude read-only preflight mutated the worktree",
+        exitCode: 1,
+        failure: "readonly",
+        sandboxDegraded: degraded,
+        capabilities: { ...NO_CAPABILITIES },
+      };
+    }
+    const result = guarded.result!;
+    logger.line(`${spec.name} preflight exit=${result.exitCode} ok=${result.ok}`);
+    logger.line(result.output);
+    if (probeSucceeded(result, probe)) {
+      return {
+        ok: true,
+        output: result.output,
+        exitCode: 0,
+        failure: null,
+        sandboxDegraded: degraded,
+        capabilities: { shell_exec: true, worktree_read: true },
+      };
+    }
+    // A provider auth/quota diagnostic during the preflight is a provider
+    // fact, not a sandbox fact — surface it instead of degrading.
+    if (!result.spawnError) {
+      const failure = classifyFailure(result, probe.prompt);
+      if (failure === "auth" || failure === "quota") {
+        return {
+          ok: false,
+          output: result.output,
+          exitCode: result.exitCode || 1,
+          failure,
+          sandboxDegraded: degraded,
+          capabilities: { ...NO_CAPABILITIES },
+        };
+      }
+    }
+    // An unspawnable Claude binary proves nothing about plan-mode limits.
+    if (degraded) {
+      return {
+        ok: false,
+        output: result.output || "Claude could not prove worktree read access",
+        exitCode: result.exitCode || 1,
+        failure: "read-unavailable",
+        sandboxDegraded: degraded,
+        capabilities: { ...NO_CAPABILITIES },
+      };
+    }
+    if (!positiveSandboxReadDenial(result)) {
+      return {
+        ok: false,
+        output: result.output || "Claude worktree read unavailable",
+        exitCode: result.exitCode || 1,
+        failure: "read-unavailable",
+        sandboxDegraded: false,
+        capabilities: { ...NO_CAPABILITIES },
+      };
+    }
+    degraded = true;
+  }
+  return {
+    ok: false,
+    output: `${spec.name} worktree preflight exhausted`,
+    exitCode: 1,
+    failure: "read-unavailable",
+    sandboxDegraded: true,
+    capabilities: { ...NO_CAPABILITIES },
+  };
+}
+
+async function runTask(
+  agent: "codex" | "claude" | "glm",
+  mode: string,
+  degraded: boolean,
+  taskCwd: string,
+  repoRoot: string,
+  taskText: string,
+  spec: ClaudeFamilySpec = claudeSpec(),
+): Promise<GuardedRun> {
+  const readOnly = mode === "plan" || mode === "review";
+  const run = () =>
+    agent === "codex"
+      ? runProcess(CODEX_BIN, codexArgv(mode, degraded), taskCwd, taskText)
+      : runProcess(
+          spec.bin,
+          [...claudeArgv(readOnly, degraded), ...spec.extraArgs],
+          taskCwd,
+          taskText,
+          spec.extraEnv,
+        );
+  if (readOnly) return runGuarded(repoRoot, run, degraded, degraded);
+  return { result: await run(), mutated: false, guardError: null };
+}
+
+async function executeClaudeFamily(
+  taskCwd: string,
+  repoRoot: string,
+  mode: string,
+  taskText: string,
+  probe: RepoProbe,
+  logger: Logger,
+  fellBack: boolean,
+  successReason: string,
+  inheritedDegraded = false,
+  spec: ClaudeFamilySpec = claudeSpec(),
+): Promise<BridgeResult> {
+  const preflight = await claudePreflight(taskCwd, repoRoot, probe, logger, spec);
+  if (!preflight.ok) {
+    const preflightReason =
+      preflight.failure === "readonly"
+        ? "readonly-violation"
+        : preflight.failure === "auth"
+          ? `${spec.name}-unauthenticated`
+          : preflight.failure === "quota" && spec.name === "glm"
+            ? "glm-quota"
+            : "worktree-read-unavailable";
+    return makeResult({
+      agent: spec.name,
+      output: preflight.output,
+      fell_back: fellBack,
+      reason: preflightReason,
+      exit_code: preflight.exitCode,
+      log: logger.path,
+      sandbox_degraded: inheritedDegraded || preflight.sandboxDegraded,
+      capabilities: preflight.capabilities,
+      guard_error: preflight.guardError ?? null,
+    });
+  }
+
+  const guarded = await runTask(
+    spec.name,
+    mode,
+    preflight.sandboxDegraded,
+    taskCwd,
+    repoRoot,
+    taskText,
+    spec,
+  );
+  if (guarded.guardError || guarded.mutated) {
+    const output = guarded.guardError
+      ? JSON.stringify(guarded.guardError)
+      : `read-only ${spec.name} task mutated the worktree`;
+    logger.line(output);
+    return makeResult({
+      agent: spec.name,
+      output,
+      fell_back: fellBack,
+      reason: "readonly-violation",
+      exit_code: 1,
+      log: logger.path,
+      sandbox_degraded: inheritedDegraded || preflight.sandboxDegraded,
+      capabilities: preflight.capabilities,
+      guard_error: guarded.guardError,
+    });
+  }
+  const result = guarded.result!;
+  logger.line(`${spec.name} exit=${result.exitCode} ok=${result.ok}`);
+  logger.line(result.output);
+  // A GLM failure is classified for honesty (quota vs auth vs task) but NEVER
+  // marks the Codex exhausted flag and NEVER falls back to another agent:
+  // GLM is opt-in only, the caller decides what happens next.
+  let failureReason = `${spec.name}-task-failure`;
+  if (!result.ok && spec.name === "glm") {
+    const failure = classifyFailure(result, taskText);
+    if (failure === "auth") failureReason = "glm-unauthenticated";
+    else if (failure === "quota") failureReason = "glm-quota";
+  }
+  return makeResult({
+    agent: spec.name,
+    ok: result.ok,
+    output: result.output,
+    fell_back: fellBack,
+    reason: result.ok ? successReason : failureReason,
+    exit_code: result.exitCode,
+    log: logger.path,
+    sandbox_degraded: inheritedDegraded || preflight.sandboxDegraded,
+    capabilities: preflight.capabilities,
+  });
+}
+
+// ── Code-mode instrumentation: checkpoint, diffstat, verify ──────────────────
+// The checkpoint is coordinates for a HUMAN-decided revert, never an automatic
+// restore (R-DESTRUCT): the bridge only records where the tree stood.
+function createCheckpoint(repoRoot: string, logger: Logger): Checkpoint {
+  let head: string | null = null;
+  try {
+    head = gitOutput(repoRoot, ["rev-parse", "--verify", "HEAD"]).trim() || null;
+  } catch {}
+  let stashSha: string | null = null;
+  let ref: string | null = null;
+  try {
+    // `git stash create` snapshots TRACKED state (worktree + index) without
+    // touching anything. Untracked/ignored files are NOT captured — the
+    // checkpoint is revert coordinates, not a full backup, and the diffstat's
+    // untracked list is the honest complement.
+    const stash = spawnSync(
+      "git",
+      [
+        "-C", repoRoot,
+        "-c", "user.name=Omega Duo",
+        "-c", "user.email=duo@omega.invalid",
+        "stash", "create", "omega-duo checkpoint",
+      ],
+      { encoding: "utf8", env: { ...process.env, GIT_OPTIONAL_LOCKS: "0" } },
+    );
+    if (!stash.error && stash.status === 0 && stash.stdout.trim()) {
+      stashSha = stash.stdout.trim();
+    }
+    const snapshot = stashSha || head;
+    if (snapshot) {
+      // pid + random suffix: refs are shared between linked worktrees, a
+      // timestamp alone can collide.
+      const name = `refs/duo/checkpoint-${ts()}-${process.pid}-${randomBytes(3).toString("hex")}`;
+      gitOutput(repoRoot, ["update-ref", name, snapshot]);
+      ref = name;
+      // Keep the newest 20 checkpoint refs; the names sort chronologically.
+      const refs = gitOutput(repoRoot, [
+        "for-each-ref", "--format=%(refname)", "refs/duo/",
+      ])
+        .split("\n")
+        .filter(Boolean)
+        .sort();
+      for (const stale of refs.slice(0, Math.max(0, refs.length - 20))) {
+        try {
+          gitOutput(repoRoot, ["update-ref", "-d", stale]);
+        } catch {}
+      }
+    }
+  } catch (error: any) {
+    logger.line(`checkpoint unavailable: ${error.message}`);
+  }
+  return { head, stash: stashSha, ref };
+}
+
+function diffstatSince(repoRoot: string, checkpoint: Checkpoint | null): string | null {
+  try {
+    const parts: string[] = [];
+    // Diff against the stash snapshot when one exists: that is the tree AS THE
+    // AGENT FOUND IT (including pre-run tracked modifications), so the stat is
+    // the agent's own delta, not the delta since the last commit.
+    const base = checkpoint?.stash || checkpoint?.head;
+    const stat = base
+      ? gitOutput(repoRoot, ["diff", "--stat", base, "--"]).trim()
+      : gitOutput(repoRoot, ["diff", "--stat", "--"]).trim();
+    if (stat) parts.push(stat);
+    const untracked = gitOutput(repoRoot, [
+      "ls-files", "--others", "--exclude-standard",
+    ]).trim();
+    if (untracked) {
+      parts.push(
+        "untracked:\n" + untracked.split("\n").map((line) => `  ${line}`).join("\n"),
+      );
+    }
+    return parts.join("\n");
+  } catch {
+    return null;
+  }
+}
+
+// Verify output is NEVER fed to classifyFailure/diagnostics: a test that
+// prints "quota" or "401" must not be able to trip the provider fallback.
+// It runs strictly AFTER the agent result was classified and emitted into
+// the BridgeResult under construction.
+function runVerify(cmd: string, cwd: string, logger: Logger): VerifyReport {
+  logger.line(`## verify: ${cmd}`);
+  const result = spawnSync("bash", ["-c", cmd], {
+    cwd,
+    encoding: "utf8",
+    maxBuffer: 128 * 1024 * 1024,
+    timeout: Number(process.env.DUO_VERIFY_TIMEOUT_MS || 600000),
+    killSignal: "SIGKILL",
+    env: { ...process.env, GIT_OPTIONAL_LOCKS: "0" },
+  });
+  const timedOut =
+    (result.error as any)?.code === "ETIMEDOUT" || result.signal === "SIGKILL";
+  const combined = `${result.stdout || ""}${result.stderr ? `\n[stderr]\n${result.stderr}` : ""}`.trim();
+  const exitCode = result.status ?? 1;
+  logger.line(`verify exit=${exitCode}${timedOut ? " timed_out" : ""}`);
+  logger.line(combined);
+  return {
+    cmd,
+    exit_code: exitCode,
+    ok: !result.error && result.status === 0,
+    timed_out: timedOut,
+    tail: combined.slice(-4000),
+  };
+}
+
+// Every real run appends one versioned JSONL record — `history` reads THIS,
+// never by re-parsing free-text logs (agent output can fake log lines).
+function recordHistory(entry: Record<string, unknown>) {
+  try {
+    ensureDirs();
+    appendFileSync(
+      join(LOG_DIR, "history.jsonl"),
+      `${JSON.stringify({ schema: 1, ...entry })}\n`,
+      { encoding: "utf8", mode: 0o600 },
+    );
+  } catch {}
+}
+
+async function cmdRun(args: Record<string, string>): Promise<number> {
+  const taskArg = args.task;
+  const taskCwd = resolve(args.cwd || process.cwd());
+  const mode = args.mode || "code";
+  const forced = args.agent;
+
+  if (
+    !taskArg ||
+    !["plan", "code", "review"].includes(mode) ||
+    (forced !== undefined && !["codex", "claude", "glm"].includes(forced))
+  ) {
+    return emit(makeResult({
+      output: "invalid task, mode, or agent",
+      reason: "bad-input",
+      exit_code: 2,
+    }));
+  }
+  let taskText: string;
+  const taskFile = resolve(taskArg);
+  try {
+    if (!statSync(taskCwd).isDirectory()) throw new Error("cwd is not a directory");
+    taskText = readFileSync(taskFile, "utf8");
+  } catch (error: any) {
+    return emit(makeResult({
+      output: `bad input: ${error.message}`,
+      reason: "bad-input",
+      exit_code: 2,
+    }));
+  }
+
+  let probe: RepoProbe;
+  let repoRoot: string;
+  try {
+    repoRoot = repositoryRoot(taskCwd);
+    probe = repositoryProbe(taskCwd, repoRoot);
+  } catch (error: any) {
+    return emit(makeResult({
+      output: `worktree preflight unavailable: ${error.message}`,
+      reason: "worktree-read-unavailable",
+      exit_code: 2,
+    }));
+  }
+
+  ensureDirs();
+  const logFile = join(
+    LOG_DIR,
+    `${ts()}-${process.pid}-${randomBytes(4).toString("hex")}-${mode}.log`,
+  );
+  const logLine = (text: string) =>
+    appendFileSync(logFile, `${text}\n`, { encoding: "utf8", mode: 0o600 });
+  const logger: Logger = { path: logFile, line: logLine };
+  logLine(
+    `# omega-duo run mode=${mode} cwd=${JSON.stringify(taskCwd)} repo=${JSON.stringify(repoRoot)} task=${JSON.stringify(taskFile)}`,
+  );
+
+  // Code-mode instrumentation: a checkpoint before anything runs, then a
+  // diffstat and the optional --verify command attached to whatever the run
+  // reports. A red verify makes the whole run non-ok: the task's success
+  // criterion is part of the task (L1 mechanized).
+  const verifyCmd = args.verify || null;
+  const checkpoint = mode === "code" ? createCheckpoint(repoRoot, logger) : null;
+  const emitRun = (result: BridgeResult): number => {
+    if (mode === "code") {
+      result.agent_ok = result.ok;
+      result.checkpoint = checkpoint;
+      // Diffstat BEFORE verify: build/test artifacts of the verify command
+      // never pollute the reported agent delta.
+      result.diffstat = diffstatSince(repoRoot, checkpoint);
+      if (result.ok && verifyCmd) {
+        result.verify = runVerify(verifyCmd, taskCwd, logger);
+        if (!result.verify.ok) {
+          // agent_ok stays true: the implementation exists, its success
+          // criterion is red. The caller decides FIX vs revert — no fallback,
+          // no re-implementation, no quota/auth reclassification here.
+          result.ok = false;
+          result.reason = "verify-failed";
+          result.exit_code = 1;
+        }
+      }
+    }
+    recordHistory({
+      timestamp: new Date().toISOString(),
+      mode,
+      cwd: taskCwd,
+      agent: result.agent,
+      ok: result.ok,
+      agent_ok: result.agent_ok,
+      fell_back: result.fell_back,
+      reason: result.reason,
+      log: result.log,
+    });
+    return emit(result);
+  };
+
+  // GLM is strictly opt-in: it never joins the quota fallback chain, and its
+  // failures never touch the Codex exhausted flag.
+  if (forced === "glm") {
+    const cfg = glmConfig();
+    if (!cfg.apiKey) {
+      return emitRun(makeResult({
+        agent: "glm",
+        output:
+          "glm is not configured: no api_key in providers.toml [glm] and no DUO_GLM_API_KEY",
+        reason: "glm-unconfigured",
+        exit_code: 2,
+        log: logFile,
+      }));
+    }
+    logLine("## glm (forced, opt-in — no fallback chain)");
+    return emitRun(await executeClaudeFamily(
+      taskCwd,
+      repoRoot,
+      mode,
+      taskText,
+      probe,
+      logger,
+      false,
+      "forced-glm",
+      false,
+      glmSpec(cfg),
+    ));
+  }
+
+  const { exhausted, until } = codexExhausted();
+  const wantCodex = forced ? forced === "codex" : !exhausted;
+
+  if (wantCodex && forced !== "claude") {
+    const preflight = await codexPreflight(taskCwd, repoRoot, probe, logger);
+    if (!preflight.ok) {
+      if (preflight.failure === "auth") {
+        return emitRun(makeResult({
+          agent: "codex",
+          output: preflight.output,
+          reason: "codex-unauthenticated",
+          exit_code: preflight.exitCode,
+          log: logFile,
+          sandbox_degraded: preflight.sandboxDegraded,
+          capabilities: preflight.capabilities,
+        }));
+      }
+      if (preflight.failure === "quota") {
+        logLine("codex quota detected during preflight; falling back to Claude");
+        const match = preflight.output.match(/resets? (?:at|in) ([^\n.]+)/i);
+        markExhausted(match ? match[1].trim() : "");
+        return emitRun(await executeClaudeFamily(
+          taskCwd,
+          repoRoot,
+          mode,
+          taskText,
+          probe,
+          logger,
+          true,
+          "codex-quota-exhausted",
+          preflight.sandboxDegraded,
+        ));
+      }
+      return emitRun(makeResult({
+        agent: "codex",
+        output: preflight.output,
+        reason: preflight.failure === "readonly" ? "readonly-violation" : "worktree-read-unavailable",
+        exit_code: preflight.exitCode,
+        log: logFile,
+        sandbox_degraded: preflight.sandboxDegraded,
+        capabilities: preflight.capabilities,
+        guard_error: preflight.guardError ?? null,
+      }));
+    }
+
+    logLine("## codex task");
+    const guarded = await runTask(
+      "codex",
+      mode,
+      preflight.sandboxDegraded,
+      taskCwd,
+      repoRoot,
+      taskText,
+    );
+    if (guarded.guardError || guarded.mutated) {
+      const output = guarded.guardError
+        ? JSON.stringify(guarded.guardError)
+        : "read-only Codex task mutated the worktree";
+      logLine(output);
+      return emitRun(makeResult({
+        agent: "codex",
+        output,
+        reason: "readonly-violation",
+        exit_code: 1,
+        log: logFile,
+        sandbox_degraded: preflight.sandboxDegraded,
+        capabilities: preflight.capabilities,
+        guard_error: guarded.guardError,
+      }));
+    }
+    const result = guarded.result!;
+    logLine(`codex exit=${result.exitCode} ok=${result.ok}`);
+    logLine(result.output);
+    if (result.ok) {
+      return emitRun(makeResult({
+        agent: "codex",
+        ok: true,
+        output: result.output,
+        exit_code: 0,
+        log: logFile,
+        sandbox_degraded: preflight.sandboxDegraded,
+        capabilities: preflight.capabilities,
+      }));
+    }
+
+    const failure = classifyFailure(result, taskText);
+    if (failure === "auth") {
+      return emitRun(makeResult({
+        agent: "codex",
+        output: result.output,
+        reason: "codex-unauthenticated",
+        exit_code: result.exitCode,
+        log: logFile,
+        sandbox_degraded: preflight.sandboxDegraded,
+        capabilities: preflight.capabilities,
+      }));
+    }
+    if (failure !== "quota") {
+      return emitRun(makeResult({
+        agent: "codex",
+        output: result.output,
+        reason: "codex-task-failure",
+        exit_code: result.exitCode,
+        log: logFile,
+        sandbox_degraded: preflight.sandboxDegraded,
+        capabilities: preflight.capabilities,
+      }));
+    }
+
+    logLine("codex quota detected; marking exhausted and falling back to Claude");
+    const match = diagnostics(result, taskText).match(/resets? (?:at|in) ([^\n.]+)/i);
+    markExhausted(match ? match[1].trim() : "");
+    return emitRun(await executeClaudeFamily(
+      taskCwd,
+      repoRoot,
+      mode,
+      taskText,
+      probe,
+      logger,
+      true,
+      "codex-quota-exhausted",
+      preflight.sandboxDegraded,
+    ));
+  }
+
+  const reason = forced === "claude" ? "forced-claude" : "codex-quota-exhausted";
+  logLine(`## claude (${reason}${until ? `, resets ${until}` : ""})`);
+  return emitRun(await executeClaudeFamily(
+    taskCwd,
+    repoRoot,
+    mode,
+    taskText,
+    probe,
+    logger,
+    reason === "codex-quota-exhausted",
+    reason,
+  ));
+}
+
+function parseArgs(argv: string[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i].startsWith("--")) {
+      const key = argv[i].slice(2);
+      const val = argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[++i] : "true";
+      out[key] = val;
+    }
+  }
+  return out;
+}
+
+function splitArgs(argv: string[]): { positionals: string[]; flags: Record<string, string> } {
+  const positionals: string[] = [];
+  const flags: Record<string, string> = {};
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i].startsWith("--")) {
+      const key = argv[i].slice(2);
+      const val = argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[++i] : "true";
+      flags[key] = val;
+    } else {
+      positionals.push(argv[i]);
+    }
+  }
+  return { positionals, flags };
+}
+
+// ── doctor / init / history — local conveniences, zero API calls ─────────────
+
+function binVersion(bin: string, argv: string[] = ["--version"]): string | null {
+  try {
+    const result = spawnSync(bin, argv, { encoding: "utf8", timeout: 15000 });
+    if (result.error || result.status !== 0) return null;
+    return ((result.stdout || result.stderr).trim().split("\n")[0] || null);
+  } catch {
+    return null;
+  }
+}
+
+function maskKey(key: string | null): string | null {
+  if (!key) return null;
+  if (key.length <= 8) return "****";
+  return `${key.slice(0, 4)}…${key.slice(-4)}`;
+}
+
+function newestLogs(limit: number): string[] {
+  try {
+    return readdirSync(LOG_DIR)
+      .filter((file) => file.endsWith(".log"))
+      .sort()
+      .reverse()
+      .slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
+function cmdDoctor(json: boolean): number {
+  const { exhausted, until } = codexExhausted();
+  let flagAge: number | null = null;
+  try {
+    flagAge = Math.round((Date.now() - statSync(EXHAUSTED_FLAG).mtimeMs) / 1000);
+  } catch {}
+  const codexVersion = binVersion(CODEX_BIN);
+  // `codex login status` is a purely local check — it never spends quota.
+  let codexAuth: string | null = null;
+  if (codexVersion) {
+    try {
+      const result = spawnSync(CODEX_BIN, ["login", "status"], {
+        encoding: "utf8",
+        timeout: 15000,
+      });
+      codexAuth =
+        (`${result.stdout || ""}\n${result.stderr || ""}`).trim().split("\n")[0] || null;
+    } catch {}
+  }
+  const glm = glmConfig();
+  const logs = newestLogs(1);
+  let lastRun: { file: string; header: string | null } | null = null;
+  if (logs.length) {
+    let header: string | null = null;
+    try {
+      header = readFileSync(join(LOG_DIR, logs[0]), "utf8").split("\n")[0] || null;
+    } catch {}
+    lastRun = { file: join(LOG_DIR, logs[0]), header };
+  }
+  const report = {
+    codex: { bin: CODEX_BIN, version: codexVersion, auth: codexAuth },
+    claude: { bin: CLAUDE_BIN, version: binVersion(CLAUDE_BIN) },
+    glm: {
+      bin: GLM_BIN,
+      configured: Boolean(glm.apiKey),
+      api_key: maskKey(glm.apiKey),
+      model: glm.model,
+      base_url: GLM_BASE_URL,
+    },
+    quota: { codex_exhausted: exhausted, resets: until, flag_age_seconds: flagAge },
+    sandbox: { bwrap: Boolean(binVersion("bwrap")) },
+    last_run: lastRun,
+  };
+  if (json) {
+    console.log(JSON.stringify(report));
+    return 0;
+  }
+  console.log(`codex   ${report.codex.version ?? "MISSING"}  auth: ${report.codex.auth ?? "unknown"}`);
+  console.log(`claude  ${report.claude.version ?? "MISSING"}`);
+  console.log(
+    `glm     ${report.glm.configured ? `configured (key ${report.glm.api_key}, model ${report.glm.model ?? "default"})` : "not configured"}`,
+  );
+  console.log(
+    `quota   codex_exhausted=${report.quota.codex_exhausted}${until ? ` resets=${until}` : ""}${flagAge !== null ? ` flag_age=${flagAge}s` : ""}`,
+  );
+  console.log(`bwrap   ${report.sandbox.bwrap ? "present" : "absent"}`);
+  console.log(`last    ${lastRun ? `${lastRun.file}\n        ${lastRun.header ?? ""}` : "no runs logged"}`);
+  return 0;
+}
+
+const DUO_PLAN_TEMPLATE = (slug: string) => `# Plan — ${slug}
+
+## Objective
+
+<what must exist when this is done>
+
+## Success criteria (verifiable commands — MANDATORY)
+
+- \`<build/test command that must exit 0>\`
+
+## Files touched
+
+- <path> — <why>
+
+## Approach
+
+<the strategy, precise enough for a coder who challenges it>
+`;
+
+const DUO_CRITIQUE_TEMPLATE = `Here is an implementation plan for this repository. Challenge it as a deep
+adversarial reviewer: blind spots, files that contradict the plan, a better
+approach if you see one. Do NOT write code. Do NOT modify any file. Do NOT run
+cargo, npm, bun, make, or any build/lint/test command — a build writes
+artifacts (target/, node_modules/, dist/) and voids this read-only review: the
+worktree guard will reject the whole run as a readonly-violation. Inspect the
+code by READING files only. Answer in structured text ranked
+BLOCKER / MAJOR / MINOR.
+
+--- PLAN ---
+<paste plan.md here>
+`;
+
+const DUO_CODE_TEMPLATE = `Implement exactly the plan below in this repository. Respect the existing code
+style. Only touch the files listed in the plan. Do not commit.
+
+--- PLAN (v2, post-critique) ---
+<paste the revised plan.md here>
+`;
+
+function cmdInit(positionals: string[], flags: Record<string, string>): number {
+  const emitInit = (payload: Record<string, unknown>, code: number): number => {
+    console.log(JSON.stringify(payload));
+    return code;
+  };
+  const slug = positionals[0];
+  if (!slug || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/.test(slug)) {
+    return emitInit({ ok: false, reason: "bad-slug" }, 2);
+  }
+  const cwd = resolve(flags.cwd || process.cwd());
+  const dir = join(cwd, "agentic", "duo", slug);
+  // lstat, not existsSync: a dangling symlink at the target must also refuse.
+  try {
+    lstatSync(dir);
+    return emitInit({ ok: false, reason: "exists", dir }, 2);
+  } catch {}
+  mkdirSync(dir, { recursive: true });
+  const files: Record<string, string> = {
+    "plan.md": DUO_PLAN_TEMPLATE(slug),
+    "critique-task.md": DUO_CRITIQUE_TEMPLATE,
+    "code-task.md": DUO_CODE_TEMPLATE,
+  };
+  for (const [name, content] of Object.entries(files)) {
+    writeFileSync(join(dir, name), content);
+  }
+  return emitInit({ ok: true, dir, files: Object.keys(files) }, 0);
+}
+
+function cmdHistory(flags: Record<string, string>): number {
+  const limit = Math.min(500, Math.max(1, Number(flags.limit || 10) || 10));
+  // Primary source: the versioned JSONL written at emit time. Free-text log
+  // parsing below is only the legacy fallback for pre-v2 runs.
+  const jsonlPath = join(LOG_DIR, "history.jsonl");
+  if (existsSync(jsonlPath)) {
+    const records = readFileSync(jsonlPath, "utf8")
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => {
+        try {
+          return JSON.parse(line);
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean)
+      .slice(-limit)
+      .reverse();
+    if (flags.json === "true") {
+      console.log(JSON.stringify(records));
+    } else {
+      for (const record of records) {
+        console.log(
+          `${record.timestamp ?? "?"}  mode=${record.mode ?? "?"}  agent=${record.agent ?? "?"}  ok=${record.ok ?? "?"}${record.fell_back ? "  fell_back" : ""}  ${record.cwd ?? ""}`,
+        );
+      }
+    }
+    return 0;
+  }
+  const entries = newestLogs(limit).map((file) => {
+    let mode: string | null = null;
+    let cwd: string | null = null;
+    let agent: string | null = null;
+    let ok: boolean | null = null;
+    let fellBack = false;
+    try {
+      const raw = readFileSync(join(LOG_DIR, file), "utf8");
+      const header = raw.split("\n")[0] || "";
+      mode = header.match(/ mode=(\S+)/)?.[1] ?? null;
+      cwd = header.match(/ cwd="([^"]+)"/)?.[1] ?? null;
+      fellBack = /falling back to Claude/i.test(raw);
+      const exits = [...raw.matchAll(/^(codex|claude|glm) exit=(-?\d+) ok=(true|false)$/gm)];
+      const last = exits[exits.length - 1];
+      if (last) {
+        agent = last[1];
+        ok = last[3] === "true";
+      }
+    } catch {}
+    return {
+      file: join(LOG_DIR, file),
+      started: file.slice(0, 24),
+      mode,
+      cwd,
+      agent,
+      ok,
+      fell_back: fellBack,
+    };
+  });
+  if (flags.json === "true") {
+    console.log(JSON.stringify(entries));
+  } else {
+    for (const entry of entries) {
+      console.log(
+        `${entry.started}  mode=${entry.mode ?? "?"}  agent=${entry.agent ?? "?"}  ok=${entry.ok ?? "?"}${entry.fell_back ? "  fell_back" : ""}  ${entry.cwd ?? ""}`,
+      );
+    }
+  }
+  return 0;
+}
+
+// ── Self-test: exercises the real bridge without any API call ─────────────────
+function writeExecutable(path: string, lines: string[]) {
+  writeFileSync(path, `${lines.join("\n")}\n`);
+  chmodSync(path, 0o755);
+}
+
+function selftestGit(cwd: string, args: string[]) {
+  const result = spawnSync("git", ["-C", cwd, ...args], { encoding: "utf8" });
+  if (result.error || result.status !== 0) {
+    throw new Error((result.stderr || result.error?.message || "git failed").trim());
+  }
+}
+
+async function cmdSelftest(): Promise<number> {
+  const dir = mkdtempSync(join(tmpdir(), "duo-selftest-"));
+  let pass = 0;
+  let fail = 0;
+  const check = (name: string, condition: boolean) => {
+    if (condition) {
+      pass++;
+      console.log(`  ok   ${name}`);
+    } else {
+      fail++;
+      console.log(`  FAIL ${name}`);
+    }
+  };
+
+  try {
+    const worktree = join(dir, "worktree");
+    const requestedCwd = join(worktree, "nested");
+    const task = join(dir, "task.md");
+    const largeTask = join(dir, "large-task.md");
+    const fakeCodex = join(dir, "fake-codex");
+    const fakeClaude = join(dir, "fake-claude");
+    const callLog = join(dir, "calls.jsonl");
+    mkdirSync(worktree);
+    mkdirSync(requestedCwd);
+    writeFileSync(join(worktree, "Cargo.toml"), "[package]\nname = \"duo-selftest\"\nversion = \"0.0.0\"\n");
+    writeFileSync(join(worktree, "existing.txt"), "original\n");
+    writeFileSync(join(worktree, ".gitignore"), "ignored-existing.txt\n");
+    selftestGit(worktree, ["init", "-q"]);
+    selftestGit(worktree, ["add", ".gitignore", "Cargo.toml", "existing.txt"]);
+    selftestGit(worktree, [
+      "-c", "user.name=Omega Duo",
+      "-c", "user.email=duo@example.invalid",
+      "commit", "-qm", "selftest baseline",
+    ]);
+    const baselineHead = gitOutput(worktree, ["rev-parse", "HEAD"]).trim();
+    const baselineBranch = gitOutput(worktree, [
+      "symbolic-ref",
+      "--short",
+      "HEAD",
+    ]).trim();
+    writeFileSync(join(worktree, "ignored-existing.txt"), "ignored original\n");
+    writeFileSync(join(worktree, "untracked-existing.txt"), "untracked original\n");
+    writeFileSync(task, "do the thing");
+    writeFileSync(largeTask, `${"L".repeat(1024 * 1024)}OMEGA_LARGE_TAIL`);
+    writeFileSync(callLog, "");
+
+    writeExecutable(fakeCodex, [
+      "#!/usr/bin/env bun",
+      'import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";',
+      'import { spawnSync } from "node:child_process";',
+      'import { join } from "node:path";',
+      "const input = await Bun.stdin.text();",
+      "const argv = process.argv.slice(2);",
+      'const behavior = process.env.DUO_FAKE_CODEX || "ok";',
+      'const nativeReadFails = process.env.DUO_FAKE_NATIVE_READ === "1";',
+      'const rootResult = spawnSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" });',
+      'if (rootResult.status !== 0) { console.error(rootResult.stderr); process.exit(1); }',
+      "const repoRoot = rootResult.stdout.trim();",
+      "if (process.env.DUO_CALL_LOG) appendFileSync(process.env.DUO_CALL_LOG, JSON.stringify({ agent: \"codex\", probe: input.includes(\"OMEGA_DUO_PROBE \"), argv, input_length: input.length, cwd: process.cwd(), absolute_root_in_input: input.includes(repoRoot) }) + \"\\n\");",
+      "const probe = input.match(/OMEGA_DUO_PROBE\\s+(OMEGA_DUO_PROBE_[a-f0-9]+)\\s+([A-Za-z0-9+/=]+)/);",
+      "if (probe) {",
+      '  if (nativeReadFails && argv.includes("--sandbox") && argv.includes("read-only")) { console.error("the probe command was blocked by the native sandbox permission layer and requires approval"); process.exit(1); }',
+      '  if (behavior === "auth") { console.error("HTTP 401 Unauthorized: token_expired. Please sign in again."); process.exit(1); }',
+      '  if (behavior === "auth-zero") { console.error("HTTP 401 Unauthorized: token_expired. Please sign in again."); process.exit(0); }',
+      '  if (behavior === "quota") { console.error("Usage limit reached. Resets at 2030-01-01T00:00:00Z"); process.exit(1); }',
+      '  if (behavior === "transient-500") { console.error("500 Internal Error\\nsandbox denied repository access"); process.exit(1); }',
+      '  if (behavior === "blind") { console.log("I could not access the repository"); process.exit(0); }',
+      '  const command = input.match(/^Run: git hash-object -- ([A-Za-z0-9_./@+=-]+)$/m);',
+      '  if (!command) { console.error("unsafe or missing relative probe command"); process.exit(1); }',
+      '  const git = spawnSync("git", ["hash-object", "--", command[1]], { encoding: "utf8" });',
+      '  if (git.status !== 0) { console.error(git.stderr); process.exit(1); }',
+      '  console.log(probe[1] + "=" + git.stdout.trim());',
+      "  process.exit(0);",
+      "}",
+      'if (behavior === "task-fail") { console.error(input); console.error("error[E0382]: borrow of moved value"); process.exit(1); }',
+      'if (behavior === "task-prefixed-fail") { for (const line of input.split(/\\r?\\n/)) console.error("Task: " + line); console.error("[Task] quota."); console.error("\\\"Task: 429,\\\""); console.error("> Task: 401:"); console.error("error[E0382]: borrow of moved value"); process.exit(1); }',
+      'if (behavior === "task-raw-401") { console.error("HTTP 401: quota unavailable"); process.exit(1); }',
+      'if (behavior === "task-auth-quota") { console.log("HTTP 401 Unauthorized: token_invalidated"); console.error("Usage limit reached. Resets later."); process.exit(1); }',
+      'if (behavior === "task-quota") { console.error("Usage limit reached. Resets at 2030-01-01T00:00:00Z"); process.exit(1); }',
+      'if (behavior === "task-partial-quota-echo") { console.error("usage limit"); console.error("task failed after echo"); process.exit(1); }',
+      'if (behavior === "task-mutate") writeFileSync(join(repoRoot, "existing.txt"), "codex mutation\\n");',
+      'if (behavior === "task-mutate-ignored") writeFileSync(join(repoRoot, "ignored-existing.txt"), "ignored mutation\\n");',
+      'if (behavior === "task-ignored-churn") writeFileSync(join(repoRoot, "ignored-existing.txt"), "ignored churn\\n");',
+      'if (behavior === "task-mutate-untracked") writeFileSync(join(repoRoot, "untracked-existing.txt"), "untracked mutation\\n");',
+      'if (behavior === "task-empty-dir") mkdirSync(join(repoRoot, "created-empty-dir"));',
+      'if (behavior === "task-empty-commit") {',
+      '  const git = spawnSync("git", ["-C", repoRoot, "-c", "user.name=Omega Duo", "-c", "user.email=duo@example.invalid", "commit", "--allow-empty", "-qm", "guard probe"], { encoding: "utf8" });',
+      '  if (git.status !== 0) { console.error(git.stderr); process.exit(1); }',
+      "}",
+      'if (behavior === "task-index") {',
+      '  const git = spawnSync("git", ["-C", repoRoot, "rm", "--cached", "-q", "--", "existing.txt"], { encoding: "utf8" });',
+      '  if (git.status !== 0) { console.error(git.stderr); process.exit(1); }',
+      "}",
+      'if (behavior === "task-git-config") {',
+      '  const git = spawnSync("git", ["-C", repoRoot, "config", "--local", "duo.guard", "mutated"], { encoding: "utf8" });',
+      '  if (git.status !== 0) { console.error(git.stderr); process.exit(1); }',
+      "}",
+      'if (behavior === "large") {',
+      '  const inArgv = argv.some((arg) => arg.includes("OMEGA_LARGE_TAIL"));',
+      '  if (input.length < 1024 * 1024 || !input.endsWith("OMEGA_LARGE_TAIL") || inArgv) { console.error("large stdin delivery failed"); process.exit(1); }',
+      '  console.log("large-stdin-ok");',
+      "  process.exit(0);",
+      "}",
+      'console.log("codex did the work");',
+    ]);
+
+    writeExecutable(fakeClaude, [
+      "#!/usr/bin/env bun",
+      'import { appendFileSync, writeFileSync } from "node:fs";',
+      'import { spawnSync } from "node:child_process";',
+      'import { join } from "node:path";',
+      "const input = await Bun.stdin.text();",
+      "const argv = process.argv.slice(2);",
+      'const behavior = process.env.DUO_FAKE_CLAUDE || "ok";',
+      'const nativeReadFails = process.env.DUO_FAKE_CLAUDE_READ === "1";',
+      'const rootResult = spawnSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" });',
+      'if (rootResult.status !== 0) { console.error(rootResult.stderr); process.exit(1); }',
+      "const repoRoot = rootResult.stdout.trim();",
+      "if (process.env.DUO_CALL_LOG) appendFileSync(process.env.DUO_CALL_LOG, JSON.stringify({ agent: \"claude\", probe: input.includes(\"OMEGA_DUO_PROBE \"), argv, input_length: input.length, cwd: process.cwd(), absolute_root_in_input: input.includes(repoRoot), base_url: process.env.ANTHROPIC_BASE_URL || null }) + \"\\n\");",
+      "const probe = input.match(/OMEGA_DUO_PROBE\\s+(OMEGA_DUO_PROBE_[a-f0-9]+)\\s+([A-Za-z0-9+/=]+)/);",
+      "if (probe) {",
+      '  if (nativeReadFails && argv.includes("plan")) { console.error("the probe command was blocked by the permission layer and requires approval"); process.exit(1); }',
+      '  if (behavior === "transient-500") { console.error("500 Internal Error\\nsandbox denied repository access"); process.exit(1); }',
+      '  const command = input.match(/^Run: git hash-object -- ([A-Za-z0-9_./@+=-]+)$/m);',
+      '  if (!command) { console.error("unsafe or missing relative probe command"); process.exit(1); }',
+      '  const git = spawnSync("git", ["hash-object", "--", command[1]], { encoding: "utf8" });',
+      '  if (git.status !== 0) { console.error(git.stderr); process.exit(1); }',
+      '  console.log(probe[1] + "=" + git.stdout.trim());',
+      "  process.exit(0);",
+      "}",
+      'if (behavior === "task-mutate") writeFileSync(join(repoRoot, "existing.txt"), "claude mutation\\n");',
+      'if (behavior === "large") {',
+      '  const inArgv = argv.some((arg) => arg.includes("OMEGA_LARGE_TAIL"));',
+      '  if (input.length < 1024 * 1024 || !input.endsWith("OMEGA_LARGE_TAIL") || inArgv) { console.error("large stdin delivery failed"); process.exit(1); }',
+      '  console.log("claude-large-stdin-ok");',
+      "  process.exit(0);",
+      "}",
+      'console.log("claude did the work");',
+    ]);
+
+    const envFor = (
+      name: string,
+      codexBehavior = "ok",
+      claudeBehavior = "ok",
+      nativeReadFails = false,
+      claudeNativeReadFails = false,
+    ): Record<string, string> => ({
+      DUO_CODEX_BIN: fakeCodex,
+      DUO_CLAUDE_BIN: fakeClaude,
+      DUO_FAKE_CODEX: codexBehavior,
+      DUO_FAKE_CLAUDE: claudeBehavior,
+      DUO_FAKE_NATIVE_READ: nativeReadFails ? "1" : "0",
+      DUO_FAKE_CLAUDE_READ: claudeNativeReadFails ? "1" : "0",
+      DUO_CALL_LOG: callLog,
+      // Repeated end-to-end child processes can briefly exhaust a shared
+      // host's inotify-instance quota. Production degraded runs still fail
+      // closed; the self-test keeps exercising the complete snapshots.
+      OMEGA_DIR: join(dir, `state-${name}`),
+    });
+
+    const observedRuns: any[] = [];
+    const debugSelftest = process.env.DUO_SELFTEST_DEBUG === "1";
+    const captureCase = async (
+      args: Record<string, string>,
+      env: Record<string, string>,
+    ) => {
+      const result = await captureRun(args, env);
+      observedRuns.push(result);
+      if (debugSelftest) {
+        console.log(`  debug ${JSON.stringify({ args, result })}`);
+      }
+      return result;
+    };
+    const calls = () =>
+      readFileSync(callLog, "utf8")
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+    const largeTaskCall = (call: any) =>
+      call.input_length >= 1024 * 1024 &&
+      !call.argv.some((arg: string) => arg.includes("OMEGA_LARGE_TAIL"));
+
+    const transportClasses = [
+      "403 Permission denied",
+      "500 Internal Error",
+      "HTTP500 upstream error",
+      "HTTP/2 503 Service Unavailable",
+      "5xx provider error",
+      "network timeout",
+      "ECONNREFUSED",
+    ];
+    check(
+      "transport failure classes independently veto sandbox degradation",
+      transportClasses.every((transport) =>
+        !positiveSandboxReadDenial({
+          ok: false,
+          output: `${transport}\nsandbox denied repository access`,
+          stdout: "",
+          stderr: "",
+          exitCode: 1,
+          spawnError: false,
+        })
+      ),
+    );
+    check(
+      "exact local Bubblewrap bootstrap denial authorizes guarded degradation",
+      positiveSandboxReadDenial({
+        ok: false,
+        output:
+          "bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted",
+        stdout: "",
+        stderr: "",
+        exitCode: 1,
+        spawnError: false,
+      }),
+    );
+    check(
+      "generic repository-read prose cannot authorize degradation",
+      !positiveSandboxReadDenial({
+        ok: false,
+        output: "I could not access the repository",
+        stdout: "",
+        stderr: "",
+        exitCode: 1,
+        spawnError: false,
+      }),
+    );
+
+    writeFileSync(callLog, "");
+    let out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      envFor("clean"),
+    );
+    const cleanCalls = calls();
+    check(
+      "healthy read-only run reports stable capabilities",
+      out.agent === "codex" &&
+        out.ok &&
+        out.sandbox_degraded === false &&
+        out.capabilities?.shell_exec === true &&
+        out.capabilities?.worktree_read === true,
+    );
+    const firstCodexProbe = cleanCalls.find(
+      (call) => call.agent === "codex" && call.probe,
+    );
+    check(
+      "attempt zero uses native read-only argv",
+      JSON.stringify(firstCodexProbe?.argv) ===
+        JSON.stringify([
+          "exec",
+          "--skip-git-repo-check",
+          "--sandbox",
+          "read-only",
+          "-",
+        ]),
+    );
+    // Compare canonical paths: on macOS TMPDIR hands back /var/folders/… while the
+    // agent records process.cwd() as /private/var/folders/… — same directory, two
+    // strings, because /var is a symlink to /private/var.
+    const canonicalRequestedCwd = realpathSync(requestedCwd);
+    check(
+      "preflight and task preserve the requested process cwd",
+      cleanCalls.length >= 2 &&
+        cleanCalls.every((call) => realpathSync(call.cwd) === canonicalRequestedCwd),
+    );
+    check(
+      "read probe prompt uses no absolute repository path",
+      cleanCalls
+        .filter((call) => call.probe)
+        .every((call) => call.absolute_root_in_input === false),
+    );
+
+    selftestGit(worktree, ["checkout", "--detach", "-q"]);
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      envFor("detached-head"),
+    );
+    check(
+      "native read-only guard supports detached HEAD",
+      out.ok &&
+        out.agent === "codex" &&
+        out.sandbox_degraded === false,
+    );
+    selftestGit(worktree, ["checkout", "-q", baselineBranch]);
+
+    writeFileSync(callLog, "");
+    out = await captureCase(
+      { task: largeTask, cwd: requestedCwd, mode: "plan" },
+      envFor("large", "large"),
+    );
+    const directLargeCalls = calls();
+    check(
+      "1 MiB plan reaches Codex on stdin and never enters argv",
+      out.ok &&
+        out.agent === "codex" &&
+        out.output.includes("large-stdin-ok") &&
+        directLargeCalls.some(
+          (call) => call.agent === "codex" && !call.probe && largeTaskCall(call),
+        ),
+    );
+
+    writeFileSync(callLog, "");
+    out = await captureCase(
+      { task: largeTask, cwd: requestedCwd, mode: "plan" },
+      envFor("large-fallback", "task-quota", "large"),
+    );
+    const fallbackLargeCalls = calls();
+    check(
+      "1 MiB plan survives quota fallback entirely over stdin",
+      out.ok &&
+        out.agent === "claude" &&
+        out.fell_back &&
+        out.reason === "codex-quota-exhausted" &&
+        fallbackLargeCalls.some(
+          (call) => call.agent === "codex" && !call.probe && largeTaskCall(call),
+        ) &&
+        fallbackLargeCalls.some(
+          (call) => call.agent === "claude" && !call.probe && largeTaskCall(call),
+        ),
+    );
+
+    writeFileSync(callLog, "");
+    const authEnv = envFor("auth", "auth");
+    out = await captureCase({ task, cwd: requestedCwd, mode: "code" }, authEnv);
+    const authCalls = readFileSync(callLog, "utf8");
+    check(
+      "preflight 401 is codex-unauthenticated with no Claude fallback",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "codex-unauthenticated" &&
+        !out.fell_back &&
+        !authCalls.includes('"agent":"claude"') &&
+        !existsSync(join(authEnv.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+
+    writeFileSync(callLog, "");
+    const authZeroEnv = envFor("auth-zero", "auth-zero");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      authZeroEnv,
+    );
+    check(
+      "exit-zero preflight auth diagnostic is normalized to failed JSON and process status",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "codex-unauthenticated" &&
+        out.exit_code === 1 &&
+        out._process_exit_code === 1 &&
+        !out.fell_back &&
+        !existsSync(join(authZeroEnv.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+
+    writeFileSync(callLog, "");
+    const ambiguousAuthEnv = envFor("task-auth-quota", "task-auth-quota");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      ambiguousAuthEnv,
+    );
+    const ambiguousAuthCalls = calls();
+    check(
+      "task-time 401 wins over simultaneous quota text",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "codex-unauthenticated" &&
+        !out.fell_back &&
+        !ambiguousAuthCalls.some((call) => call.agent === "claude") &&
+        !existsSync(join(ambiguousAuthEnv.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+
+    writeFileSync(task, "401");
+    const raw401Env = envFor("task-raw-401", "task-raw-401");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      raw401Env,
+    );
+    check(
+      "HTTP 401 with quota text survives exact task-echo sanitization",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "codex-unauthenticated" &&
+        !out.fell_back &&
+        !existsSync(join(raw401Env.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+    writeFileSync(task, "do the thing");
+
+    writeFileSync(callLog, "");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      envFor("transient-500", "transient-500"),
+    );
+    check(
+      "transient provider failure never enters guarded degraded mode",
+      !out.ok &&
+        out.reason === "worktree-read-unavailable" &&
+        out.sandbox_degraded === false &&
+        calls().every((call) => !call.argv.includes("--dangerously-bypass-approvals-and-sandbox")),
+    );
+
+    writeFileSync(callLog, "");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "review", agent: "claude" },
+      envFor("claude-transient-500", "ok", "transient-500"),
+    );
+    check(
+      "Claude sandbox availability and no-permission prose cannot authorize degradation",
+      !out.ok &&
+        out.agent === "claude" &&
+        out.reason === "worktree-read-unavailable" &&
+        out.sandbox_degraded === false &&
+        calls().every((call) => !call.argv.includes("--dangerously-skip-permissions")),
+    );
+
+    const quotaEnv = envFor("quota", "quota");
+    out = await captureCase({ task, cwd: requestedCwd, mode: "code" }, quotaEnv);
+    check(
+      "quota falls back to Claude and records exhaustion",
+      out.ok &&
+        out.agent === "claude" &&
+        out.fell_back &&
+        out.reason === "codex-quota-exhausted" &&
+        existsSync(join(quotaEnv.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+
+    writeFileSync(task, "diagnose this literal 401 Unauthorized and quota string");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code" },
+      envFor("task-fail", "task-fail"),
+    );
+    check(
+      "echoed task text cannot trigger auth or quota classification",
+      !out.ok && out.agent === "codex" && out.reason === "codex-task-failure" && !out.fell_back,
+    );
+
+    writeFileSync(task, "401 Unauthorized copied from the task\nfix the parser");
+    const leading401Env = envFor("leading-401-echo", "task-fail");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code" },
+      leading401Env,
+    );
+    check(
+      "echoed task line beginning with 401 remains a task failure",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "codex-task-failure" &&
+        !out.fell_back &&
+        !existsSync(join(leading401Env.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+
+    writeFileSync(
+      task,
+      "401 Unauthorized copied from the task\nUsage limit reached in the example\nInvestigate quota and 429 examples",
+    );
+    const prefixedEchoEnv = envFor(
+      "prefixed-task-echo",
+      "task-prefixed-fail",
+    );
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code" },
+      prefixedEchoEnv,
+    );
+    check(
+      "prefixed task echoes cannot trigger auth, quota fallback, or exhaustion",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "codex-task-failure" &&
+        !out.fell_back &&
+        !existsSync(join(prefixedEchoEnv.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+
+    writeFileSync(task, "Investigate why this usage limit phrase is echoed");
+    const partialQuotaEnv = envFor(
+      "partial-quota-echo",
+      "task-partial-quota-echo",
+    );
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code" },
+      partialQuotaEnv,
+    );
+    check(
+      "partial quota-phrase echo cannot set the exhausted flag",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "codex-task-failure" &&
+        !out.fell_back &&
+        !existsSync(join(partialQuotaEnv.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+    writeFileSync(task, "do the thing");
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code" },
+      quotaEnv,
+    );
+    check(
+      "an active exhausted flag skips Codex and uses Claude",
+      out.ok && out.agent === "claude" && out.fell_back,
+    );
+
+    writeFileSync(callLog, "");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      envFor("degraded", "ok", "ok", true),
+    );
+    const degradedCalls = calls().filter(
+      (call) => call.agent === "codex" && call.probe,
+    );
+    check(
+      "failed native read probe uses disclosed guarded degradation",
+      out.ok &&
+        out.agent === "codex" &&
+        out.sandbox_degraded === true &&
+        out.capabilities?.shell_exec === true &&
+        out.capabilities?.worktree_read === true &&
+        degradedCalls.length === 2 &&
+        degradedCalls[0].argv.includes("read-only") &&
+        degradedCalls[1].argv.includes("--dangerously-bypass-approvals-and-sandbox"),
+    );
+
+    const watcherFailureEnv = { ...envFor("watcher-failure", "ok", "ok", true), DUO_SELFTEST_WATCHER_FAIL: "1" };
+    out = await captureCase({ task, cwd: requestedCwd, mode: "plan" }, watcherFailureEnv);
+    check(
+      "injected watcher failure is the real fail-closed result",
+      !out.ok &&
+        out.reason === "worktree-read-unavailable" &&
+        out.output.includes("no live filesystem watcher") &&
+        out.guard_error?.code === "guard-error" &&
+        out.guard_error?.message.includes("no live filesystem watcher"),
+    );
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      envFor("native-ignored-churn", "task-ignored-churn"),
+    );
+    check(
+      "native read-only mode ignores unrelated ignored-artifact churn",
+      out.ok && out.sandbox_degraded === false && readFileSync(join(worktree, "ignored-existing.txt"), "utf8") === "ignored churn\n",
+    );
+    writeFileSync(join(worktree, "ignored-existing.txt"), "ignored original\n");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      envFor("blind", "blind"),
+    );
+    check(
+      "repository-blind agent can never return green",
+      !out.ok &&
+        out.reason === "worktree-read-unavailable" &&
+        out.sandbox_degraded === false &&
+        out.capabilities?.shell_exec === false &&
+        out.capabilities?.worktree_read === false,
+    );
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      envFor("codex-mutation", "task-mutate", "ok", true),
+    );
+    check(
+      "degraded Codex plan mutation is detected and left visible",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "readonly-violation" &&
+        readFileSync(join(worktree, "existing.txt"), "utf8") === "codex mutation\n",
+    );
+    writeFileSync(join(worktree, "existing.txt"), "original\n");
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan" },
+      envFor("ignored-mutation", "task-mutate-ignored", "ok", true),
+    );
+    check(
+      "ignored-file mutation outside the requested cwd is detected",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "readonly-violation" &&
+        readFileSync(join(worktree, "ignored-existing.txt"), "utf8") === "ignored mutation\n",
+    );
+    writeFileSync(join(worktree, "ignored-existing.txt"), "ignored original\n");
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "review" },
+      envFor("untracked-mutation", "task-mutate-untracked", "ok", true),
+    );
+    check(
+      "pre-existing untracked-file mutation is detected",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "readonly-violation" &&
+        readFileSync(join(worktree, "untracked-existing.txt"), "utf8") ===
+          "untracked mutation\n",
+    );
+    writeFileSync(join(worktree, "untracked-existing.txt"), "untracked original\n");
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "review" },
+      envFor("empty-dir-mutation", "task-empty-dir", "ok", true),
+    );
+    check(
+      "new empty-directory mutation is detected",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "readonly-violation" &&
+        statSync(join(worktree, "created-empty-dir")).isDirectory(),
+    );
+    rmSync(join(worktree, "created-empty-dir"), { recursive: true, force: true });
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "review" },
+      envFor("empty-commit-mutation", "task-empty-commit", "ok", true),
+    );
+    check(
+      "empty Git commit mutation is detected outside the filesystem inventory",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "readonly-violation" &&
+        gitOutput(worktree, ["rev-parse", "HEAD"]).trim() !== baselineHead,
+    );
+    selftestGit(worktree, ["reset", "--soft", baselineHead]);
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "review" },
+      envFor("git-index-mutation", "task-index", "ok", true),
+    );
+    check(
+      "Git index-only mutation is detected",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "readonly-violation" &&
+        gitOutput(worktree, ["ls-files", "--", "existing.txt"]).trim() === "",
+    );
+    selftestGit(worktree, ["add", "existing.txt"]);
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "review" },
+      envFor("git-config-mutation", "task-git-config", "ok", true),
+    );
+    check(
+      "Git metadata mutation outside HEAD and index is detected",
+      !out.ok &&
+        out.agent === "codex" &&
+        out.reason === "readonly-violation" &&
+        gitOutput(worktree, ["config", "--local", "--get", "duo.guard"]).trim() ===
+          "mutated",
+    );
+    selftestGit(worktree, ["config", "--local", "--unset", "duo.guard"]);
+
+    writeFileSync(callLog, "");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "review", agent: "claude" },
+      envFor("claude-degraded", "ok", "ok", false, true),
+    );
+    const degradedClaudeCalls = calls().filter(
+      (call) => call.agent === "claude",
+    );
+    check(
+      "blocked Claude plan read uses disclosed guarded degradation",
+      out.ok &&
+        out.agent === "claude" &&
+        out.sandbox_degraded === true &&
+        out.capabilities?.shell_exec === true &&
+        out.capabilities?.worktree_read === true &&
+        degradedClaudeCalls.length === 3 &&
+        degradedClaudeCalls[0].argv.includes("plan") &&
+        degradedClaudeCalls[1].argv.includes("--dangerously-skip-permissions") &&
+        degradedClaudeCalls[2].argv.includes("--dangerously-skip-permissions"),
+    );
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "review", agent: "claude" },
+      envFor("claude-mutation", "ok", "task-mutate", false, true),
+    );
+    check(
+      "read-only Claude mutation is also detected",
+      !out.ok && out.agent === "claude" && out.reason === "readonly-violation",
+    );
+    writeFileSync(join(worktree, "existing.txt"), "original\n");
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "invalid", agent: "nobody" },
+      envFor("bad-input"),
+    );
+    check(
+      "bad input still emits the complete stable schema",
+      !out.ok &&
+        out.reason === "bad-input" &&
+        typeof out.sandbox_degraded === "boolean" &&
+        typeof out.capabilities?.shell_exec === "boolean" &&
+        typeof out.capabilities?.worktree_read === "boolean" &&
+        Object.prototype.hasOwnProperty.call(out, "guard_error") &&
+        out.guard_error === null,
+    );
+    // ── v2 features: doctor / init / history / verify / checkpoint / glm ────
+    const captureCmd = (argv: string[], env: Record<string, string>): Promise<any> =>
+      new Promise((resolveCapture) => {
+        const child = spawn(process.execPath, [__filename, ...argv], {
+          env: { ...process.env, ...env },
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+        let stdout = "";
+        let stderr = "";
+        child.stdout.on("data", (data) => (stdout += data.toString()));
+        child.stderr.on("data", (data) => (stderr += data.toString()));
+        child.on("close", (code) => {
+          let parsed: any = null;
+          try {
+            parsed = JSON.parse(stdout.trim().split("\n").pop() as string);
+          } catch {}
+          resolveCapture({ parsed, stdout, stderr, code });
+        });
+      });
+
+    let cmdOut = await captureCmd(["doctor", "--json"], envFor("doctor"));
+    check(
+      "doctor --json reports codex/claude/glm/quota/sandbox/last_run",
+      cmdOut.code === 0 &&
+        cmdOut.parsed &&
+        ["codex", "claude", "glm", "quota", "sandbox", "last_run"].every((key) =>
+          Object.prototype.hasOwnProperty.call(cmdOut.parsed, key),
+        ),
+    );
+
+    const initEnv = envFor("init");
+    cmdOut = await captureCmd(["init", "demo-slug", "--cwd", worktree], initEnv);
+    check(
+      "init scaffolds the three duo task templates",
+      cmdOut.code === 0 &&
+        cmdOut.parsed?.ok === true &&
+        ["plan.md", "critique-task.md", "code-task.md"].every((name) =>
+          existsSync(join(worktree, "agentic", "duo", "demo-slug", name)),
+        ),
+    );
+    cmdOut = await captureCmd(["init", "demo-slug", "--cwd", worktree], initEnv);
+    check(
+      "init refuses to overwrite an existing slug",
+      cmdOut.code !== 0 && cmdOut.parsed?.reason === "exists",
+    );
+    cmdOut = await captureCmd(["init", "../escape", "--cwd", worktree], initEnv);
+    check(
+      "init rejects a path-traversal slug",
+      cmdOut.code !== 0 && cmdOut.parsed?.reason === "bad-slug",
+    );
+
+    const verifyEnv = envFor("verify-green");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code", verify: "true" },
+      verifyEnv,
+    );
+    check(
+      "green verify rides a successful code run with checkpoint + diffstat",
+      out.ok === true &&
+        out.agent_ok === true &&
+        out.verify?.ok === true &&
+        out.verify?.exit_code === 0 &&
+        typeof out.checkpoint?.head === "string" &&
+        /^[0-9a-f]{40,64}$/.test(out.checkpoint.head) &&
+        typeof out.checkpoint?.ref === "string" &&
+        typeof out.diffstat === "string",
+    );
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code", verify: "echo boom >&2; exit 3" },
+      envFor("verify-red"),
+    );
+    check(
+      "red verify flips the run to verify-failed but keeps agent_ok true",
+      out.ok === false &&
+        out.agent_ok === true &&
+        out.reason === "verify-failed" &&
+        out.verify?.exit_code === 3 &&
+        out.verify?.timed_out === false &&
+        out.verify?.tail.includes("boom") &&
+        out._process_exit_code !== 0,
+    );
+
+    const verifyEchoEnv = envFor("verify-quota-echo");
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code", verify: "echo 'Usage limit reached. 401 quota'; exit 1" },
+      verifyEchoEnv,
+    );
+    check(
+      "quota/auth text in verify output never reclassifies nor marks the flag",
+      out.ok === false &&
+        out.reason === "verify-failed" &&
+        out.fell_back === false &&
+        !existsSync(join(verifyEchoEnv.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+
+    writeFileSync(callLog, "");
+    const glmEnv = {
+      ...envFor("glm-ok"),
+      DUO_GLM_BIN: fakeClaude,
+      DUO_GLM_API_KEY: "glm-selftest-key",
+      DUO_GLM_MODEL: "glm-test-model",
+    };
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan", agent: "glm" },
+      glmEnv,
+    );
+    const glmCalls = calls();
+    check(
+      "forced glm reports agent glm with worktree proof and redirect env",
+      out.ok === true &&
+        out.agent === "glm" &&
+        out.capabilities?.worktree_read === true &&
+        glmCalls.length >= 2 &&
+        glmCalls.every(
+          (call) =>
+            call.argv.includes("--model") &&
+            call.argv.includes("glm-test-model") &&
+            call.base_url === "https://api.z.ai/api/anthropic",
+        ),
+    );
+
+    writeFileSync(callLog, "");
+    const glmQuotaEnv = {
+      ...envFor("glm-quota"),
+      DUO_GLM_BIN: fakeCodex,
+      DUO_FAKE_CODEX: "task-quota",
+      DUO_GLM_API_KEY: "glm-selftest-key",
+    };
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "code", agent: "glm" },
+      glmQuotaEnv,
+    );
+    check(
+      "glm quota never falls back and never marks the codex flag",
+      out.ok === false &&
+        out.agent === "glm" &&
+        out.reason === "glm-quota" &&
+        out.fell_back === false &&
+        !calls().some((call) => call.agent === "claude") &&
+        !existsSync(join(glmQuotaEnv.OMEGA_DIR, "state", "duo-codex-exhausted")),
+    );
+
+    out = await captureCase(
+      { task, cwd: requestedCwd, mode: "plan", agent: "glm" },
+      envFor("glm-unconfigured"),
+    );
+    check(
+      "glm without configuration is refused as glm-unconfigured",
+      out.ok === false &&
+        out.reason === "glm-unconfigured" &&
+        out._process_exit_code === 2,
+    );
+
+    cmdOut = await captureCmd(["history", "--limit", "5", "--json"], verifyEnv);
+    check(
+      "history serves the versioned JSONL written at emit time",
+      cmdOut.code === 0 &&
+        Array.isArray(cmdOut.parsed) &&
+        cmdOut.parsed.length >= 1 &&
+        cmdOut.parsed[0].schema === 1 &&
+        cmdOut.parsed[0].mode === "code" &&
+        cmdOut.parsed[0].agent === "codex" &&
+        cmdOut.parsed[0].agent_ok === true,
+    );
+
+    check(
+      "JSON exit_code matches every subprocess exit code",
+      observedRuns.length >= 15 &&
+        observedRuns.every(
+          (result) =>
+            !result.parse_error &&
+            Number.isInteger(result.exit_code) &&
+            Number.isInteger(result._process_exit_code) &&
+            result.exit_code === result._process_exit_code &&
+            (result.ok ? result.exit_code === 0 : result.exit_code > 0),
+        ),
+    );
+  } catch (error: any) {
+    fail++;
+    console.log(`  FAIL self-test harness: ${error.message}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+
+  console.log(`\nself-test: ${pass} passed, ${fail} failed`);
+  return fail === 0 ? 0 : 1;
+}
+
+// Run the bridge in a subprocess so the self-test exercises the real binary
+// end to end: argv parsing, stdin delivery, process spawn, guards, and JSON.
+function captureRun(args: Record<string, string>, env: Record<string, string>): Promise<any> {
+  return new Promise((resolve) => {
+    const argv = ["run"];
+    for (const [key, value] of Object.entries(args)) argv.push(`--${key}`, value);
+    const child = spawn(process.execPath, [__filename, ...argv], {
+      env: { ...process.env, ...env },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (data) => (stdout += data.toString()));
+    child.stderr.on("data", (data) => (stderr += data.toString()));
+    child.on("close", (code) => {
+      try {
+        resolve({
+          ...JSON.parse(stdout.trim().split("\n").pop() as string),
+          _process_exit_code: code,
+          _process_stderr: stderr,
+        });
+      } catch {
+        resolve({ parse_error: true, raw: stdout, stderr, _process_exit_code: code });
+      }
+    });
+  });
+}
+
+// ── Entry ─────────────────────────────────────────────────────────────────
+const [cmd, ...rest] = process.argv.slice(2);
+switch (cmd) {
+  case "run":
+    process.exitCode = await cmdRun(parseArgs(rest));
+    break;
+  case "status": {
+    const { exhausted, until } = codexExhausted();
+    console.log(JSON.stringify({ codex_exhausted: exhausted, resets: until }));
+    break;
+  }
+  case "reset":
+    if (existsSync(EXHAUSTED_FLAG)) unlinkSync(EXHAUSTED_FLAG);
+    console.log(JSON.stringify({ reset: true }));
+    break;
+  case "doctor":
+    process.exitCode = cmdDoctor(rest.includes("--json"));
+    break;
+  case "init": {
+    const { positionals, flags } = splitArgs(rest);
+    process.exitCode = cmdInit(positionals, flags);
+    break;
+  }
+  case "history": {
+    const { flags } = splitArgs(rest);
+    process.exitCode = cmdHistory(flags);
+    break;
+  }
+  case "--self-test":
+  case "selftest":
+    process.exitCode = await cmdSelftest();
+    break;
+  default:
+    console.error(
+      "usage: omega-duo <run|status|reset|doctor|init|history|selftest> [--task f --cwd d --mode m --agent codex|claude|glm --verify cmd]",
+    );
+    process.exit(2);
+}

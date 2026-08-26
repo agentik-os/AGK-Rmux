@@ -1,0 +1,34 @@
+Health & Energy OS — Logical data model
+
+ENTITIES
+- health_profile
+- daily_readiness
+- health_observation
+- intervention
+- experiment
+- health_alert
+
+RELATIONSHIPS
+- health_profile HAS daily_readiness
+- experiment USES health_observation
+- intervention TARGETS health_profile goal
+- health_alert MAY STOP intervention
+- daily_readiness CONSTRAINS execution plan
+
+GLOBAL FIELDS
+- id
+- created_at
+- updated_at
+- source
+- confidence
+- owner / subject where applicable
+- consent / access policy where sensitive
+
+EVENTS
+- health.observation.captured
+- readiness.assessed
+- experiment.started
+- experiment.stopped
+- health.alert.created
+- handoff.execution.capacity
+- handoff.habits.created
