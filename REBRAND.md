@@ -25,5 +25,8 @@ stays the current public line until the rename is done on purpose.
 - `npx omega-os` package
 - install paths that still say OmegaOS in user-facing copy
 - CI badges still pointing at `agentik-os/OmegaOS`
+- GitHub Actions (`.github/workflows`) — first push omitted them because
+  the GitHub token lacked the `workflow` scope. Copy from OmegaOS after
+  `gh auth refresh -s workflow`, then push.
 
 Do not silently migrate anyone's existing `~/.omega` tree.
