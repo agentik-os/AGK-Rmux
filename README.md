@@ -1,4 +1,14 @@
+<p align="center"><a href="https://discord.gg/agentik-os"><img src="https://img.shields.io/badge/Discord-Agentik_OS-c5f277?style=flat-square&amp;labelColor=10161c" alt="Agentik OS community"></a></p>
+
+<p align="center"><img src="docs/assets/readme/ecosystem-hero.svg" width="880" alt="AGK-Rmux · A control plane for durable agent work."></p>
+
 # AGK-Rmux
+
+[Install](#guide-1) · [Updating](#guide-2) · [First 5 minutes](#guide-3) · [What you can do](#guide-4)
+
+> Follow the installation and limits sections, using your own machine and provider accounts. Historical OmegaOS material below documents the shared lineage; it does not grant access to an existing fleet.
+
+<p align="center"><img src="docs/assets/readme/ecosystem-flow.svg" width="880" alt="Intent → Orchestration → Runtime → Evidence. System overview. Authenticate your own providers after installation."></p>
 
 **Agentik OS (AGK)** — control plane on [rmux](https://github.com/agentik-os/rmux).
 
@@ -25,6 +35,7 @@ OmegaOS is not a library you import. You install it on a Linux box and you get t
 
 Current version: see [CHANGELOG.md](CHANGELOG.md) (`omega -V` on an installed box). I run it daily; expect rough edges.
 
+<a id="guide-1"></a>
 ## Install
 
 One command on a Linux box (macOS mostly works):
@@ -43,6 +54,7 @@ cd OmegaOS
 
 The installer downloads prebuilt `rmux` + `omega` + `omega-gatewayd` binaries for your platform when a release is published (verified by checksum), and falls back to building from source otherwise — so a fresh clone always reproduces the system, just faster when a binary exists. Force a source build with `OMEGA_FROM_SOURCE=1 ./install.sh`.
 
+<a id="guide-2"></a>
 ## Updating
 
 ```
@@ -71,6 +83,7 @@ omega config set auto_update check   # alert me instead of installing
 omega config set auto_update off     # do nothing at all
 ```
 
+<a id="guide-3"></a>
 ## First 5 minutes
 
 The stack installs itself; only the personal pieces are left. **`omega guide`
@@ -98,6 +111,7 @@ OmegaOS doctor
 
 `[!]` lines are warnings with the repair command inline; `omega doctor --fix` repairs the mechanical ones.
 
+<a id="guide-4"></a>
 ## What you can do
 
 - **Dispatch missions.** `omega dispatch <Project> "<mission>"` hands work to that project's oracle, which plans, spawns workers, and gates the result. `omega orchestrate` runs the full classify → plan → dispatch → monitor → gate pipeline in one command.
@@ -115,6 +129,7 @@ OmegaOS doctor
 
 Three ways in: the `ratatui` TUI (7 tabs: Sessions, Projects, OS, Menu, System, Help, Settings — opening a project offers Coding, Marketing, or the Oracle, each under any installed LLM agent), the `omega` CLI (`omega --help` is the live command inventory), and the Telegram hub. An RPC mode (JSONL over stdin/stdout) drives it from other tools. Underneath, it all runs on [rmux](https://github.com/agentik-os/rmux), a Rust terminal multiplexer — no tmux dependency.
 
+<a id="guide-5"></a>
 ## The OS suite
 
 OmegaOS registers 24 canonical operative-system products under [`OS/`](OS/),
@@ -124,6 +139,7 @@ filesystem evidence; those labels are not claims that an OS has passed live
 runtime verification. See the canonical registry and alias table in
 [`docs/OS-SUITE.md`](docs/OS-SUITE.md).
 
+<a id="guide-6"></a>
 ## The doctrine
 
 There's a typed registry of 7 Laws and 52 named operational Rules. `omega rules list` prints the current set. The compiler lives in `crates/omega-core/src/rules.rs`; it emits a deterministic, provider-aware context with a hard 24 KB OmegaOS budget.
@@ -154,6 +170,7 @@ omega rules list
 
 ![omega rules list — the Laws and Rules, printed by OmegaOS](assets/omega-rules.svg)
 
+<a id="guide-7"></a>
 ## Architecture
 
 Four levels, top to bottom:
@@ -241,6 +258,7 @@ omega risk-gate deny    <graph.json> <node> --approver "<who>"
 
 The graph itself is a library primitive in `omega-core` (`graph.rs` for the vocabulary, `graph_executor.rs` for the decision core, `graph_risk.rs` for the gate), not a CLI surface: `omega risk-gate` is the operator-facing half. The core is deliberately pure, with no process spawn, no network, no filesystem and no clock anywhere in it, which is the only reason a mission replays from persisted state and reaches the same decisions on another machine. `docs/GRAPH-EXECUTION-LAYER.md` is the full contract.
 
+<a id="guide-8"></a>
 ## Stack
 
 It's a Rust-first workspace with four members:
@@ -255,6 +273,7 @@ Underneath, it runs on [rmux](https://github.com/agentik-os/rmux), a Rust termin
 Bun and TypeScript power the Telegram bots and supporting scripts. Shell is
 used for bootstrap and operational wrappers; Rust remains the primary runtime.
 
+<a id="guide-9"></a>
 ## Connecting remotely
 
 The rmux daemon owns every session, so your agents keep running after you disconnect. To get back to them, **attach** — reconnect your terminal to a session that's already running:
@@ -288,6 +307,7 @@ In a client like **Termius**: set the host IP + port, turn the **mosh** toggle o
 
 (Use rmux's `Alt+Up/Down` for scrollback, not mosh's PageUp.) The installer also wires `/etc/rmux.conf` and a UTF-8 locale system-wide, so every account — root and future users — gets the same hardened session (mouse scroll, drag-select to the local clipboard over SSH, snappy keys, truecolor) with no per-user setup.
 
+<a id="guide-10"></a>
 ## Linear integration
 
 If you track user feedback in [Linear](https://linear.app), OmegaOS resolves the tickets end to end. Two commands.
@@ -304,6 +324,7 @@ omega_dir=~/.omega          # the protocol ships to ~/.omega/skills/linear/
 /omg-linear                 # resolve open tickets: fix -> audit -> comment -> In Review
 ```
 
+<a id="guide-11"></a>
 ## Limits
 
 I'd rather you know these going in.
@@ -314,6 +335,7 @@ I'd rather you know these going in.
 - **Single machine.** The rmux daemon is local. There's no multi-host orchestration.
 - It's 0.1.x. I use it daily, but you'll find rough edges I haven't hit yet.
 
+<a id="guide-12"></a>
 ## Read GUIDE.md next
 
 **[GUIDE.md](GUIDE.md)** is the operator manual: the vocabulary (mission, oracle, worker, goal, plan, Atlas), the three cockpits, your first missions, the skill catalog, and how work gets verified. Then go deeper:
@@ -326,6 +348,7 @@ I'd rather you know these going in.
 - [docs/RESET-RECOVERY.md](docs/RESET-RECOVERY.md) — backup and rebuild a box.
 - [CHANGELOG.md](CHANGELOG.md) — what shipped, release by release.
 
+<a id="guide-13"></a>
 ## Credits
 
 OmegaOS builds on a lot of other people's work:
@@ -343,6 +366,13 @@ The rest of the Rust stack:
 
 [Claude Code](https://www.anthropic.com) by Anthropic is the agent runtime.
 
+<a id="guide-14"></a>
 ## License
 
 Dual licensed under either of [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at your option. Standard Rust convention. Pick whichever you prefer.
+
+---
+
+**Community and licensing** · [Discord](https://discord.gg/agentik-os) · [LICENSE-APACHE](LICENSE-APACHE) · [LICENSE-MIT](LICENSE-MIT)
+
+Illustrative visuals, not live telemetry. Service access and secrets belong to each installation.
